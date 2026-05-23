@@ -1,0 +1,22 @@
+# Data & large files
+Gold Data/
+Raw Data/
+Silver Data/
+Models/
+*.parquet
+*.pkl
+*.csv
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# IDE & OS
+.claude/
+.idea/
+*.DS_Store
+
+# Debug artefacts
+kinneret_app/offset lake.png
