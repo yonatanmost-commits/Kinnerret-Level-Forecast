@@ -383,6 +383,40 @@ def main():
 
     print("\nDone.")
 
+    # 9. Restart Streamlit so the dashboard picks up the new data and models
+    restart_streamlit()
+
+
+def restart_streamlit():
+    """Kill any Streamlit processes on port 8501 and start a fresh instance."""
+    import subprocess
+    import time
+
+    print("\nRestarting Streamlit dashboard ...")
+    try:
+        result = subprocess.run(["netstat", "-ano"], capture_output=True, text=True)
+        pids = {
+            line.strip().split()[-1]
+            for line in result.stdout.splitlines()
+            if ":8501 " in line and "LISTENING" in line
+        }
+        for pid in pids:
+            subprocess.run(["taskkill", "/F", "/PID", pid], capture_output=True)
+            print(f"  Killed PID {pid}")
+        if pids:
+            time.sleep(1)
+    except Exception as e:
+        print(f"  Warning: could not kill old processes: {e}")
+
+    app_path = BASE_DIR / "kinneret_app" / "app.py"
+    subprocess.Popen(
+        [sys.executable, "-m", "streamlit", "run", str(app_path),
+         "--server.port", "8501", "--server.headless", "true"],
+        cwd=str(BASE_DIR),
+        creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW,
+    )
+    print("  Streamlit restarted — http://localhost:8501")
+
 
 if __name__ == "__main__":
     main()
