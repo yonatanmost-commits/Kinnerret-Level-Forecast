@@ -219,7 +219,7 @@ def fit_vol2level_poly() -> list:
     fitted = np.polyval(coeffs, vol[mask].values)
     r2_val = 1 - np.sum((lvl[mask].values - fitted) ** 2) / \
                  np.sum((lvl[mask].values - lvl[mask].mean()) ** 2)
-    print(f"  Bathy poly (vol→level) deg-2  R²={r2_val:.5f}")
+    print(f"  Bathy poly (vol->level) deg-2  R2={r2_val:.5f}")
     return coeffs.tolist()
 
 
@@ -722,10 +722,10 @@ def main():
     # 1. Load data
     print("\nLoading gold features ...")
     df = load_data()
-    print(f"  {len(df):,} rows  ({df['date'].min().date()} → {df['date'].max().date()})")
+    print(f"  {len(df):,} rows  ({df['date'].min().date()} to {df['date'].max().date()})")
 
     # 2. Bathymetric polynomial
-    print("\nFitting bathymetric polynomial (volume → level) ...")
+    print("\nFitting bathymetric polynomial (volume -> level) ...")
     bathy_coeffs = fit_vol2level_poly()
 
     # 3. Walk-forward CV
