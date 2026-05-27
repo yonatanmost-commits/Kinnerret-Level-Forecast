@@ -715,6 +715,7 @@ def create_forecast_template(df: pd.DataFrame) -> Path:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main():
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     print("=" * 60)
     print("Kinneret forecast model — training pipeline")
     print("=" * 60)
