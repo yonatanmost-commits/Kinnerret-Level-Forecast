@@ -34,6 +34,9 @@ from model_lib import (
     log_transform, inv_log_transform,
     signed_log1p_transform, inv_signed_log1p_transform,
 )
+import xgboost as xgb
+import lightgbm as lgb
+from gru_model import GRUTrainer
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Paths
@@ -310,6 +313,109 @@ def run_cv(df: pd.DataFrame):
         )
 
     return cv_results, oof_s1
+
+
+def run_cv_xgb(df: pd.DataFrame, bathy_coeffs: list):
+    """Walk-forward CV for the XGBoost direct multi-step challenger."""
+    print("\n=== XGBoost CV ===")
+    cv_results = []
+
+    for fold_name, train_yrs, test_yr in CV_FOLDS:
+        tr = df[df["date"].dt.year.isin(train_yrs)].copy()
+        te = df[df["date"].dt.year == test_yr].copy()
+
+        # ── Stage 1 direct ───────────────────────────────────────────────
+        tr_s1 = build_direct_s1_data(tr).dropna(
+            subset=S1_DIRECT_FEATURES + [S1_TARGET])
+        te_s1_all = build_direct_s1_data(te)   # keep all rows for alignment
+
+        xgb_s1 = xgb.XGBRegressor(
+            n_estimators=300, max_depth=4, learning_rate=0.05,
+            subsample=0.8, colsample_bytree=0.8, verbosity=0,
+            random_state=42)
+        xgb_s1.fit(tr_s1[S1_DIRECT_FEATURES], tr_s1[S1_TARGET])
+
+        # Predict on all te_s1 rows (XGBoost handles NaN natively)
+        te_inflow_pred = np.clip(
+            xgb_s1.predict(te_s1_all[S1_DIRECT_FEATURES].values), 0, None)
+
+        te_s1_clean = te_s1_all.dropna(subset=S1_DIRECT_FEATURES + [S1_TARGET])
+        s1_r2_val = r2(
+            te_s1_clean[S1_TARGET].values,
+            np.clip(xgb_s1.predict(te_s1_clean[S1_DIRECT_FEATURES].values), 0, None))
+
+        # ── Stage 2 direct ───────────────────────────────────────────────
+        tr_s2 = build_direct_s2_data(tr).dropna(
+            subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+        te_s2_all = build_direct_s2_data(te)
+
+        # Inject XGB S1 predictions as predicted_inflow (1:1 row alignment)
+        te_s2_all = te_s2_all.copy()
+        te_s2_all["predicted_inflow_m3"] = te_inflow_pred
+
+        xgb_s2 = xgb.XGBRegressor(
+            n_estimators=300, max_depth=4, learning_rate=0.05,
+            subsample=0.8, colsample_bytree=0.8, verbosity=0,
+            random_state=42)
+        xgb_s2.fit(tr_s2[S2_DIRECT_FEATURES], tr_s2[S2_DIRECT_TARGET])
+
+        te_s2_clean = te_s2_all.dropna(
+            subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+        p2 = xgb_s2.predict(te_s2_clean[S2_DIRECT_FEATURES].values)
+
+        s2_r2_val  = r2( te_s2_clean[S2_DIRECT_TARGET].values, p2)
+        s2_mae_val = mae(te_s2_clean[S2_DIRECT_TARGET].values, p2)
+
+        # ── 7-day drift ──────────────────────────────────────────────────
+        preds_df = te_s2_all.copy()
+        preds_df["pred_dvol"] = xgb_s2.predict(
+            te_s2_all[S2_DIRECT_FEATURES].values)
+        drift = _mean_7d_drift(df, preds_df[["date", "horizon_h", "pred_dvol"]],
+                               bathy_coeffs)
+
+        cv_results.append({
+            "fold":        fold_name,
+            "n_test":      int(len(te_s2_clean)),
+            "s1_r2":       round(s1_r2_val, 3),
+            "s2_r2":       round(s2_r2_val, 3),
+            "s2_mae":      round(s2_mae_val, 3),
+            "drift_m":     round(drift, 4),
+        })
+        print(f"  {fold_name}:  S1 R²={s1_r2_val:.3f}  |  "
+              f"S2 R²={s2_r2_val:.3f}  MAE={s2_mae_val:.3f}  "
+              f"drift={drift:.4f} m")
+
+    return cv_results
+
+
+def train_final_xgb(df: pd.DataFrame, oof_s1: pd.Series):
+    """Train final XGBoost models on all available data."""
+    print("\n  XGBoost final training ...")
+    df2 = df.copy()
+    df2["predicted_inflow_m3"] = oof_s1.combine_first(df[S1_TARGET])
+
+    s1_data = build_direct_s1_data(df).dropna(
+        subset=S1_DIRECT_FEATURES + [S1_TARGET])
+    xgb_s1 = xgb.XGBRegressor(
+        n_estimators=300, max_depth=4, learning_rate=0.05,
+        subsample=0.8, colsample_bytree=0.8, verbosity=0, random_state=42)
+    xgb_s1.fit(s1_data[S1_DIRECT_FEATURES], s1_data[S1_TARGET])
+
+    s2_data = build_direct_s2_data(df2).dropna(
+        subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+    xgb_s2 = xgb.XGBRegressor(
+        n_estimators=300, max_depth=4, learning_rate=0.05,
+        subsample=0.8, colsample_bytree=0.8, verbosity=0, random_state=42)
+    xgb_s2.fit(s2_data[S2_DIRECT_FEATURES], s2_data[S2_DIRECT_TARGET])
+
+    import pickle
+    MODELS_DIR.mkdir(exist_ok=True)
+    with open(MODELS_DIR / "xgb_s1_direct.pkl", "wb") as f:
+        pickle.dump(xgb_s1, f)
+    with open(MODELS_DIR / "xgb_s2_direct.pkl", "wb") as f:
+        pickle.dump(xgb_s2, f)
+    print(f"  Saved xgb_s1_direct.pkl  xgb_s2_direct.pkl")
+    return xgb_s1, xgb_s2
 
 
 # ─────────────────────────────────────────────────────────────────────────────
