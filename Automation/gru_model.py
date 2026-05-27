@@ -231,6 +231,8 @@ class GRUTrainer:
             inf_tgts = inf_tgts[mask]; dv_tgts = dv_tgts[mask]
             anc_idx  = anc_idx[mask]
 
+        if self.model is None:
+            raise RuntimeError("GRUTrainer has no model — call fit() or load() first.")
         self.model.eval()
         dev = self.device
         with torch.no_grad():
@@ -247,6 +249,8 @@ class GRUTrainer:
 
     # ------------------------------------------------------------------
     def save(self, path: str | Path) -> None:
+        if self.model is None:
+            raise RuntimeError("GRUTrainer has no model — call fit() or load() first.")
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         torch.save({
             "model_state": self.model.state_dict(),
@@ -257,7 +261,7 @@ class GRUTrainer:
 
     @classmethod
     def load(cls, path: str | Path) -> "GRUTrainer":
-        ckpt    = torch.load(path, map_location="cpu", weights_only=False)
+        ckpt    = torch.load(path, map_location="cpu", weights_only=True)
         trainer = cls(epochs=ckpt["epochs"], lr=ckpt["lr"])
         trainer.model = KinneretGRU()
         trainer.model.load_state_dict(ckpt["model_state"])
