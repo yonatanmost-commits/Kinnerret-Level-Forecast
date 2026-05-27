@@ -145,9 +145,9 @@ if winner != "baseline_gbr":
     <div class="winner-box">
       <div class="winner-name">{DISPLAY_NAMES.get(winner, winner)}</div>
       <div style="margin-top:0.5rem;font-size:0.9rem;color:#E0E0E0">
-        R² = <strong>{win_entry.get("cv_vol_r2_mean"):.3f}</strong>
+        R² = <strong>{_fmt(win_entry.get("cv_vol_r2_mean"))}</strong>
         &nbsp;|&nbsp;
-        MAE = <strong>{win_entry.get("cv_vol_mae_mean"):.3f} Mm³/day</strong>
+        MAE = <strong>{_fmt(win_entry.get("cv_vol_mae_mean"))} Mm³/day</strong>
         &nbsp;|&nbsp;
         vs baseline:
         <span class="{r2_class}">{r2_sign}{r2_delta:.3f} R²</span>
