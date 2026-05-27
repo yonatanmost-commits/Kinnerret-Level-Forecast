@@ -418,6 +418,101 @@ def train_final_xgb(df: pd.DataFrame, oof_s1: pd.Series):
     return xgb_s1, xgb_s2
 
 
+def run_cv_lgb(df: pd.DataFrame, bathy_coeffs: list):
+    """Walk-forward CV for the LightGBM direct multi-step challenger."""
+    print("\n=== LightGBM CV ===")
+    cv_results = []
+
+    for fold_name, train_yrs, test_yr in CV_FOLDS:
+        tr = df[df["date"].dt.year.isin(train_yrs)].copy()
+        te = df[df["date"].dt.year == test_yr].copy()
+
+        tr_s1      = build_direct_s1_data(tr).dropna(
+            subset=S1_DIRECT_FEATURES + [S1_TARGET])
+        te_s1_all  = build_direct_s1_data(te)
+
+        lgb_s1 = lgb.LGBMRegressor(
+            n_estimators=300, max_depth=4, learning_rate=0.05,
+            subsample=0.8, colsample_bytree=0.8,
+            verbosity=-1, random_state=42)
+        lgb_s1.fit(tr_s1[S1_DIRECT_FEATURES], tr_s1[S1_TARGET])
+
+        te_inflow_pred = np.clip(
+            lgb_s1.predict(te_s1_all[S1_DIRECT_FEATURES].values), 0, None)
+
+        te_s1_clean = te_s1_all.dropna(subset=S1_DIRECT_FEATURES + [S1_TARGET])
+        s1_r2_val = r2(
+            te_s1_clean[S1_TARGET].values,
+            np.clip(lgb_s1.predict(te_s1_clean[S1_DIRECT_FEATURES].values), 0, None))
+
+        tr_s2     = build_direct_s2_data(tr).dropna(
+            subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+        te_s2_all = build_direct_s2_data(te).copy()
+        te_s2_all["predicted_inflow_m3"] = te_inflow_pred
+
+        lgb_s2 = lgb.LGBMRegressor(
+            n_estimators=300, max_depth=4, learning_rate=0.05,
+            subsample=0.8, colsample_bytree=0.8,
+            verbosity=-1, random_state=42)
+        lgb_s2.fit(tr_s2[S2_DIRECT_FEATURES], tr_s2[S2_DIRECT_TARGET])
+
+        te_s2_clean = te_s2_all.dropna(
+            subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+        p2 = lgb_s2.predict(te_s2_clean[S2_DIRECT_FEATURES].values)
+
+        s2_r2_val  = r2( te_s2_clean[S2_DIRECT_TARGET].values, p2)
+        s2_mae_val = mae(te_s2_clean[S2_DIRECT_TARGET].values, p2)
+
+        preds_df = te_s2_all.copy()
+        preds_df["pred_dvol"] = lgb_s2.predict(
+            te_s2_all[S2_DIRECT_FEATURES].values)
+        drift = _mean_7d_drift(df, preds_df[["date", "horizon_h", "pred_dvol"]],
+                               bathy_coeffs)
+
+        cv_results.append({
+            "fold": fold_name, "n_test": int(len(te_s2_clean)),
+            "s1_r2": round(s1_r2_val, 3),
+            "s2_r2": round(s2_r2_val, 3),
+            "s2_mae": round(s2_mae_val, 3),
+            "drift_m": round(drift, 4),
+        })
+        print(f"  {fold_name}:  S1 R²={s1_r2_val:.3f}  |  "
+              f"S2 R²={s2_r2_val:.3f}  MAE={s2_mae_val:.3f}  "
+              f"drift={drift:.4f} m")
+
+    return cv_results
+
+
+def train_final_lgb(df: pd.DataFrame, oof_s1: pd.Series):
+    """Train final LightGBM models on all available data."""
+    print("\n  LightGBM final training ...")
+    df2 = df.copy()
+    df2["predicted_inflow_m3"] = oof_s1.combine_first(df[S1_TARGET])
+
+    s1_data = build_direct_s1_data(df).dropna(
+        subset=S1_DIRECT_FEATURES + [S1_TARGET])
+    lgb_s1 = lgb.LGBMRegressor(
+        n_estimators=300, max_depth=4, learning_rate=0.05,
+        subsample=0.8, colsample_bytree=0.8, verbosity=-1, random_state=42)
+    lgb_s1.fit(s1_data[S1_DIRECT_FEATURES], s1_data[S1_TARGET])
+
+    s2_data = build_direct_s2_data(df2).dropna(
+        subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+    lgb_s2 = lgb.LGBMRegressor(
+        n_estimators=300, max_depth=4, learning_rate=0.05,
+        subsample=0.8, colsample_bytree=0.8, verbosity=-1, random_state=42)
+    lgb_s2.fit(s2_data[S2_DIRECT_FEATURES], s2_data[S2_DIRECT_TARGET])
+
+    import pickle
+    MODELS_DIR.mkdir(exist_ok=True)
+    with open(MODELS_DIR / "lgb_s1_direct.pkl", "wb") as f:
+        pickle.dump(lgb_s1, f)
+    with open(MODELS_DIR / "lgb_s2_direct.pkl", "wb") as f:
+        pickle.dump(lgb_s2, f)
+    print(f"  Saved lgb_s1_direct.pkl  lgb_s2_direct.pkl")
+    return lgb_s1, lgb_s2
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Final model training
 # ─────────────────────────────────────────────────────────────────────────────
