@@ -30,6 +30,7 @@ from model_lib import (
     S1_FEATURES, S1_TARGET,
     S2_FEATURES, S2_TARGET,
     S2_MET_FEATURES, S2_DIRECT_FEATURES, S2_DIRECT_TARGET,
+    S1_DIRECT_FEATURES,
     log_transform, inv_log_transform,
     signed_log1p_transform, inv_signed_log1p_transform,
 )
@@ -101,6 +102,73 @@ def build_direct_s2_data(df: pd.DataFrame) -> pd.DataFrame:
         pieces.append(p)
 
     return pd.concat(pieces, ignore_index=True)
+
+
+def build_direct_s1_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Build horizon-aware Stage-1 training data (7x rows).
+
+    For each anchor row t and horizon h in 1..7:
+      - Met/rain/seasonality features come from t+h (df shifted by -h)
+      - inflow_anchor_m3 = actual inflow at t  (never updated — no chaining)
+      - horizon_h = h
+      - target (S1_TARGET) = inflow_obstacle_m3 at t+h
+    """
+    anchor_features = {"inflow_anchor_m3", "horizon_h"}
+    met_cols = [c for c in S1_DIRECT_FEATURES if c not in anchor_features]
+
+    pieces = []
+    for h in range(1, 8):
+        p = pd.DataFrame()
+        p["date"] = df["date"]
+        for col in met_cols:
+            p[col] = df[col].shift(-h) if col in df.columns else np.nan
+        p["inflow_anchor_m3"] = df["inflow_obstacle_m3"].values
+        p["horizon_h"]        = float(h)
+        p[S1_TARGET]          = df[S1_TARGET].shift(-h)
+        pieces.append(p)
+
+    return pd.concat(pieces, ignore_index=True)
+
+
+def _mean_7d_drift(full_df: pd.DataFrame,
+                   preds_df: pd.DataFrame,
+                   bathy_coeffs: list) -> float:
+    """
+    Mean absolute lake-level error at the end of every 7-day forecast window.
+
+    full_df   : complete gold DataFrame (needs 'date', 'volume_Mm3', 'level_m')
+    preds_df  : DataFrame with columns:
+                  'date'      — anchor date (pd.Timestamp)
+                  'horizon_h' — 1..7 (float)
+                  'pred_dvol' — predicted volume_change_Mm3
+    bathy_coeffs : vol→level polynomial (from meta["bathy_vol2level_coeffs"])
+
+    Returns mean drift in metres, or NaN if no complete 7-day windows found.
+    """
+    vol_map = full_df.set_index("date")["volume_Mm3"]
+    lvl_map = full_df.set_index("date")["level_m"]
+
+    drifts = []
+    for anchor_date, grp in preds_df.groupby("date"):
+        grp = grp.sort_values("horizon_h")
+        if len(grp) < 7:
+            continue
+        anchor_ts  = pd.Timestamp(anchor_date)
+        anchor_vol = vol_map.get(anchor_ts)
+        if anchor_vol is None or np.isnan(float(anchor_vol)):
+            continue
+        pred_cum_dvol = float(grp["pred_dvol"].sum())
+        pred_vol_7    = float(anchor_vol) + pred_cum_dvol
+        pred_lvl_7    = float(np.polyval(bathy_coeffs, pred_vol_7))
+
+        target_ts    = anchor_ts + pd.Timedelta(days=7)
+        actual_lvl_7 = lvl_map.get(target_ts)
+        if actual_lvl_7 is None or np.isnan(float(actual_lvl_7)):
+            continue
+        drifts.append(abs(pred_lvl_7 - float(actual_lvl_7)))
+
+    return float(np.mean(drifts)) if drifts else float("nan")
 
 
 def load_data() -> pd.DataFrame:
