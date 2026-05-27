@@ -109,6 +109,30 @@ S2_DIRECT_FEATURES = S2_MET_FEATURES + [
 ]
 S2_DIRECT_TARGET = "volume_change_Mm3"
 
+# Direct multi-step Stage-1 feature set.
+# Replaces chained inflow lags with a fixed anchor inflow at day 0.
+S1_DIRECT_FEATURES = [
+    "rainfall_mm",
+    "rainfall_lag1_mm",
+    "rainfall_lag2_mm",
+    "rainfall_lag3_mm",
+    "rainfall_7d_mm",
+    "rainfall_14d_mm",
+    "rainfall_21d_mm",
+    "moisture_balance_7d_mm",
+    "moisture_balance_14d_mm",
+    "temp_mean_C",
+    "temp_min_C",
+    "humidity_pct",
+    "vpd_kPa",
+    "et0_mm",
+    "inflow_anchor_m3",   # actual inflow at anchor day (day 0); never chained
+    "horizon_h",          # 1 … 7 (which forecast day)
+    "season_sin",
+    "season_cos",
+]
+# S1_DIRECT_TARGET is the same as S1_TARGET = "inflow_obstacle_m3"
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Target transforms  (applied before fitting, inverted after predicting)
