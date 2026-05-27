@@ -656,9 +656,9 @@ def save_olympics_results(baseline: dict,
         drift = [r["drift_m"] for r in cv_list if r.get("drift_m") is not None]
         s1r2s = [r["s1_r2"]   for r in cv_list if r.get("s1_r2") is not None]
         return {
-            "cv_vol_r2_mean":    round(float(np.mean(r2s)),  3),
+            "cv_vol_r2_mean":    round(float(np.mean(r2s)),  3) if r2s  else None,
             "cv_vol_r2_by_fold": {r["fold"]: r["s2_r2"] for r in cv_list},
-            "cv_vol_mae_mean":   round(float(np.mean(maes)), 3),
+            "cv_vol_mae_mean":   round(float(np.mean(maes)), 3) if maes else None,
             "cv_7d_drift_mean_m": round(float(np.mean(drift)), 4) if drift else None,
             "cv_inflow_r2_mean": round(float(np.mean(s1r2s)), 3) if s1r2s else None,
         }
