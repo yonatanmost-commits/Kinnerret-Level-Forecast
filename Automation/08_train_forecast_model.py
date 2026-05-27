@@ -623,6 +623,71 @@ def train_final(df: pd.DataFrame, oof_s1: pd.Series):
     return gb1, gb2, gb2d
 
 
+def _read_baseline_from_meta() -> dict:
+    """
+    Read baseline CV metrics from the existing model_metadata.json.
+    Returns a dict in the same shape used for challenger entries.
+    """
+    meta_path = MODELS_DIR / "model_metadata.json"
+    if not meta_path.exists():
+        return {}
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+
+    folds = {r["fold"]: r["s2_r2"] for r in meta.get("cv_results", [])}
+    maes  = [r["s2_mae_Mm3"] for r in meta.get("cv_results", [])]
+    return {
+        "cv_vol_r2_mean":    round(float(meta.get("cv_s2_mean_r2", 0.0)), 3),
+        "cv_vol_r2_by_fold": folds,
+        "cv_vol_mae_mean":   round(float(np.mean(maes)) if maes else 0.0, 3),
+        "cv_7d_drift_mean_m": None,
+        "cv_inflow_r2_mean": None,
+    }
+
+
+def save_olympics_results(baseline: dict,
+                          xgb_cv: list, lgb_cv: list, gru_cv: list,
+                          df: pd.DataFrame) -> None:
+    """Collate CV results from all models and write olympics_results.json."""
+
+    def _summarise(cv_list: list) -> dict:
+        r2s   = [r["s2_r2"]   for r in cv_list]
+        maes  = [r["s2_mae"]  for r in cv_list]
+        drift = [r["drift_m"] for r in cv_list if r.get("drift_m") is not None]
+        s1r2s = [r["s1_r2"]   for r in cv_list if r.get("s1_r2") is not None]
+        return {
+            "cv_vol_r2_mean":    round(float(np.mean(r2s)),  3),
+            "cv_vol_r2_by_fold": {r["fold"]: r["s2_r2"] for r in cv_list},
+            "cv_vol_mae_mean":   round(float(np.mean(maes)), 3),
+            "cv_7d_drift_mean_m": round(float(np.mean(drift)), 4) if drift else None,
+            "cv_inflow_r2_mean": round(float(np.mean(s1r2s)), 3) if s1r2s else None,
+        }
+
+    models = {
+        "baseline_gbr": baseline,
+        "xgboost":      _summarise(xgb_cv),
+        "lgbm":         _summarise(lgb_cv),
+        "gru":          _summarise(gru_cv),
+    }
+
+    # Declare winner by highest mean CV R² on volume change
+    winner = max(models, key=lambda k: models[k].get("cv_vol_r2_mean", -1))
+
+    results = {
+        "generated_at": str(df["date"].max().date()),
+        "winner":       winner,
+        "models":       models,
+    }
+
+    out = MODELS_DIR / "olympics_results.json"
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+    print(f"\n  Saved: {out}")
+    print(f"  WINNER: {winner}  "
+          f"(R²={models[winner]['cv_vol_r2_mean']:.3f}  "
+          f"MAE={models[winner]['cv_vol_mae_mean']:.3f})")
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Forecast template
 # ─────────────────────────────────────────────────────────────────────────────
@@ -716,6 +781,30 @@ def main():
     print(f"\nForecast template: {tmpl}")
     print("  Fill in the weather forecast values and run:")
     print("  python Automation/09_weekly_forecast.py --forecast forecast_input_template.csv")
+
+    # ── Challenger models ────────────────────────────────────────────────────
+    print("\n" + "=" * 60)
+    print("Model Olympics — training challengers")
+    print("=" * 60)
+
+    # 6. Read baseline metrics
+    baseline_entry = _read_baseline_from_meta()
+
+    # 7. XGBoost
+    xgb_cv_results = run_cv_xgb(df, bathy_coeffs)
+    train_final_xgb(df, oof_s1)
+
+    # 8. LightGBM
+    lgb_cv_results = run_cv_lgb(df, bathy_coeffs)
+    train_final_lgb(df, oof_s1)
+
+    # 9. GRU
+    gru_cv_results = run_cv_gru(df, bathy_coeffs)
+    train_final_gru(df)
+
+    # 10. Save combined results
+    save_olympics_results(baseline_entry, xgb_cv_results,
+                          lgb_cv_results, gru_cv_results, df)
 
     print("\nDone.")
 
