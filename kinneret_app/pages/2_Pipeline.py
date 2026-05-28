@@ -1,3 +1,4 @@
+import subprocess
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -388,3 +389,28 @@ with tab_gold:
         st.caption("Red cells indicate missing data. The Baptist Site outflow gap is visible in 2025+.")
     else:
         st.success("No missing data in selected columns.")
+
+# ── Daily Refresh ──────────────────────────────────────────────────────────────
+st.markdown('<div class="kn-divider"></div>', unsafe_allow_html=True)
+st.subheader("Daily Data Refresh")
+st.markdown(
+    '<div class="kn-label">Fetch new data from all sources, rebuild gold, retrain champion</div>',
+    unsafe_allow_html=True,
+)
+
+if st.button("Run Daily Refresh", key="daily_refresh"):
+    agent_script = AUTOMATION / "daily_agent.py"
+    with st.spinner("Running daily agent (may take a few minutes)..."):
+        result = subprocess.run(
+            [sys.executable, str(agent_script)],
+            capture_output=True, text=True, cwd=str(PROJECT_ROOT),
+        )
+    if result.returncode == 0:
+        st.success("Daily agent completed successfully.")
+    else:
+        st.error("Daily agent finished with errors.")
+    if result.stdout:
+        st.code(result.stdout, language="text")
+    if result.stderr:
+        with st.expander("stderr"):
+            st.code(result.stderr, language="text")
