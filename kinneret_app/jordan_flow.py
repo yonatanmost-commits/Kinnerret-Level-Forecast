@@ -73,7 +73,6 @@ def fetch_new_flows(raw_csv_path: Path) -> pd.DataFrame:
     if df_daily.empty:
         return df_daily
 
-    df_daily["date"] = pd.to_datetime(df_daily["date"]).dt.date
     df_daily = df_daily[df_daily["date"] < date.today()]
     df_daily = df_daily[df_daily["date"] > last_date]
     return df_daily
