@@ -9,6 +9,7 @@ FLOW_DEFAULT_FROM = date(2026, 4, 1)
 _STATION_ID = "79"
 _PAGE_URL = "https://hydro.water.gov.il/index.php/?page=hydro_obs&lang=he"
 _OBS_URL = "https://hydro.water.gov.il/db_requests/get_hydro_observations_A7f3Q.php"
+_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
 FLOW_COLS = [
     "Date",
@@ -21,7 +22,7 @@ FLOW_COLS = [
 
 
 def _get_token(session: requests.Session) -> str:
-    r = session.get(_PAGE_URL, timeout=30)
+    r = session.get(_PAGE_URL, headers={"User-Agent": _UA}, timeout=30)
     r.raise_for_status()
     soup = BeautifulSoup(r.text, "html.parser")
     meta = soup.find("meta", {"name": "api-token"})
@@ -31,7 +32,17 @@ def _get_token(session: requests.Session) -> str:
 
 
 def _fetch_observations(session: requests.Session, token: str) -> dict:
-    r = session.post(_OBS_URL, headers={"X-SESSION-TOKEN": token}, timeout=30)
+    r = session.post(
+        _OBS_URL,
+        headers={
+            "X-SESSION-TOKEN": token,
+            "User-Agent": _UA,
+            "Referer": _PAGE_URL,
+            "Origin": "https://hydro.water.gov.il",
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        timeout=30,
+    )
     r.raise_for_status()
     return r.json()[0]
 
