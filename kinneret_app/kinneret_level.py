@@ -49,12 +49,15 @@ def fetch_new_levels(silver_csv_path: Path) -> pd.DataFrame:
     pairs = _parse_levels(html)
     if not pairs:
         return pd.DataFrame(columns=["date", "kinneret_level"])
-    return pd.DataFrame(pairs, columns=["date", "kinneret_level"])
+    df = pd.DataFrame(pairs, columns=["date", "kinneret_level"])
+    df = df[df["date"] > last_date]
+    return df
 
 
 def append_to_silver(df: pd.DataFrame, silver_csv_path: Path) -> int:
     if df.empty:
         return 0
     silver_csv_path = Path(silver_csv_path)
+    silver_csv_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(silver_csv_path, mode="a", header=not silver_csv_path.exists(), index=False)
     return len(df)
