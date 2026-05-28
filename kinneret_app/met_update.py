@@ -132,7 +132,6 @@ def fetch_new_met(silver_csv_path: Path) -> pd.DataFrame:
     df = _aggregate_daily(raw_df)
     if df.empty:
         return df
-    df["date"] = pd.to_datetime(df["date"]).dt.date
     df = df[df["date"] > last_date]
     df = df[df["date"] <= to_date]
     return df
