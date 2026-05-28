@@ -108,7 +108,7 @@ def test_fetch_new_flows_missing_csv_uses_default(tmp_path, monkeypatch):
         captured.append("token")
         return "tok"
 
-    def fake_obs(session, token):
+    def fake_obs(_session, _token):
         return {}
 
     monkeypatch.setattr(jf, "_get_token", fake_token)
