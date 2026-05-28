@@ -11,6 +11,7 @@ from app_utils import (
     load_gold, load_models, run_forecast_from_df, vol_to_level,
     COLOURS, LEVEL_LEGAL_MIN, LEVEL_LEGAL_MAX, PROJECT_ROOT,
 )
+from ims_forecast import fetch_tiberias_7day
 
 st.set_page_config(
     page_title="Live Forecast · Kinneret",
@@ -138,7 +139,7 @@ if "fc_data" not in st.session_state:
     st.session_state.fc_data = _default_fc_df()
 
 # ── Buttons ────────────────────────────────────────────────────────────────────
-b1, b2, b3 = st.columns(3)
+b1, b2, b3, b4 = st.columns(4)
 with b1:
     if st.button("Load template", width='stretch'):
         st.session_state.fc_data = _default_fc_df()
@@ -156,6 +157,14 @@ with b3:
     if st.button("Use last 7 days as test", width='stretch'):
         st.session_state.fc_data = _last7_df()
         st.rerun()
+with b4:
+    if st.button("Fetch from IMS", width='stretch'):
+        with st.spinner("Fetching IMS forecast…"):
+            try:
+                st.session_state.fc_data = fetch_tiberias_7day(fc_dates)
+                st.rerun()
+            except Exception as e:
+                st.error(f"IMS fetch failed: {e}")
 
 # ── Weather input editor ───────────────────────────────────────────────────────
 st.markdown('<div class="kn-label">Weather Forecast Input</div>', unsafe_allow_html=True)
