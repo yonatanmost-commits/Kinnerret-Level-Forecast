@@ -6,6 +6,7 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 from app_utils import load_gold, PROJECT_ROOT, COLOURS
+from kinneret_level import append_to_silver, fetch_new_levels
 
 st.set_page_config(
     page_title="Data Sources · Kinneret",
@@ -132,6 +133,22 @@ with tab_level:
             width='stretch', hide_index=True,
         )
         st.caption("(Showing from gold table — silver file not found at expected path)")
+
+    st.markdown('<div class="kn-divider"></div>', unsafe_allow_html=True)
+    if st.button("Refresh Level Data", key="refresh_level"):
+        with st.spinner("Fetching from kineret.org.il..."):
+            try:
+                df_new = fetch_new_levels(silver_level)
+                n = append_to_silver(df_new, silver_level)
+                if n > 0:
+                    d_min = df_new["date"].min()
+                    d_max = df_new["date"].max()
+                    st.success(f"Added {n} new readings ({d_min} to {d_max})")
+                    st.info("Re-run the pipeline (07 -> 08) to update the forecast model.")
+                else:
+                    st.success("Already up to date. No new readings.")
+            except Exception as e:
+                st.error(f"Fetch failed: {e}")
 
 # ── Tab C: Jordan River ────────────────────────────────────────────────────────
 with tab_jordan:
