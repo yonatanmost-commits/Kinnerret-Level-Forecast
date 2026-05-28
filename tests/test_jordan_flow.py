@@ -43,6 +43,16 @@ def test_aggregate_daily_ignores_missing_station():
     assert result.empty
 
 
+def test_aggregate_daily_baptism_site():
+    obs = {
+        "2026-05-27 06:00:00": {"316": [5.0, 1.0]},
+        "2026-05-27 06:10:00": {"316": [6.0, 1.1]},
+    }
+    result = _aggregate_daily(obs)
+    expected_mean = (5.0 + 6.0) / 2
+    assert result.iloc[0]["JORDAN - BAPTISM SITE"] == pytest.approx(expected_mean * 86400)
+
+
 # ── append_to_flow_raw ─────────────────────────────────────────────────────────
 
 @pytest.fixture
@@ -74,6 +84,17 @@ def test_append_to_flow_raw_row_written(raw_flow_csv):
     assert len(result) == 2
     assert str(result.iloc[1]["Date"]) == "2026-04-09"
     assert result.iloc[1]["JORDAN - OBSTACLE BRIDGE"] == pytest.approx(1400000.0)
+
+
+def test_append_to_flow_raw_writes_baptism_site(raw_flow_csv):
+    df = pd.DataFrame({
+        "date": [date(2026, 4, 9)],
+        "JORDAN - OBSTACLE BRIDGE": [1400000.0],
+        "JORDAN - BAPTISM SITE": [500000.0],
+    })
+    append_to_flow_raw(df, raw_flow_csv)
+    result = pd.read_csv(raw_flow_csv)
+    assert result.iloc[1]["JORDAN - BAPTISM SITE"] == pytest.approx(500000.0)
 
 
 def test_append_to_flow_raw_noop_on_empty(raw_flow_csv):
