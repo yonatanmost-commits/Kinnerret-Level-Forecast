@@ -12,8 +12,12 @@ SILVER_CSV = PROJECT_ROOT / "Silver Data" / "Kinneret Level" / "kinneret_level.c
 
 def main():
     if SILVER_CSV.exists():
-        last = pd.read_csv(SILVER_CSV, parse_dates=["date"])["date"].max().date()
-        print(f"Fetching Kinneret levels since {last} ...")
+        _max = pd.read_csv(SILVER_CSV, parse_dates=["date"])["date"].max()
+        last = None if pd.isna(_max) else _max.date()
+        if last:
+            print(f"Fetching Kinneret levels since {last} ...")
+        else:
+            print("Fetching Kinneret levels (silver CSV empty, fetching from 2024-01-01) ...")
     else:
         last = None
         print("Fetching Kinneret levels (silver CSV not found, fetching from 2024-01-01) ...")
