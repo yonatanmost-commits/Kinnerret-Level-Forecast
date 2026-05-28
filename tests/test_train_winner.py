@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "Automation"))
-import importlib.util, types
+import importlib.util
 
 # Import without executing __main__ block
 _spec = importlib.util.spec_from_file_location(
@@ -46,3 +46,25 @@ def test_train_winner_only_dispatches_correct_trainer(tmp_path, monkeypatch):
     monkeypatch.setattr(train_08, "train_final", lambda df, oof: called.append("gbr") or (None, None, None))
     train_08.train_winner_only()
     assert called == ["gbr"]
+
+
+@pytest.mark.parametrize("winner,fn_name", [
+    ("xgboost", "train_final_xgb"),
+    ("lgbm",    "train_final_lgb"),
+    ("gru",     "train_final_gru"),
+])
+def test_train_winner_only_dispatches_other_winners(tmp_path, monkeypatch, winner, fn_name):
+    monkeypatch.setattr(train_08, "MODELS_DIR", tmp_path)
+    (tmp_path / "olympics_results.json").write_text(
+        json.dumps({"winner": winner, "models": {}})
+    )
+    import pandas as pd, numpy as np
+    df = pd.DataFrame({
+        "date": pd.date_range("2020-01-01", periods=10),
+        "inflow_obstacle_m3": np.zeros(10),
+    })
+    monkeypatch.setattr(train_08, "load_data", lambda: df)
+    called = []
+    monkeypatch.setattr(train_08, fn_name, lambda *a, **kw: called.append(fn_name))
+    train_08.train_winner_only()
+    assert called == [fn_name]

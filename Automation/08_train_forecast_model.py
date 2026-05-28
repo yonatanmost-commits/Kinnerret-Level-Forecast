@@ -716,14 +716,16 @@ def create_forecast_template(df: pd.DataFrame) -> Path:
 
 def train_winner_only():
     """Read olympics_results.json and retrain only the winning model."""
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     olympics_path = MODELS_DIR / "olympics_results.json"
     if not olympics_path.exists():
         raise FileNotFoundError(f"Not found: {olympics_path}")
     with open(olympics_path, encoding="utf-8") as f:
-        winner = json.load(f)["winner"]
+        data = json.load(f)
+    if "winner" not in data:
+        raise KeyError(f"'winner' key missing in {olympics_path}")
+    winner = data["winner"]
 
-    print(f"Loading data ...")
+    print("Loading data ...")
     df = load_data()
     if "date" in df.columns and len(df):
         print(f"  {len(df):,} rows  ({df['date'].min().date()} to {df['date'].max().date()})")
@@ -753,10 +755,10 @@ def train_winner_only():
 
 
 def main():
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     if "--winner-only" in sys.argv:
         train_winner_only()
         return
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     print("=" * 60)
     print("Kinneret forecast model — training pipeline")
     print("=" * 60)
