@@ -32,9 +32,12 @@ def _parse_levels(html: str) -> list:
 def fetch_new_levels(silver_csv_path: Path) -> pd.DataFrame:
     silver_csv_path = Path(silver_csv_path)
     if silver_csv_path.exists():
-        last_date = (
-            pd.read_csv(silver_csv_path, parse_dates=["date"])["date"].max().date()
-        )
+        df_existing = pd.read_csv(silver_csv_path, parse_dates=["date"])
+        max_ts = df_existing["date"].max()
+        if pd.isna(max_ts):
+            last_date = SILVER_DEFAULT_FROM - timedelta(days=1)
+        else:
+            last_date = max_ts.date()
     else:
         last_date = SILVER_DEFAULT_FROM - timedelta(days=1)
 
