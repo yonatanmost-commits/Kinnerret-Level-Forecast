@@ -714,7 +714,48 @@ def create_forecast_template(df: pd.DataFrame) -> Path:
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
+def train_winner_only():
+    """Read olympics_results.json and retrain only the winning model."""
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    olympics_path = MODELS_DIR / "olympics_results.json"
+    if not olympics_path.exists():
+        raise FileNotFoundError(f"Not found: {olympics_path}")
+    with open(olympics_path, encoding="utf-8") as f:
+        winner = json.load(f)["winner"]
+
+    print(f"Loading data ...")
+    df = load_data()
+    if "date" in df.columns and len(df):
+        print(f"  {len(df):,} rows  ({df['date'].min().date()} to {df['date'].max().date()})")
+    else:
+        print(f"  {len(df):,} rows")
+
+    if winner == "baseline_gbr":
+        cv_results, oof_s1 = run_cv(df)
+        gb1, gb2, gb2d = train_final(df, oof_s1)
+        if gb1 is not None:
+            MODELS_DIR.mkdir(exist_ok=True)
+            gb1.save(MODELS_DIR / "stage1_inflow_rf.pkl")
+            gb2.save(MODELS_DIR / "stage2_volume_rf.pkl")
+            gb2d.save(MODELS_DIR / "stage2_direct_gb.pkl")
+    elif winner == "xgboost":
+        oof_s1 = df[S1_TARGET]
+        train_final_xgb(df, oof_s1)
+    elif winner == "lgbm":
+        oof_s1 = df[S1_TARGET]
+        train_final_lgb(df, oof_s1)
+    elif winner == "gru":
+        train_final_gru(df)
+    else:
+        raise ValueError(f"Unknown winner in olympics_results.json: {winner!r}")
+
+    print(f"Winner '{winner}' trained and saved.")
+
+
 def main():
+    if "--winner-only" in sys.argv:
+        train_winner_only()
+        return
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
     print("=" * 60)
     print("Kinneret forecast model — training pipeline")
