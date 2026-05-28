@@ -170,7 +170,8 @@ def main():
     results = run()
     report_path = _write_report(results, health_issues, today)
 
-    print(open(report_path, encoding="utf-8").read())
+    with open(report_path, encoding="utf-8") as f:
+        print(f.read())
     print(f"\nReport saved: {report_path}")
 
     if any(v["status"] == "failed" for v in results.values()):
