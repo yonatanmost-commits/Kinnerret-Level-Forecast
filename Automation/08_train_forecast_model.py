@@ -31,6 +31,7 @@ from model_lib import (
     S2_FEATURES, S2_TARGET,
     S2_MET_FEATURES, S2_DIRECT_FEATURES, S2_DIRECT_TARGET,
     S1_DIRECT_FEATURES,
+    S2_DIRECT_NO_INFLOW_FEATURES,
     log_transform, inv_log_transform,
     signed_log1p_transform, inv_signed_log1p_transform,
 )

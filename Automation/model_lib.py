@@ -108,6 +108,7 @@ S2_DIRECT_FEATURES = S2_MET_FEATURES + [
     "horizon_h",            # 1 … 7 (which day of the forecast week)
 ]
 S2_DIRECT_TARGET = "volume_change_Mm3"
+S2_DIRECT_NO_INFLOW_FEATURES = [f for f in S2_DIRECT_FEATURES if f != "predicted_inflow_m3"]
 
 # Direct multi-step Stage-1 feature set.
 # Replaces chained inflow lags with a fixed anchor inflow at day 0.
