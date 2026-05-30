@@ -545,6 +545,59 @@ def run_cv_s1_direct_s2_anchor(df: pd.DataFrame, bathy_coeffs: list,
     return cv_results
 
 
+def run_cv_single_stage(df: pd.DataFrame, bathy_coeffs: list,
+                        _n_est: int = 150) -> list:
+    """
+    Walk-forward CV for architecture D (single-stage, no S1).
+
+    A single GBR predicts volume_change_Mm3 directly from met features +
+    anchor state + horizon_h.  No inflow prediction is made.
+    Uses build_direct_s2_data for training data construction but drops
+    the predicted_inflow_m3 column entirely.
+    """
+    print("\n=== GBR single-stage CV (architecture D) ===")
+    cv_results = []
+
+    for fold_name, train_yrs, test_yr in CV_FOLDS:
+        tr = df[df["date"].dt.year.isin(train_yrs)].copy()
+        te = df[df["date"].dt.year == test_yr].copy()
+
+        tr_s2 = build_direct_s2_data(tr).dropna(
+            subset=S2_DIRECT_NO_INFLOW_FEATURES + [S2_DIRECT_TARGET])
+        te_s2_all = build_direct_s2_data(te).reset_index(drop=True)
+
+        gb = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                         learning_rate=0.05, random_state=42)
+        gb.fit(tr_s2[S2_DIRECT_NO_INFLOW_FEATURES].values,
+               tr_s2[S2_DIRECT_TARGET].values)
+
+        te_s2_clean = te_s2_all.dropna(
+            subset=S2_DIRECT_NO_INFLOW_FEATURES + [S2_DIRECT_TARGET])
+        p2 = gb.predict(te_s2_clean[S2_DIRECT_NO_INFLOW_FEATURES].values)
+
+        s2_r2_val  = r2( te_s2_clean[S2_DIRECT_TARGET].values, p2)
+        s2_mae_val = mae(te_s2_clean[S2_DIRECT_TARGET].values, p2)
+
+        preds_df = te_s2_all.copy()
+        preds_df["pred_dvol"] = gb.predict(
+            te_s2_all[S2_DIRECT_NO_INFLOW_FEATURES].values)
+        drift = _mean_7d_drift(df, preds_df[["date", "horizon_h", "pred_dvol"]],
+                               bathy_coeffs)
+
+        cv_results.append({
+            "fold":    fold_name,
+            "n_test":  int(len(te_s2_clean)),
+            "s1_r2":   None,
+            "s2_r2":   round(s2_r2_val, 3),
+            "s2_mae":  round(s2_mae_val, 3),
+            "drift_m": round(drift, 4),
+        })
+        print(f"  {fold_name}:  S2 R²={s2_r2_val:.3f}  "
+              f"MAE={s2_mae_val:.3f}  drift={drift:.4f} m")
+
+    return cv_results
+
+
 def run_cv_xgb(df: pd.DataFrame, bathy_coeffs: list):
     """Walk-forward CV for the XGBoost direct multi-step challenger."""
     print("\n=== XGBoost CV ===")
