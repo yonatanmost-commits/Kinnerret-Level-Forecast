@@ -70,10 +70,14 @@ winner   = results["winner"]
 gen_date = results.get("generated_at", "unknown")
 
 DISPLAY_NAMES = {
-    "baseline_gbr": "Baseline GBR",
-    "xgboost":      "XGBoost",
-    "lgbm":         "LightGBM",
-    "gru":          "GRU (multi-task)",
+    "baseline_gbr":            "Baseline GBR",
+    "xgboost":                 "XGBoost",
+    "lgbm":                    "LightGBM",
+    "gru":                     "GRU (multi-task)",
+    "gbr_max_chain":           "GBR A — max chain",
+    "gbr_s1_direct_s2_anchor": "GBR C — s1 direct / s2 anchor",
+    "gbr_single_stage":        "GBR D — single stage",
+    "gbr_s1_chain_s2_roll1":   "GBR E — s1 chain / s2 roll1",
 }
 
 # ── 1. Scoreboard ─────────────────────────────────────────────────────────────
@@ -217,6 +221,27 @@ notes = {
         "(1-7) as input, and simultaneously predicts both inflow and volume change. The joint "
         "objective allows the network to learn physical co-variance between river flow and lake "
         "response that independent models cannot exploit."
+    ),
+    "GBR A — max chain": (
+        "**A — maximum error propagation.** Same GBR weights as Baseline GBR. "
+        "CV simulates full 7-day chain: inflow lag1/lag2 and dvol lag1/lag2 and level_m "
+        "all update with predictions at each step. Measures true inference-time error."
+    ),
+    "GBR C — s1 direct / s2 anchor": (
+        "**C — minimum propagation, GBR version.** "
+        "**S1** uses inflow_anchor + horizon_h (same as XGBoost/LightGBM). "
+        "**S2** uses level_m_anchor + dvol_lag1_anchor + horizon_h. "
+        "Pure numpy GBR, 150 estimators CV / 250 final."
+    ),
+    "GBR D — single stage": (
+        "**D — no inflow model.** Single GBR predicts volume_change directly "
+        "from met features + anchor state + horizon_h. No S1 stage. "
+        "Tests whether inflow prediction adds value over met-only signal."
+    ),
+    "GBR E — s1 chain / s2 roll1": (
+        "**E — partial propagation.** Same GBR weights as Baseline GBR. "
+        "**S1** fully chains inflow lags. **S2** rolls only dvol_lag1 "
+        "(dvol_lag2 and level_m stay fixed at anchor). Middle ground between C and A."
     ),
 }
 
