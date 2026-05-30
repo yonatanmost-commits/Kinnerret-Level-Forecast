@@ -875,6 +875,46 @@ def train_final_lgb(df: pd.DataFrame, oof_s1: pd.Series):
     return lgb_s1, lgb_s2
 
 
+def train_final_gbr_s1_direct_s2_anchor(df: pd.DataFrame, _n_est: int = 250):
+    """Train final GBR direct models (architecture C) on all available data."""
+    print("\n  GBR s1-direct s2-anchor final training ...")
+
+    s1_data = build_direct_s1_data(df).dropna(
+        subset=S1_DIRECT_FEATURES + [S1_TARGET])
+    gb_s1 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                        learning_rate=0.05, random_state=42)
+    gb_s1.fit(s1_data[S1_DIRECT_FEATURES].values, s1_data[S1_TARGET].values)
+
+    s2_data = build_direct_s2_data(df).dropna(
+        subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+    gb_s2 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                        learning_rate=0.05, random_state=42)
+    gb_s2.fit(s2_data[S2_DIRECT_FEATURES].values, s2_data[S2_DIRECT_TARGET].values)
+
+    MODELS_DIR.mkdir(exist_ok=True)
+    gb_s1.save(MODELS_DIR / "gbr_s1_direct.pkl")
+    gb_s2.save(MODELS_DIR / "gbr_s2_anchor.pkl")
+    print(f"  Saved gbr_s1_direct.pkl  gbr_s2_anchor.pkl")
+    return gb_s1, gb_s2
+
+
+def train_final_gbr_single_stage(df: pd.DataFrame, _n_est: int = 250):
+    """Train final single-stage GBR (architecture D) on all available data."""
+    print("\n  GBR single-stage final training ...")
+
+    s2_data = build_direct_s2_data(df).dropna(
+        subset=S2_DIRECT_NO_INFLOW_FEATURES + [S2_DIRECT_TARGET])
+    gb = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                     learning_rate=0.05, random_state=42)
+    gb.fit(s2_data[S2_DIRECT_NO_INFLOW_FEATURES].values,
+           s2_data[S2_DIRECT_TARGET].values)
+
+    MODELS_DIR.mkdir(exist_ok=True)
+    gb.save(MODELS_DIR / "gbr_single_stage.pkl")
+    print(f"  Saved gbr_single_stage.pkl")
+    return gb
+
+
 def run_cv_gru(df: pd.DataFrame, bathy_coeffs: list):
     """
     Walk-forward CV for the GRU multi-task challenger.
