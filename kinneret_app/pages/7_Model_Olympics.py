@@ -19,7 +19,7 @@ except Exception:
     PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
     COLOURS = {}
 
-RESULTS_FILE = PROJECT_ROOT / "Models" / "olympics_results.json"
+RESULTS_FILE = PROJECT_ROOT / "docs" / "olympics_results.json"
 
 st.set_page_config(page_title="Model Olympics", page_icon="🏅", layout="wide")
 

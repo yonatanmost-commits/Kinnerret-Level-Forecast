@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-05-29",
+  "winner": "baseline_gbr",
+  "models": {
+    "baseline_gbr": {
+      "cv_vol_r2_mean": 0.694,
+      "cv_vol_r2_by_fold": {
+        "2021": 0.588,
+        "2022": 0.853,
+        "2023": 0.575,
+        "2024": 0.759
+      },
+      "cv_vol_mae_mean": 0.666,
+      "cv_7d_drift_mean_m": null,
+      "cv_inflow_r2_mean": null
+    },
+    "gbr_max_chain": {
+      "cv_vol_r2_mean": 0.67,
+      "cv_vol_r2_by_fold": {
+        "2021": 0.615,
+        "2022": 0.844,
+        "2023": 0.505,
+        "2024": 0.716
+      },
+      "cv_vol_mae_mean": 0.754,
+      "cv_7d_drift_mean_m": 0.0213,
+      "cv_inflow_r2_mean": null
+    },
+    "gbr_s1_direct_s2_anchor": {
+      "cv_vol_r2_mean": 0.68,
+      "cv_vol_r2_by_fold": {
+        "2021": 0.668,
+        "2022": 0.837,
+        "2023": 0.482,
+        "2024": 0.734
+      },
+      "cv_vol_mae_mean": 0.728,
+      "cv_7d_drift_mean_m": 0.02,
+      "cv_inflow_r2_mean": 0.806
+    },
+    "gbr_single_stage": {
+      "cv_vol_r2_mean": 0.665,
+      "cv_vol_r2_by_fold": {
+        "2021": 0.668,
+        "2022": 0.802,
+        "2023": 0.496,
+        "2024": 0.696
+      },
+      "cv_vol_mae_mean": 0.753,
+      "cv_7d_drift_mean_m": 0.0212,
+      "cv_inflow_r2_mean": null
+    },
+    "gbr_s1_chain_s2_roll1": {
+      "cv_vol_r2_mean": 0.675,
+      "cv_vol_r2_by_fold": {
+        "2021": 0.631,
+        "2022": 0.838,
+        "2023": 0.506,
+        "2024": 0.725
+      },
+      "cv_vol_mae_mean": 0.742,
+      "cv_7d_drift_mean_m": 0.0207,
+      "cv_inflow_r2_mean": null
+    },
+    "xgboost": {
+      "cv_vol_r2_mean": 0.646,
+      "cv_vol_r2_by_fold": {
+        "2021": 0.635,
+        "2022": 0.827,
+        "2023": 0.452,
+        "2024": 0.672
+      },
+      "cv_vol_mae_mean": 0.722,
+      "cv_7d_drift_mean_m": 0.0234,
+      "cv_inflow_r2_mean": 0.789
+    },
+    "lgbm": {
+      "cv_vol_r2_mean": 0.641,
+      "cv_vol_r2_by_fold": {
+        "2021": 0.618,
+        "2022": 0.821,
+        "2023": 0.454,
+        "2024": 0.672
+      },
+      "cv_vol_mae_mean": 0.724,
+      "cv_7d_drift_mean_m": 0.0199,
+      "cv_inflow_r2_mean": 0.781
+    },
+    "gru": {
+      "cv_vol_r2_mean": -0.025,
+      "cv_vol_r2_by_fold": {
+        "2021": -0.059,
+        "2022": -0.0,
+        "2023": -0.042,
+        "2024": -0.0
+      },
+      "cv_vol_mae_mean": 1.485,
+      "cv_7d_drift_mean_m": 0.059,
+      "cv_inflow_r2_mean": null
+    }
+  }
+}
