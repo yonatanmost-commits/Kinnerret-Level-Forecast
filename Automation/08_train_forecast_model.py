@@ -395,6 +395,84 @@ def run_cv(df: pd.DataFrame):
     return cv_results, oof_s1
 
 
+def run_cv_max_chain(df: pd.DataFrame, bathy_coeffs: list,
+                     _n_est: int = 150) -> list:
+    """
+    Walk-forward CV for architecture A (max-chain).
+
+    Trains the same GBR models as baseline (S1_FEATURES, S2_FEATURES with
+    actual lags) but evaluates using a 7-day sequential simulation where both
+    inflow lags and dvol lags/level_m are replaced with predictions at each step.
+    """
+    print("\n=== GBR max-chain CV (architecture A) ===")
+    cv_results = []
+    df_idx = df.set_index("date")
+
+    for fold_name, train_yrs, test_yr in CV_FOLDS:
+        tr = df[df["date"].dt.year.isin(train_yrs)].copy()
+        te = df[df["date"].dt.year == test_yr].copy()
+
+        # Train S1 — identical to baseline
+        s1_tr = tr.dropna(subset=S1_FEATURES + [S1_TARGET])
+        if len(s1_tr) == 0:
+            continue
+        rf1 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                          learning_rate=0.05, random_state=42)
+        rf1.fit(s1_tr[S1_FEATURES].values, s1_tr[S1_TARGET].values)
+
+        # Train S2 — identical to baseline (actual inflow as training proxy)
+        tr_s2 = tr.copy()
+        tr_s2["predicted_inflow_m3"] = tr_s2[S1_TARGET]
+        s2_tr = tr_s2.dropna(subset=S2_FEATURES + [S2_TARGET])
+        if len(s2_tr) == 0:
+            continue
+        rf2 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                          learning_rate=0.05, random_state=42)
+        rf2.fit(s2_tr[S2_FEATURES].values, s2_tr[S2_TARGET].values)
+
+        # Simulate chained 7-day windows for every anchor day in the test year
+        te_dates = sorted(te["date"].unique())
+        preds_rows = []
+        all_pred, all_true = [], []
+
+        for anchor_date in te_dates:
+            window = _simulate_7d_chain(
+                rf1, rf2, pd.Timestamp(anchor_date), df_idx,
+                bathy_coeffs, roll_dvol_only=False)
+            if not window:
+                continue
+            for r in window:
+                fut_ts = r["date"] + pd.Timedelta(days=int(r["horizon_h"]))
+                if fut_ts in df_idx.index:
+                    true_dvol = float(df_idx.loc[fut_ts][S2_TARGET]) if S2_TARGET in df_idx.columns else np.nan
+                    if not np.isnan(true_dvol):
+                        all_pred.append(r["pred_dvol"])
+                        all_true.append(true_dvol)
+            preds_rows.extend(window)
+
+        if not all_pred:
+            print(f"  Fold {fold_name}: no valid windows — skipping")
+            continue
+
+        s2_r2_val  = r2(np.array(all_true), np.array(all_pred))
+        s2_mae_val = mae(np.array(all_true), np.array(all_pred))
+        preds_df   = pd.DataFrame(preds_rows)
+        drift      = _mean_7d_drift(df, preds_df, bathy_coeffs)
+
+        cv_results.append({
+            "fold":    fold_name,
+            "n_test":  len(all_pred),
+            "s1_r2":   None,
+            "s2_r2":   round(s2_r2_val, 3),
+            "s2_mae":  round(s2_mae_val, 3),
+            "drift_m": round(drift, 4),
+        })
+        print(f"  {fold_name}:  S2 R²={s2_r2_val:.3f}  "
+              f"MAE={s2_mae_val:.3f}  drift={drift:.4f} m")
+
+    return cv_results
+
+
 def run_cv_xgb(df: pd.DataFrame, bathy_coeffs: list):
     """Walk-forward CV for the XGBoost direct multi-step challenger."""
     print("\n=== XGBoost CV ===")
