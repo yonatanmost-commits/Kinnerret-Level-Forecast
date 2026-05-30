@@ -16,7 +16,7 @@ row per calendar day using meteorologically correct aggregation methods:
 
 Output
 ------
-Silver Data/met_data_daily.csv
+Silver Data/Meteorological/met_data_daily.csv
     ~5,000 rows (one per calendar day, 2012-06-01 to present)
     Columns: date | {station}_{param}_{agg} ...
 
@@ -30,8 +30,9 @@ import pandas as pd
 
 BASE_DIR   = pathlib.Path(__file__).resolve().parent.parent
 SILVER_DIR = BASE_DIR / "Silver Data"
+MET_DIR    = SILVER_DIR / "Meteorological"
 IN_FILE    = SILVER_DIR / "met_data_wide.csv"
-OUT_FILE   = SILVER_DIR / "met_data_daily.csv"
+OUT_FILE   = MET_DIR / "met_data_daily.csv"
 
 # Map each parameter to the aggregation(s) to apply.
 # Key   = parameter suffix in the wide column name
@@ -129,12 +130,21 @@ def main():
     grouped.columns = flat_cols
     grouped = grouped.reset_index()
 
+    # Fix: pandas sum() returns 0 for all-NaN groups; restore to NaN for rainfall
+    # so that consensus_col in gold builder can fall back to neighbouring stations.
+    for wide_col in [c for c in df.columns if c.endswith("_rainfall_mm")]:
+        out_col = wide_col + "_sum"
+        if out_col in grouped.columns:
+            count_by_date = df.groupby("date")[wide_col].count()
+            no_data = set(count_by_date[count_by_date == 0].index)
+            grouped.loc[grouped["date"].isin(no_data), out_col] = float("nan")
+
     # Add daily radiation energy column: MJ/m2
     # = sum_col (W/m2 readings summed) * 600s / 1e6
-    for station in stations:
-        sum_col = "%s_global_radiation_Wm2_sum" % station
+    for wide_col in [c for c in df.columns if c.endswith("_global_radiation_Wm2")]:
+        sum_col = wide_col + "_sum"
         if sum_col in grouped.columns:
-            energy_col = "%s_global_radiation_MJm2" % station
+            energy_col = wide_col.replace("_global_radiation_Wm2", "_global_radiation_MJm2")
             grouped[energy_col] = (grouped[sum_col] * RAD_J_PER_INTERVAL / RAD_J_TO_MJ).round(3)
 
     # Sort columns: date first, then grouped by station

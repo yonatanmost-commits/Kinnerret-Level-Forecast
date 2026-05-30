@@ -55,7 +55,7 @@ def pivot_params(df, params):
     cols = [p for p in params if p in df.columns]
     wide = (df[["datetime", "station"] + cols]
             .pivot_table(index="datetime", columns="station",
-                         values=cols, aggfunc="first"))
+                         values=cols, aggfunc="last"))
     # Flatten MultiIndex (param, station) -> station_param
     wide.columns = ["%s_%s" % (st, p) for p, st in wide.columns]
     return wide
