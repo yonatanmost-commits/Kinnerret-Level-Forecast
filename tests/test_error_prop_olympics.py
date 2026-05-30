@@ -75,3 +75,31 @@ def test_simulate_7d_chain_missing_future_returns_empty():
     anchor = pd.Timestamp("2020-01-04")  # only 1 future row available (day 5)
     rows = _simulate_7d_chain(rf1, rf2, anchor, df_idx, [0.0, 0.0, 0.0], roll_dvol_only=False)
     assert rows == []
+
+
+def _make_cv_df() -> pd.DataFrame:
+    """Minimal gold-like DataFrame spanning 2012–2024 for CV fold testing."""
+    from model_lib import S1_FEATURES, S2_FEATURES, S1_TARGET, S2_TARGET
+    rng = np.random.default_rng(42)
+    dates = pd.date_range("2012-01-01", "2024-12-31", freq="D")
+    n = len(dates)
+    cols = list(set(S1_FEATURES + S2_FEATURES + [
+        S1_TARGET, S2_TARGET, "volume_Mm3", "predicted_inflow_m3",
+        "rainfall_lag1_mm", "rainfall_lag2_mm", "rainfall_lag3_mm",
+        "level_m", "volume_change_Mm3",
+    ]))
+    data = {"date": dates}
+    for c in cols:
+        data[c] = rng.uniform(0.1, 1.0, n)
+    return pd.DataFrame(data)
+
+
+def test_run_cv_max_chain_returns_4_folds():
+    from _08_train_forecast_model import run_cv_max_chain
+
+    df = _make_cv_df()
+    bathy = [0.0, 0.0, -208.0]  # constant level ≈ -208m
+    results = run_cv_max_chain(df, bathy)
+    assert len(results) == 4
+    assert all("drift_m" in r for r in results)
+    assert all("s1_r2" in r for r in results)
