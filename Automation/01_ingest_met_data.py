@@ -85,7 +85,7 @@ def main():
         header_done = False
         for f in csv_files:
             df = pd.read_csv(f, encoding="utf-8-sig", dtype=str,
-                             na_values=[""], keep_default_na=False)
+                             na_values=["", "-"], keep_default_na=False)
             df.columns = df.columns.str.strip()
             df = df.rename(columns=COLUMN_MAP)
             df["station"] = df["station"].map(STATION_MAP)
