@@ -473,6 +473,78 @@ def run_cv_max_chain(df: pd.DataFrame, bathy_coeffs: list,
     return cv_results
 
 
+def run_cv_s1_direct_s2_anchor(df: pd.DataFrame, bathy_coeffs: list,
+                               _n_est: int = 150) -> list:
+    """
+    Walk-forward CV for architecture C (s1-direct, s2-anchor).
+
+    Both stages use direct multi-step training data (7x rows per anchor day).
+    S1 uses inflow_anchor_m3 + horizon_h instead of chained inflow lags.
+    S2 uses level_m_anchor + dvol_lag1_anchor + horizon_h instead of chained state.
+    This is the GBR equivalent of what XGBoost and LightGBM already do.
+    """
+    print("\n=== GBR s1-direct s2-anchor CV (architecture C) ===")
+    cv_results = []
+
+    for fold_name, train_yrs, test_yr in CV_FOLDS:
+        tr = df[df["date"].dt.year.isin(train_yrs)].copy()
+        te = df[df["date"].dt.year == test_yr].copy()
+
+        # Stage 1 direct
+        tr_s1 = build_direct_s1_data(tr).dropna(
+            subset=S1_DIRECT_FEATURES + [S1_TARGET])
+        te_s1_all = build_direct_s1_data(te)
+
+        gb_s1 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                            learning_rate=0.05, random_state=42)
+        gb_s1.fit(tr_s1[S1_DIRECT_FEATURES].values, tr_s1[S1_TARGET].values)
+
+        te_inflow_pred = np.clip(
+            gb_s1.predict(te_s1_all[S1_DIRECT_FEATURES].values), 0, None)
+
+        te_s1_clean = te_s1_all.dropna(subset=S1_DIRECT_FEATURES + [S1_TARGET])
+        s1_r2_val = r2(
+            te_s1_clean[S1_TARGET].values,
+            np.clip(gb_s1.predict(te_s1_clean[S1_DIRECT_FEATURES].values), 0, None))
+
+        # Stage 2 direct anchor
+        tr_s2 = build_direct_s2_data(tr).dropna(
+            subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+        te_s2_all = build_direct_s2_data(te).copy()
+        te_s2_all = te_s2_all.reset_index(drop=True)
+        te_s2_all["predicted_inflow_m3"] = te_inflow_pred
+
+        gb_s2 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
+                            learning_rate=0.05, random_state=42)
+        gb_s2.fit(tr_s2[S2_DIRECT_FEATURES].values, tr_s2[S2_DIRECT_TARGET].values)
+
+        te_s2_clean = te_s2_all.dropna(
+            subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
+        p2 = gb_s2.predict(te_s2_clean[S2_DIRECT_FEATURES].values)
+
+        s2_r2_val  = r2( te_s2_clean[S2_DIRECT_TARGET].values, p2)
+        s2_mae_val = mae(te_s2_clean[S2_DIRECT_TARGET].values, p2)
+
+        preds_df = te_s2_all.copy()
+        preds_df["pred_dvol"] = gb_s2.predict(
+            te_s2_all[S2_DIRECT_FEATURES].values)
+        drift = _mean_7d_drift(df, preds_df[["date", "horizon_h", "pred_dvol"]],
+                               bathy_coeffs)
+
+        cv_results.append({
+            "fold":    fold_name,
+            "n_test":  int(len(te_s2_clean)),
+            "s1_r2":   round(s1_r2_val, 3),
+            "s2_r2":   round(s2_r2_val, 3),
+            "s2_mae":  round(s2_mae_val, 3),
+            "drift_m": round(drift, 4),
+        })
+        print(f"  {fold_name}:  S1 R²={s1_r2_val:.3f}  |  "
+              f"S2 R²={s2_r2_val:.3f}  MAE={s2_mae_val:.3f}  drift={drift:.4f} m")
+
+    return cv_results
+
+
 def run_cv_xgb(df: pd.DataFrame, bathy_coeffs: list):
     """Walk-forward CV for the XGBoost direct multi-step challenger."""
     print("\n=== XGBoost CV ===")
