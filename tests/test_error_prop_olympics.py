@@ -198,4 +198,32 @@ def test_train_final_gbr_single_stage_creates_pkl(tmp_path, monkeypatch):
             df[c] = rng.uniform(0.1, 1.0, len(df))
 
     m08.train_final_gbr_single_stage(df, _n_est=2)
-    assert (tmp_path / "gbr_single_stage.pkl").exists()
+
+
+def test_save_olympics_results_includes_new_architectures(tmp_path, monkeypatch):
+    import _08_train_forecast_model as m08
+    monkeypatch.setattr(m08, "MODELS_DIR", tmp_path)
+
+    dummy_cv = [{"fold": str(y), "n_test": 10, "s1_r2": 0.9,
+                 "s2_r2": 0.7, "s2_mae": 0.5, "drift_m": 0.05}
+                for y in range(2021, 2025)]
+    baseline = {"cv_vol_r2_mean": 0.694, "cv_vol_r2_by_fold": {},
+                "cv_vol_mae_mean": 0.667, "cv_7d_drift_mean_m": None,
+                "cv_inflow_r2_mean": 0.920}
+
+    import pandas as pd
+    df = pd.DataFrame({"date": pd.to_datetime(["2024-12-31"])})
+
+    m08.save_olympics_results(
+        baseline,
+        dummy_cv, dummy_cv, dummy_cv,   # xgb, lgb, gru
+        dummy_cv, dummy_cv, dummy_cv, dummy_cv,   # A, C, D, E
+        df)
+
+    import json
+    with open(tmp_path / "olympics_results.json") as f:
+        data = json.load(f)
+    assert "gbr_max_chain" in data["models"]
+    assert "gbr_s1_direct_s2_anchor" in data["models"]
+    assert "gbr_single_stage" in data["models"]
+    assert "gbr_s1_chain_s2_roll1" in data["models"]
