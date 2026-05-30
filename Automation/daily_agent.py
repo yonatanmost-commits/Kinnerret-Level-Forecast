@@ -21,7 +21,7 @@ MET_SILVER            = PROJECT_ROOT / "Silver Data" / "Meteorological" / "met_d
 
 def health_check() -> list:
     issues = []
-    olympics_path = PROJECT_ROOT / "Models" / "olympics_results.json"
+    olympics_path = PROJECT_ROOT / "docs" / "olympics_results.json"
     if not olympics_path.exists():
         issues.append("REQUIRED: Models/olympics_results.json missing")
     else:

@@ -1088,7 +1088,7 @@ def save_olympics_results(baseline: dict,
         "models":       models,
     }
 
-    out = MODELS_DIR / "olympics_results.json"
+    out = BASE_DIR / "docs" / "olympics_results.json"
     with open(out, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
     print(f"\n  Saved: {out}")
@@ -1125,7 +1125,7 @@ def create_forecast_template(df: pd.DataFrame) -> Path:
 
 def train_winner_only():
     """Read olympics_results.json and retrain only the winning model."""
-    olympics_path = MODELS_DIR / "olympics_results.json"
+    olympics_path = BASE_DIR / "docs" / "olympics_results.json"
     if not olympics_path.exists():
         raise FileNotFoundError(f"Not found: {olympics_path}")
     with open(olympics_path, encoding="utf-8") as f:
