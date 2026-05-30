@@ -1049,6 +1049,10 @@ def _read_baseline_from_meta() -> dict:
 
 def save_olympics_results(baseline: dict,
                           xgb_cv: list, lgb_cv: list, gru_cv: list,
+                          max_chain_cv: list,
+                          s1d_s2a_cv: list,
+                          single_stage_cv: list,
+                          roll1_cv: list,
                           df: pd.DataFrame) -> None:
     """Collate CV results from all models and write olympics_results.json."""
 
@@ -1058,22 +1062,25 @@ def save_olympics_results(baseline: dict,
         drift = [r["drift_m"] for r in cv_list if r.get("drift_m") is not None]
         s1r2s = [r["s1_r2"]   for r in cv_list if r.get("s1_r2") is not None]
         return {
-            "cv_vol_r2_mean":    round(float(np.mean(r2s)),  3) if r2s  else None,
-            "cv_vol_r2_by_fold": {r["fold"]: r["s2_r2"] for r in cv_list},
-            "cv_vol_mae_mean":   round(float(np.mean(maes)), 3) if maes else None,
+            "cv_vol_r2_mean":     round(float(np.mean(r2s)),  3) if r2s  else None,
+            "cv_vol_r2_by_fold":  {r["fold"]: r["s2_r2"] for r in cv_list},
+            "cv_vol_mae_mean":    round(float(np.mean(maes)), 3) if maes else None,
             "cv_7d_drift_mean_m": round(float(np.mean(drift)), 4) if drift else None,
-            "cv_inflow_r2_mean": round(float(np.mean(s1r2s)), 3) if s1r2s else None,
+            "cv_inflow_r2_mean":  round(float(np.mean(s1r2s)), 3) if s1r2s else None,
         }
 
     models = {
-        "baseline_gbr": baseline,
-        "xgboost":      _summarise(xgb_cv),
-        "lgbm":         _summarise(lgb_cv),
-        "gru":          _summarise(gru_cv),
+        "baseline_gbr":            baseline,
+        "xgboost":                 _summarise(xgb_cv),
+        "lgbm":                    _summarise(lgb_cv),
+        "gru":                     _summarise(gru_cv),
+        "gbr_max_chain":           _summarise(max_chain_cv),
+        "gbr_s1_direct_s2_anchor": _summarise(s1d_s2a_cv),
+        "gbr_single_stage":        _summarise(single_stage_cv),
+        "gbr_s1_chain_s2_roll1":   _summarise(roll1_cv),
     }
 
-    # Declare winner by highest mean CV R² on volume change
-    winner = max(models, key=lambda k: models[k].get("cv_vol_r2_mean", -1))
+    winner = max(models, key=lambda k: models[k].get("cv_vol_r2_mean") or -1)
 
     results = {
         "generated_at": str(df["date"].max().date()),
@@ -1205,9 +1212,25 @@ def main():
     gru_cv_results = run_cv_gru(df, bathy_coeffs)
     train_final_gru(df)
 
+    # 11. Architecture A — max chain
+    max_chain_cv = run_cv_max_chain(df, bathy_coeffs)
+
+    # 12. Architecture C — GBR s1-direct s2-anchor
+    s1d_s2a_cv = run_cv_s1_direct_s2_anchor(df, bathy_coeffs)
+    train_final_gbr_s1_direct_s2_anchor(df)
+
+    # 13. Architecture D — single stage
+    single_stage_cv = run_cv_single_stage(df, bathy_coeffs)
+    train_final_gbr_single_stage(df)
+
+    # 14. Architecture E — s1 chain, s2 roll1
+    roll1_cv = run_cv_s1_chain_s2_roll1(df, bathy_coeffs)
+
     # 10. Save combined results
     save_olympics_results(baseline_entry, xgb_cv_results,
-                          lgb_cv_results, gru_cv_results, df)
+                          lgb_cv_results, gru_cv_results,
+                          max_chain_cv, s1d_s2a_cv,
+                          single_stage_cv, roll1_cv, df)
 
     print("\nDone.")
 
