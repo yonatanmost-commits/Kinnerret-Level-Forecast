@@ -103,3 +103,20 @@ def test_run_cv_max_chain_returns_4_folds():
     assert len(results) == 4
     assert all("drift_m" in r for r in results)
     assert all("s1_r2" in r for r in results)
+
+
+def test_run_cv_s1_direct_s2_anchor_returns_4_folds():
+    from _08_train_forecast_model import run_cv_s1_direct_s2_anchor
+
+    df = _make_cv_df()
+    from model_lib import S1_DIRECT_FEATURES, S2_DIRECT_FEATURES
+    rng = np.random.default_rng(1)
+    for c in set(S1_DIRECT_FEATURES + S2_DIRECT_FEATURES):
+        if c not in df.columns:
+            df[c] = rng.uniform(0.1, 1.0, len(df))
+
+    bathy = [0.0, 0.0, -208.0]
+    results = run_cv_s1_direct_s2_anchor(df, bathy)
+    assert len(results) == 4
+    assert all("drift_m" in r for r in results)
+    assert all("s1_r2" in r for r in results)
