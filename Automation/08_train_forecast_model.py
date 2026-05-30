@@ -175,6 +175,85 @@ def _mean_7d_drift(full_df: pd.DataFrame,
     return float(np.mean(drifts)) if drifts else float("nan")
 
 
+def _simulate_7d_chain(
+    rf1,
+    rf2,
+    anchor_date: pd.Timestamp,
+    df_idx: pd.DataFrame,
+    bathy_coeffs: list,
+    roll_dvol_only: bool = False,
+) -> list:
+    """
+    Simulate a 7-day chained forecast window for architecture A or E.
+
+    rf1           : trained Stage-1 GBRegressor (S1_FEATURES → inflow)
+    rf2           : trained Stage-2 GBRegressor (S2_FEATURES → dvol)
+    anchor_date   : day-0 anchor (predictions start at anchor+1)
+    df_idx        : full gold DataFrame indexed by date (Timestamp)
+    bathy_coeffs  : vol→level polynomial [a, b, c] for architecture A level update
+    roll_dvol_only: if True (architecture E) only dvol_lag1 chains;
+                    dvol_lag2 and level_m stay at anchor values throughout.
+
+    Returns list of {'date', 'horizon_h', 'pred_dvol'} for h=1..7,
+    or [] if any of the 7 future dates are missing from df_idx.
+    """
+    future_dates = [anchor_date + pd.Timedelta(days=h) for h in range(1, 8)]
+    if not all(d in df_idx.index for d in future_dates):
+        return []
+
+    prev_date = anchor_date - pd.Timedelta(days=1)
+    anchor = df_idx.loc[anchor_date]
+    prev = df_idx.loc[prev_date] if prev_date in df_idx.index else anchor
+
+    # Chain state — initialised from anchor and prev
+    inflow_lag1 = float(anchor.get("inflow_obstacle_m3", np.nan))
+    inflow_lag2 = float(prev.get("inflow_obstacle_m3", np.nan))
+    dvol_lag1   = float(anchor.get("volume_change_Mm3", np.nan))
+    dvol_lag2_fixed = float(prev.get("volume_change_Mm3", np.nan))
+    dvol_lag2   = dvol_lag2_fixed
+    level_m     = float(anchor.get("level_m", np.nan))
+    volume_Mm3  = float(anchor.get("volume_Mm3", np.nan))
+
+    rows = []
+    for h in range(1, 8):
+        fut = df_idx.loc[future_dates[h - 1]]
+
+        # Stage-1 row: met features from future date, lags from chain state
+        s1_row = {f: float(fut.get(f, np.nan)) for f in S1_FEATURES}
+        s1_row["inflow_lag1_m3"] = inflow_lag1
+        s1_row["inflow_lag2_m3"] = inflow_lag2
+        pred_inflow = float(np.clip(
+            rf1.predict(np.array([[s1_row[f] for f in S1_FEATURES]])), 0, None)[0])
+
+        # Stage-2 row: met features from future date, state from chain
+        s2_row = {f: float(fut.get(f, np.nan)) for f in S2_FEATURES}
+        s2_row["predicted_inflow_m3"] = pred_inflow
+        s2_row["volume_change_lag1_Mm3"] = dvol_lag1
+        s2_row["volume_change_lag2_Mm3"] = dvol_lag2
+        s2_row["level_m"] = level_m
+        pred_dvol = float(rf2.predict(np.array([[s2_row[f] for f in S2_FEATURES]]))[0])
+
+        rows.append({"date": anchor_date, "horizon_h": float(h), "pred_dvol": pred_dvol})
+
+        # Advance chain state
+        inflow_lag2 = inflow_lag1
+        inflow_lag1 = pred_inflow
+
+        if roll_dvol_only:
+            # Architecture E: only roll dvol_lag1; dvol_lag2 and level_m stay fixed
+            dvol_lag1 = pred_dvol
+            dvol_lag2 = dvol_lag2_fixed
+            # level_m unchanged
+        else:
+            # Architecture A: full chain — update all state
+            dvol_lag2 = dvol_lag1
+            dvol_lag1 = pred_dvol
+            volume_Mm3 += pred_dvol
+            level_m = float(np.polyval(bathy_coeffs, volume_Mm3))
+
+    return rows
+
+
 def load_data() -> pd.DataFrame:
     """Load gold features and add rainfall lag columns required by Stage 1."""
     df = (
