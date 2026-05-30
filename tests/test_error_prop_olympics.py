@@ -120,3 +120,20 @@ def test_run_cv_s1_direct_s2_anchor_returns_4_folds():
     assert len(results) == 4
     assert all("drift_m" in r for r in results)
     assert all("s1_r2" in r for r in results)
+
+
+def test_run_cv_single_stage_returns_4_folds():
+    from _08_train_forecast_model import run_cv_single_stage
+    from model_lib import S2_DIRECT_NO_INFLOW_FEATURES
+
+    df = _make_cv_df()
+    rng = np.random.default_rng(2)
+    for c in S2_DIRECT_NO_INFLOW_FEATURES:
+        if c not in df.columns:
+            df[c] = rng.uniform(0.1, 1.0, len(df))
+
+    bathy = [0.0, 0.0, -208.0]
+    results = run_cv_single_stage(df, bathy)
+    assert len(results) == 4
+    assert all(r["s1_r2"] is None for r in results)
+    assert all("drift_m" in r for r in results)
