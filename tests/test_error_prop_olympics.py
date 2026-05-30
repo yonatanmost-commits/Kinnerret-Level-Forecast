@@ -137,3 +137,34 @@ def test_run_cv_single_stage_returns_4_folds():
     assert len(results) == 4
     assert all(r["s1_r2"] is None for r in results)
     assert all("drift_m" in r for r in results)
+
+
+def test_run_cv_s1_chain_s2_roll1_returns_4_folds():
+    from _08_train_forecast_model import run_cv_s1_chain_s2_roll1
+
+    df = _make_cv_df()
+    bathy = [0.0, 0.0, -208.0]
+    results = run_cv_s1_chain_s2_roll1(df, bathy)
+    assert len(results) == 4
+    assert all("drift_m" in r for r in results)
+
+
+def test_roll1_dvol_lag2_stays_fixed():
+    """roll_dvol_only=True must not update dvol_lag2_fixed across steps."""
+    from model_lib import GBRegressor, S1_FEATURES, S2_FEATURES
+    from _08_train_forecast_model import _simulate_7d_chain
+
+    df = _make_minimal_df(30)
+    df["volume_change_Mm3"] = 0.999
+    df_idx = df.set_index("date")
+
+    rf1 = GBRegressor(n_estimators=2, random_state=0)
+    rf1.fit(np.ones((10, len(S1_FEATURES))), np.ones(10))
+    rf2 = GBRegressor(n_estimators=2, random_state=0)
+    rf2.fit(np.ones((10, len(S2_FEATURES))), np.ones(10))
+
+    anchor = pd.Timestamp("2020-01-10")
+    rows_e = _simulate_7d_chain(rf1, rf2, anchor, df_idx, [0.0, 0.0, 0.0], roll_dvol_only=True)
+    rows_a = _simulate_7d_chain(rf1, rf2, anchor, df_idx, [0.0, 0.0, 0.0], roll_dvol_only=False)
+    assert len(rows_e) == 7
+    assert len(rows_a) == 7
