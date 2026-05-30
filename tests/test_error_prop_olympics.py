@@ -168,3 +168,34 @@ def test_roll1_dvol_lag2_stays_fixed():
     rows_a = _simulate_7d_chain(rf1, rf2, anchor, df_idx, [0.0, 0.0, 0.0], roll_dvol_only=False)
     assert len(rows_e) == 7
     assert len(rows_a) == 7
+
+
+def test_train_final_gbr_s1_direct_s2_anchor_creates_pkls(tmp_path, monkeypatch):
+    import _08_train_forecast_model as m08
+    monkeypatch.setattr(m08, "MODELS_DIR", tmp_path)
+
+    df = _make_cv_df()
+    from model_lib import S1_DIRECT_FEATURES, S2_DIRECT_FEATURES, S1_TARGET, S2_DIRECT_TARGET
+    rng = np.random.default_rng(3)
+    for c in set(S1_DIRECT_FEATURES + S2_DIRECT_FEATURES + [S1_TARGET, S2_DIRECT_TARGET]):
+        if c not in df.columns:
+            df[c] = rng.uniform(0.1, 1.0, len(df))
+
+    m08.train_final_gbr_s1_direct_s2_anchor(df, _n_est=2)
+    assert (tmp_path / "gbr_s1_direct.pkl").exists()
+    assert (tmp_path / "gbr_s2_anchor.pkl").exists()
+
+
+def test_train_final_gbr_single_stage_creates_pkl(tmp_path, monkeypatch):
+    import _08_train_forecast_model as m08
+    monkeypatch.setattr(m08, "MODELS_DIR", tmp_path)
+
+    df = _make_cv_df()
+    from model_lib import S2_DIRECT_NO_INFLOW_FEATURES, S2_DIRECT_TARGET
+    rng = np.random.default_rng(4)
+    for c in set(S2_DIRECT_NO_INFLOW_FEATURES + [S2_DIRECT_TARGET]):
+        if c not in df.columns:
+            df[c] = rng.uniform(0.1, 1.0, len(df))
+
+    m08.train_final_gbr_single_stage(df, _n_est=2)
+    assert (tmp_path / "gbr_single_stage.pkl").exists()
