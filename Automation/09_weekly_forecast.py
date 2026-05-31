@@ -35,6 +35,7 @@ from model_lib import (
     S1_FEATURES,
     S2_DIRECT_FEATURES,
     enrich_forecast_df,
+    inv_signed_log1p_transform,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -256,7 +257,7 @@ def run_forecast(forecast_df: pd.DataFrame,
         s2_vals["dvol_lag1_anchor"]    = anchor_dvol    # fixed (day 0)
         s2_vals["horizon_h"]           = float(horizon)
         s2_x      = np.array([[s2_vals.get(f, np.nan) for f in S2_DIRECT_FEATURES]], dtype=float)
-        pred_dvol = float(gb2_direct.predict(s2_x)[0])
+        pred_dvol = float(inv_signed_log1p_transform(gb2_direct.predict(s2_x))[0])
 
         # ── Update cumulative state (display only — NOT fed back to S2) ───────
         new_vol  = current_volume + pred_dvol if not np.isnan(current_volume) else np.nan

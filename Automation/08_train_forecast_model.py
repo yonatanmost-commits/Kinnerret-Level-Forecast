@@ -374,8 +374,9 @@ def run_cv(df: pd.DataFrame):
             continue
 
         rf2 = GBRegressor(n_estimators=150, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
-        rf2.fit(s2_tr[S2_FEATURES].values, s2_tr[S2_TARGET].values)
-        p2 = rf2.predict(s2_te[S2_FEATURES].values)
+        rf2.fit(s2_tr[S2_FEATURES].values,
+                signed_log1p_transform(s2_tr[S2_TARGET].values))
+        p2 = inv_signed_log1p_transform(rf2.predict(s2_te[S2_FEATURES].values))
 
         s2_r2_val  = r2(s2_te[S2_TARGET].values, p2)
         s2_mae_val = mae(s2_te[S2_TARGET].values, p2)
@@ -1013,7 +1014,8 @@ def train_final(df: pd.DataFrame, oof_s1: pd.Series):
     s2_data = df2.dropna(subset=S2_FEATURES + [S2_TARGET])
     print(f"  Stage 2: {len(s2_data):,} training rows")
     gb2 = GBRegressor(n_estimators=250, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
-    gb2.fit(s2_data[S2_FEATURES].values, s2_data[S2_TARGET].values,
+    gb2.fit(s2_data[S2_FEATURES].values,
+            signed_log1p_transform(s2_data[S2_TARGET].values),
             feature_names=S2_FEATURES)
 
     # Stage 2 direct (horizon-aware, anchor state)
@@ -1022,8 +1024,21 @@ def train_final(df: pd.DataFrame, oof_s1: pd.Series):
     direct_data = direct_data.dropna(subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
     print(f"  Stage 2 direct: {len(direct_data):,} training rows ({len(direct_data)//7:,} anchors x 7 horizons)")
     gb2d = GBRegressor(n_estimators=250, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
-    gb2d.fit(direct_data[S2_DIRECT_FEATURES].values, direct_data[S2_DIRECT_TARGET].values,
+    gb2d.fit(direct_data[S2_DIRECT_FEATURES].values,
+             signed_log1p_transform(direct_data[S2_DIRECT_TARGET].values),
              feature_names=S2_DIRECT_FEATURES)
+
+    # Save metadata so downstream scripts and tests can verify transform settings.
+    MODELS_DIR.mkdir(exist_ok=True)
+    meta_path = MODELS_DIR / "model_metadata.json"
+    if meta_path.exists():
+        with open(meta_path, encoding="utf-8") as _f:
+            _meta = json.load(_f)
+    else:
+        _meta = {}
+    _meta["target_transforms"] = {"s1": "none", "s2": "signed_log1p"}
+    with open(meta_path, "w", encoding="utf-8") as _f:
+        json.dump(_meta, _f, indent=2)
 
     return gb1, gb2, gb2d
 
@@ -1224,7 +1239,7 @@ def main():
         "cv_s2_mean_r2":  round(float(np.mean(s2_r2s)),  3) if cv_results else None,
         "cv_s2_mean_mae": round(float(np.mean(s2_maes)), 3) if cv_results else None,
         "cv_s1_mean_r2":  round(float(np.mean(s1_r2s)),  3) if cv_results else None,
-        "target_transforms": {"s1": "none", "s2": "none"},
+        "target_transforms": {"s1": "none", "s2": "signed_log1p"},
         "s2_direct": True,
     }
     meta_path = MODELS_DIR / "model_metadata.json"
