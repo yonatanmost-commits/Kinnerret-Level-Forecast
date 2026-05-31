@@ -1028,18 +1028,6 @@ def train_final(df: pd.DataFrame, oof_s1: pd.Series):
              signed_log1p_transform(direct_data[S2_DIRECT_TARGET].values),
              feature_names=S2_DIRECT_FEATURES)
 
-    # Save metadata so downstream scripts and tests can verify transform settings.
-    MODELS_DIR.mkdir(exist_ok=True)
-    meta_path = MODELS_DIR / "model_metadata.json"
-    if meta_path.exists():
-        with open(meta_path, encoding="utf-8") as _f:
-            _meta = json.load(_f)
-    else:
-        _meta = {}
-    _meta["target_transforms"] = {"s1": "none", "s2": "signed_log1p"}
-    with open(meta_path, "w", encoding="utf-8") as _f:
-        json.dump(_meta, _f, indent=2)
-
     return gb1, gb2, gb2d
 
 
