@@ -152,3 +152,76 @@ def test_train_final_applies_s2_transform():
     assert len(call_count) >= 2, (
         f"signed_log1p_transform called {len(call_count)}x; expected >=2 (gb2 + gb2d)"
     )
+
+
+# ── Inference anchor injection ────────────────────────────────────────────────
+
+def test_run_forecast_injects_new_anchors():
+    """run_forecast must pass outflow_lag1, dvol_lag2/lag3 as constant anchor values to S2."""
+    import importlib.util
+    spec09 = importlib.util.spec_from_file_location(
+        "_09", Path(__file__).parent.parent / "Automation" / "09_weekly_forecast.py")
+    m09 = importlib.util.module_from_spec(spec09); spec09.loader.exec_module(m09)
+
+    from model_lib import S2_DIRECT_FEATURES
+
+    captured_s2_rows = []
+
+    class SpyS2:
+        median_ = np.zeros(len(S2_DIRECT_FEATURES))
+        def predict(self, X):
+            captured_s2_rows.append(X.copy())
+            return np.zeros(len(X))
+
+    class DummyS1:
+        median_ = np.zeros(1)
+        def predict(self, X): return np.ones(len(X)) * 1e5
+
+    meta = {
+        "bathy_vol2level_coeffs": [0.0, 0.0, -208.0],
+        "cv_s2_mean_r2": 0.7,
+        "cv_s2_mean_mae": 0.5,
+        "trained_through": "2024-12-31",
+    }
+
+    rng = np.random.default_rng(7)
+    hist_dates = pd.date_range("2024-01-01", periods=25)
+    history = pd.DataFrame({
+        "date":                hist_dates,
+        "level_m":             rng.uniform(-214, -208, 25),
+        "volume_Mm3":          rng.uniform(2000, 4200, 25),
+        "volume_change_Mm3":   rng.uniform(-1.0, 1.0, 25),
+        "outflow_baptism_m3":  rng.uniform(0.2e6, 0.6e6, 25),
+        "inflow_obstacle_m3":  rng.uniform(1e5, 1e6, 25),
+        "et0_mm":              rng.uniform(2, 8, 25),
+        "rainfall_mm":         rng.uniform(0, 5, 25),
+        **{c: rng.uniform(0.0, 1.0, 25) for c in [
+            "temp_max_C", "temp_min_C", "humidity_pct",
+            "wind_speed_ms", "radiation_MJm2",
+            "rainfall_7d_mm", "rainfall_21d_mm",
+        ]},
+    })
+
+    fc_dates = pd.date_range("2024-01-26", periods=7)
+    forecast = pd.DataFrame({
+        "date":           fc_dates,
+        "temp_max_C":     rng.uniform(15, 25, 7),
+        "temp_min_C":     rng.uniform(5, 15, 7),
+        "rainfall_mm":    rng.uniform(0, 3, 7),
+        "humidity_pct":   rng.uniform(40, 80, 7),
+        "wind_speed_ms":  rng.uniform(2, 8, 7),
+        "radiation_MJm2": rng.uniform(10, 25, 7),
+    })
+
+    m09.run_forecast(forecast, history, DummyS1(), SpyS2(), meta)
+
+    assert len(captured_s2_rows) == 7, "Expected 7 S2 predict calls"
+    feat_idx = {f: i for i, f in enumerate(S2_DIRECT_FEATURES)}
+
+    # Each anchor feature must be CONSTANT across all 7 forecast days
+    for col in ["outflow_lag1_m3", "dvol_lag2_anchor", "dvol_lag3_anchor"]:
+        idx = feat_idx.get(col)
+        assert idx is not None, f"{col} not in S2_DIRECT_FEATURES"
+        vals = [float(row[0, idx]) for row in captured_s2_rows]
+        assert len(set(vals)) == 1, f"{col} must be constant across 7 days (anchor)"
+        assert not np.isnan(vals[0]), f"{col} anchor must not be NaN"
