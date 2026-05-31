@@ -101,7 +101,10 @@ def build_direct_s2_data(df: pd.DataFrame) -> pd.DataFrame:
 
         # Anchor state from t  (never updated — this is what eliminates chaining error)
         p["level_m_anchor"]   = df["level_m"]
-        p["dvol_lag1_anchor"] = df["volume_change_Mm3"]   # dvol at anchor = lag1 for h=1
+        p["dvol_lag1_anchor"] = df["volume_change_Mm3"]          # dvol at anchor = lag1 for h=1
+        p["dvol_lag2_anchor"] = df["volume_change_Mm3"].shift(1)  # anchor-1 day
+        p["dvol_lag3_anchor"] = df["volume_change_Mm3"].shift(2)  # anchor-2 day
+        p["outflow_lag1_m3"]  = df["outflow_baptism_m3"].shift(1) # yesterday's pump outflow
         p["horizon_h"]        = float(h)
         pieces.append(p)
 
