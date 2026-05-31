@@ -57,6 +57,13 @@ S1_FEATURES = [
     # Seasonality
     "season_sin",
     "season_cos",
+    # RBF seasonality (localised seasonal bumps — wet-season onset vs. summer peak)
+    "rbf_spring_equinox",
+    "rbf_summer_solstice",
+    "rbf_autumn_equinox",
+    "rbf_winter_solstice",
+    # Precipitation intensity (flash-flood signal; imputed at inference, 99.3% fill)
+    "precip_intensity_mm_hr",
 ]
 S1_TARGET = "inflow_obstacle_m3"
 
@@ -79,6 +86,13 @@ S2_FEATURES = [
     "season_sin",
     "season_cos",
     "daylength_hrs",
+    # RBF seasonality
+    "rbf_spring_equinox",
+    "rbf_summer_solstice",
+    "rbf_autumn_equinox",
+    "rbf_winter_solstice",
+    # Precipitation intensity
+    "precip_intensity_mm_hr",
     # Lake state (level + volume-change momentum)
     "level_m",
     "volume_change_lag1_Mm3",
@@ -99,12 +113,22 @@ S2_MET_FEATURES = [
     "humidity_pct", "wind_speed_ms", "vpd_kPa", "et0_mm", "et0_7d_mm",
     "radiation_MJm2",
     "season_sin", "season_cos", "daylength_hrs",
+    # RBF seasonality
+    "rbf_spring_equinox",
+    "rbf_summer_solstice",
+    "rbf_autumn_equinox",
+    "rbf_winter_solstice",
+    # Precipitation intensity
+    "precip_intensity_mm_hr",
 ]
 # Anchor state comes from DAY 0 (before the forecast window — never updated).
 # horizon_h tells the model how many days ahead it is predicting.
 S2_DIRECT_FEATURES = S2_MET_FEATURES + [
     "level_m_anchor",       # actual level at anchor day
     "dvol_lag1_anchor",     # actual volume change at anchor day (lag1 for day 1)
+    "dvol_lag2_anchor",     # volume change at anchor-1 day (autocorr=0.67)
+    "dvol_lag3_anchor",     # volume change at anchor-2 day (autocorr=0.61)
+    "outflow_lag1_m3",      # yesterday's pump outflow (corr=0.606 with dvol, 92.4% fill)
     "horizon_h",            # 1 … 7 (which day of the forecast week)
 ]
 S2_DIRECT_TARGET = "volume_change_Mm3"
@@ -131,6 +155,13 @@ S1_DIRECT_FEATURES = [
     "horizon_h",          # 1 … 7 (which forecast day)
     "season_sin",
     "season_cos",
+    # RBF seasonality
+    "rbf_spring_equinox",
+    "rbf_summer_solstice",
+    "rbf_autumn_equinox",
+    "rbf_winter_solstice",
+    # Precipitation intensity
+    "precip_intensity_mm_hr",
 ]
 # S1_DIRECT_TARGET is the same as S1_TARGET = "inflow_obstacle_m3"
 
