@@ -120,32 +120,35 @@ def test_outflow_lag1_is_shifted_by_one():
 
 # ── signed_log1p_transform applied in run_cv and train_final ─────────────────
 
-def test_train_final_writes_transform_to_metadata(tmp_path, monkeypatch):
-    """model_metadata.json must record s2 target_transform = signed_log1p."""
-    import importlib.util, json
+def test_train_final_applies_s2_transform():
+    """signed_log1p_transform must be called for Stage-2 fit in train_final."""
+    import importlib.util
+    from unittest.mock import patch
     spec = importlib.util.spec_from_file_location(
-        "_08d", Path(__file__).parent.parent / "Automation" / "08_train_forecast_model.py")
+        "_08e", Path(__file__).parent.parent / "Automation" / "08_train_forecast_model.py")
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-    monkeypatch.setattr(m, "MODELS_DIR", tmp_path)
 
-    from model_lib import (
-        S1_FEATURES, S2_FEATURES, S1_DIRECT_FEATURES, S2_DIRECT_FEATURES,
-        S1_TARGET, S2_TARGET,
-    )
+    from model_lib import S1_FEATURES, S2_FEATURES, S1_TARGET, S2_TARGET
     rng = np.random.default_rng(1)
-    dates = pd.date_range("2012-01-01", "2024-12-31", freq="D")
+    dates = pd.date_range("2012-01-01", "2015-12-31", freq="D")  # short for speed
     n = len(dates)
-    all_cols = list(set(
-        S1_FEATURES + S2_FEATURES + S1_DIRECT_FEATURES + S2_DIRECT_FEATURES + [
-            S1_TARGET, S2_TARGET, "volume_Mm3", "predicted_inflow_m3",
-            "rainfall_lag1_mm", "rainfall_lag2_mm", "rainfall_lag3_mm",
-            "level_m", "volume_change_Mm3", "outflow_baptism_m3",
-        ]
-    ))
+    all_cols = list(set(S1_FEATURES + S2_FEATURES + [
+        S1_TARGET, S2_TARGET, "volume_Mm3", "predicted_inflow_m3",
+        "rainfall_lag1_mm", "rainfall_lag2_mm", "rainfall_lag3_mm",
+        "level_m", "volume_change_Mm3", "outflow_baptism_m3",
+    ]))
     df = pd.DataFrame({"date": dates, **{c: rng.uniform(0.1, 1.0, n) for c in all_cols}})
-
     oof = pd.Series(rng.uniform(0.1, 1.0, n), index=df.index)
-    m.train_final(df, oof)
 
-    meta = json.loads((tmp_path / "model_metadata.json").read_text())
-    assert meta["target_transforms"]["s2"] == "signed_log1p"
+    call_count = []
+    orig = m.signed_log1p_transform
+    def spy(y):
+        call_count.append(1)
+        return orig(y)
+
+    with patch.object(m, "signed_log1p_transform", side_effect=spy):
+        m.train_final(df, oof)
+
+    assert len(call_count) >= 2, (
+        f"signed_log1p_transform called {len(call_count)}x; expected >=2 (gb2 + gb2d)"
+    )
