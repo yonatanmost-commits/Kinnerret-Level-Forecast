@@ -116,3 +116,36 @@ def test_outflow_lag1_is_shifted_by_one():
     expected_outflow = df["outflow_baptism_m3"].shift(1).iloc[anchor_idx]
     actual_outflow = h1_rows["outflow_lag1_m3"].iloc[0]
     np.testing.assert_almost_equal(actual_outflow, expected_outflow)
+
+
+# ── signed_log1p_transform applied in run_cv and train_final ─────────────────
+
+def test_train_final_writes_transform_to_metadata(tmp_path, monkeypatch):
+    """model_metadata.json must record s2 target_transform = signed_log1p."""
+    import importlib.util, json
+    spec = importlib.util.spec_from_file_location(
+        "_08d", Path(__file__).parent.parent / "Automation" / "08_train_forecast_model.py")
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    monkeypatch.setattr(m, "MODELS_DIR", tmp_path)
+
+    from model_lib import (
+        S1_FEATURES, S2_FEATURES, S1_DIRECT_FEATURES, S2_DIRECT_FEATURES,
+        S1_TARGET, S2_TARGET,
+    )
+    rng = np.random.default_rng(1)
+    dates = pd.date_range("2012-01-01", "2024-12-31", freq="D")
+    n = len(dates)
+    all_cols = list(set(
+        S1_FEATURES + S2_FEATURES + S1_DIRECT_FEATURES + S2_DIRECT_FEATURES + [
+            S1_TARGET, S2_TARGET, "volume_Mm3", "predicted_inflow_m3",
+            "rainfall_lag1_mm", "rainfall_lag2_mm", "rainfall_lag3_mm",
+            "level_m", "volume_change_Mm3", "outflow_baptism_m3",
+        ]
+    ))
+    df = pd.DataFrame({"date": dates, **{c: rng.uniform(0.1, 1.0, n) for c in all_cols}})
+
+    oof = pd.Series(rng.uniform(0.1, 1.0, n), index=df.index)
+    m.train_final(df, oof)
+
+    meta = json.loads((tmp_path / "model_metadata.json").read_text())
+    assert meta["target_transforms"]["s2"] == "signed_log1p"
