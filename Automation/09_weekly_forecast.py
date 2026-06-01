@@ -121,6 +121,8 @@ def build_feature_rows(forecast_df: pd.DataFrame,
     rain_all["rolling7"]  = rain_all["rainfall_mm"].rolling(7,  min_periods=1).sum()
     rain_all["rolling14"] = rain_all["rainfall_mm"].rolling(14, min_periods=1).sum()
     rain_all["rolling21"] = rain_all["rainfall_mm"].rolling(21, min_periods=1).sum()
+    rain_all["rolling30"] = rain_all["rainfall_mm"].rolling(30, min_periods=10).sum()
+    rain_all["rolling45"] = rain_all["rainfall_mm"].rolling(45, min_periods=15).sum()
     rain_all["lag1"]      = rain_all["rainfall_mm"].shift(1)
     rain_all["lag2"]      = rain_all["rainfall_mm"].shift(2)
     rain_all["lag3"]      = rain_all["rainfall_mm"].shift(3)
@@ -153,6 +155,8 @@ def build_feature_rows(forecast_df: pd.DataFrame,
     fc["rainfall_7d_mm"]   = rain_feats["rolling7"].values
     fc["rainfall_14d_mm"]  = rain_feats["rolling14"].values
     fc["rainfall_21d_mm"]  = rain_feats["rolling21"].values
+    fc["rainfall_30d_mm"]  = rain_feats["rolling30"].values
+    fc["rainfall_45d_mm"]  = rain_feats["rolling45"].values
     fc["rainfall_lag1_mm"] = rain_feats["lag1"].values
     fc["rainfall_lag2_mm"] = rain_feats["lag2"].values
     fc["rainfall_lag3_mm"] = rain_feats["lag3"].values
