@@ -38,18 +38,19 @@ LEVEL_MAX        = -208.89   # historical all-time high
 LEVEL_LEGAL_MIN  = -213.00   # lower management line
 LEVEL_LEGAL_MAX  = -208.90   # upper spill line
 
-# Chart colour palette
+# Chart colour palette — WATERLINE design system (see theme.py PALETTE)
+# Vivid turquoise water vs hot ember desert on warm basalt ground.
 COLOURS = {
-    "predicted": "#1E90FF",
-    "actual":    "#FF7043",
-    "winter":    "#4FC3F7",
-    "summer":    "#EF5350",
-    "rising":    "#66BB6A",
-    "falling":   "#EF5350",
-    "stable":    "#BDBDBD",
-    "legal_min": "#EF5350",
-    "legal_max": "#66BB6A",
-    "band":      "rgba(30, 144, 255, 0.15)",
+    "predicted": "#2BD9C4",   # forecast / level — turquoise water
+    "actual":    "#FF6B35",   # actual overlay — ember (hot contrast)
+    "winter":    "#67F2DE",   # bright aqua
+    "summer":    "#FF6B35",   # ember
+    "rising":    "#86E05A",   # healthy leaf
+    "falling":   "#FF6B35",   # ember
+    "stable":    "#B7A992",   # warm bone-dim
+    "legal_min": "#FF6B35",   # lower red line — ember
+    "legal_max": "#86E05A",   # upper spill line — leaf
+    "band":      "rgba(43, 217, 196, 0.14)",  # aqua confidence band
 }
 
 
@@ -224,8 +225,8 @@ def build_lake_svg(current_level: float) -> str:
      style="width:100%;height:auto;display:block;">
   <defs>
     <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%"   stop-color="#4FC3F7"/>
-      <stop offset="100%" stop-color="#006064"/>
+      <stop offset="0%"   stop-color="#67F2DE"/>
+      <stop offset="100%" stop-color="#0B6E6B"/>
     </linearGradient>
     <clipPath id="wc">
       <rect x="0" y="{water_y:.2f}" width="300" height="300"/>
@@ -233,28 +234,28 @@ def build_lake_svg(current_level: float) -> str:
   </defs>
 
   <!-- Lake body (empty) -->
-  <path d="{LAKE_PATH}" fill="#1A1D27" stroke="#1E90FF" stroke-width="{SW}"/>
+  <path d="{LAKE_PATH}" fill="#1E1A13" stroke="#2BD9C4" stroke-width="{SW}"/>
 
   <!-- Water fill -->
   <path d="{LAKE_PATH}" fill="url(#wg)" clip-path="url(#wc)"/>
 
   <!-- Water surface line -->
   <line x1="{LX1}" y1="{water_y:.2f}" x2="{LX2}" y2="{water_y:.2f}"
-        stroke="#4FC3F7" stroke-width="{SW}" stroke-dasharray="5 2.5"/>
+        stroke="#67F2DE" stroke-width="{SW}" stroke-dasharray="5 2.5"/>
 
-  <!-- Upper management line (green) — extends to label -->
+  <!-- Upper management line (spill) — extends to label -->
   <line x1="{LX1}" y1="{legal_max_y:.2f}" x2="{TX - 1}" y2="{legal_max_y:.2f}"
-        stroke="#66BB6A" stroke-width="{SW}" stroke-dasharray="6 3"/>
-  <text x="{TX}" y="{legal_max_y + 2:.2f}" fill="#66BB6A" font-size="{FS_SM}"
+        stroke="#86E05A" stroke-width="{SW}" stroke-dasharray="6 3"/>
+  <text x="{TX}" y="{legal_max_y + 2:.2f}" fill="#86E05A" font-size="{FS_SM}"
         font-family="monospace" text-anchor="start">-208.9</text>
 
-  <!-- Lower management line (red) — extends to label -->
+  <!-- Lower management line (red line) — extends to label -->
   <line x1="{LX1}" y1="{legal_min_y:.2f}" x2="{TX - 1}" y2="{legal_min_y:.2f}"
-        stroke="#EF5350" stroke-width="{SW}" stroke-dasharray="6 3"/>
-  <text x="{TX}" y="{legal_min_y + 2:.2f}" fill="#EF5350" font-size="{FS_SM}"
+        stroke="#FF6B35" stroke-width="{SW}" stroke-dasharray="6 3"/>
+  <text x="{TX}" y="{legal_min_y + 2:.2f}" fill="#FF6B35" font-size="{FS_SM}"
         font-family="monospace" text-anchor="start">-213.0</text>
 
   <!-- Current level label centred on lake -->
-  <text x="88" y="{water_y - 3:.2f}" fill="#E0E0E0" font-size="{FS_LG}"
+  <text x="88" y="{water_y - 3:.2f}" fill="#F4EBDD" font-size="{FS_LG}"
         font-family="monospace" text-anchor="middle" font-weight="bold">{current_level:.2f} m</text>
 </svg>"""

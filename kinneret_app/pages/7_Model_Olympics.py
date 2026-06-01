@@ -15,41 +15,22 @@ try:
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from app_utils import PROJECT_ROOT, COLOURS
+    from theme import inject_theme
 except Exception:
     PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
     COLOURS = {}
+    def inject_theme():  # graceful fallback if theme import fails
+        return None
 
 RESULTS_FILE = PROJECT_ROOT / "docs" / "olympics_results.json"
 
 st.set_page_config(page_title="Model Olympics", page_icon="🏅", layout="wide")
 
-# ── CSS (matches project design system) ───────────────────────────────────────
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono&display=swap');
-html, body, [class*="css"] { font-family: 'DM Mono', monospace; }
-h1, h2, h3 { font-family: 'Syne', sans-serif; }
-.kn-label {
-    font-size:0.78rem; color:#7BA3D4; text-transform:uppercase;
-    letter-spacing:0.08em; font-family:'DM Mono',monospace; margin-bottom:4px;
-}
-.kn-divider {
-    border:none; border-top:1px solid rgba(30,144,255,0.22); margin:1.2rem 0;
-}
-.winner-box {
-    background:rgba(255,215,0,0.08); border:1px solid #FFD700;
-    border-radius:8px; padding:1rem 1.4rem; margin:0.8rem 0;
-}
-.winner-name { font-family:'Syne',sans-serif; font-size:1.4rem;
-               color:#FFD700; font-weight:700; }
-.delta-pos { color:#66BB6A; font-weight:600; }
-.delta-neg { color:#EF5350; font-weight:600; }
-</style>
-""", unsafe_allow_html=True)
+inject_theme()
 
 st.markdown("<h1>🏅 Model Olympics</h1>", unsafe_allow_html=True)
 st.markdown(
-    '<p style="color:#7BA3D4;font-size:0.72rem;">'
+    '<p class="kn-subtitle" style="margin-top:0.6rem;">'
     'Walk-forward CV benchmark — held-out years 2021–2024'
     '</p>', unsafe_allow_html=True)
 st.markdown('<hr class="kn-divider">', unsafe_allow_html=True)
@@ -101,8 +82,8 @@ def _fmt(v):
     return f"{v:.3f}"
 
 def _row_html(row):
-    bg    = "rgba(255,215,0,0.10)" if row["_is_winner"] else "transparent"
-    color = "#FFD700" if row["_is_winner"] else "#E0E0E0"
+    bg    = "rgba(242,180,65,0.12)" if row["_is_winner"] else "transparent"
+    color = "var(--gold)" if row["_is_winner"] else "var(--bone)"
     crown = " 🏅" if row["_is_winner"] else ""
     cells = [
         f'<td style="color:{color}">{row["Model"]}{crown}</td>',
@@ -114,20 +95,20 @@ def _row_html(row):
     return f'<tr style="background:{bg}">{"".join(cells)}</tr>'
 
 header = "<tr>" + "".join(
-    f'<th style="color:#7BA3D4;text-align:{"right" if i else "left"}">{h}</th>'
+    f'<th style="color:var(--aqua);text-align:{"right" if i else "left"}">{h}</th>'
     for i, h in enumerate(["Model", "CV R² (vol Δ)", "CV MAE (Mm³/d)",
                             "7-day drift (m)", "Inflow R²"])
 ) + "</tr>"
 
 table_html = (
-    '<table style="width:100%;border-collapse:collapse;font-family:DM Mono,monospace;'
+    '<table style="width:100%;border-collapse:collapse;font-family:Space Mono,monospace;'
     'font-size:0.85rem">'
     f"<thead>{header}</thead><tbody>"
     + "".join(_row_html(r) for r in rows)
     + "</tbody></table>"
 )
 st.markdown(table_html, unsafe_allow_html=True)
-st.markdown(f'<p style="color:#7BA3D4;font-size:0.7rem;margin-top:4px">'
+st.markdown(f'<p style="color:var(--aqua);font-size:0.7rem;margin-top:4px">'
             f'Generated: {gen_date}</p>', unsafe_allow_html=True)
 
 # ── 2. Winner announcement ────────────────────────────────────────────────────
@@ -148,7 +129,7 @@ if winner != "baseline_gbr":
     st.markdown(f"""
     <div class="winner-box">
       <div class="winner-name">{DISPLAY_NAMES.get(winner, winner)}</div>
-      <div style="margin-top:0.5rem;font-size:0.9rem;color:#E0E0E0">
+      <div style="margin-top:0.5rem;font-size:0.9rem;color:var(--bone)">
         R² = <strong>{_fmt(win_entry.get("cv_vol_r2_mean"))}</strong>
         &nbsp;|&nbsp;
         MAE = <strong>{_fmt(win_entry.get("cv_vol_mae_mean"))} Mm³/day</strong>
@@ -164,7 +145,7 @@ else:
     st.markdown("""
     <div class="winner-box">
       <div class="winner-name">Baseline GBR holds the crown 🏆</div>
-      <div style="margin-top:0.5rem;font-size:0.9rem;color:#E0E0E0">
+      <div style="margin-top:0.5rem;font-size:0.9rem;color:var(--bone)">
         No challenger improved on the baseline R².
       </div>
     </div>
@@ -247,7 +228,7 @@ notes = {
 
 for model_name, text in notes.items():
     if any(DISPLAY_NAMES[k] == model_name for k in models):
-        st.markdown(f'<p style="color:#7BA3D4;font-size:0.78rem;margin-top:0.8rem">'
+        st.markdown(f'<p style="color:var(--aqua);font-size:0.78rem;margin-top:0.8rem">'
                     f'{model_name}</p>', unsafe_allow_html=True)
-        st.markdown(f'<p style="font-size:0.82rem;color:#C0C0C0">{text}</p>',
+        st.markdown(f'<p style="font-size:0.82rem;color:var(--bone-dim)">{text}</p>',
                     unsafe_allow_html=True)

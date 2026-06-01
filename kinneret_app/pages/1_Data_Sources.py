@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 import pandas as pd
 from app_utils import load_gold, PROJECT_ROOT, COLOURS
 from kinneret_level import append_to_silver, fetch_new_levels
+from theme import inject_theme, style_plotly
 
 st.set_page_config(
     page_title="Data Sources · Kinneret",
@@ -15,34 +16,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
-.block-container { padding-top: 1.4rem; }
-h1,h2,h3 { font-family: 'Syne', sans-serif !important; font-weight: 800 !important; }
-.kn-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(30,144,255,0.22), transparent);
-    margin: 1.2rem 0;
-}
-.kn-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.14em;
-    color: #7BA3D4;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-}
-</style>
-""", unsafe_allow_html=True)
+inject_theme()
 
 st.title("📋 Data Sources")
 st.markdown(
-    '<div style="font-family:\'DM Mono\',monospace;font-size:0.72rem;'
-    'letter-spacing:0.18em;color:#7BA3D4;text-transform:uppercase;'
-    'margin-top:-0.8rem;margin-bottom:1.5rem;">'
-    'Where every number in the pipeline comes from'
-    '</div>',
+    '<div class="kn-subtitle">Where every number in the pipeline comes from</div>',
     unsafe_allow_html=True,
 )
 
@@ -196,25 +174,25 @@ with tab_coverage:
             "name": "IMS Meteorological",
             "start": str(gold["date"].min().date()),
             "end":   str(gold["date"].max().date()),
-            "color": "#1E90FF",
+            "color": COLOURS["predicted"],
         },
         {
             "name": "Kinneret Level (IHS)",
             "start": str(gold["date"].min().date()),
             "end":   str(gold["date"].max().date()),
-            "color": "#4FC3F7",
+            "color": COLOURS["winter"],
         },
         {
             "name": "Jordan River Inflow",
             "start": str(gold["date"].min().date()),
             "end":   str(gold["date"].max().date()),
-            "color": "#66BB6A",
+            "color": COLOURS["legal_max"],
         },
         {
             "name": "Baptist Site Outflow",
             "start": str(gold["date"].min().date()),
             "end":   "2025-06-23",
-            "color": "#FF7043",
+            "color": COLOURS["actual"],
         },
     ]
 
@@ -254,10 +232,11 @@ with tab_coverage:
     )
     fig_gantt.add_vline(
         x=pd.Timestamp("2025-06-23").timestamp() * 1000,
-        line_dash="dot", line_color="#FF7043", line_width=1.2,
+        line_dash="dot", line_color=COLOURS["actual"], line_width=1.2,
         annotation_text="Baptist Site cutoff",
-        annotation_font=dict(color="#FF7043", size=9),
+        annotation_font=dict(color=COLOURS["actual"], size=9),
     )
 
+    style_plotly(fig_gantt, height=250)
     st.plotly_chart(fig_gantt, width='stretch')
     st.caption("Coloured bars = data available. Baptist Site outflow (orange) ends 2025-06-23.")
