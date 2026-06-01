@@ -171,6 +171,8 @@ def add_met_features(df, met):
     df["rainfall_7d_mm"]  = df["rainfall_mm"].rolling(7,  min_periods=1).sum()
     df["rainfall_14d_mm"] = df["rainfall_mm"].rolling(14, min_periods=1).sum()
     df["rainfall_21d_mm"] = df["rainfall_mm"].rolling(21, min_periods=1).sum()
+    df["rainfall_30d_mm"] = df["rainfall_mm"].rolling(30, min_periods=10).sum()
+    df["rainfall_45d_mm"] = df["rainfall_mm"].rolling(45, min_periods=15).sum()
 
     # --- Rolling ET0 (cumulative lake evaporation proxy) ---
     df["et0_7d_mm"]  = df["et0_mm"].rolling(7,  min_periods=3).sum()
