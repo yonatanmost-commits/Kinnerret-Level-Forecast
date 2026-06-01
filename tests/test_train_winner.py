@@ -18,14 +18,15 @@ _spec.loader.exec_module(train_08)
 
 
 def test_train_winner_only_raises_when_json_missing(tmp_path, monkeypatch):
-    monkeypatch.setattr(train_08, "MODELS_DIR", tmp_path)
+    monkeypatch.setattr(train_08, "BASE_DIR", tmp_path)
     with pytest.raises(FileNotFoundError):
         train_08.train_winner_only()
 
 
 def test_train_winner_only_raises_on_unknown_winner(tmp_path, monkeypatch):
-    monkeypatch.setattr(train_08, "MODELS_DIR", tmp_path)
-    (tmp_path / "olympics_results.json").write_text(
+    monkeypatch.setattr(train_08, "BASE_DIR", tmp_path)
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "olympics_results.json").write_text(
         json.dumps({"winner": "unknown_model", "models": {}})
     )
     monkeypatch.setattr(train_08, "load_data", lambda: __import__("pandas").DataFrame())
@@ -34,8 +35,9 @@ def test_train_winner_only_raises_on_unknown_winner(tmp_path, monkeypatch):
 
 
 def test_train_winner_only_dispatches_correct_trainer(tmp_path, monkeypatch):
-    monkeypatch.setattr(train_08, "MODELS_DIR", tmp_path)
-    (tmp_path / "olympics_results.json").write_text(
+    monkeypatch.setattr(train_08, "BASE_DIR", tmp_path)
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "olympics_results.json").write_text(
         json.dumps({"winner": "baseline_gbr", "models": {}})
     )
     import pandas as pd, numpy as np
@@ -54,8 +56,9 @@ def test_train_winner_only_dispatches_correct_trainer(tmp_path, monkeypatch):
     ("gru",     "train_final_gru"),
 ])
 def test_train_winner_only_dispatches_other_winners(tmp_path, monkeypatch, winner, fn_name):
-    monkeypatch.setattr(train_08, "MODELS_DIR", tmp_path)
-    (tmp_path / "olympics_results.json").write_text(
+    monkeypatch.setattr(train_08, "BASE_DIR", tmp_path)
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "olympics_results.json").write_text(
         json.dumps({"winner": winner, "models": {}})
     )
     import pandas as pd, numpy as np

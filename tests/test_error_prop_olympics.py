@@ -204,7 +204,8 @@ def test_train_final_gbr_single_stage_creates_pkl(tmp_path, monkeypatch):
 
 def test_save_olympics_results_includes_new_architectures(tmp_path, monkeypatch):
     import _08_train_forecast_model as m08
-    monkeypatch.setattr(m08, "MODELS_DIR", tmp_path)
+    monkeypatch.setattr(m08, "BASE_DIR", tmp_path)
+    (tmp_path / "docs").mkdir()
 
     dummy_cv = [{"fold": str(y), "n_test": 10, "s1_r2": 0.9,
                  "s2_r2": 0.7, "s2_mae": 0.5, "drift_m": 0.05}
@@ -223,7 +224,7 @@ def test_save_olympics_results_includes_new_architectures(tmp_path, monkeypatch)
         df)
 
     import json
-    with open(tmp_path / "olympics_results.json") as f:
+    with open(tmp_path / "docs" / "olympics_results.json") as f:
         data = json.load(f)
     assert "gbr_max_chain" in data["models"]
     assert "gbr_s1_direct_s2_anchor" in data["models"]
