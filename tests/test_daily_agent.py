@@ -28,18 +28,18 @@ def test_health_check_fails_on_missing_olympics_json(tmp_path, monkeypatch):
 
 def test_health_check_fails_on_missing_winner_key(tmp_path, monkeypatch):
     monkeypatch.setattr(daily_agent, "PROJECT_ROOT", tmp_path)
-    models_dir = tmp_path / "Models"
-    models_dir.mkdir()
-    (models_dir / "olympics_results.json").write_text(json.dumps({"models": {}}))
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    (docs_dir / "olympics_results.json").write_text(json.dumps({"models": {}}))
     issues = daily_agent.health_check()
     assert any("winner" in i and "REQUIRED" in i for i in issues)
 
 
 def test_health_check_passes_with_valid_json(tmp_path, monkeypatch):
     monkeypatch.setattr(daily_agent, "PROJECT_ROOT", tmp_path)
-    models_dir = tmp_path / "Models"
-    models_dir.mkdir()
-    (models_dir / "olympics_results.json").write_text(
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    (docs_dir / "olympics_results.json").write_text(
         json.dumps({"winner": "baseline_gbr", "models": {}})
     )
     issues = daily_agent.health_check()

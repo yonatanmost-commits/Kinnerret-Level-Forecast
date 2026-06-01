@@ -23,7 +23,7 @@ def health_check() -> list:
     issues = []
     olympics_path = PROJECT_ROOT / "docs" / "olympics_results.json"
     if not olympics_path.exists():
-        issues.append("REQUIRED: Models/olympics_results.json missing")
+        issues.append("REQUIRED: docs/olympics_results.json missing")
     else:
         try:
             with open(olympics_path, encoding="utf-8") as f:
