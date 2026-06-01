@@ -1,7 +1,7 @@
 """
 7_Model_Olympics.py  —  Model Benchmark Comparison
 
-Loads Models/olympics_results.json and displays a four-model scorecard,
+Loads docs/olympics_results.json and displays a four-model scorecard,
 winner announcement, per-fold R² chart, and architecture notes.
 """
 import json

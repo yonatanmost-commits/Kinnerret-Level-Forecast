@@ -23,6 +23,11 @@ _VAR_MAP = [
     ("wind_speed_10m_max",          ["lev_kinneret_wind_speed_ms_max", "lev_kinneret_wind_speed_max10min_ms_max"], 1/3.6),
     ("wind_gusts_10m_max",          ["lev_kinneret_wind_gust_speed_ms_max", "lev_kinneret_wind_speed_max1min_ms_max"], 1/3.6),
     ("wind_direction_10m_dominant", ["lev_kinneret_wind_dir_deg_mean", "lev_kinneret_wind_gust_dir_deg_mean"],  1.0),
+    # Radiation: gold reads tzamach_global_radiation_MJm2 (the only IMS solar sensor, no fallback).
+    # Open-Meteo serves shortwave_radiation_sum already in MJ/m2, so we stand in for tzamach here —
+    # same pattern as lev_kinneret above. This keeps radiation_MJm2 + Penman-Monteith ET0 alive
+    # once the IMS sensor goes dark (it stopped 2026-05-01).
+    ("shortwave_radiation_sum",     ["tzamach_global_radiation_MJm2"],                                          1.0),
 ]
 
 
