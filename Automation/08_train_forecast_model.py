@@ -37,7 +37,21 @@ from model_lib import (
 )
 import xgboost as xgb
 import lightgbm as lgb
-from gru_model import GRUTrainer
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GRU — retired from active training (Model Olympics Round 1 loser).
+# It scored S2 R² ≈ -0.03 across all folds, far below the GBR baseline, while
+# costing ~15 min/run (4 folds × 150 epochs on CPU). We no longer train it; its
+# historical CV result is preserved below so the Model Olympics dashboard still
+# shows why it was dropped. The implementation lives on in gru_model.py.
+# ─────────────────────────────────────────────────────────────────────────────
+HISTORICAL_GRU_RESULT = {
+    "cv_vol_r2_mean": -0.026,
+    "cv_vol_r2_by_fold": {"2021": -0.061, "2022": -0.0, "2023": -0.044, "2024": -0.0},
+    "cv_vol_mae_mean": 1.485,
+    "cv_7d_drift_mean_m": 0.0589,
+    "cv_inflow_r2_mean": None,
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # GBR hyperparameter constants  (single source of truth)
@@ -921,73 +935,6 @@ def train_final_gbr_single_stage(df: pd.DataFrame, _n_est: int = 250):
     return gb
 
 
-def run_cv_gru(df: pd.DataFrame, bathy_coeffs: list):
-    """
-    Walk-forward CV for the GRU multi-task challenger.
-
-    A new GRU is trained from scratch for each fold (~150 epochs × 4 folds).
-    Sequences for test prediction are built from the FULL df so the 21-day
-    history window can naturally span the train-test boundary.
-    """
-    print("\n=== GRU CV (4 folds × 150 epochs — expect ~15 min on CPU) ===")
-    cv_results = []
-
-    for fold_name, train_yrs, test_yr in CV_FOLDS:
-        tr = df[df["date"].dt.year.isin(train_yrs)].copy()
-
-        trainer = GRUTrainer(epochs=150, lr=1e-3, batch_size=64)
-        trainer.fit(tr)
-
-        # Collect predictions for all horizons in test year
-        all_dvol_pred, all_dvol_true = [], []
-        preds_rows = []
-
-        for h in range(1, 8):
-            p_inf, p_dv, anc_dates, dv_true = trainer.predict_horizon(
-                df, horizon=h, test_year=test_yr)
-            if len(p_dv) == 0:
-                continue
-
-            all_dvol_pred.extend(p_dv.tolist())
-            all_dvol_true.extend(dv_true.tolist())
-
-            for i, ad in enumerate(anc_dates):
-                preds_rows.append({
-                    "date":      pd.Timestamp(ad),
-                    "horizon_h": float(h),
-                    "pred_dvol": float(p_dv[i]),
-                })
-
-        s2_r2_val  = r2( np.array(all_dvol_true), np.array(all_dvol_pred))
-        s2_mae_val = mae(np.array(all_dvol_true), np.array(all_dvol_pred))
-
-        preds_df = pd.DataFrame(preds_rows)
-        drift = _mean_7d_drift(df, preds_df, bathy_coeffs)
-
-        cv_results.append({
-            "fold": fold_name, "n_test": int(len(all_dvol_true)),
-            "s1_r2": None,
-            "s2_r2": round(s2_r2_val, 3),
-            "s2_mae": round(s2_mae_val, 3),
-            "drift_m": round(drift, 4),
-        })
-        print(f"  {fold_name}:  S2 R²={s2_r2_val:.3f}  "
-              f"MAE={s2_mae_val:.3f}  drift={drift:.4f} m")
-
-    return cv_results
-
-
-def train_final_gru(df: pd.DataFrame):
-    """Train final GRU on all available data and save."""
-    print("\n  GRU final training (150 epochs on full dataset) ...")
-    trainer = GRUTrainer(epochs=150, lr=1e-3, batch_size=64)
-    trainer.fit(df)
-    MODELS_DIR.mkdir(exist_ok=True)
-    trainer.save(MODELS_DIR / "gru_multitask.pt")
-    print(f"  Saved gru_multitask.pt")
-    return trainer
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Final model training
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1056,7 +1003,7 @@ def _read_baseline_from_meta() -> dict:
 
 
 def save_olympics_results(baseline: dict,
-                          xgb_cv: list, lgb_cv: list, gru_cv: list,
+                          xgb_cv: list, lgb_cv: list,
                           max_chain_cv: list,
                           s1d_s2a_cv: list,
                           single_stage_cv: list,
@@ -1081,7 +1028,7 @@ def save_olympics_results(baseline: dict,
         "baseline_gbr":            baseline,
         "xgboost":                 _summarise(xgb_cv),
         "lgbm":                    _summarise(lgb_cv),
-        "gru":                     _summarise(gru_cv),
+        "gru":                     HISTORICAL_GRU_RESULT,   # retired — see constant
         "gbr_max_chain":           _summarise(max_chain_cv),
         "gbr_s1_direct_s2_anchor": _summarise(s1d_s2a_cv),
         "gbr_single_stage":        _summarise(single_stage_cv),
@@ -1163,8 +1110,6 @@ def train_winner_only():
     elif winner == "lgbm":
         oof_s1 = df[S1_TARGET]
         train_final_lgb(df, oof_s1)
-    elif winner == "gru":
-        train_final_gru(df)
     else:
         raise ValueError(f"Unknown winner in olympics_results.json: {winner!r}")
 
@@ -1259,9 +1204,8 @@ def main():
     lgb_cv_results = run_cv_lgb(df, bathy_coeffs)
     train_final_lgb(df, oof_s1)
 
-    # 9. GRU
-    gru_cv_results = run_cv_gru(df, bathy_coeffs)
-    train_final_gru(df)
+    # GRU retired from active training — its historical result is preserved
+    # via HISTORICAL_GRU_RESULT (see save_olympics_results).
 
     # 11. Architecture A — max chain
     max_chain_cv = run_cv_max_chain(df, bathy_coeffs)
@@ -1279,7 +1223,7 @@ def main():
 
     # 10. Save combined results
     save_olympics_results(baseline_entry, xgb_cv_results,
-                          lgb_cv_results, gru_cv_results,
+                          lgb_cv_results,
                           max_chain_cv, s1d_s2a_cv,
                           single_stage_cv, roll1_cv, df)
 
