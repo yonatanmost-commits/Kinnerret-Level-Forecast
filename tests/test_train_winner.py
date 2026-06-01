@@ -53,7 +53,6 @@ def test_train_winner_only_dispatches_correct_trainer(tmp_path, monkeypatch):
 @pytest.mark.parametrize("winner,fn_name", [
     ("xgboost", "train_final_xgb"),
     ("lgbm",    "train_final_lgb"),
-    ("gru",     "train_final_gru"),
 ])
 def test_train_winner_only_dispatches_other_winners(tmp_path, monkeypatch, winner, fn_name):
     monkeypatch.setattr(train_08, "BASE_DIR", tmp_path)

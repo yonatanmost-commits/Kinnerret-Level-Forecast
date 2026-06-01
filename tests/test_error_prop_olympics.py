@@ -219,7 +219,7 @@ def test_save_olympics_results_includes_new_architectures(tmp_path, monkeypatch)
 
     m08.save_olympics_results(
         baseline,
-        dummy_cv, dummy_cv, dummy_cv,   # xgb, lgb, gru
+        dummy_cv, dummy_cv,   # xgb, lgb
         dummy_cv, dummy_cv, dummy_cv, dummy_cv,   # A, C, D, E
         df)
 
@@ -230,3 +230,5 @@ def test_save_olympics_results_includes_new_architectures(tmp_path, monkeypatch)
     assert "gbr_s1_direct_s2_anchor" in data["models"]
     assert "gbr_single_stage" in data["models"]
     assert "gbr_s1_chain_s2_roll1" in data["models"]
+    # GRU is retired but its historical result is still preserved verbatim.
+    assert data["models"]["gru"] == m08.HISTORICAL_GRU_RESULT
