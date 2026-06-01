@@ -40,6 +40,18 @@ import lightgbm as lgb
 from gru_model import GRUTrainer
 
 # ─────────────────────────────────────────────────────────────────────────────
+# GBR hyperparameter constants  (single source of truth)
+# ─────────────────────────────────────────────────────────────────────────────
+GBR_CV_PARAMS = dict(
+    n_estimators=300, max_depth=4, min_leaf=10,
+    learning_rate=0.03, random_state=42,
+)
+GBR_FINAL_PARAMS = dict(
+    n_estimators=500, max_depth=4, min_leaf=10,
+    learning_rate=0.03, random_state=42,
+)
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Paths
 # ─────────────────────────────────────────────────────────────────────────────
 BASE_DIR   = Path(__file__).resolve().parent.parent
@@ -101,7 +113,10 @@ def build_direct_s2_data(df: pd.DataFrame) -> pd.DataFrame:
 
         # Anchor state from t  (never updated — this is what eliminates chaining error)
         p["level_m_anchor"]   = df["level_m"]
-        p["dvol_lag1_anchor"] = df["volume_change_Mm3"]   # dvol at anchor = lag1 for h=1
+        p["dvol_lag1_anchor"] = df["volume_change_Mm3"]          # dvol at anchor = lag1 for h=1
+        p["dvol_lag2_anchor"] = df["volume_change_Mm3"].shift(1)  # anchor-1 day
+        p["dvol_lag3_anchor"] = df["volume_change_Mm3"].shift(2)  # anchor-2 day
+        p["outflow_lag1_m3"]  = df["outflow_baptism_m3"].shift(1) # yesterday's pump outflow
         p["horizon_h"]        = float(h)
         pieces.append(p)
 
@@ -345,7 +360,7 @@ def run_cv(df: pd.DataFrame):
             print(f"  Fold {fold_name}: no Stage-1 test rows — skipping")
             continue
 
-        rf1 = GBRegressor(n_estimators=150, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
+        rf1 = GBRegressor(**GBR_CV_PARAMS)
         rf1.fit(s1_tr[S1_FEATURES].values, s1_tr[S1_TARGET].values)
         p1 = rf1.predict(s1_te[S1_FEATURES].values)
         p1 = np.clip(p1, 0, None)
@@ -370,9 +385,10 @@ def run_cv(df: pd.DataFrame):
             print(f"  Fold {fold_name}: no Stage-2 test rows")
             continue
 
-        rf2 = GBRegressor(n_estimators=150, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
-        rf2.fit(s2_tr[S2_FEATURES].values, s2_tr[S2_TARGET].values)
-        p2 = rf2.predict(s2_te[S2_FEATURES].values)
+        rf2 = GBRegressor(**GBR_CV_PARAMS)
+        rf2.fit(s2_tr[S2_FEATURES].values,
+                signed_log1p_transform(s2_tr[S2_TARGET].values))
+        p2 = inv_signed_log1p_transform(rf2.predict(s2_te[S2_FEATURES].values))
 
         s2_r2_val  = r2(s2_te[S2_TARGET].values, p2)
         s2_mae_val = mae(s2_te[S2_TARGET].values, p2)
@@ -416,8 +432,7 @@ def run_cv_max_chain(df: pd.DataFrame, bathy_coeffs: list,
         s1_tr = tr.dropna(subset=S1_FEATURES + [S1_TARGET])
         if len(s1_tr) == 0:
             continue
-        rf1 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                          learning_rate=0.05, random_state=42)
+        rf1 = GBRegressor(**{**GBR_CV_PARAMS, "n_estimators": _n_est})
         rf1.fit(s1_tr[S1_FEATURES].values, s1_tr[S1_TARGET].values)
 
         # Train S2 — identical to baseline (actual inflow as training proxy)
@@ -426,8 +441,7 @@ def run_cv_max_chain(df: pd.DataFrame, bathy_coeffs: list,
         s2_tr = tr_s2.dropna(subset=S2_FEATURES + [S2_TARGET])
         if len(s2_tr) == 0:
             continue
-        rf2 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                          learning_rate=0.05, random_state=42)
+        rf2 = GBRegressor(**{**GBR_CV_PARAMS, "n_estimators": _n_est})
         rf2.fit(s2_tr[S2_FEATURES].values, s2_tr[S2_TARGET].values)
 
         # Simulate chained 7-day windows for every anchor day in the test year
@@ -495,8 +509,7 @@ def run_cv_s1_direct_s2_anchor(df: pd.DataFrame, bathy_coeffs: list,
             subset=S1_DIRECT_FEATURES + [S1_TARGET])
         te_s1_all = build_direct_s1_data(te)
 
-        gb_s1 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                            learning_rate=0.05, random_state=42)
+        gb_s1 = GBRegressor(**{**GBR_CV_PARAMS, "n_estimators": _n_est})
         gb_s1.fit(tr_s1[S1_DIRECT_FEATURES].values, tr_s1[S1_TARGET].values)
 
         te_inflow_pred = np.clip(
@@ -514,8 +527,7 @@ def run_cv_s1_direct_s2_anchor(df: pd.DataFrame, bathy_coeffs: list,
         te_s2_all = te_s2_all.reset_index(drop=True)
         te_s2_all["predicted_inflow_m3"] = te_inflow_pred
 
-        gb_s2 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                            learning_rate=0.05, random_state=42)
+        gb_s2 = GBRegressor(**{**GBR_CV_PARAMS, "n_estimators": _n_est})
         gb_s2.fit(tr_s2[S2_DIRECT_FEATURES].values, tr_s2[S2_DIRECT_TARGET].values)
 
         te_s2_clean = te_s2_all.dropna(
@@ -566,8 +578,7 @@ def run_cv_single_stage(df: pd.DataFrame, bathy_coeffs: list,
             subset=S2_DIRECT_NO_INFLOW_FEATURES + [S2_DIRECT_TARGET])
         te_s2_all = build_direct_s2_data(te).reset_index(drop=True)
 
-        gb = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                         learning_rate=0.05, random_state=42)
+        gb = GBRegressor(**{**GBR_CV_PARAMS, "n_estimators": _n_est})
         gb.fit(tr_s2[S2_DIRECT_NO_INFLOW_FEATURES].values,
                tr_s2[S2_DIRECT_TARGET].values)
 
@@ -620,8 +631,7 @@ def run_cv_s1_chain_s2_roll1(df: pd.DataFrame, bathy_coeffs: list,
         s1_tr = tr.dropna(subset=S1_FEATURES + [S1_TARGET])
         if len(s1_tr) == 0:
             continue
-        rf1 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                          learning_rate=0.05, random_state=42)
+        rf1 = GBRegressor(**{**GBR_CV_PARAMS, "n_estimators": _n_est})
         rf1.fit(s1_tr[S1_FEATURES].values, s1_tr[S1_TARGET].values)
 
         # Train S2 — identical to baseline
@@ -630,8 +640,7 @@ def run_cv_s1_chain_s2_roll1(df: pd.DataFrame, bathy_coeffs: list,
         s2_tr = tr_s2.dropna(subset=S2_FEATURES + [S2_TARGET])
         if len(s2_tr) == 0:
             continue
-        rf2 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                          learning_rate=0.05, random_state=42)
+        rf2 = GBRegressor(**{**GBR_CV_PARAMS, "n_estimators": _n_est})
         rf2.fit(s2_tr[S2_FEATURES].values, s2_tr[S2_TARGET].values)
 
         # Simulate with roll1 (partial chain)
@@ -881,14 +890,12 @@ def train_final_gbr_s1_direct_s2_anchor(df: pd.DataFrame, _n_est: int = 250):
 
     s1_data = build_direct_s1_data(df).dropna(
         subset=S1_DIRECT_FEATURES + [S1_TARGET])
-    gb_s1 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                        learning_rate=0.05, random_state=42)
+    gb_s1 = GBRegressor(**{**GBR_FINAL_PARAMS, "n_estimators": _n_est})
     gb_s1.fit(s1_data[S1_DIRECT_FEATURES].values, s1_data[S1_TARGET].values)
 
     s2_data = build_direct_s2_data(df).dropna(
         subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
-    gb_s2 = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                        learning_rate=0.05, random_state=42)
+    gb_s2 = GBRegressor(**{**GBR_FINAL_PARAMS, "n_estimators": _n_est})
     gb_s2.fit(s2_data[S2_DIRECT_FEATURES].values, s2_data[S2_DIRECT_TARGET].values)
 
     MODELS_DIR.mkdir(exist_ok=True)
@@ -904,8 +911,7 @@ def train_final_gbr_single_stage(df: pd.DataFrame, _n_est: int = 250):
 
     s2_data = build_direct_s2_data(df).dropna(
         subset=S2_DIRECT_NO_INFLOW_FEATURES + [S2_DIRECT_TARGET])
-    gb = GBRegressor(n_estimators=_n_est, max_depth=4, min_leaf=10,
-                     learning_rate=0.05, random_state=42)
+    gb = GBRegressor(**{**GBR_FINAL_PARAMS, "n_estimators": _n_est})
     gb.fit(s2_data[S2_DIRECT_NO_INFLOW_FEATURES].values,
            s2_data[S2_DIRECT_TARGET].values)
 
@@ -999,7 +1005,7 @@ def train_final(df: pd.DataFrame, oof_s1: pd.Series):
     # Stage 1
     s1_data = df.dropna(subset=S1_FEATURES + [S1_TARGET])
     print(f"  Stage 1: {len(s1_data):,} training rows")
-    gb1 = GBRegressor(n_estimators=250, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
+    gb1 = GBRegressor(**GBR_FINAL_PARAMS)
     gb1.fit(s1_data[S1_FEATURES].values, s1_data[S1_TARGET].values,
             feature_names=S1_FEATURES)
 
@@ -1009,8 +1015,9 @@ def train_final(df: pd.DataFrame, oof_s1: pd.Series):
     df2["predicted_inflow_m3"] = oof_s1.combine_first(df[S1_TARGET])
     s2_data = df2.dropna(subset=S2_FEATURES + [S2_TARGET])
     print(f"  Stage 2: {len(s2_data):,} training rows")
-    gb2 = GBRegressor(n_estimators=250, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
-    gb2.fit(s2_data[S2_FEATURES].values, s2_data[S2_TARGET].values,
+    gb2 = GBRegressor(**GBR_FINAL_PARAMS)
+    gb2.fit(s2_data[S2_FEATURES].values,
+            signed_log1p_transform(s2_data[S2_TARGET].values),
             feature_names=S2_FEATURES)
 
     # Stage 2 direct (horizon-aware, anchor state)
@@ -1018,8 +1025,9 @@ def train_final(df: pd.DataFrame, oof_s1: pd.Series):
     direct_data = build_direct_s2_data(df2)
     direct_data = direct_data.dropna(subset=S2_DIRECT_FEATURES + [S2_DIRECT_TARGET])
     print(f"  Stage 2 direct: {len(direct_data):,} training rows ({len(direct_data)//7:,} anchors x 7 horizons)")
-    gb2d = GBRegressor(n_estimators=250, max_depth=4, min_leaf=10, learning_rate=0.05, random_state=42)
-    gb2d.fit(direct_data[S2_DIRECT_FEATURES].values, direct_data[S2_DIRECT_TARGET].values,
+    gb2d = GBRegressor(**GBR_FINAL_PARAMS)
+    gb2d.fit(direct_data[S2_DIRECT_FEATURES].values,
+             signed_log1p_transform(direct_data[S2_DIRECT_TARGET].values),
              feature_names=S2_DIRECT_FEATURES)
 
     return gb1, gb2, gb2d
@@ -1221,7 +1229,7 @@ def main():
         "cv_s2_mean_r2":  round(float(np.mean(s2_r2s)),  3) if cv_results else None,
         "cv_s2_mean_mae": round(float(np.mean(s2_maes)), 3) if cv_results else None,
         "cv_s1_mean_r2":  round(float(np.mean(s1_r2s)),  3) if cv_results else None,
-        "target_transforms": {"s1": "none", "s2": "none"},
+        "target_transforms": {"s1": "none", "s2": "signed_log1p"},
         "s2_direct": True,
     }
     meta_path = MODELS_DIR / "model_metadata.json"

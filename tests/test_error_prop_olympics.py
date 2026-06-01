@@ -35,6 +35,7 @@ def _make_minimal_df(n_rows: int = 30) -> pd.DataFrame:
         "volume_Mm3", "predicted_inflow_m3",
         "rainfall_lag1_mm", "rainfall_lag2_mm", "rainfall_lag3_mm",
         "level_m", "volume_change_Mm3",
+        "outflow_baptism_m3",
     ]))
     data = {"date": dates}
     for c in cols:
@@ -87,6 +88,7 @@ def _make_cv_df() -> pd.DataFrame:
         S1_TARGET, S2_TARGET, "volume_Mm3", "predicted_inflow_m3",
         "rainfall_lag1_mm", "rainfall_lag2_mm", "rainfall_lag3_mm",
         "level_m", "volume_change_Mm3",
+        "outflow_baptism_m3",
     ]))
     data = {"date": dates}
     for c in cols:
