@@ -1,101 +1,101 @@
 {
-  "generated_at": "2026-05-30",
+  "generated_at": "2026-06-01",
   "winner": "baseline_gbr",
   "models": {
     "baseline_gbr": {
-      "cv_vol_r2_mean": 0.758,
+      "cv_vol_r2_mean": 0.763,
       "cv_vol_r2_by_fold": {
-        "2021": 0.665,
-        "2022": 0.877,
-        "2023": 0.664,
-        "2024": 0.825
+        "2021": 0.664,
+        "2022": 0.883,
+        "2023": 0.687,
+        "2024": 0.817
       },
-      "cv_vol_mae_mean": 0.638,
+      "cv_vol_mae_mean": 0.641,
       "cv_7d_drift_mean_m": null,
       "cv_inflow_r2_mean": null
     },
     "xgboost": {
-      "cv_vol_r2_mean": 0.68,
+      "cv_vol_r2_mean": 0.664,
       "cv_vol_r2_by_fold": {
-        "2021": 0.579,
-        "2022": 0.864,
-        "2023": 0.457,
-        "2024": 0.822
+        "2021": 0.615,
+        "2022": 0.858,
+        "2023": 0.384,
+        "2024": 0.801
       },
-      "cv_vol_mae_mean": 0.691,
-      "cv_7d_drift_mean_m": 0.026,
-      "cv_inflow_r2_mean": 0.868
+      "cv_vol_mae_mean": 0.724,
+      "cv_7d_drift_mean_m": 0.0284,
+      "cv_inflow_r2_mean": 0.878
     },
     "lgbm": {
-      "cv_vol_r2_mean": 0.682,
+      "cv_vol_r2_mean": 0.649,
       "cv_vol_r2_by_fold": {
-        "2021": 0.65,
-        "2022": 0.864,
-        "2023": 0.493,
-        "2024": 0.721
+        "2021": 0.633,
+        "2022": 0.872,
+        "2023": 0.387,
+        "2024": 0.706
       },
-      "cv_vol_mae_mean": 0.698,
-      "cv_7d_drift_mean_m": 0.0175,
-      "cv_inflow_r2_mean": 0.879
+      "cv_vol_mae_mean": 0.723,
+      "cv_7d_drift_mean_m": 0.019,
+      "cv_inflow_r2_mean": 0.871
     },
     "gru": {
-      "cv_vol_r2_mean": -0.024,
+      "cv_vol_r2_mean": -0.026,
       "cv_vol_r2_by_fold": {
-        "2021": -0.055,
-        "2022": -0.001,
-        "2023": -0.041,
+        "2021": -0.061,
+        "2022": -0.0,
+        "2023": -0.044,
         "2024": -0.0
       },
-      "cv_vol_mae_mean": 1.482,
-      "cv_7d_drift_mean_m": 0.0588,
+      "cv_vol_mae_mean": 1.485,
+      "cv_7d_drift_mean_m": 0.0589,
       "cv_inflow_r2_mean": null
     },
     "gbr_max_chain": {
-      "cv_vol_r2_mean": 0.675,
+      "cv_vol_r2_mean": 0.68,
       "cv_vol_r2_by_fold": {
-        "2021": 0.573,
-        "2022": 0.852,
-        "2023": 0.516,
-        "2024": 0.76
+        "2021": 0.638,
+        "2022": 0.865,
+        "2023": 0.451,
+        "2024": 0.765
       },
-      "cv_vol_mae_mean": 0.764,
-      "cv_7d_drift_mean_m": 0.0218,
+      "cv_vol_mae_mean": 0.778,
+      "cv_7d_drift_mean_m": 0.0226,
       "cv_inflow_r2_mean": null
     },
     "gbr_s1_direct_s2_anchor": {
-      "cv_vol_r2_mean": 0.698,
+      "cv_vol_r2_mean": 0.7,
       "cv_vol_r2_by_fold": {
-        "2021": 0.645,
-        "2022": 0.867,
-        "2023": 0.502,
-        "2024": 0.779
+        "2021": 0.671,
+        "2022": 0.866,
+        "2023": 0.463,
+        "2024": 0.799
       },
-      "cv_vol_mae_mean": 0.7,
+      "cv_vol_mae_mean": 0.704,
       "cv_7d_drift_mean_m": 0.018,
-      "cv_inflow_r2_mean": 0.848
+      "cv_inflow_r2_mean": 0.85
     },
     "gbr_single_stage": {
-      "cv_vol_r2_mean": 0.674,
+      "cv_vol_r2_mean": 0.676,
       "cv_vol_r2_by_fold": {
-        "2021": 0.625,
-        "2022": 0.811,
-        "2023": 0.507,
-        "2024": 0.753
+        "2021": 0.64,
+        "2022": 0.814,
+        "2023": 0.488,
+        "2024": 0.764
       },
-      "cv_vol_mae_mean": 0.725,
-      "cv_7d_drift_mean_m": 0.0188,
+      "cv_vol_mae_mean": 0.741,
+      "cv_7d_drift_mean_m": 0.0191,
       "cv_inflow_r2_mean": null
     },
     "gbr_s1_chain_s2_roll1": {
-      "cv_vol_r2_mean": 0.679,
+      "cv_vol_r2_mean": 0.669,
       "cv_vol_r2_by_fold": {
-        "2021": 0.593,
-        "2022": 0.856,
-        "2023": 0.517,
-        "2024": 0.751
+        "2021": 0.651,
+        "2022": 0.869,
+        "2023": 0.403,
+        "2024": 0.753
       },
-      "cv_vol_mae_mean": 0.751,
-      "cv_7d_drift_mean_m": 0.0211,
+      "cv_vol_mae_mean": 0.77,
+      "cv_7d_drift_mean_m": 0.0221,
       "cv_inflow_r2_mean": null
     }
   }
