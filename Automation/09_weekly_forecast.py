@@ -35,6 +35,7 @@ from model_lib import (
     S1_FEATURES,
     S2_DIRECT_FEATURES,
     enrich_forecast_df,
+    inv_signed_log1p_transform,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -224,14 +225,19 @@ def run_forecast(forecast_df: pd.DataFrame,
     # ── Anchor state for Stage 2 direct model (fixed at day 0 — never updated) ─
     hist_dvol = (history_df.dropna(subset=["volume_change_Mm3"])
                  if "volume_change_Mm3" in history_df.columns else pd.DataFrame())
-    if len(hist_dvol) >= 1:
-        anchor_dvol = float(hist_dvol.iloc[-1]["volume_change_Mm3"])
-    else:
-        anchor_dvol = np.nan
+    anchor_dvol      = float(hist_dvol.iloc[-1]["volume_change_Mm3"]) if len(hist_dvol) >= 1 else np.nan
+    anchor_dvol_lag2 = float(hist_dvol.iloc[-2]["volume_change_Mm3"]) if len(hist_dvol) >= 2 else np.nan
+    anchor_dvol_lag3 = float(hist_dvol.iloc[-3]["volume_change_Mm3"]) if len(hist_dvol) >= 3 else np.nan
+
+    hist_outflow = (history_df.dropna(subset=["outflow_baptism_m3"])
+                    if "outflow_baptism_m3" in history_df.columns else pd.DataFrame())
+    outflow_lag1_anchor = float(hist_outflow.iloc[-1]["outflow_baptism_m3"]) if len(hist_outflow) >= 1 else np.nan
 
     anchor_level = current_level   # fixed for the whole week
-    print(f"  Anchor state:  level_m_anchor = {anchor_level:+.3f} m  |  "
-          f"dvol_lag1_anchor = {anchor_dvol:+.4f} Mm³")
+    print(f"  Anchor state:  level={anchor_level:+.3f} m  "
+          f"dvol_lag1={anchor_dvol:+.4f}  dvol_lag2={anchor_dvol_lag2:+.4f}  "
+          f"dvol_lag3={anchor_dvol_lag3:+.4f} Mm³  "
+          f"outflow_lag1={outflow_lag1_anchor/1e6:.3f} Mm³")
 
     fc      = build_feature_rows(forecast_df, history_df)
     results = []
@@ -252,11 +258,14 @@ def run_forecast(forecast_df: pd.DataFrame,
         # ── Stage 2 direct: anchor state + horizon → volume change ───────────
         s2_vals = {f: row.get(f, np.nan) for f in S2_DIRECT_FEATURES}
         s2_vals["predicted_inflow_m3"] = pred_inflow
-        s2_vals["level_m_anchor"]      = anchor_level   # fixed (day 0)
-        s2_vals["dvol_lag1_anchor"]    = anchor_dvol    # fixed (day 0)
+        s2_vals["level_m_anchor"]      = anchor_level         # fixed (day 0)
+        s2_vals["dvol_lag1_anchor"]    = anchor_dvol          # fixed (day 0)
+        s2_vals["dvol_lag2_anchor"]    = anchor_dvol_lag2     # fixed (day 0)
+        s2_vals["dvol_lag3_anchor"]    = anchor_dvol_lag3     # fixed (day 0)
+        s2_vals["outflow_lag1_m3"]     = outflow_lag1_anchor  # fixed (day 0)
         s2_vals["horizon_h"]           = float(horizon)
         s2_x      = np.array([[s2_vals.get(f, np.nan) for f in S2_DIRECT_FEATURES]], dtype=float)
-        pred_dvol = float(gb2_direct.predict(s2_x)[0])
+        pred_dvol = float(inv_signed_log1p_transform(gb2_direct.predict(s2_x))[0])
 
         # ── Update cumulative state (display only — NOT fed back to S2) ───────
         new_vol  = current_volume + pred_dvol if not np.isnan(current_volume) else np.nan
