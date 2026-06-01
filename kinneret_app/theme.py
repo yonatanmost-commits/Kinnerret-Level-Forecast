@@ -328,6 +328,25 @@ code, kbd { font-family: var(--mono) !important;
   color: var(--gold); letter-spacing: -0.02em; }
 .delta-pos { color: var(--leaf); font-weight: 700; }
 .delta-neg { color: var(--ember); font-weight: 700; }
+
+/* ── Expert Commentary byline + signature ───────────────────────────────── */
+.expert-byline {
+  font-family: var(--mono); font-size: 0.82rem; color: var(--bone-dim);
+  border-left: 3px solid var(--aqua); padding: 0.6rem 0 0.6rem 0.95rem;
+  margin: 0.2rem 0 1.4rem; line-height: 1.5;
+}
+.expert-byline strong { color: var(--aqua-bright); font-weight: 700; }
+.expert-sig {
+  font-family: var(--display); font-size: 1.15rem; font-weight: 800;
+  color: var(--aqua-bright); letter-spacing: -0.01em; margin-top: 0.4rem;
+}
+.expert-sig + .expert-sig-title {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--bone-faint);
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+.expert-essay p { color: var(--bone-dim); font-size: 0.95rem; line-height: 1.65;
+  font-family: var(--display); }
+.expert-essay strong { color: var(--bone); }
 </style>
 """
 
