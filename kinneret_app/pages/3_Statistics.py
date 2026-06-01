@@ -8,6 +8,7 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 from app_utils import load_gold, COLOURS
+from theme import inject_theme, style_plotly
 
 
 def _distplot(data_list, labels, colors, bin_size=None):
@@ -41,31 +42,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
-.block-container { padding-top: 1.4rem; }
-h1,h2,h3 { font-family: 'Syne', sans-serif !important; font-weight: 800 !important; }
-.kn-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.14em;
-    color: #7BA3D4;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-}
-.kn-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(30,144,255,0.22), transparent);
-    margin: 1.2rem 0;
-}
-</style>
-""", unsafe_allow_html=True)
+inject_theme()
 
 st.title("📊 Statistics & EDA")
 st.markdown(
-    '<div style="font-family:\'DM Mono\',monospace;font-size:0.72rem;'
-    'letter-spacing:0.18em;color:#7BA3D4;text-transform:uppercase;'
+    '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;'
+    'letter-spacing:0.18em;color:var(--aqua);text-transform:uppercase;'
     'margin-top:-0.8rem;margin-bottom:1.5rem;">'
     'Interactive exploration of the gold feature table'
     '</div>',

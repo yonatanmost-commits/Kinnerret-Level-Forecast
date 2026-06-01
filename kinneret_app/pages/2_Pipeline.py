@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 from app_utils import load_gold, PROJECT_ROOT, COLOURS
+from theme import inject_theme
 
 st.set_page_config(
     page_title="Data Pipeline · Kinneret",
@@ -17,54 +18,11 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
-.block-container { padding-top: 1.4rem; }
-h1,h2,h3 { font-family: 'Syne', sans-serif !important; font-weight: 800 !important; }
-.kn-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(30,144,255,0.22), transparent);
-    margin: 1.2rem 0;
-}
-.kn-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.14em;
-    color: #7BA3D4;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-}
-.etl-flow {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 1rem 0 1.2rem;
-    flex-wrap: wrap;
-}
-.etl-box {
-    background: #1A1D27;
-    border-radius: 8px;
-    padding: 0.7rem 1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    text-align: center;
-    flex: 1;
-    min-width: 120px;
-}
-.etl-arrow {
-    font-size: 1.4rem;
-    color: #3A4E7A;
-    flex-shrink: 0;
-}
-</style>
-""", unsafe_allow_html=True)
+inject_theme()
 
 st.title("⚙️ Data Pipeline")
 st.markdown(
-    '<div style="font-family:\'DM Mono\',monospace;font-size:0.72rem;'
-    'letter-spacing:0.18em;color:#7BA3D4;text-transform:uppercase;'
-    'margin-top:-0.8rem;margin-bottom:1.5rem;">'
+    '<div class="kn-subtitle">'
     'ETL chain · Script documentation · Data layer browser'
     '</div>',
     unsafe_allow_html=True,

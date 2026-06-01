@@ -13,6 +13,7 @@ from app_utils import (
     LEVEL_LEGAL_MIN, LEVEL_LEGAL_MAX,
     COLOURS,
 )
+from theme import inject_theme, style_plotly, PALETTE
 
 st.set_page_config(
     page_title="Kinneret Forecast",
@@ -21,78 +22,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@700;800&display=swap');
-
-.block-container { padding-top: 1.4rem; padding-bottom: 2.5rem; }
-
-h1, h2, h3 {
-    font-family: 'Syne', sans-serif !important;
-    font-weight: 800 !important;
-    letter-spacing: -0.01em;
-}
-
-[data-testid="metric-container"] {
-    background: #1A1D27;
-    border: 1px solid rgba(30,144,255,0.18);
-    border-left: 3px solid rgba(30,144,255,0.55);
-    border-radius: 8px;
-    padding: 0.85rem 1.1rem 0.65rem;
-    margin-bottom: 0.55rem;
-}
-
-[data-testid="stMetricLabel"] > div {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 0.68rem !important;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #5B88C5 !important;
-}
-
-[data-testid="stMetricValue"] {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 1.6rem !important;
-    font-weight: 400 !important;
-    color: #E8EEFF !important;
-}
-
-[data-testid="stMetricDelta"] svg { display: none; }
-
-.kn-subtitle {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.2em;
-    color: #7BA3D4;
-    text-transform: uppercase;
-    margin-top: -0.9rem;
-    margin-bottom: 1.8rem;
-}
-
-.kn-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.14em;
-    color: #7BA3D4;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-}
-
-.kn-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(30,144,255,0.22), transparent);
-    margin: 1.6rem 0;
-}
-
-.kn-nav-hint {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: #3A4E7A;
-    letter-spacing: 0.08em;
-    margin-bottom: 0.9rem;
-}
-</style>
-""", unsafe_allow_html=True)
+inject_theme()
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 gold  = load_gold()
@@ -119,17 +49,38 @@ dist_upper = LEVEL_LEGAL_MAX - current_level
 buffer_mm3 = abs(dist_lower) * 220
 
 # ── Header ────────────────────────────────────────────────────────────────────
-st.title("🌊 Kinneret Level Forecast")
+if dist_lower >= 0:
+    _chip_clr, _chip_bg = PALETTE["leaf"], "rgba(134,224,90,0.12)"
+    _chip_txt = f"↑ {dist_lower:.2f} m above the red line"
+else:
+    _chip_clr, _chip_bg = PALETTE["ember"], "rgba(255,107,53,0.14)"
+    _chip_txt = f"↓ {abs(dist_lower):.2f} m BELOW the red line"
+
 st.markdown(
-    f'<div class="kn-subtitle">'
-    f'Lake Kinneret &nbsp;·&nbsp; Water Resource Monitor &nbsp;·&nbsp; '
-    f'Last reading: {gold_max_date.strftime("%d %b %Y")}'
-    f'</div>',
+    f"""
+    <div style="margin:0.2rem 0 1.4rem;">
+      <div style="font-family:var(--mono);font-size:0.72rem;letter-spacing:0.3em;
+                  text-transform:uppercase;color:{PALETTE['aqua']};margin-bottom:0.5rem;">
+        Sea of Galilee &nbsp;/&nbsp; Lake Kinneret
+      </div>
+      <h1 style="margin:0;">Between Flood<br>&amp; Drought</h1>
+      <div class="kn-subtitle" style="margin-top:1.1rem;">
+        Water resource monitor &nbsp;·&nbsp; 7-day level forecast &nbsp;·&nbsp;
+        Last reading {gold_max_date.strftime('%d %b %Y')}
+      </div>
+      <span style="display:inline-block;font-family:var(--mono);font-size:0.78rem;
+                   font-weight:700;letter-spacing:0.04em;color:{_chip_clr};
+                   background:{_chip_bg};border:1px solid {_chip_clr}55;
+                   border-radius:999px;padding:0.34rem 0.95rem;">
+        {_chip_txt}
+      </span>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
 if current_level < LEVEL_LEGAL_MIN:
-    st.error("⚠️  Lake is below the lower management line!")
+    st.error("⚠️  Lake is below the lower management (red) line.")
 
 # ── Lake gauge + metrics ──────────────────────────────────────────────────────
 col_lake, col_metrics = st.columns([1, 2], gap="large")
@@ -232,6 +183,7 @@ fig_spark.update_yaxes(
     tickfont=dict(size=9), showgrid=False,
     secondary_y=True,
 )
+style_plotly(fig_spark, height=180)
 st.plotly_chart(fig_spark, width='stretch', config={"displayModeBar": False})
 
 # ── Year-over-year overlay ────────────────────────────────────────────────────
@@ -241,12 +193,12 @@ st.markdown('<div class="kn-label">Year-over-Year Comparison</div>', unsafe_allo
 fig_yoy = go.Figure()
 
 past_year_styles = {
-    2020: ("rgba(15,  55, 120, 0.55)", "dot"),
-    2021: ("rgba(25,  80, 155, 0.60)", "longdash"),
-    2022: ("rgba(35, 105, 185, 0.65)", "dashdot"),
-    2023: ("rgba(50, 130, 205, 0.70)", "dash"),
-    2024: ("rgba(70, 155, 220, 0.75)", "longdashdot"),
-    2025: ("rgba(100,180, 235, 0.85)", "solid"),
+    2020: ("rgba(11, 110, 107, 0.55)", "dot"),
+    2021: ("rgba(20, 140, 130, 0.60)", "longdash"),
+    2022: ("rgba(30, 170, 155, 0.65)", "dashdot"),
+    2023: ("rgba(43, 200, 180, 0.70)", "dash"),
+    2024: ("rgba(90, 220, 205, 0.78)", "longdashdot"),
+    2025: ("rgba(140, 240, 225, 0.88)", "solid"),
 }
 for yr, (clr, dash) in past_year_styles.items():
     yr_df = gold[gold["date"].dt.year == yr].dropna(subset=["level_m"])
@@ -268,21 +220,21 @@ if not df_2026.empty:
         y=df_2026["level_m"],
         mode="lines",
         name="2026",
-        line=dict(color="#1E90FF", width=2.8),
+        line=dict(color=COLOURS["predicted"], width=3.2),
         hovertemplate="2026 · Day %{x}: %{y:.3f} m<extra></extra>",
     ))
 
 fig_yoy.add_hline(
-    y=LEVEL_LEGAL_MIN, line_dash="dash", line_color="#EF5350", line_width=1,
-    annotation_text="Lower Mgmt −213.0 m",
+    y=LEVEL_LEGAL_MIN, line_dash="dash", line_color=COLOURS["legal_min"], line_width=1.2,
+    annotation_text="Red line −213.0 m",
     annotation_position="bottom right",
-    annotation_font=dict(color="#EF5350", size=10),
+    annotation_font=dict(color=COLOURS["legal_min"], size=10),
 )
 fig_yoy.add_hline(
-    y=LEVEL_LEGAL_MAX, line_dash="dash", line_color="#66BB6A", line_width=1,
-    annotation_text="Upper Mgmt −208.9 m",
+    y=LEVEL_LEGAL_MAX, line_dash="dash", line_color=COLOURS["legal_max"], line_width=1.2,
+    annotation_text="Spill line −208.9 m",
     annotation_position="top right",
-    annotation_font=dict(color="#66BB6A", size=10),
+    annotation_font=dict(color=COLOURS["legal_max"], size=10),
 )
 
 fig_yoy.update_layout(
@@ -310,6 +262,7 @@ fig_yoy.update_layout(
     plot_bgcolor="rgba(0,0,0,0)",
     paper_bgcolor="rgba(0,0,0,0)",
 )
+style_plotly(fig_yoy, height=280)
 st.plotly_chart(fig_yoy, width='stretch')
 
 # ── Quick-nav ─────────────────────────────────────────────────────────────────

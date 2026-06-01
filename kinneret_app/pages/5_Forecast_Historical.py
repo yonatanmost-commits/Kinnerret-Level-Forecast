@@ -11,6 +11,7 @@ from app_utils import (
     load_gold, load_models, run_forecast_from_df,
     COLOURS, LEVEL_LEGAL_MIN, LEVEL_LEGAL_MAX, PROJECT_ROOT,
 )
+from theme import inject_theme
 
 st.set_page_config(
     page_title="Historical Forecast · Kinneret",
@@ -19,60 +20,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
-.block-container { padding-top: 1.4rem; }
-h1,h2,h3 { font-family: 'Syne', sans-serif !important; font-weight: 800 !important; }
-[data-testid="metric-container"] {
-    background: #1A1D27;
-    border: 1px solid rgba(30,144,255,0.18);
-    border-left: 3px solid rgba(30,144,255,0.5);
-    border-radius: 8px;
-    padding: 0.8rem 1rem 0.6rem;
-}
-[data-testid="stMetricValue"] {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 1.4rem !important;
-    color: #E8EEFF !important;
-}
-[data-testid="stMetricLabel"] > div {
-    font-family: 'DM Mono', monospace !important;
-    font-size: 0.65rem !important;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: #5B88C5 !important;
-}
-.kn-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.14em;
-    color: #7BA3D4;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-}
-.kn-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(30,144,255,0.22), transparent);
-    margin: 1.4rem 0;
-}
-.anchor-box {
-    background: #1A1D27;
-    border: 1px solid rgba(30,144,255,0.2);
-    border-radius: 8px;
-    padding: 0.8rem 1.1rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.82rem;
-    color: #B0C4E8;
-    margin-bottom: 0.8rem;
-}
-</style>
-""", unsafe_allow_html=True)
+inject_theme()
 
 st.title("🔍 Historical Forecast Validation")
 st.markdown(
-    '<div style="font-family:\'DM Mono\',monospace;font-size:0.72rem;'
-    'letter-spacing:0.18em;color:#7BA3D4;text-transform:uppercase;'
+    '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;'
+    'letter-spacing:0.18em;color:var(--aqua);text-transform:uppercase;'
     'margin-top:-0.8rem;margin-bottom:1.5rem;">'
     'Run the model on any past week · Compare predictions to actual readings'
     '</div>',
@@ -106,7 +59,7 @@ with col_ctrl:
         st.markdown(
             f'<div class="anchor-box">'
             f'Anchor state on {anchor_date.strftime("%d %b %Y")}<br>'
-            f'<span style="color:#1E90FF;font-size:1.05rem;">{anchor_level:+.3f} m MSL</span>'
+            f'<span style="color:var(--aqua);font-size:1.05rem;">{anchor_level:+.3f} m MSL</span>'
             f'&nbsp;&nbsp;·&nbsp;&nbsp;{anchor_volume:,.0f} Mm³'
             f'</div>',
             unsafe_allow_html=True,
