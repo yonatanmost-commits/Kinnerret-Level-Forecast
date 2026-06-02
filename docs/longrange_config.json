@@ -1,0 +1,7 @@
+{
+  "hargreaves_calibration": {
+    "slope": 1.0619144985305646,
+    "intercept": 0.8113367185630621,
+    "note": "et0_pm ~= slope*et0_hs + intercept, fit on gold"
+  }
+}
