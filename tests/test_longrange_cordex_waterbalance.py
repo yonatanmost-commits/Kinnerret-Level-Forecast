@@ -71,7 +71,7 @@ def test_run_water_balance_output_schema(tmp_path, monkeypatch):
     cordex = _make_cordex_long(n_days=30)
     result = wb.run_water_balance(cordex, anchor_level_m=-211.65, anchor_date="2006-01-01")
     for col in ["date", "model", "scenario", "dv_Mm3", "volume_Mm3", "level_m",
-                "lake_ET_Mm3", "P_est_mm", "runoff_mm"]:
+                "lake_ET_Mm3", "P_est_mm", "runoff_mm", "et0_lake_mm", "et0_catch_mm"]:
         assert col in result.columns, f"missing column: {col}"
 
 
