@@ -162,6 +162,12 @@ if wb is None:
     )
     st.stop()
 
+required = {"date", "model", "scenario", "level_m", "lake_ET_Mm3"}
+missing = required - set(wb.columns)
+if missing:
+    st.error(f"Water balance data is missing columns: {missing}")
+    st.stop()
+
 # ── Helper: compute annual aggregates ────────────────────────────────────────
 
 def _annual_et(df: pd.DataFrame) -> pd.DataFrame:
@@ -232,7 +238,7 @@ def _ribbon_traces(
     ))
 
     # Thin individual model lines
-    for i, model in enumerate(models):
+    for model in models:
         traces.append(go.Scatter(
             x=years,
             y=pivot[model].values,
@@ -414,20 +420,15 @@ with tab2:
             if len(vals) == 0:
                 continue
             fig_box.add_trace(go.Box(
-                y=vals,
-                name=f"{h_label} {label}",
-                marker_color=color,
-                boxmean=False,
-                line_color=color,
-                fillcolor=color + "40",
-                legendgroup=scenario,
-                showlegend=True,
-                hovertemplate=f"{label} ~{h_label}<br>%{{y:.2f}} m ASL<extra></extra>",
                 q1=[float(np.percentile(vals, 25))],
-                q3=[float(np.percentile(vals, 75))],
                 median=[float(np.median(vals))],
+                q3=[float(np.percentile(vals, 75))],
                 lowerfence=[float(np.percentile(vals, 10))],
                 upperfence=[float(np.percentile(vals, 90))],
+                name=f"{h_label}<br>{label}",
+                marker_color=color,
+                boxmean=True,
+                showlegend=False,
             ))
 
     fig_box.update_yaxes(title_text="Annual mean level (m ASL)")
