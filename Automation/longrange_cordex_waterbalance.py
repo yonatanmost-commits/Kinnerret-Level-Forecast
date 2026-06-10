@@ -3,7 +3,7 @@
 Physics-based water balance over the CORDEX ensemble.
 
 Chain per (model, scenario):
-  bet-zayda tmin/tmax -> Hargreaves ET0 (catchment) -> cloud_index -> rain propensity
+  bet-zayda tmin/tmax -> Hargreaves ET0 (catchment) -> climatological rain (P held at DOY clim)
   zemah     tmin/tmax -> Hargreaves ET0 (lake surface) -> open-water evaporation
   soil-moisture bucket -> runoff Q -> inflow Mm3
   ΔV = inflow - lake_ET - outflow_clim
@@ -110,15 +110,9 @@ def run_water_balance(
             0, None)
         lake_ET_Mm3 = et0_lake * LAKE_AREA_KM2 * 0.001
 
-        # Rain propensity: scale DOY climatology by cloud_index anomaly
-        dtr_bz = (bz_grp["tmax"] - bz_grp["tmin"]).values
-        dtr_cs = clim.loc[doy, "dtr_clearsky"].values
-        ci = cloud_index(dtr_bz, dtr_cs)
-        ci_clim = cloud_index(clim.loc[doy, "dtr_clim"].values, dtr_cs)
-        ci_clim = np.where(ci_clim < 0.01, 0.01, ci_clim)
-        rain_scale = np.clip(ci / ci_clim, 0.0, 3.0)
-
-        P_est = rain_scale * clim.loc[doy, "p_wet_clim"].values * clim.loc[doy, "amount_clim"].values
+        # Rain held at modern-period DOY climatology (MEDIUM confidence — spec §confidence-split)
+        # DTR cloud_index modulation is not applied: CORDEX DTR distribution differs from ERA5.
+        P_est = clim.loc[doy, "p_wet_clim"].values * clim.loc[doy, "amount_clim"].values
 
         # Soil-moisture bucket
         _, Q = soil_moisture_bucket(P_est, et0_catch, S_max=S_max)
