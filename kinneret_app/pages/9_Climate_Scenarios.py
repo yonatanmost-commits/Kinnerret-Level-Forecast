@@ -192,6 +192,13 @@ def _annual_level(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+def _hex_to_rgba(hex_color: str, alpha: float) -> str:
+    """Convert #RRGGBB to rgba(r,g,b,a) — Plotly does not support 8-char hex."""
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return f"rgba({r},{g},{b},{alpha})"
+
+
 def _ribbon_traces(
     annual: pd.DataFrame,
     value_col: str,
@@ -215,7 +222,7 @@ def _ribbon_traces(
     p50 = pivot.quantile(0.50, axis=1).values
     p90 = pivot.quantile(0.90, axis=1).values
 
-    fill_color = color + "26"  # ~15% opacity hex alpha
+    fill_color = _hex_to_rgba(color, 0.15)
 
     # Upper ribbon boundary (p90) — no legend entry
     traces.append(go.Scatter(
@@ -499,7 +506,7 @@ with tab3:
             p10 = pivot.quantile(0.10, axis=1).values
             p50 = pivot.quantile(0.50, axis=1).values
             p90 = pivot.quantile(0.90, axis=1).values
-            fill_color = color + "26"
+            fill_color = _hex_to_rgba(color, 0.15)
 
             fig_hc.add_trace(go.Scatter(
                 x=years, y=p90,
