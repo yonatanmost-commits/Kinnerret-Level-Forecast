@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import pytest
 import sys
@@ -65,3 +64,31 @@ def test_doy_range(tmp_path, monkeypatch):
     monkeypatch.setattr(ing, "CACHE_PATH", tmp_path / "cache.parquet")
     df = ing.load_cordex(cache=False)
     assert df["doy"].between(1, 366).all()
+
+
+def test_invalid_dates_are_dropped(tmp_path, monkeypatch):
+    """Feb-29 in non-leap year (360-day calendar artifact) must be silently dropped."""
+    import longrange_cordex_ingest as ing
+    # Feb 29 in 2006 (non-leap) — invalid, should be coerced to NaT and dropped
+    rows = [
+        {"year": 2006, "month": 2, "day": 28, "tmin": 5.0, "tmax": 15.0, "model": "m", "scenario": "rcp45"},
+        {"year": 2006, "month": 2, "day": 29, "tmin": 5.0, "tmax": 15.0, "model": "m", "scenario": "rcp45"},  # invalid
+        {"year": 2006, "month": 3, "day":  1, "tmin": 5.0, "tmax": 15.0, "model": "m", "scenario": "rcp45"},
+    ]
+    df = pd.DataFrame(rows)
+    for site in ["bet-zayda", "zemah"]:
+        p = tmp_path / f"{site}_tmin_tmax_12models_rcp45_rcp85_qdm.csv"
+        df.to_csv(p, index=False)
+    monkeypatch.setattr(ing, "CORDEX_FILES", {
+        "bet_zayda": tmp_path / "bet-zayda_tmin_tmax_12models_rcp45_rcp85_qdm.csv",
+        "zemah":     tmp_path / "zemah_tmin_tmax_12models_rcp45_rcp85_qdm.csv",
+    })
+    monkeypatch.setattr(ing, "CACHE_PATH", tmp_path / "cache.parquet")
+    result = ing.load_cordex(cache=False)
+    # Feb 29 row must be gone; Feb 28 and Mar 1 must remain
+    bet_rows = result[result["site"] == "bet_zayda"]
+    assert len(bet_rows) == 2
+    dates_str = bet_rows["date"].dt.strftime("%Y-%m-%d").tolist()
+    assert "2006-02-28" in dates_str
+    assert "2006-03-01" in dates_str
+    assert "2006-02-29" not in dates_str
