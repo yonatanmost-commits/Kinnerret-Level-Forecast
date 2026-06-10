@@ -1078,8 +1078,86 @@ def create_forecast_template(df: pd.DataFrame) -> Path:
 # Main
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _persist_winner_metrics(winner: str, cv_results: list, df: pd.DataFrame) -> None:
+    """
+    Write the freshly-computed walk-forward CV metrics for the retrained winner
+    back to Models/model_metadata.json and the winner's entry in
+    docs/olympics_results.json, so the dashboard R² stays accurate after a
+    --winner-only retrain (which otherwise only prints the metrics).
+
+    cv_results comes from the winner's CV runner; the MAE key is "s2_mae_Mm3"
+    for the baseline runner and "s2_mae" for the xgb/lgb runners — both handled.
+    Only the winner's olympics entry is refreshed; other models keep their last
+    full-bake-off numbers (a winner_retrained_at stamp records when this ran).
+    """
+    import datetime
+
+    s2 = [r["s2_r2"] for r in cv_results if r.get("s2_r2") is not None]
+    s1 = [r["s1_r2"] for r in cv_results if r.get("s1_r2") is not None]
+    maes = [r.get("s2_mae_Mm3", r.get("s2_mae")) for r in cv_results]
+    maes = [x for x in maes if x is not None]
+
+    s2_mean  = round(float(np.mean(s2)),   3) if s2   else None
+    s1_mean  = round(float(np.mean(s1)),   3) if s1   else None
+    mae_mean = round(float(np.mean(maes)), 3) if maes else None
+    by_fold  = {r["fold"]: r["s2_r2"] for r in cv_results}
+    today    = datetime.date.today().isoformat()
+
+    # Normalise cv_results to a stable schema (s2_mae_Mm3) so downstream
+    # readers like _read_baseline_from_meta() work regardless of the winner.
+    norm_cv = [{
+        "fold":       r["fold"],
+        "n_test":     r.get("n_test"),
+        "s1_r2":      r.get("s1_r2"),
+        "s2_r2":      r.get("s2_r2"),
+        "s2_mae_Mm3": r.get("s2_mae_Mm3", r.get("s2_mae")),
+    } for r in cv_results]
+
+    # 1. Update Models/model_metadata.json in place (preserve other keys).
+    meta_path = MODELS_DIR / "model_metadata.json"
+    meta = {}
+    if meta_path.exists():
+        with open(meta_path, encoding="utf-8") as f:
+            meta = json.load(f)
+    meta.update({
+        "winner":          winner,
+        "trained_through": str(df["date"].max().date()),
+        "retrained_at":    today,
+        "n_rows_total":    int(len(df)),
+        "cv_results":      norm_cv,
+        "cv_s2_mean_r2":   s2_mean,
+        "cv_s2_mean_mae":  mae_mean,
+        "cv_s1_mean_r2":   s1_mean,
+    })
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2)
+
+    # 2. Refresh the winner's entry in docs/olympics_results.json.
+    oly_path = BASE_DIR / "docs" / "olympics_results.json"
+    if oly_path.exists():
+        with open(oly_path, encoding="utf-8") as f:
+            oly = json.load(f)
+        entry = oly.setdefault("models", {}).get(winner, {})
+        entry["cv_vol_r2_mean"]    = s2_mean
+        entry["cv_vol_r2_by_fold"] = by_fold
+        entry["cv_vol_mae_mean"]   = mae_mean
+        if s1_mean is not None:
+            entry["cv_inflow_r2_mean"] = s1_mean
+        oly["models"][winner] = entry
+        oly["winner_retrained_at"] = today
+        with open(oly_path, "w", encoding="utf-8") as f:
+            json.dump(oly, f, indent=2)
+
+    print(f"  Persisted winner metrics: S2 R²={s2_mean} (S1 R²={s1_mean}, "
+          f"MAE={mae_mean}) -> model_metadata.json + olympics_results.json")
+
+
 def train_winner_only():
-    """Read olympics_results.json and retrain only the winning model."""
+    """Read olympics_results.json and retrain only the winning model.
+
+    Also recomputes the winner's walk-forward CV and persists the fresh metrics
+    (see _persist_winner_metrics) so the dashboard R² reflects the latest data.
+    """
     olympics_path = BASE_DIR / "docs" / "olympics_results.json"
     if not olympics_path.exists():
         raise FileNotFoundError(f"Not found: {olympics_path}")
@@ -1105,14 +1183,19 @@ def train_winner_only():
             gb2.save(MODELS_DIR / "stage2_volume_rf.pkl")
             gb2d.save(MODELS_DIR / "stage2_direct_gb.pkl")
     elif winner == "xgboost":
+        bathy_coeffs = fit_vol2level_poly()
+        cv_results = run_cv_xgb(df, bathy_coeffs)
         oof_s1 = df[S1_TARGET]
         train_final_xgb(df, oof_s1)
     elif winner == "lgbm":
+        bathy_coeffs = fit_vol2level_poly()
+        cv_results = run_cv_lgb(df, bathy_coeffs)
         oof_s1 = df[S1_TARGET]
         train_final_lgb(df, oof_s1)
     else:
         raise ValueError(f"Unknown winner in olympics_results.json: {winner!r}")
 
+    _persist_winner_metrics(winner, cv_results, df)
     print(f"Winner '{winner}' trained and saved.")
 
 
