@@ -60,18 +60,33 @@ def test_level_from_volume_round_trip():
         assert abs(vol_back - vol) < 0.1, f"round-trip failed at vol={vol}"
 
 
+def _make_gold(tmp_path):
+    """Write a minimal gold features CSV for monkeypatching GOLD_PATH."""
+    dates = pd.date_range("2012-01-01", periods=100)
+    df = pd.DataFrame({
+        "date": dates,
+        "volume_change_Mm3": [0.1] * 100,
+        "et0_mm": [3.0] * 100,
+        "outflow_baptism_m3": [400000.0] * 100,
+    })
+    p = tmp_path / "kinneret_gold_features.csv"
+    df.to_csv(p, index=False)
+    return p
+
+
 def test_run_water_balance_output_schema(tmp_path, monkeypatch):
     """run_water_balance must return required columns for every (model, scenario) pair."""
     import longrange_cordex_waterbalance as wb
     monkeypatch.setattr(wb, "CFG_PATH", tmp_path / "longrange_config.json")
     monkeypatch.setattr(wb, "CORDEX_CFG_PATH", tmp_path / "cordex_config.json")
     monkeypatch.setattr(wb, "CLIM_PATH", tmp_path / "longrange_climatology.csv")
+    monkeypatch.setattr(wb, "GOLD_PATH", _make_gold(tmp_path))
     _make_configs(tmp_path)
     _make_clim(tmp_path)
     cordex = _make_cordex_long(n_days=30)
     result = wb.run_water_balance(cordex, anchor_level_m=-211.65, anchor_date="2006-01-01")
     for col in ["date", "model", "scenario", "dv_Mm3", "volume_Mm3", "level_m",
-                "lake_ET_Mm3", "P_est_mm", "runoff_mm", "et0_lake_mm", "et0_catch_mm"]:
+                "lake_ET_Mm3", "inflow_clim_Mm3", "et0_lake_mm", "et0_catch_mm"]:
         assert col in result.columns, f"missing column: {col}"
 
 
@@ -81,6 +96,7 @@ def test_volume_integrates_from_anchor(tmp_path, monkeypatch):
     monkeypatch.setattr(wb, "CFG_PATH", tmp_path / "longrange_config.json")
     monkeypatch.setattr(wb, "CORDEX_CFG_PATH", tmp_path / "cordex_config.json")
     monkeypatch.setattr(wb, "CLIM_PATH", tmp_path / "longrange_climatology.csv")
+    monkeypatch.setattr(wb, "GOLD_PATH", _make_gold(tmp_path))
     _make_configs(tmp_path)
     _make_clim(tmp_path)
     cordex = _make_cordex_long(n_days=30)

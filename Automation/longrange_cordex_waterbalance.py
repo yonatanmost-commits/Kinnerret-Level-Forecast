@@ -3,10 +3,10 @@
 Physics-based water balance over the CORDEX ensemble.
 
 Chain per (model, scenario):
-  bet-zayda tmin/tmax -> Hargreaves ET0 (catchment) -> climatological rain (P held at DOY clim)
+  bet-zayda tmin/tmax -> Hargreaves ET0 (catchment)
   zemah     tmin/tmax -> Hargreaves ET0 (lake surface) -> open-water evaporation
-  soil-moisture bucket -> runoff Q -> inflow Mm3
-  ΔV = inflow - lake_ET - outflow_clim
+  inflow held at DOY climatology derived from gold observed data (2012-2024)
+  ΔV = inflow_clim - lake_ET - outflow_clim
   V_t = V_{t-1} + ΔV_t, anchored at first observed level
 
 Outputs cached as Gold Data/cordex_waterbalance.parquet.
@@ -21,6 +21,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CFG_PATH        = PROJECT_ROOT / "docs" / "longrange_config.json"
 CORDEX_CFG_PATH = PROJECT_ROOT / "docs" / "cordex_config.json"
 CLIM_PATH       = PROJECT_ROOT / "Gold Data" / "longrange_climatology.csv"
+GOLD_PATH       = PROJECT_ROOT / "Gold Data" / "kinneret_gold_features.csv"
 LEVEL_PATH      = PROJECT_ROOT / "Silver Data" / "Kinneret Level" / "kinneret_level.csv"
 CACHE_PATH      = PROJECT_ROOT / "Gold Data" / "cordex_waterbalance.parquet"
 LAKE_AREA_KM2   = 166.0   # km²; 1 mm × 166 km² × 0.001 = 0.166 Mm³
@@ -57,6 +58,28 @@ def _load_configs():
     return slope, intercept, catchment_scale, S_max, bathy_coeffs
 
 
+def _build_inflow_clim() -> np.ndarray:
+    """DOY climatology of observed inflow (Mm³/day) from gold 2012-2024.
+
+    inflow = ΔV + lake_ET + outflow  (water balance identity)
+    Returns array indexed 0..365 (doy 1..366).
+    """
+    import sys
+    sys.path.insert(0, str(PROJECT_ROOT / "Automation"))
+    from longrange_climatology import fit_harmonic, eval_harmonic
+    gold = pd.read_csv(GOLD_PATH, parse_dates=["date"])
+    gold = gold.dropna(subset=["volume_change_Mm3", "et0_mm", "outflow_baptism_m3"])
+    gold["inflow_Mm3"] = (
+        gold["volume_change_Mm3"]
+        + gold["et0_mm"] * LAKE_AREA_KM2 * 0.001
+        + gold["outflow_baptism_m3"] / 1e6
+    )
+    gold["doy"] = gold["date"].dt.day_of_year
+    coeffs = fit_harmonic(gold["doy"].values, gold["inflow_Mm3"].values, K=3)
+    doys = np.arange(1, 367)
+    return eval_harmonic(doys, coeffs)  # shape (366,), index 0 = DOY 1
+
+
 def run_water_balance(
     cordex_long: pd.DataFrame,
     anchor_level_m: float,
@@ -67,12 +90,11 @@ def run_water_balance(
     cordex_long: output of load_cordex() with both sites.
     Returns DataFrame with columns:
         date, model, scenario, dv_Mm3, volume_Mm3, level_m,
-        lake_ET_Mm3, P_est_mm, runoff_mm, et0_lake_mm, et0_catch_mm
+        lake_ET_Mm3, inflow_clim_Mm3, et0_lake_mm, et0_catch_mm
     """
     import sys
     sys.path.insert(0, str(PROJECT_ROOT / "Automation"))
-    from longrange_meteo import hargreaves_et0, cloud_index
-    from longrange_state import soil_moisture_bucket
+    from longrange_meteo import hargreaves_et0
 
     slope, intercept, catchment_scale, S_max, bathy_coeffs = _load_configs()
     anchor_vol = volume_from_level(anchor_level_m, bathy_coeffs)
@@ -110,13 +132,9 @@ def run_water_balance(
             0, None)
         lake_ET_Mm3 = et0_lake * LAKE_AREA_KM2 * 0.001
 
-        # Rain held at modern-period DOY climatology (MEDIUM confidence — spec §confidence-split)
-        # DTR cloud_index modulation is not applied: CORDEX DTR distribution differs from ERA5.
-        P_est = clim.loc[doy, "p_wet_clim"].values * clim.loc[doy, "amount_clim"].values
-
-        # Soil-moisture bucket
-        _, Q = soil_moisture_bucket(P_est, et0_catch, S_max=S_max)
-        inflow_Mm3 = Q * catchment_scale
+        # Inflow held at modern-period DOY climatology derived from gold observed data (2012-2024)
+        inflow_clim_arr = _build_inflow_clim()
+        inflow_Mm3 = inflow_clim_arr[doy - 1]  # doy is 1-based, array is 0-indexed
 
         # Outflow climatology (m³ → Mm³)
         outflow_Mm3 = clim.loc[doy, "outflow_clim"].values / 1e6
@@ -142,17 +160,16 @@ def run_water_balance(
         level_arr = np.where(np.isnan(vol), np.nan, level_from_volume(vol, bathy_coeffs))
 
         results.append(pd.DataFrame({
-            "date":         bz_grp["date"].values,
-            "model":        model,
-            "scenario":     scenario,
-            "dv_Mm3":       dv,
-            "volume_Mm3":   vol,
-            "level_m":      level_arr,
-            "lake_ET_Mm3":  lake_ET_Mm3,
-            "P_est_mm":     P_est,
-            "runoff_mm":    Q,
-            "et0_lake_mm":  et0_lake,
-            "et0_catch_mm": et0_catch,
+            "date":             bz_grp["date"].values,
+            "model":            model,
+            "scenario":         scenario,
+            "dv_Mm3":           dv,
+            "volume_Mm3":       vol,
+            "level_m":          level_arr,
+            "lake_ET_Mm3":      lake_ET_Mm3,
+            "inflow_clim_Mm3":  inflow_Mm3,
+            "et0_lake_mm":      et0_lake,
+            "et0_catch_mm":     et0_catch,
         }))
 
     return pd.concat(results, ignore_index=True)
