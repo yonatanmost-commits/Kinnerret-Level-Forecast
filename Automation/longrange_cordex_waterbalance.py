@@ -51,11 +51,9 @@ def _load_configs():
     slope     = cfg["hargreaves_calibration"]["slope"]
     intercept = cfg["hargreaves_calibration"]["intercept"]
     ccfg = json.loads(CORDEX_CFG_PATH.read_text()) if CORDEX_CFG_PATH.exists() else {}
-    catchment_scale = ccfg.get("catchment_scale_Mm3_per_mm", 1.0)
-    S_max           = ccfg.get("S_max_mm", 150.0)
     bathy_coeffs    = ccfg.get("bathy_vol2level_coeffs",
                                 [-3.829620769045569e-07, 0.009169651006627259, -241.43908960277244])
-    return slope, intercept, catchment_scale, S_max, bathy_coeffs
+    return slope, intercept, bathy_coeffs
 
 
 def _build_inflow_clim() -> np.ndarray:
@@ -96,7 +94,7 @@ def run_water_balance(
     sys.path.insert(0, str(PROJECT_ROOT / "Automation"))
     from longrange_meteo import hargreaves_et0
 
-    slope, intercept, catchment_scale, S_max, bathy_coeffs = _load_configs()
+    slope, intercept, bathy_coeffs = _load_configs()
     anchor_vol = volume_from_level(anchor_level_m, bathy_coeffs)
 
     clim = pd.read_csv(CLIM_PATH).set_index("doy")
@@ -104,6 +102,10 @@ def run_water_balance(
 
     bz = cordex_long[cordex_long["site"] == "bet_zayda"].copy()
     zm = cordex_long[cordex_long["site"] == "zemah"].copy()
+
+    # Inflow held at modern-period DOY climatology derived from gold observed data (2012-2024)
+    # Compute once before the loop to avoid 24 redundant reads
+    inflow_clim_arr = _build_inflow_clim()
 
     results = []
     pairs = bz.groupby(["model", "scenario"])
@@ -132,8 +134,6 @@ def run_water_balance(
             0, None)
         lake_ET_Mm3 = et0_lake * LAKE_AREA_KM2 * 0.001
 
-        # Inflow held at modern-period DOY climatology derived from gold observed data (2012-2024)
-        inflow_clim_arr = _build_inflow_clim()
         inflow_Mm3 = inflow_clim_arr[doy - 1]  # doy is 1-based, array is 0-indexed
 
         # Outflow climatology (m³ → Mm³)
