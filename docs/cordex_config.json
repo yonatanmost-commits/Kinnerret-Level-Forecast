@@ -6,5 +6,8 @@
   ],
   "anchor_date": "2006-01-01",
   "anchor_level_m": -211.65,
-  "calibration_rmse_m": 5.574
+  "calibration_rmse_m": 5.574,
+  "hindcast_rmse_m": 5.3634,
+  "hindcast_corr": -0.4178,
+  "hindcast_n_days": 6408
 }
