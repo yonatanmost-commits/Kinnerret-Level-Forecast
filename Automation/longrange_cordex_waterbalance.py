@@ -40,7 +40,7 @@ def volume_from_level(level_m, bathy_coeffs):
     v2 = (-b - np.sqrt(disc)) / (2 * a)
     # pick root in hydrological range 2000-6000 Mm³
     for v in (v1, v2):
-        if 2000 < v < 6000:
+        if 2000 <= v <= 6000:
             return float(v)
     raise ValueError(f"No valid volume root for level={level_m}")
 
@@ -90,6 +90,15 @@ def run_water_balance(
         bz_grp = bz_grp.sort_values("date").reset_index(drop=True)
         zm_grp = zm_grp.sort_values("date").reset_index(drop=True)
 
+        # Alignment guard between bz_grp and zm_grp
+        if len(bz_grp) != len(zm_grp):
+            raise ValueError(
+                f"Site length mismatch for {model}/{scenario}: "
+                f"bet_zayda={len(bz_grp)} rows, zemah={len(zm_grp)} rows"
+            )
+        if not (bz_grp["date"].values == zm_grp["date"].values).all():
+            raise ValueError(f"Site date mismatch for {model}/{scenario}")
+
         doy = bz_grp["doy"].values
 
         # Hargreaves ET0 (calibrated): ET0_cal = slope * ET0_HS + intercept
@@ -130,8 +139,11 @@ def run_water_balance(
         if anchor_mask.any():
             anchor_idx = int(anchor_mask.idxmax())
             vol[anchor_idx] = anchor_vol
+            v = anchor_vol
             for i in range(anchor_idx + 1, n):
-                vol[i] = vol[i - 1] + dv[i]
+                v += dv[i]
+                v = float(np.clip(v, 0, None))
+                vol[i] = v
 
         level_arr = np.where(np.isnan(vol), np.nan, level_from_volume(vol, bathy_coeffs))
 
