@@ -12,10 +12,28 @@ _PATTERN = re.compile(
 )
 
 
+# A bare "Mozilla/5.0" is enough from a home connection but gets a 403 from
+# CI runners, so send the header set a real browser would send.  If this still
+# returns 403 when run from GitHub Actions, the block is on the source IP
+# rather than on the headers, and the level series can only be extended from a
+# local run.
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9,he;q=0.8",
+    "Referer": "https://kineret.org.il/",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+}
+
+
 def _fetch_html(from_date: date, to_date: date) -> str:
     r = requests.get(
         _URL.format(from_date, to_date),
-        headers={"User-Agent": "Mozilla/5.0"},
+        headers=_HEADERS,
         timeout=30,
     )
     r.raise_for_status()

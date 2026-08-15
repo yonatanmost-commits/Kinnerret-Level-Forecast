@@ -14,8 +14,13 @@
 *.pkl
 *.csv
 
-# Raw Data is never deployed (431 MB, and the app never reads it).
-Raw Data/
+# Raw Data is never deployed (431 MB, and the app never reads it) - with one
+# exception: 07_build_gold_features.py needs the bathymetric curve to convert
+# level to volume. It is a 297-byte static lookup table, not bulk raw data.
+Raw Data/*
+Raw Data/Kinneret_Level/*
+!Raw Data/Kinneret_Level/
+!Raw Data/Kinneret_Level/Lake Kinneret Bathymetric and Hypsometric Curve.csv
 
 # ── Gold Data ────────────────────────────────────────────────────────────────
 Gold Data/*
