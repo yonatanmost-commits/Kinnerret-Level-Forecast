@@ -139,25 +139,38 @@ Longer-term options, in preference order:
 Do not try to defeat the challenge. It is a bot-protection control, and it would
 break the next time Cloudflare rotates it.
 
-### Registering the local half
+### The local half: scheduled task
 
-From the repository root, in an **Administrator** PowerShell:
+**Already registered** as `Kinneret daily refresh`, running daily at 07:30, verified
+to complete with exit code 0 through the scheduler itself.
 
-```powershell
-schtasks /create /tn "Kinneret daily refresh" /sc daily /st 07:30 `
-  /tr "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\Automation\local_refresh.ps1`""
-```
-
-Run it once by hand first — `.\Automation\local_refresh.ps1` — to confirm git can
-push without prompting for credentials. The task is silent about failures by design;
-it writes `Reports/local_refresh_<date>.log` on every run.
-
-To inspect or remove it:
+Use the `ScheduledTasks` cmdlets rather than `schtasks.exe` to recreate it. The
+repository path contains spaces, and `schtasks /tr` mis-parses the nested quoting
+(it fails with `Invalid argument/option - 'Science'`):
 
 ```powershell
-schtasks /query /tn "Kinneret daily refresh"
-schtasks /delete /tn "Kinneret daily refresh" /f
+$repo    = "C:\Users\yonatanm\Pojects\ClaudeCode\Data Science Project"
+$arg     = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f (Join-Path $repo 'Automation\local_refresh.ps1')
+$action  = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $arg -WorkingDirectory $repo
+$trigger = New-ScheduledTaskTrigger -Daily -At 7:30am
+$set     = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
+                                        -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Hours 1)
+Register-ScheduledTask -TaskName "Kinneret daily refresh" -Action $action -Trigger $trigger -Settings $set
 ```
+
+`-StartWhenAvailable` means a run missed while the machine was off happens at the
+next opportunity rather than being skipped.
+
+To inspect, run on demand, or remove it:
+
+```powershell
+Get-ScheduledTaskInfo -TaskName "Kinneret daily refresh"   # LastTaskResult 0 = success
+Start-ScheduledTask   -TaskName "Kinneret daily refresh"
+Unregister-ScheduledTask -TaskName "Kinneret daily refresh" -Confirm:$false
+```
+
+The task is silent by design; it writes `Reports/local_refresh_<date>.log` on every
+run, and that log is the place to look when the level series stops advancing.
 
 The script aborts without committing if `Gold Data/`, `Silver Data/` or `Models/`
 have uncommitted changes, so a scheduled run never sweeps up work in progress.
