@@ -431,7 +431,15 @@ def main():
 
     # --- Save ---
     print("Saving gold table ...")
-    df.to_csv(OUT_FILE, index=False, encoding="utf-8")
+    # 12 significant digits, not fixed decimals. volume_Mm3 comes from a least
+    # squares fit of the bathymetric curve, and Windows and Linux LAPACK builds
+    # land on results differing around the 14th significant digit - enough to
+    # rewrite every row of this file on each CI run, for a physically
+    # meaningless 1e-14 relative change. Rounding to 12 significant digits
+    # absorbs that while staying far finer than any real measurement, and %g
+    # (unlike a fixed %.Nf) preserves the very small normalised features that
+    # would otherwise be flattened to zero.
+    df.to_csv(OUT_FILE, index=False, encoding="utf-8", float_format="%.12g")
 
     # --- Summary ---
     numeric_cols = df.select_dtypes(include=[np.number]).columns

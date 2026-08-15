@@ -9,21 +9,29 @@ deployed from `master`. A scheduled GitHub Actions job refreshes the data daily.
 
 Community Cloud serves the app but **cannot run a scheduler**, and its filesystem is
 rebuilt from the repository on every deploy — nothing written at runtime survives.
-So the data has to arrive through git:
+So the data has to arrive through git.
+
+Refresh is **hybrid**, in two halves, because one data source cannot be reached from
+CI (see *The lake level 403* below):
 
 ```
-  GitHub Actions (cron, 04:10 UTC)
-        │
-        │  runs Automation/daily_agent.py  ("dan")
-        │    fetch level / flow / met  →  clean  →  build gold  →  train champion
-        ▼
-  commits Gold Data/, Silver Data/, Models/  →  push to master
-        │
-        ▼
-  Streamlit Community Cloud sees the push  →  redeploys  →  dashboard is current
+  GitHub Actions (cron, 04:10 UTC)          Your machine (Task Scheduler, daily)
+        │                                          │
+        │  Automation/daily_agent.py               │  Automation/local_refresh.ps1
+        │    river flow, met data                  │    → same agent, residential IP
+        │    clean → gold → train champion         │    → lake level as well
+        │  (lake level: blocked, tolerated)        │
+        ▼                                          ▼
+        └──────────► commits + pushes to master ◄──┘
+                                │
+                                ▼
+        Streamlit Community Cloud sees the push → redeploys → dashboard is current
 ```
 
 The push is what triggers the redeploy. There is no other refresh mechanism.
+
+Both halves are safe to run concurrently: each rebases onto whatever the other has
+already pushed before committing.
 
 ---
 
@@ -101,6 +109,58 @@ imports them; they appear only as label strings on page 7, which reads
 `docs/olympics_results.json`. The training pipeline does need xgboost and lightgbm
 (`08_train_forecast_model.py` imports them at module level), so CI installs
 `Automation/requirements-pipeline.txt`, which layers them on top.
+
+---
+
+## The lake level 403
+
+`kineret.org.il` sits behind Cloudflare, which serves a JS interstitial challenge
+(`cf-mitigated: challenge`, *"Just a moment..."*) to GitHub's runner IPs — they are
+Azure datacenter addresses, and Cloudflare challenges them on reputation. This was
+tested from a runner with three request variants: full browser headers, and no
+custom headers at all. **All three were challenged**, so the block is on the source
+IP and no User-Agent or header change can affect it.
+
+The lake level is therefore fetched by the local half of the refresh instead. In CI
+the workflow sets `DAN_TOLERATE_FAILURES=kinneret_level`, so that one failure is
+reported in the agent's output but does not redden the run — any *other* failure
+still does. If the level is ever tolerated silently for weeks, the dashboard will
+quietly show a stale level, so it is worth glancing at the agent report
+occasionally.
+
+Longer-term options, in preference order:
+
+1. Ask the site for an allowlist or a data feed, citing the research project.
+2. Move to an official source (data.gov.il / the Water Authority) if one publishes
+   the level series — worth re-checking; their API was returning 502 when this was
+   written.
+3. Keep the hybrid. It works, and costs nothing.
+
+Do not try to defeat the challenge. It is a bot-protection control, and it would
+break the next time Cloudflare rotates it.
+
+### Registering the local half
+
+From the repository root, in an **Administrator** PowerShell:
+
+```powershell
+schtasks /create /tn "Kinneret daily refresh" /sc daily /st 07:30 `
+  /tr "powershell -NoProfile -ExecutionPolicy Bypass -File `"$PWD\Automation\local_refresh.ps1`""
+```
+
+Run it once by hand first — `.\Automation\local_refresh.ps1` — to confirm git can
+push without prompting for credentials. The task is silent about failures by design;
+it writes `Reports/local_refresh_<date>.log` on every run.
+
+To inspect or remove it:
+
+```powershell
+schtasks /query /tn "Kinneret daily refresh"
+schtasks /delete /tn "Kinneret daily refresh" /f
+```
+
+The script aborts without committing if `Gold Data/`, `Silver Data/` or `Models/`
+have uncommitted changes, so a scheduled run never sweeps up work in progress.
 
 ---
 

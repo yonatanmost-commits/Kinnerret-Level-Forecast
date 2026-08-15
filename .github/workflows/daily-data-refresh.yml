@@ -55,6 +55,13 @@ jobs:
         continue-on-error: true
         env:
           PYTHONIOENCODING: utf-8
+          # kineret.org.il sits behind Cloudflare, which serves a JS challenge
+          # (cf-mitigated: challenge) to this runner's datacenter IP. Verified
+          # to be independent of headers and User-Agent, so it cannot be fixed
+          # here. The lake level is topped up instead by a scheduled run on a
+          # machine with a residential IP - see docs/DEPLOYMENT.md. The failure
+          # still appears in the report; it just does not redden the run.
+          DAN_TOLERATE_FAILURES: kinneret_level
         run: python Automation/daily_agent.py
 
       - name: Commit refreshed data
