@@ -347,7 +347,7 @@ with tab1:
     fig_et.update_yaxes(title_text="Lake ET₀ (Mm³ / year)")
     fig_et.update_xaxes(title_text="Year")
     style_plotly(fig_et, height=420)
-    st.plotly_chart(fig_et, use_container_width=True)
+    st.plotly_chart(fig_et, width='stretch')
 
     # Summary table
     st.markdown('<p class="kn-label">Period summary — Lake ET₀ (Mm³/year)</p>',
@@ -404,7 +404,7 @@ with tab2:
     fig_lv.update_yaxes(title_text="Level (m ASL)")
     fig_lv.update_xaxes(title_text="Year")
     style_plotly(fig_lv, height=400)
-    st.plotly_chart(fig_lv, use_container_width=True)
+    st.plotly_chart(fig_lv, width='stretch')
 
     # Chart B — box plots at key horizons
     st.markdown('<p class="kn-label">Level distribution at key horizons</p>',
@@ -440,7 +440,7 @@ with tab2:
 
     fig_box.update_yaxes(title_text="Annual mean level (m ASL)")
     style_plotly(fig_box, height=360)
-    st.plotly_chart(fig_box, use_container_width=True)
+    st.plotly_chart(fig_box, width='stretch')
 
     st.markdown(
         '<p style="color:var(--bone-faint);font-family:Space Mono,monospace;'
@@ -553,7 +553,7 @@ with tab3:
         fig_hc.update_yaxes(title_text="Annual mean level (m ASL)")
         fig_hc.update_xaxes(title_text="Year")
         style_plotly(fig_hc, height=400)
-        st.plotly_chart(fig_hc, use_container_width=True)
+        st.plotly_chart(fig_hc, width='stretch')
 
     st.markdown(
         '<p style="color:var(--bone-faint);font-family:Space Mono,monospace;'

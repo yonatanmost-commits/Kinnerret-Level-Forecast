@@ -3,16 +3,16 @@
   "winner": "baseline_gbr",
   "models": {
     "baseline_gbr": {
-      "cv_vol_r2_mean": 0.771,
+      "cv_vol_r2_mean": 0.751,
       "cv_vol_r2_by_fold": {
-        "2021": 0.704,
-        "2022": 0.884,
-        "2023": 0.68,
-        "2024": 0.816
+        "2021": 0.651,
+        "2022": 0.881,
+        "2023": 0.657,
+        "2024": 0.815
       },
-      "cv_vol_mae_mean": 0.645,
+      "cv_vol_mae_mean": 0.642,
       "cv_7d_drift_mean_m": null,
-      "cv_inflow_r2_mean": 0.942
+      "cv_inflow_r2_mean": 0.94
     },
     "xgboost": {
       "cv_vol_r2_mean": 0.678,
@@ -99,5 +99,5 @@
       "cv_inflow_r2_mean": null
     }
   },
-  "winner_retrained_at": "2026-06-06"
+  "winner_retrained_at": "2026-08-15"
 }

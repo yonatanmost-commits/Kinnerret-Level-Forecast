@@ -1,0 +1,75 @@
+{
+  "baseline": {
+    "per_fold": {
+      "2021": {
+        "n": 352,
+        "s1_r2": 0.951,
+        "s2_r2": 0.704,
+        "s2_signed_resid_Mm3": 0.2869
+      },
+      "2022": {
+        "n": 340,
+        "s1_r2": 0.95,
+        "s2_r2": 0.884,
+        "s2_signed_resid_Mm3": 0.0807
+      },
+      "2023": {
+        "n": 312,
+        "s1_r2": 0.907,
+        "s2_r2": 0.68,
+        "s2_signed_resid_Mm3": 0.1857
+      },
+      "2024": {
+        "n": 346,
+        "s1_r2": 0.962,
+        "s2_r2": 0.816,
+        "s2_signed_resid_Mm3": 0.2851
+      }
+    },
+    "mean_s2_r2": 0.771,
+    "signed_resid_2021": 0.2869,
+    "signed_resid_2023": 0.1857,
+    "fold_gap_2021_2023": 0.1012,
+    "abs_fold_gap": 0.1012
+  },
+  "with_bucket": {
+    "per_fold": {
+      "2021": {
+        "n": 352,
+        "s1_r2": 0.944,
+        "s2_r2": 0.643,
+        "s2_signed_resid_Mm3": 0.3266
+      },
+      "2022": {
+        "n": 340,
+        "s1_r2": 0.948,
+        "s2_r2": 0.875,
+        "s2_signed_resid_Mm3": 0.0944
+      },
+      "2023": {
+        "n": 312,
+        "s1_r2": 0.918,
+        "s2_r2": 0.69,
+        "s2_signed_resid_Mm3": 0.1294
+      },
+      "2024": {
+        "n": 346,
+        "s1_r2": 0.965,
+        "s2_r2": 0.832,
+        "s2_signed_resid_Mm3": 0.2394
+      }
+    },
+    "mean_s2_r2": 0.76,
+    "signed_resid_2021": 0.3266,
+    "signed_resid_2023": 0.1294,
+    "fold_gap_2021_2023": 0.1972,
+    "abs_fold_gap": 0.1972
+  },
+  "verdict": {
+    "abs_fold_gap_baseline": 0.1012,
+    "abs_fold_gap_with_bucket": 0.1972,
+    "fold_gap_shrunk": false,
+    "mean_r2_change": -0.011,
+    "criterion": "PASS if the 2021-2023 abs signed-residual gap shrinks (pre-registered); mean R2 is secondary."
+  }
+}

@@ -1,0 +1,100 @@
+name: Daily data refresh (dan)
+
+# Streamlit Community Cloud runs the dashboard but cannot run a scheduler, so
+# the daily ingestion agent runs here instead. It fetches new observations,
+# rebuilds the gold feature table, retrains the champion, and commits the
+# result. Community Cloud watches the deployed branch and redeploys on push,
+# which is what makes the dashboard refresh.
+
+on:
+  schedule:
+    # 04:10 UTC daily. Israel is UTC+2 (winter) / UTC+3 (summer), so this lands
+    # early morning local, after the previous day's readings are published.
+    # The offset minute avoids the top-of-hour spike when GitHub defers crons.
+    - cron: "10 4 * * *"
+  workflow_dispatch:        # lets you trigger a refresh by hand from the Actions tab
+
+# Never let two refreshes overlap: they would race on the same data files.
+concurrency:
+  group: daily-data-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write           # required to push the refreshed data back
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out the deployed branch
+        uses: actions/checkout@v4
+        with:
+          # Only the tip is needed; the data files are large and history is not
+          # used by the agent.
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: Automation/requirements-pipeline.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Automation/requirements-pipeline.txt
+
+      - name: Run the daily agent
+        id: dan
+        # The agent exits 1 when any single step fails, but the steps are
+        # independent - a failed river-flow fetch should not discard a good
+        # level update. Record the status and decide at the end of the job.
+        continue-on-error: true
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python Automation/daily_agent.py
+
+      - name: Commit refreshed data
+        id: commit
+        run: |
+          git config user.name  "kinneret-data-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Add only the deployed data artefacts. Reports/ is deliberately
+          # excluded: it holds run logs and draft correspondence, and this
+          # repository is public.
+          git add -- \
+            "Gold Data" \
+            "Silver Data" \
+            "Models" || true
+
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No data changed - nothing to commit."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git commit -m "data: daily refresh $(date -u +%Y-%m-%d)
+
+          Automated run of Automation/daily_agent.py."
+            # Another run (or a human push) may have landed first.
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Summarise
+        run: |
+          {
+            echo "### Daily data refresh"
+            echo ""
+            echo "- Agent result: \`${{ steps.dan.outcome }}\`"
+            echo "- Data committed: \`${{ steps.commit.outputs.changed }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail the job if the agent reported a failed step
+        if: steps.dan.outcome == 'failure'
+        run: |
+          echo "daily_agent.py reported at least one failed step - see its log above."
+          exit 1

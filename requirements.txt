@@ -1,0 +1,23 @@
+# Streamlit Community Cloud runtime dependencies for kinneret_app.
+#
+# Versions are pinned to the local development environment because
+# Models/*.pkl are pickled scikit-learn estimators: unpickling under a
+# different scikit-learn / numpy build can fail or silently misbehave.
+# If you retrain the models on a newer stack, re-pin these together.
+#
+# Deliberately NOT included (not imported by kinneret_app at runtime):
+#   xgboost, lightgbm  - only appear as label strings on page 7, which
+#                        reads docs/olympics_results.json
+#   torch              - the GRU model was retired 2026-06-01
+# The training pipeline does need them; see Automation/requirements-pipeline.txt
+
+streamlit==1.57.0
+pandas==3.0.2
+numpy==2.4.4
+scikit-learn==1.8.0
+scipy==1.17.1
+joblib==1.5.3
+plotly==6.7.0
+pyarrow==23.0.1
+requests==2.33.1
+beautifulsoup4==4.14.3

@@ -1,0 +1,67 @@
+# Technical Specification: Multi-Task Recurrent Hydrology Network (LSTM/GRU)
+
+## 1. Architectural Design
+This model uses a deep recurrent neural network backbone to map continuous meteorological timelines directly into a shared latent space. By passing an internal hidden memory state from one day to the next, the network natively simulates soil saturation, catchment retention, and fluid accumulation mechanics without explicit physical equations.
+
+The shared recurrent layers feed into two independent, parallel linear regression heads that output predictions simultaneously.
+
+## 2. Core Optimization Technicalities
+
+### A. Data Reshaping Pipeline
+* **Input Tensor Dimension:** `[Batch Size, Sequence Length (N), Feature Count (M)]`
+* **Sequence Lookback Window ($N$):** Locked to **14 days** to match the concentration lag of the upstream watershed.
+* **Target Vector ($Y_t$):** Dual continuous channels mapping `[River_Flow_t, Daily_Delta_Volume_t]`.
+
+### B. Meticulous Pre-Processing & Scaling
+* **MinMax Scaling:** All inputs and targets must be scaled to a uniform range $[0, 1]$ or $Z$-score standardized. LSTMs are highly sensitive to scale discrepancies; unscaled targets will cause the River Flow gradients to completely drown out the Daily Delta Volume gradients.
+* **Missing Value Strategy:** Missing telemetry rows must be handled via forward-filling or linear interpolation prior to tensor creation. Recurrent layers will throw runtime errors if NaN values enter the matrix operations.
+
+### C. Joint Loss Customization
+The model must optimize a customized, weighted Mean Squared Error (MSE) objective function to balance the dual tasks:
+
+$$\mathcal{L}_{\text{total}} = \alpha \cdot \text{MSE}_{\text{Flow}} + \beta \cdot \text{MSE}_{\Delta\text{Volume}}$$
+
+* **Tuning Target:** Initialize $\alpha = 0.5$ and $\beta = 0.5$. If River Flow settles at a high accuracy while $\Delta\text{Volume}$ drifts, dynamically increase $\beta$ to force the backpropagation steps to prioritize level change stabilization.
+
+## 3. PyTorch Implementation Reference
+```python
+import torch
+import torch.nn as nn
+
+class MultiTaskHydrologyLSTM(nn.Module):
+    def __init__(self, input_dim, hidden_dim=64, num_layers=2):
+        super(MultiTaskHydrologyLSTM, self).__init__()
+        
+        self.recurrent_backbone = nn.LSTM(
+            input_size=input_dim, 
+            hidden_size=hidden_dim, 
+            num_layers=num_layers, 
+            batch_first=True,
+            dropout=0.2 if num_layers > 1 else 0.0
+        )
+        
+        # Head 1: River Flow Prediction
+        self.flow_head = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim // 2, 1)
+        )
+        
+        # Head 2: Daily Volume Change Prediction
+        self.volume_head = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.ReLU(),
+            nn.Linear(hidden_dim // 2, 1)
+        )
+
+    def forward(self, x):
+        # x shape: [Batch, Sequence_Length, Features]
+        lstm_out, _ = self.recurrent_backbone(x)
+        
+        # Extract features from the final step of the lookback sequence
+        last_step_features = lstm_out[:, -1, :]
+        
+        pred_flow = self.flow_head(last_step_features)
+        pred_delta_v = self.volume_head(last_step_features)
+        
+        return pred_flow, pred_delta_v

@@ -32,7 +32,21 @@ OUT_FILE   = SILVER_MET / "precip_intensity_daily.csv"
 
 def main():
     if not IN_WIDE.exists():
-        raise FileNotFoundError(str(IN_WIDE) + " not found - run 02_pivot_wide_met_data.py first")
+        # met_data_wide.csv is 207 MB and is excluded from the repository, so it
+        # is absent in CI and in any fresh clone.  The daily agent never extends
+        # it either - it appends to met_data_daily.csv - which makes this step a
+        # recompute of an unchanging result.  When the cached output is already
+        # present, skip rather than fail, so the agent goes on to train.
+        if OUT_FILE.exists():
+            print("SKIP: " + IN_WIDE.name + " not present; keeping cached "
+                  + OUT_FILE.name + " as-is.")
+            print("      Precip intensity is frozen at that file's last date.")
+            print("      Re-run 02_pivot_wide_met_data.py locally to extend it.")
+            return
+        raise FileNotFoundError(
+            str(IN_WIDE) + " not found and no cached " + OUT_FILE.name
+            + " to fall back on - run 02_pivot_wide_met_data.py first"
+        )
 
     print("Loading rainfall columns from " + IN_WIDE.name + " ...")
     wide = pd.read_csv(
