@@ -52,6 +52,12 @@ IN_DAILY   = SILVER_DIR / "met_data_daily.csv"
 IN_WIDE    = SILVER_DIR / "met_data_wide.csv"
 OUT_CLEAN  = SILVER_DIR / "met_data_daily_clean.csv"
 OUT_LOG    = SILVER_DIR / "met_data_daily_qc_log.csv"
+# Layer 3 needs per-station daily coverage, which is derived from the 207 MB
+# 10-minute wide table. That file is too large to keep in the repository, so
+# the derived coverage fractions are cached here as a small CSV and committed.
+# Without it, Layer 3 silently skips in CI and the cleaned output regresses:
+# station-days that local QC blanked come back as values.
+COV_CACHE  = SILVER_DIR / "met_coverage_daily.csv"
 
 # ---------------------------------------------------------------------------
 # Layer 1 - Physical bounds  (column_suffix: (min, max))
@@ -188,14 +194,11 @@ def layer2_monthly_iqr(df, multiplier=3.0):
     return df, log
 
 
-def layer3_coverage(df, wide_path):
+def coverage_from_wide(wide_path):
     """
-    Blank daily values for station-days with < COVERAGE_THRESHOLD coverage.
-    Returns (df, log).
+    Per-station fraction of the day's 10-minute slots that carry a reading.
+    Index is the date as a string, one column per station.
     """
-    df = df.copy()
-    df_before = df.copy()
-
     wide = pd.read_csv(
         wide_path, encoding="utf-8-sig", low_memory=False,
         usecols=lambda c: c == "datetime" or c.endswith("_temperature_C"),
@@ -215,7 +218,38 @@ def layer3_coverage(df, wide_path):
             wide.groupby("date")[col]
             .apply(lambda x: x.notna().sum() / SLOTS_PER_DAY)
         )
-    coverage = pd.DataFrame(cov_dict)
+    # Sorted columns keep the cached CSV stable across platforms, so a rerun
+    # that changes no data also produces no diff.
+    return pd.DataFrame(cov_dict).sort_index(axis=1).sort_index()
+
+
+def save_coverage_cache(coverage, path=None):
+    """Persist the coverage table so Layer 3 can run without the wide file."""
+    path = path or COV_CACHE
+    out = coverage.copy()
+    out.index.name = "date"
+    out.to_csv(path, encoding="utf-8", float_format="%.6f")
+    return path
+
+
+def load_coverage_cache(path=None):
+    """Read a coverage table written by save_coverage_cache."""
+    path = path or COV_CACHE
+    cov = pd.read_csv(path, encoding="utf-8-sig")
+    cov = cov.set_index(cov.columns[0])
+    cov.index = cov.index.astype(str)
+    cov.index.name = "date"
+    return cov.sort_index(axis=1).sort_index()
+
+
+def layer3_coverage(df, coverage):
+    """
+    Blank daily values for station-days with < COVERAGE_THRESHOLD coverage.
+    `coverage` is the table from coverage_from_wide / load_coverage_cache.
+    Returns (df, log).
+    """
+    df = df.copy()
+    df_before = df.copy()
 
     df["_date_str"] = df["date"].astype(str)
     df = df.set_index("_date_str")
@@ -244,9 +278,13 @@ def layer3_coverage(df, wide_path):
             df.loc[date_str, st_cols] = np.nan
 
     df = df.reset_index(drop=True)
-    df_before = df_before.set_index(df_before["date"].astype(str)).reindex(
-        df.index if "_date_str" not in df_before.columns else df_before["date"].astype(str)
-    ).reset_index(drop=True)
+    # df_before is a copy taken before the date index was set, and this layer
+    # only assigns into existing rows, so the two frames are already in the
+    # same row order. The previous code reindexed df_before by df's positional
+    # index against its date-string index, which matched nothing and produced
+    # an all-NaN frame - so this layer reported "0 values nulled" no matter how
+    # many it actually blanked.
+    df_before = df_before.reset_index(drop=True)
 
     log = collect_changes(df_before, df, reason_series.reset_index(drop=True))
     return df, log
@@ -316,13 +354,27 @@ def main():
     all_logs.append(log2)
     print("  %d values nulled" % len(log2))
 
+    coverage = None
     if IN_WIDE.exists():
-        print("Layer 3: Coverage filter (<%d%% of daily 10-min slots) ..." % int(COVERAGE_THRESHOLD * 100))
-        df, log3 = layer3_coverage(df, IN_WIDE)
+        coverage = coverage_from_wide(IN_WIDE)
+        save_coverage_cache(coverage)
+        print("Layer 3: Coverage filter (<%d%% of daily 10-min slots), from %s ..."
+              % (int(COVERAGE_THRESHOLD * 100), IN_WIDE.name))
+    elif COV_CACHE.exists():
+        coverage = load_coverage_cache()
+        print("Layer 3: Coverage filter (<%d%% of daily 10-min slots), from cached %s ..."
+              % (int(COVERAGE_THRESHOLD * 100), COV_CACHE.name))
+
+    if coverage is not None:
+        df, log3 = layer3_coverage(df, coverage)
         all_logs.append(log3)
         print("  %d values nulled" % len(log3))
     else:
-        print("Layer 3: SKIPPED (met_data_wide.csv not found in Silver Data)")
+        # Skipping is a last resort: it lets through station-days that the
+        # filter would blank, so the output is dirtier than a full local run.
+        print("Layer 3: SKIPPED - neither %s nor %s found."
+              % (IN_WIDE.name, COV_CACHE.name))
+        print("         Output will retain low-coverage station-days.")
         log3 = pd.DataFrame(columns=["date", "column", "original_value", "reason"])
 
     print("Layer 4: Persistence check (>=%d consecutive identical days) ..." % PERSISTENCE_MIN_RUN)
