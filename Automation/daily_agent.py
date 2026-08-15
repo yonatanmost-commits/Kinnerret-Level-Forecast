@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 from datetime import date
@@ -174,7 +175,23 @@ def main():
         print(f.read())
     print(f"\nReport saved: {report_path}")
 
-    if any(v["status"] == "failed" for v in results.values()):
+    # Some steps are expected to fail in some environments, and a job that is
+    # red every single day stops being read. DAN_TOLERATE_FAILURES lists step
+    # names whose failure should not change the exit code - CI sets it to
+    # kinneret_level, which Cloudflare challenges from datacenter IPs. The
+    # failure is still printed in the report above; it just does not raise the
+    # alarm. Anything not listed still fails the run.
+    tolerated = {
+        s.strip() for s in os.environ.get("DAN_TOLERATE_FAILURES", "").split(",")
+        if s.strip()
+    }
+    failed = [k for k, v in results.items() if v["status"] == "failed"]
+    unexpected = [k for k in failed if k not in tolerated]
+
+    if failed and not unexpected:
+        print("\nTolerated failures (DAN_TOLERATE_FAILURES): " + ", ".join(failed))
+    if unexpected:
+        print("\nUnexpected failures: " + ", ".join(unexpected))
         sys.exit(1)
 
 
