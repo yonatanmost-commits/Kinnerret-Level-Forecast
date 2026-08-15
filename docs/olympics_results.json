@@ -3,16 +3,16 @@
   "winner": "baseline_gbr",
   "models": {
     "baseline_gbr": {
-      "cv_vol_r2_mean": 0.751,
+      "cv_vol_r2_mean": 0.764,
       "cv_vol_r2_by_fold": {
-        "2021": 0.651,
-        "2022": 0.881,
-        "2023": 0.657,
-        "2024": 0.815
+        "2021": 0.68,
+        "2022": 0.88,
+        "2023": 0.689,
+        "2024": 0.807
       },
       "cv_vol_mae_mean": 0.642,
       "cv_7d_drift_mean_m": null,
-      "cv_inflow_r2_mean": 0.94
+      "cv_inflow_r2_mean": 0.944
     },
     "xgboost": {
       "cv_vol_r2_mean": 0.678,
