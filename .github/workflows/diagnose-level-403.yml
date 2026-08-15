@@ -1,0 +1,64 @@
+name: Diagnose kineret.org.il 403
+
+# One-off diagnostic, run by hand. The daily agent gets a 403 from
+# kineret.org.il on GitHub runners but not from a home connection, even with a
+# full browser header set. This prints who is refusing and why, so we can tell
+# a geo-block from a datacenter-IP block from a WAF bot rule - they need
+# different fixes. Delete this workflow once the question is settled.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: pip install requests
+
+      - name: Where is this runner
+        run: |
+          curl -s https://ipinfo.io/json || true
+
+      - name: Fetch the level page and report the refusal
+        run: |
+          python - <<'PY'
+          import requests
+
+          URL = ("https://kineret.org.il/miflasim/"
+                 "?fromdate=2026-08-13&todate=2026-08-15&Frequency=daily")
+          BROWSER = {
+              "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                             "AppleWebKit/537.36 (KHTML, like Gecko) "
+                             "Chrome/131.0.0.0 Safari/537.36"),
+              "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Accept-Language": "en-US,en;q=0.9,he;q=0.8",
+              "Referer": "https://kineret.org.il/",
+          }
+
+          for label, url, headers in [
+              ("homepage, browser headers", "https://kineret.org.il/", BROWSER),
+              ("data page, browser headers", URL, BROWSER),
+              ("data page, no custom headers", URL, {}),
+          ]:
+              print("=" * 70)
+              print(label)
+              try:
+                  r = requests.get(url, headers=headers, timeout=30)
+                  print("  status:", r.status_code)
+                  interesting = [
+                      "server", "cf-ray", "cf-mitigated", "x-sucuri-id",
+                      "x-powered-by", "location", "content-type", "set-cookie",
+                  ]
+                  for k in interesting:
+                      if k in r.headers:
+                          print("  %s: %s" % (k, r.headers[k][:120]))
+                  body = r.text[:600].replace("\n", " ")
+                  print("  body[:600]:", body)
+              except Exception as e:
+                  print("  ERROR:", type(e).__name__, str(e)[:200])
+          PY

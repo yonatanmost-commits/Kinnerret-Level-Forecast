@@ -43,6 +43,9 @@ Silver Data/Jordan River Silver/*
 !Silver Data/Meteorological/met_data_daily_clean.csv
 !Silver Data/Meteorological/met_data_daily_qc_log.csv
 !Silver Data/Meteorological/precip_intensity_daily.csv
+# Derived from met_data_wide.csv so that step 04's Layer 3 coverage filter
+# still runs in CI, where the wide file is absent. Regenerate locally.
+!Silver Data/Meteorological/met_coverage_daily.csv
 !Silver Data/Kinneret Level/kinneret_level.csv
 !Silver Data/Jordan River Silver/jordan_river_daily_flow.csv
 !Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv
