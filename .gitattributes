@@ -1,0 +1,21 @@
+# Development happens on Windows (core.autocrlf=true) but CI runs on Linux.
+# A workflow file committed with CRLF makes every `run:` shell step fail with
+# "$'\r': command not found", so pin line endings for anything CI executes.
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.sh    text eol=lf
+
+# Keep Python and requirements files consistent across platforms too.
+*.py    text eol=lf
+*.txt   text eol=lf
+
+# Windows-only launcher must keep CRLF.
+*.bat   text eol=crlf
+
+# Binary artefacts: never touch, never diff.
+*.parquet binary
+*.pkl     binary
+*.pt      binary
+*.docx    binary
+*.png     binary
+*.svg     text

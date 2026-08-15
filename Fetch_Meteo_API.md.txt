@@ -1,0 +1,327 @@
+Here is the complete technical reference document for a Claude Code API implementation:
+
+---
+
+# `isr_cities_1week_6hr_forecast.xml` — Full Technical Reference
+
+---
+
+## 1. File Access
+
+**Direct URL (no authentication required):**
+```
+https://ims.gov.il/sites/default/files/ims_data/xml_files/isr_cities_1week_6hr_forecast.xml
+```
+
+**Method:** HTTP GET (no headers, no token, no login required — publicly accessible)
+
+**Terms of use URL:** `https://ims.gov.il/en/termOfuse` — must be accepted before use.
+
+**Update frequency:** Every hour
+
+**File size:** ~21 MB (large — plan accordingly; stream or parse incrementally if needed)
+
+---
+
+## 2. File Metadata
+
+| Property | Value |
+|---|---|
+| Format | XML |
+| Encoding | UTF-8 |
+| Root element | `<LocationForecasts>` |
+| Issued by | Israel Meteorological Service |
+| Title | "6-hours forecast for 80 cities" |
+| Forecast horizon | 192 hours (8 days) |
+| Time step | Every 6 hours (at 03:00, 09:00, 15:00, 21:00) |
+| Steps per location | 35 per file |
+| Total locations | 175 |
+| Source model | First 3 days: human forecaster + INCA model (based on ECMWF); remaining days: INCA/ECMWF model only |
+| Time zone | Israel Winter Time (UTC+2) — note: the datetime string in the file may show +03:00 but actual data is UTC+2 |
+
+---
+
+## 3. XML Structure
+
+```xml
+<LocationForecasts>
+  <Identification>
+    <Organization>Israel Meteorological Service</Organization>
+    <Title>6-hours forecast for 80 cities</Title>
+    <IssueDateTime>Wed May 27 13:38:51 IDT 2026</IssueDateTime>
+  </Identification>
+
+  <Location>
+    <LocationMetaData>
+      <LocationId>1</LocationId>
+      <LocationNameEng>Jerusalem</LocationNameEng>
+      <DisplayLat>31.7780</DisplayLat>
+      <DisplayLon>35.2000</DisplayLon>
+      <DisplayHeight>780</DisplayHeight>    <!-- meters above sea level; negative = below sea level -->
+    </LocationMetaData>
+
+    <LocationData>
+      <Forecast>
+        <ForecastTime>2026-05-27 03:00:00</ForecastTime>
+        <Temperature>13.7</Temperature>
+        <RelativeHumidity>88</RelativeHumidity>
+        <WindSpeed>8</WindSpeed>
+        <WindDirection>293</WindDirection>
+        <DewPointTemp>12</DewPointTemp>
+        <HeatStress>13.1</HeatStress>
+        <HeatStressLevel>0</HeatStressLevel>
+        <FeelsLike>13</FeelsLike>
+        <WindChill>13</WindChill>
+        <Rain>0.00</Rain>
+        <WeatherCode>1230</WeatherCode>
+        <MinTemp>13</MinTemp>
+        <MaxTemp>13</MaxTemp>
+        <UVIndex>0</UVIndex>
+        <UVIndexMax>0</UVIndexMax>
+      </Forecast>
+      <!-- ... 34 more Forecast blocks per location ... -->
+    </LocationData>
+  </Location>
+
+  <!-- ... 174 more Location blocks ... -->
+</LocationForecasts>
+```
+
+---
+
+## 4. Forecast Field Reference
+
+| Field | Type | Unit | Notes |
+|---|---|---|---|
+| `ForecastTime` | datetime string | — | Format: `YYYY-MM-DD HH:MM:SS`; times are 03:00, 09:00, 15:00, 21:00 |
+| `Temperature` | float | °C | Current temperature at time step |
+| `RelativeHumidity` | integer | % | 0–100 |
+| `WindSpeed` | integer | km/h | |
+| `WindDirection` | integer | degrees | Meteorological convention (0/360 = N, 90 = E, 180 = S, 270 = W) |
+| `DewPointTemp` | integer | °C | Can be negative |
+| `HeatStress` | float | °C | Apparent temperature under heat conditions |
+| `HeatStressLevel` | integer | index | 0 = no stress; higher = more heat stress |
+| `FeelsLike` | float | °C | Combined apparent temperature |
+| `WindChill` | integer | °C | Perceived coldness from wind |
+| `Rain` | float | mm | Accumulated rain for the 6-hour period; 2 decimal places |
+| `WeatherCode` | integer | — | See WeatherCode table below |
+| `MinTemp` | integer | °C | Min temp during the 6-hour period |
+| `MaxTemp` | integer | °C | Max temp during the 6-hour period |
+| `UVIndex` | integer | — | UV index at time step (0 at night) |
+| `UVIndexMax` | integer | — | Max UV index for the period |
+
+---
+
+## 5. WeatherCode Legend
+
+These codes were observed in the live file (7 unique values currently):
+
+| Code | Meaning (inferred from IMS website weather descriptions) |
+|---|---|
+| `1160` | Partly cloudy |
+| `1220` | Partly cloudy |
+| `1230` | Cloudy |
+| `1250` | Clear / Mostly clear |
+| `1260` | Partly cloudy with possible rain |
+| `1570` | Dust / Sandstorm (Sharav) |
+| `1580` | Heavy dust / Extreme heat |
+
+> Note: The IMS website shows additional codes for rain, storms, snow, fog etc. — these will appear in the file in relevant seasons. Full code legend is not published as a standalone document; it can be cross-referenced with the Hebrew-language explanation files linked on `/en/CurrentDataXML`.
+
+---
+
+## 6. LocationMetaData Reference
+
+All 175 locations in the file, with their IDs, English names, lat/lon, and elevation:
+
+**Cities (IDs 1–84):**
+```
+1   Jerusalem            31.7780, 35.2000  h:780m
+2   Tel Aviv Coast       32.0821, 34.7802  h:30m
+3   Haifa                32.7900, 34.9900  h:250m
+4   Rishon le Zion       31.9640, 34.8040  h:50m
+5   Petah Tiqva          32.0869, 34.8882  h:50m
+6   Ashdod               31.8011, 34.6410  h:30m
+7   Netania              32.3285, 34.8565  h:35m
+8   Beer Sheva           31.2497, 34.7997  h:280m
+9   Bnei Brak            32.0868, 34.8363  h:35m
+10  Holon                32.0171, 34.7688  h:35m
+11  Ramat Gan            32.0822, 34.8141  h:50m
+12  Asheqelon            31.6654, 34.5638  h:40m
+13  Rehovot              31.8982, 34.8085  h:50m
+14  Bat Yam              32.0161, 34.7413  h:20m
+15  Bet Shemesh          31.7498, 34.9864  h:300m
+16  Kfar Sava            32.1726, 34.9080  h:55m
+17  Herzliya             32.1643, 34.8423  h:45m
+18  Hadera               32.4351, 34.9136  h:25m
+19  Modiin               31.8960, 35.0199  h:270m
+20  Ramla                31.9308, 34.8686  h:80m
+21  Raanana              32.1807, 34.8709  h:50m
+22  Modiin Illit         31.9330, 35.0431  h:290m
+23  Rahat                31.3921, 34.7581  h:230m
+24  Hod Hasharon         32.1555, 34.???   h:50m
+25  Givatayim            32.0686, 34.8078  h:70m
+26  Kiryat Ata           32.8051, 35.1056  h:50m
+27  Nahariya             33.0070, 35.0979  h:15m
+28  Beitar Illit         31.6977, 35.1205  h:710m
+29  Um al-Fahm           32.5165, 35.1517  h:400m
+30  Kiryat Gat           31.6086, 34.7718  h:125m
+31  Eilat                29.5552, 34.9511  h:50m
+32  Rosh Haayin          32.0970, 34.9443  h:50m
+33  Afula                32.6094, 35.2901  h:80m
+34  Nes-Ziona            31.9288, 34.8010  h:35m
+35  Akko                 32.9249, 35.0713  h:10m
+36  Elad                 32.0492, 34.9487  h:120m
+37  Ramat Hasharon       32.1436, 34.8435  h:45m
+38  Karmiel              32.9205, 35.3033  h:235m
+39  Yavneh               31.8736, 34.7452  h:30m
+40  Tiberias             32.7920, 35.5390  h:-200m
+41  Tayibe               32.2693, 35.0054  h:70m
+42  Kiryat Motzkin       32.8321, 35.0735  h:10m
+43  Shfaram              32.8051, 35.1707  h:130m
+44  Nof Hagalil          32.7086, 35.3169  h:430m
+45  Kiryat Yam           32.8438, 35.0671  h:10m
+46  Kiryat Bialik        32.8312, 35.0821  h:15m
+47  Kiryat Ono           32.0598, 34.8554  (h varies)
+48  (gap)
+49  Or Yehuda            32.0300, 34.8460  h:30m
+50  Zefat                32.9707, 35.4959  h:800m
+51  Netivot              31.4257, 34.5949  h:150m
+52  Dimona               31.0654, 35.0320  h:550m
+53  Tamra                32.8511, 35.2070  h:120m
+54  Sakhnin              32.8664, 35.2936  h:250m
+55  Yehud-Monosson       32.0328, 34.8820  h:40m
+56  Baka al-Gharbiya     32.4118, 35.0380  h:100m
+57  Ofakim               31.3149, 34.6208  h:130m
+58  Givat Shmuel         32.0769, 34.8480  h:50m
+59  Tira                 32.2341, 34.9545  h:75m
+60  Arad                 31.2558, 35.2122  h:600m
+61  Migdal Haemek        32.6780, 35.2390  h:220m
+62  Sderot               31.5240, 34.6006  h:90m
+63  Araba                32.8510, 35.3384  h:250m
+64  Nesher               32.7707, 35.0448  h:140m
+65  Kiryat Shmona        33.2094, 35.5696  h:120m
+66  Yokneam Illit        32.6599, 35.1100  h:140m
+67  Kafr Qassem          32.1142, 34.9771  h:140m
+68  Kfar Yona            32.3188, 34.9362  h:50m
+69  Qalansawa            32.2855, 34.9830  h:40m
+70  Kiryat Malachi       31.7320, 34.7406  h:65m
+71  Maalot-Tarshiha      33.0161, 35.2745  h:(varies)
+72  Tirat Carmel         32.7616, 34.9723  h:50m
+73  Ariel                32.1044, 35.1710  h:580m
+74  Or Akiva             32.5081, 34.9176  h:20m
+75  Bet Shean            32.4982, 35.5039  h:-130m
+76  Mizpe Ramon          30.6095, 34.8011  h:860m
+77  Lod                  31.9481, 34.8960  h:65m
+78  Nazareth             32.7005, 35.2956  h:370m
+79  Qazrin               32.9927, 35.6887  h:320m
+80  En Gedi              31.4664, 35.3880  h:-205m
+81  Ganei Tikva          32.0600, 34.8750  h:70m
+82  Beer Yaakov          31.9440, 34.8400  h:65m
+83  Maghar               32.8870, 35.4120  h:280m
+84  Tel Aviv - Yafo      32.1300, 34.8324  h:65m
+```
+
+**National Parks / Nature Reserves (IDs 200–278, 613, 702–719):**
+```
+200 Nimrod Fortress, 201 Banias, 202 Tel Dan, 203 Snir Stream,
+204 Horshat Tal, 205 Ayun Stream, 206 Hula, 207 Tel Hazor,
+208 Akhziv, 209 Yehiam Fortress, 211 Amud Stream, 212 Korazim,
+213 Kfar Nahum, 214 Majrase, 215 Meshushim Stream, 216 Yehudiya,
+217 Gamla, 218 Kursi, 219 Hamat Tiberias, 220 Arbel,
+221 En Afek, 222 Tzipori, 223 Hai-Bar Carmel, 224 Mount Carmel,
+225 Bet Shearim, 226 Mishmar HaCarmel, 227 Nahal Me'arot,
+228 Dor-HaBonim, 229 Tel Megiddo, 230 Kokhav HaYarden,
+231 Maayan Harod, 232 Bet Alpha, 235 Taninim Stream,
+236 Caesarea, 237 Tel Dor, 238 Mikhmoret Sea Turtle,
+239 Beit Yanai, 240 Apollonia, 241 Mekorot HaYarkon,
+242 Palmahim, 243 Castel, 244 En Hemed, 245 City of David,
+246 Me'arat Soreq, 248 Bet Guvrin, 249 Sha'ar HaGai,
+250 Migdal Tsedek, 251 Haniya Spring, 252 Sebastia,
+253 Mount Gerizim, 254 Nebi Samuel, 255 En Prat, 256 En Mabo'a,
+257 Qasr al-Yahud, 258 Good Samaritan, 259 Euthymius Monastery,
+261 Qumran, 262 Enot Tsukim, 263 Herodium, 264 Tel Hebron,
+267 Masada, 268 Tel Arad, 269 Tel Beer Sheva, 270 Eshkol,
+271 Mamshit, 272 Shivta, 273 Ben-Gurion's Tomb, 274 En Avdat,
+275 Avdat, 277 Hay-Bar Yotvata, 278 Coral Beach,
+613 Tel Yosef, 702 Gilgal, 703 Maale Gilboa,
+704 Makhtesh Ramon, 705 Neot Semadar, 706 Red Canyon,
+707 Hazeva, 708 Bruchin, 709 Itamar, 710 Tal Menashe,
+711 Rosh Zorim, 712 Nokdim, 713 Qiryat Arba, 714 Sosia,
+715 Negohot, 717 Mount Hermon (2814m!), 718 Mevaseret Zion,
+719 Pardes Hanna-Karkur
+```
+
+---
+
+## 7. Python Fetch Skeleton (for Claude Code)
+
+```python
+import requests
+import xml.etree.ElementTree as ET
+from datetime import datetime
+
+FILE_URL = "https://ims.gov.il/sites/default/files/ims_data/xml_files/isr_cities_1week_6hr_forecast.xml"
+
+def fetch_forecast():
+    response = requests.get(FILE_URL, timeout=30)
+    response.raise_for_status()
+    return ET.fromstring(response.content)
+
+def parse_forecast(root):
+    issued = root.findtext("Identification/IssueDateTime")
+    results = []
+
+    for location in root.findall("Location"):
+        meta = location.find("LocationMetaData")
+        loc_id = meta.findtext("LocationId")
+        name = meta.findtext("LocationNameEng")
+        lat = float(meta.findtext("DisplayLat"))
+        lon = float(meta.findtext("DisplayLon"))
+        height = int(meta.findtext("DisplayHeight"))
+
+        forecasts = []
+        for fc in location.findall("LocationData/Forecast"):
+            forecasts.append({
+                "time": fc.findtext("ForecastTime"),       # "YYYY-MM-DD HH:MM:SS" (UTC+2)
+                "temp_c": float(fc.findtext("Temperature")),
+                "rh_pct": int(fc.findtext("RelativeHumidity")),
+                "wind_kmh": int(fc.findtext("WindSpeed")),
+                "wind_dir_deg": int(fc.findtext("WindDirection")),
+                "dew_point_c": int(fc.findtext("DewPointTemp")),
+                "heat_stress_c": float(fc.findtext("HeatStress")),
+                "heat_stress_level": int(fc.findtext("HeatStressLevel")),
+                "feels_like_c": float(fc.findtext("FeelsLike")),
+                "wind_chill_c": int(fc.findtext("WindChill")),
+                "rain_mm": float(fc.findtext("Rain")),
+                "weather_code": int(fc.findtext("WeatherCode")),
+                "min_temp_c": int(fc.findtext("MinTemp")),
+                "max_temp_c": int(fc.findtext("MaxTemp")),
+                "uv_index": int(fc.findtext("UVIndex")),
+                "uv_index_max": int(fc.findtext("UVIndexMax")),
+            })
+
+        results.append({
+            "id": int(loc_id),
+            "name": name,
+            "lat": lat,
+            "lon": lon,
+            "height_m": height,
+            "forecasts": forecasts   # 35 entries, every 6h
+        })
+
+    return {"issued": issued, "locations": results}
+```
+
+---
+
+## 8. Key Implementation Notes
+
+- **No auth required** — plain HTTP GET, no API key, no session cookies.
+- **File is ~21 MB** — do not load into memory repeatedly; cache locally and refresh hourly.
+- **Datetime parsing** — use `datetime.strptime(t, "%Y-%m-%d %H:%M:%S")` and treat as `UTC+2` (Israel Standard Time / UTC+2 in winter, UTC+3 in summer as IDT). The file header's `IssueDateTime` uses a human-readable format (`Wed May 27 13:38:51 IDT 2026`).
+- **35 time steps per location** at 6-hour intervals (03:00 / 09:00 / 15:00 / 21:00 local time). The window starts from the most recent past 03:00 slot and extends ~8 days.
+- **ID gaps are normal** — the ID sequence is non-contiguous (e.g., IDs jump from 84 to 200, and 247/260/265/266/276 etc. are absent).
+- **Negative `DisplayHeight`** — locations below sea level (e.g., Tiberias = -200m, En Gedi = -205m, Qumran = -330m).
+- **`WeatherCode` is an integer** — IMS does not publish an official public English legend in the XML docs; values observed in current file: 1160, 1220, 1230, 1250, 1260, 1570, 1580. More codes appear in wet/winter seasons.
+- **Terms of use PDF:** `https://ims.gov.il/sites/default/files/2026-03/Rights%20and%20terms%20of%20use%2007.01.26_0.pdf`

@@ -1,0 +1,47 @@
+{
+  "anchor": "06-01",
+  "years": [
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "n_years": 15,
+  "per_horizon": {
+    "30": {
+      "mae_method_m": 0.047,
+      "mae_persist_m": 0.212,
+      "mae_unscaled_m": 0.05,
+      "rmse_method_m": 0.056,
+      "skill_vs_persistence": 0.9351,
+      "skill_vs_unscaled_clim": 0.2917
+    },
+    "60": {
+      "mae_method_m": 0.112,
+      "mae_persist_m": 0.485,
+      "mae_unscaled_m": 0.097,
+      "rmse_method_m": 0.147,
+      "skill_vs_persistence": 0.9134,
+      "skill_vs_unscaled_clim": -0.3099
+    },
+    "90": {
+      "mae_method_m": 0.195,
+      "mae_persist_m": 0.751,
+      "mae_unscaled_m": 0.146,
+      "rmse_method_m": 0.251,
+      "skill_vs_persistence": 0.8941,
+      "skill_vs_unscaled_clim": -0.6765
+    }
+  }
+}

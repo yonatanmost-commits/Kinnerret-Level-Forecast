@@ -1,0 +1,134 @@
+{
+  "leads": [
+    7,
+    14,
+    21,
+    30
+  ],
+  "headline_leads": [
+    14,
+    21,
+    30
+  ],
+  "per_lead": {
+    "wet": {
+      "7": {
+        "n": 81,
+        "rmse_clim_Mm3": 12.107,
+        "rmse_base_Mm3": 18.025,
+        "rmse_temp_Mm3": 15.207,
+        "rmse_tempbucket_Mm3": 12.117,
+        "SS_base_vs_clim": -1.2166,
+        "SS_temp_vs_clim": -0.5778,
+        "SS_temp_marginal_vs_base": 0.2882,
+        "SS_tempbucket_vs_clim": -0.0017,
+        "SS_bucket_marginal_vs_temp": 0.3651
+      },
+      "14": {
+        "n": 82,
+        "rmse_clim_Mm3": 21.402,
+        "rmse_base_Mm3": 24.1,
+        "rmse_temp_Mm3": 20.957,
+        "rmse_tempbucket_Mm3": 18.471,
+        "SS_base_vs_clim": -0.268,
+        "SS_temp_vs_clim": 0.0412,
+        "SS_temp_marginal_vs_base": 0.2438,
+        "SS_tempbucket_vs_clim": 0.2552,
+        "SS_bucket_marginal_vs_temp": 0.2232
+      },
+      "21": {
+        "n": 82,
+        "rmse_clim_Mm3": 29.962,
+        "rmse_base_Mm3": 32.533,
+        "rmse_temp_Mm3": 29.431,
+        "rmse_tempbucket_Mm3": 24.369,
+        "SS_base_vs_clim": -0.179,
+        "SS_temp_vs_clim": 0.0351,
+        "SS_temp_marginal_vs_base": 0.1816,
+        "SS_tempbucket_vs_clim": 0.3385,
+        "SS_bucket_marginal_vs_temp": 0.3144
+      },
+      "30": {
+        "n": 83,
+        "rmse_clim_Mm3": 40.615,
+        "rmse_base_Mm3": 40.583,
+        "rmse_temp_Mm3": 36.58,
+        "rmse_tempbucket_Mm3": 31.96,
+        "SS_base_vs_clim": 0.0016,
+        "SS_temp_vs_clim": 0.1888,
+        "SS_temp_marginal_vs_base": 0.1875,
+        "SS_tempbucket_vs_clim": 0.3808,
+        "SS_bucket_marginal_vs_temp": 0.2367
+      }
+    },
+    "dry": {
+      "7": {
+        "n": 119,
+        "rmse_clim_Mm3": 3.183,
+        "rmse_base_Mm3": 5.423,
+        "rmse_temp_Mm3": 5.864,
+        "rmse_tempbucket_Mm3": 5.962,
+        "SS_base_vs_clim": -1.9036,
+        "SS_temp_vs_clim": -2.3943,
+        "SS_temp_marginal_vs_base": -0.169,
+        "SS_tempbucket_vs_clim": -2.5095,
+        "SS_bucket_marginal_vs_temp": -0.0339
+      },
+      "14": {
+        "n": 119,
+        "rmse_clim_Mm3": 5.904,
+        "rmse_base_Mm3": 7.267,
+        "rmse_temp_Mm3": 8.652,
+        "rmse_tempbucket_Mm3": 7.629,
+        "SS_base_vs_clim": -0.5151,
+        "SS_temp_vs_clim": -1.1473,
+        "SS_temp_marginal_vs_base": -0.4173,
+        "SS_tempbucket_vs_clim": -0.6694,
+        "SS_bucket_marginal_vs_temp": 0.2226
+      },
+      "21": {
+        "n": 119,
+        "rmse_clim_Mm3": 8.816,
+        "rmse_base_Mm3": 11.226,
+        "rmse_temp_Mm3": 13.197,
+        "rmse_tempbucket_Mm3": 10.776,
+        "SS_base_vs_clim": -0.6213,
+        "SS_temp_vs_clim": -1.2409,
+        "SS_temp_marginal_vs_base": -0.3822,
+        "SS_tempbucket_vs_clim": -0.4942,
+        "SS_bucket_marginal_vs_temp": 0.3332
+      },
+      "30": {
+        "n": 122,
+        "rmse_clim_Mm3": 12.376,
+        "rmse_base_Mm3": 15.451,
+        "rmse_temp_Mm3": 18.522,
+        "rmse_tempbucket_Mm3": 15.886,
+        "SS_base_vs_clim": -0.5588,
+        "SS_temp_vs_clim": -1.2401,
+        "SS_temp_marginal_vs_base": -0.4371,
+        "SS_tempbucket_vs_clim": -0.6477,
+        "SS_bucket_marginal_vs_temp": 0.2644
+      }
+    }
+  },
+  "headline": {
+    "wet": {
+      "n": 247,
+      "SS_base_vs_clim": -0.0928,
+      "SS_temp_vs_clim": 0.1209,
+      "SS_temp_marginal_vs_base": 0.1955,
+      "SS_tempbucket_vs_clim": 0.3492,
+      "SS_bucket_marginal_vs_temp": 0.2598
+    },
+    "dry": {
+      "n": 360,
+      "SS_base_vs_clim": -0.5711,
+      "SS_temp_vs_clim": -1.2283,
+      "SS_temp_marginal_vs_base": -0.4183,
+      "SS_tempbucket_vs_clim": -0.6063,
+      "SS_bucket_marginal_vs_temp": 0.2792
+    },
+    "note": "perfect-prognosis (observed future temperature) upper bound; SS_temp_marginal_vs_base isolates the temperature block's contribution"
+  }
+}

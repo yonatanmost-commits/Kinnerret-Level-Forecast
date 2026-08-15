@@ -1,0 +1,43 @@
+# Technical Specification: Engineered Multi-Output Vector XGBoost
+
+## 1. Architectural Design
+Tree-based ensembles have no native concept of time, memory, or sequence. To force XGBoost to outperform a neural network, we bypass architectural limitations by performing aggressive **temporal feature engineering** directly inside the input matrix. The model utilizes a multi-output vector strategy to execute shared node splits, mapping weather trends to joint targets simultaneously.
+
+Instead of training two independent tree models, it builds individual trees where each leaf node splits into a multi-variable vector targeting both outputs at the same time.
+
+## 2. Core Optimization Technicalities
+
+### A. Matrix Expansion (Feature Engineering)
+Because XGBoost evaluates each row as an isolated event, you must construct historical context columns manually. For every meteorological input variable $X$, generate:
+* **Discrete Lags:** $X_{t-1}, X_{t-2}, X_{t-3}, \dots, X_{t-14}$ (representing daily historical weather events up to two weeks back).
+* **Accumulation Proxies:** 3-day, 7-day, and 14-day rolling sums of precipitation (simulating soil moisture and catchment saturation curves).
+* **Atmospheric Proxies:** 3-day and 7-day moving averages of solar radiation and temperature (simulating compounding evaporation trends).
+
+### B. Native Resiliencies & Handling Anomalies
+* **Scale Invariance:** XGBoost is immune to scaling differences across input features; raw precipitation values can sit right next to raw temperatures without distorting the splitting criteria.
+* **Missing Value Routing:** XGBoost handles missing data natively. During training, if a weather gauge or sensor row has a missing value, the algorithm automatically determines the optimal "default direction" split for that node to minimize loss. Do not delete or fill rows with zero.
+
+### C. Coordinated Vector Splits
+To optimize both targets in a unified landscape, do not train two independent XGBoost models. You must invoke the unified multi-output tree strategy:
+* **Parameter:** `multi_strategy='multi_output_tree'`
+* **Mechanics:** This dictates that every single tree leaf node must split into a 2-dimensional vector targeting both outputs simultaneously, forcing the trees to map shared structural patterns rather than chasing individual variable noise.
+
+## 3. Python Execution Reference
+```python
+from xgboost import XGBRegressor
+
+xgb_multitask_model = XGBRegressor(
+    n_estimators=500,
+    learning_rate=0.03,
+    max_depth=6,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    objective='reg:squarederror',
+    multi_strategy='multi_output_tree',  # Vector multi-output tracking
+    tree_method='hist',                  # Maximizes optimization speed over large tables
+    early_stopping_rounds=30             # Monitored via a dedicated validation set
+)
+
+# Target shapes:
+# X_train shape: [Rows, Current Features + 14 Days of Generated Lags/Sums]
+# y_train shape: [Rows, 2] -> columns: [River_Flow, Daily_Delta_Volume]

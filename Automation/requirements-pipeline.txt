@@ -1,0 +1,9 @@
+# Dependencies for running the daily ingestion agent (dan) in CI.
+# Superset of the app's requirements.txt: 08_train_forecast_model.py
+# imports xgboost and lightgbm at module level, so they are needed even
+# for a --winner-only run that trains the sklearn champion.
+
+-r ../requirements.txt
+
+xgboost==3.2.0
+lightgbm==4.6.0

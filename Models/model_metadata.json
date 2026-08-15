@@ -1,0 +1,105 @@
+{
+  "trained_through": "2026-08-15",
+  "n_rows_total": 5097,
+  "s1_features": [
+    "rainfall_mm",
+    "rainfall_lag1_mm",
+    "rainfall_lag2_mm",
+    "rainfall_lag3_mm",
+    "rainfall_7d_mm",
+    "rainfall_14d_mm",
+    "rainfall_21d_mm",
+    "rainfall_30d_mm",
+    "rainfall_45d_mm",
+    "moisture_balance_7d_mm",
+    "moisture_balance_14d_mm",
+    "temp_mean_C",
+    "temp_min_C",
+    "humidity_pct",
+    "vpd_kPa",
+    "et0_mm",
+    "inflow_lag1_m3",
+    "inflow_lag2_m3",
+    "season_sin",
+    "season_cos",
+    "rbf_spring_equinox",
+    "rbf_summer_solstice",
+    "rbf_autumn_equinox",
+    "rbf_winter_solstice",
+    "precip_intensity_mm_hr"
+  ],
+  "s1_target": "inflow_obstacle_m3",
+  "s2_features": [
+    "predicted_inflow_m3",
+    "rainfall_mm",
+    "rainfall_7d_mm",
+    "rainfall_21d_mm",
+    "rainfall_30d_mm",
+    "rainfall_45d_mm",
+    "temp_mean_C",
+    "temp_max_C",
+    "humidity_pct",
+    "wind_speed_ms",
+    "vpd_kPa",
+    "et0_mm",
+    "et0_7d_mm",
+    "radiation_MJm2",
+    "season_sin",
+    "season_cos",
+    "daylength_hrs",
+    "rbf_spring_equinox",
+    "rbf_summer_solstice",
+    "rbf_autumn_equinox",
+    "rbf_winter_solstice",
+    "precip_intensity_mm_hr",
+    "level_m",
+    "volume_change_lag1_Mm3",
+    "volume_change_lag2_Mm3"
+  ],
+  "s2_target": "volume_change_Mm3",
+  "bathy_vol2level_coeffs": [
+    -3.829620769045569e-07,
+    0.009169651006627259,
+    -241.43908960277244
+  ],
+  "cv_results": [
+    {
+      "fold": "2021",
+      "n_test": 352,
+      "s1_r2": 0.95,
+      "s2_r2": 0.651,
+      "s2_mae_Mm3": 0.681
+    },
+    {
+      "fold": "2022",
+      "n_test": 340,
+      "s1_r2": 0.944,
+      "s2_r2": 0.881,
+      "s2_mae_Mm3": 0.557
+    },
+    {
+      "fold": "2023",
+      "n_test": 312,
+      "s1_r2": 0.906,
+      "s2_r2": 0.657,
+      "s2_mae_Mm3": 0.67
+    },
+    {
+      "fold": "2024",
+      "n_test": 346,
+      "s1_r2": 0.962,
+      "s2_r2": 0.815,
+      "s2_mae_Mm3": 0.662
+    }
+  ],
+  "cv_s2_mean_r2": 0.751,
+  "cv_s2_mean_mae": 0.642,
+  "cv_s1_mean_r2": 0.94,
+  "target_transforms": {
+    "s1": "none",
+    "s2": "signed_log1p"
+  },
+  "s2_direct": true,
+  "winner": "baseline_gbr",
+  "retrained_at": "2026-08-15"
+}

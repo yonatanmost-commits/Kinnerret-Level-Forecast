@@ -1,22 +1,91 @@
+# ─────────────────────────────────────────────────────────────────────────────
 # Data & large files
-Gold Data/
-Raw Data/
-Silver Data/
-Models/
+#
+# The Streamlit Community Cloud deploy has no filesystem of its own, so the
+# handful of files the dashboard actually reads must be committed. Everything
+# else stays out.
+#
+# Git cannot re-include a file whose parent directory is excluded, so each
+# data directory is excluded by contents ("Dir/*") rather than as a directory,
+# and the required files are re-included with "!" below.
+# ─────────────────────────────────────────────────────────────────────────────
+
 *.parquet
 *.pkl
 *.csv
 
+# Raw Data is never deployed (431 MB, and the app never reads it).
+Raw Data/
+
+# ── Gold Data ────────────────────────────────────────────────────────────────
+Gold Data/*
+!Gold Data/kinneret_gold_features.csv
+!Gold Data/longrange_climatology.csv
+# Page 9 (Climate Scenarios) reads these two; cordex_ensemble.parquet (28 MB)
+# is an intermediate the app never opens, so it stays out.
+!Gold Data/cordex_waterbalance.parquet
+!Gold Data/cordex_hindcast.parquet
+
+# ── Silver Data ──────────────────────────────────────────────────────────────
+Silver Data/*
+Silver Data/Meteorological/*
+Silver Data/Kinneret Level/*
+Silver Data/Jordan River Silver/*
+!Silver Data/Meteorological/
+!Silver Data/Kinneret Level/
+!Silver Data/Jordan River Silver/
+!Silver Data/Meteorological/met_data_daily.csv
+!Silver Data/Meteorological/met_data_daily_clean.csv
+!Silver Data/Meteorological/met_data_daily_qc_log.csv
+!Silver Data/Meteorological/precip_intensity_daily.csv
+!Silver Data/Kinneret Level/kinneret_level.csv
+!Silver Data/Jordan River Silver/jordan_river_daily_flow.csv
+!Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv
+!Silver Data/Jordan River Silver/jordan_river_flow_qc_log.csv
+# NEVER un-ignore met_data_wide.csv: it is 207 MB, over GitHub's 100 MB
+# hard per-file limit. Nothing in kinneret_app reads it. The only consumers
+# are pipeline steps 02/03/04/07b, and 07b now skips cleanly without it.
+Silver Data/Meteorological/met_data_wide.csv
+# Local .bak safety copies are not deployment artefacts.
+*.bak.csv
+
+# ── Models ───────────────────────────────────────────────────────────────────
+Models/*
+!Models/*.pkl
+!Models/model_metadata.json
+# The GRU was retired 2026-06-01 and would drag torch into the image.
+Models/gru_multitask.pt
+
+# ── Root-level data ──────────────────────────────────────────────────────────
+# Page 6 (Forecast Live) loads this as its "Load template" default.
+!forecast_input_template.csv
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Python cache
+# ─────────────────────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
 .env
 
+# ─────────────────────────────────────────────────────────────────────────────
 # IDE & OS
+# ─────────────────────────────────────────────────────────────────────────────
 .claude/
 .idea/
 *.DS_Store
 
-# Debug artefacts
+# ─────────────────────────────────────────────────────────────────────────────
+# Local working artefacts (not deployed, not shared)
+# ─────────────────────────────────────────────────────────────────────────────
 kinneret_app/offset lake.png
+graphify-out/
+dreams/
+.pytest_cache/
+
+# Reports/ holds dan's daily run logs AND draft correspondence to the Water
+# Authority. This repository is public - keep it out.
+Reports/
+
+# Local analysis workbooks.
+Data Analysisi/
