@@ -1,6 +1,6 @@
 {
-  "trained_through": "2026-08-17",
-  "n_rows_total": 5099,
+  "trained_through": "2026-08-18",
+  "n_rows_total": 5100,
   "s1_features": [
     "rainfall_mm",
     "rainfall_lag1_mm",
@@ -101,5 +101,5 @@
   },
   "s2_direct": true,
   "winner": "baseline_gbr",
-  "retrained_at": "2026-08-17"
+  "retrained_at": "2026-08-18"
 }
