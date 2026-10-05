@@ -1,6 +1,6 @@
 {
-  "trained_through": "2026-10-04",
-  "n_rows_total": 5147,
+  "trained_through": "2026-10-05",
+  "n_rows_total": 5148,
   "s1_features": [
     "rainfall_mm",
     "rainfall_lag1_mm",
@@ -101,5 +101,5 @@
   },
   "s2_direct": true,
   "winner": "baseline_gbr",
-  "retrained_at": "2026-10-04"
+  "retrained_at": "2026-10-05"
 }
