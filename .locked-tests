@@ -1,0 +1,3 @@
+# Test files Claude may not edit. Claude can add lines; only the user removes them.
+# One path or glob per line, relative to this file. Text after # is a note.
+tests/test_jordan_flow.py  # 2026-10-10
