@@ -61,7 +61,10 @@ jobs:
           # here. The lake level is topped up instead by a scheduled run on a
           # machine with a residential IP - see docs/DEPLOYMENT.md. The failure
           # still appears in the report; it just does not redden the run.
-          DAN_TOLERATE_FAILURES: kinneret_level
+          # hydro.water.gov.il (river_flow) started doing the same from
+          # 2026-08-16: CloudFront 403s the runner IP even with the browser
+          # User-Agent that passes from a residential IP.
+          DAN_TOLERATE_FAILURES: kinneret_level,river_flow
         run: python Automation/daily_agent.py
 
       - name: Commit refreshed data
