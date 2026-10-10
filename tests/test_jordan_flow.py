@@ -136,3 +136,18 @@ def test_fetch_new_flows_missing_csv_uses_default(tmp_path, monkeypatch):
     monkeypatch.setattr(jf, "_fetch_observations", fake_obs)
     fetch_new_flows(tmp_path / "nope.csv")
     assert captured[0] == "token"
+
+
+# ── live endpoint (network) ───────────────────────────────────────────────────
+# Guards against hydro.water.gov.il renaming its observations endpoint, which
+# it did between 2026-08-15 and 2026-10-10 and broke the refresh silently.
+# Must run from a residential IP: CloudFront blocks GitHub runners.
+
+def test_live_observations_endpoint_returns_jordan_stations():
+    import requests
+    import jordan_flow as jf
+    session = requests.Session()
+    obs = jf._fetch_observations(session, jf._get_token(session))
+    assert obs, "endpoint returned no observations"
+    stations = set().union(*(s.keys() for s in obs.values()))
+    assert set(jf._STATION_COLS) & stations
