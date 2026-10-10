@@ -122,9 +122,17 @@ custom headers at all. **All three were challenged**, so the block is on the sou
 IP and no User-Agent or header change can affect it.
 
 The lake level is therefore fetched by the local half of the refresh instead. In CI
-the workflow sets `DAN_TOLERATE_FAILURES=kinneret_level`, so that one failure is
-reported in the agent's output but does not redden the run — any *other* failure
-still does. If the level is ever tolerated silently for weeks, the dashboard will
+the workflow sets `DAN_TOLERATE_FAILURES=kinneret_level,river_flow`, so those
+failures are reported in the agent's output but do not redden the run — any *other*
+failure still does.
+
+River flow joined the list on 2026-10-10. From 2026-08-16 `hydro.water.gov.il`'s
+CloudFront started returning 403 to the runner even with the full browser
+User-Agent, which still gets 200 from a residential IP (a bare `Mozilla/5.0` or
+`python-requests` UA gets 403 everywhere, so keep `_UA` in `jordan_flow.py` intact).
+The site also renamed its observations endpoint around then, to
+`/db_requests/api.php?a=ho`; `tests/test_jordan_flow.py` has a live test that
+catches the next rename. If the level is ever tolerated silently for weeks, the dashboard will
 quietly show a stale level, so it is worth glancing at the agent report
 occasionally.
 
@@ -160,6 +168,16 @@ Register-ScheduledTask -TaskName "Kinneret daily refresh" -Action $action -Trigg
 
 `-StartWhenAvailable` means a run missed while the machine was off happens at the
 next opportunity rather than being skipped.
+
+**Keep the older `DailyAgent-Kinneret` task (06:00, `run_daily_agent.ps1`)
+disabled.** It runs the same agent but never commits, so it leaves `Gold Data/`,
+`Silver Data/` and `Models/` dirty — and `local_refresh.ps1` refuses to run on a dirty
+tree. Left enabled, it silently blocked every local refresh from 2026-08-16 to
+2026-10-10 (CI kept committing everything else, so only the level went stale):
+
+```powershell
+Disable-ScheduledTask -TaskName "DailyAgent-Kinneret"
+```
 
 To inspect, run on demand, or remove it:
 

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 
 FLOW_DEFAULT_FROM = date(2026, 4, 1)
 _PAGE_URL = "https://hydro.water.gov.il/index.php/?page=hydro_obs&lang=he"
-_OBS_URL = "https://hydro.water.gov.il/db_requests/get_hydro_observations_A7f3Q.php"
+_OBS_URL = "https://hydro.water.gov.il/db_requests/api.php?a=ho"
 _UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
 # station_id -> silver column name
