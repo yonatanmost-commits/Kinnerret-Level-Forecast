@@ -97,3 +97,7 @@ Reports/
 
 # Local analysis workbooks.
 Data Analysisi/
+
+# intent lane renders (generated)
+intent/**/loop.html
+intent/index.html
