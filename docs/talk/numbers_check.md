@@ -13,19 +13,28 @@ Measured numbers come from one re-run on the freeze. Historical numbers keep the
 | `crossing.paired.scaled.mae_14_30` | 2 | days | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line) |
 | `crossing.paired.scaled.mae_60_90` | 22 | days | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line) |
 | `crossing.paired.unscaled.mae_60_90` | 18 | days | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line) |
-| `freeze_date` | 11 October 2026 | date | slide hook | freeze | 2026-10-11 | Automation/talk_freeze_run.py (the one data freeze every measured number shares) |
+| `freeze_date` | 11 October 2026 | date | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (the one data freeze every measured number shares) |
 | `history.ac2ede5.r2` | 0.758 (May 2026) | R² | slide timeline | historical | 2026-05-31 | git:ac2ede5:docs/olympics_results.json#models.baseline_gbr.cv_vol_r2_mean |
 | `history.c3a72b3.r2` | 0.694 (May 2026) | R² | slide timeline | historical | 2026-05-30 | git:c3a72b3:docs/olympics_results.json#models.baseline_gbr.cv_vol_r2_mean |
-| `level.below_red_line_cm` | 66 | cm | slide hook | freeze | 2026-10-11 | Silver Data/Kinneret Level/kinneret_level.csv (Water Authority daily level) (red line minus the freeze-date level) |
-| `level.first_year` | 1966 | year | slide hook | freeze | 2026-10-11 | Silver Data/Kinneret Level/kinneret_level.csv (Water Authority daily level) |
-| `level.freeze_m` | -213.66 | m | slide hook | freeze | 2026-10-11 | Silver Data/Kinneret Level/kinneret_level.csv (Water Authority daily level) |
-| `level.lowest_since_year` | 2018 | year | slide hook | freeze | 2026-10-11 | Silver Data/Kinneret Level/kinneret_level.csv (Water Authority daily level) (latest earlier year at or below this level on the same calendar date) |
 | `margin.zero_change.r2` | 0.79 | R² | slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (champion R² minus zero-change R²) |
 | `olympics.baseline_gbr.runtime_s` | 14 s | s | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine) |
 | `olympics.gru.r2_mean` | -0.03 | R² | slide olympics, Q&A sheet | freeze | 2026-10-11 | Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze) |
 | `olympics.gru.runtime_s` | 71 min | s | slide olympics, Q&A sheet | freeze | 2026-10-11 | Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine) |
+| `scenario.dry.change_m` | -0.77 m (winter 2024–2025) | m | slide hook | historical | 2025-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (smallest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |
+| `scenario.dry.season` | 2024–2025 | winter | slide hook | historical | 2025-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (smallest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |
+| `scenario.dry.spring_m` | -214.43 m (winter 2024–2025) | m | slide hook | historical | 2025-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (smallest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct); freeze level plus that rise |
+| `scenario.wet.change_m` | +3.29 m (winter 2018–2019) | m | slide hook | historical | 2019-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (largest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |
+| `scenario.wet.season` | 2018–2019 | winter | slide hook | historical | 2019-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (largest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |
+| `scenario.wet.spring_m` | -210.36 m (winter 2018–2019) | m | slide hook | historical | 2019-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (largest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct); freeze level plus that rise |
 
 Charts draw only from the ledger (charts.py chart_data); charts used: frontier, hook, olympics, one_week, timeline.
+
+## Typed phrases allowed in the script
+
+| Phrase | Source |
+|---|---|
+| 2023 | the year the lake's rain gauge went offline and the pipeline turned it into zero rain; fixed 2026-05-30 (R² history step ac2ede5) |
+| 2005 | the PAL/CSS Freestyle chess tournament, won by two amateurs using three computers: G. Kasparov, 'The Chess Master and the Computer', New York Review of Books, 11 Feb 2010 |
 
 ## Red-line crossing hindcast, per band of days of warning
 

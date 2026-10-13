@@ -12,6 +12,7 @@ talk.md format:
 
   ## slide <id>
   object: chart:<name> | picture:<path> | table:<name>
+  qr: app                             optional: the app's QR code in the corner (plan D18)
   text: <on-slide words>
   notes:
   <speaker notes, any number of lines, with {placeholders}>
@@ -120,6 +121,8 @@ def parse_talk(text: str) -> list[Slide]:
             cur.notes += line + "\n"
         elif line.startswith("notes:"):
             in_notes = True
+        elif line.startswith("qr:"):
+            cur.extra["qr"] = line[len("qr:"):].strip()
         elif line.startswith("object:"):
             cur.object = line[len("object:"):].strip()
         elif line.startswith("text:"):
@@ -134,6 +137,14 @@ def fill(text: str, ledger: dict) -> str:
 
 
 # ─── numbers_check.md (spec A11, A14) ───────────────────────────────────────
+
+# Every phrase on talk.md's allow: line needs a source here, so Adnan can check it (plan D18).
+ALLOW_SOURCES = {
+    "2023": "the year the lake's rain gauge went offline and the pipeline turned it into zero rain; "
+            "fixed 2026-05-30 (R² history step ac2ede5)",
+    "2005": "the PAL/CSS Freestyle chess tournament, won by two amateurs using three computers: "
+            "G. Kasparov, 'The Chess Master and the Computer', New York Review of Books, 11 Feb 2010",
+}
 
 CROSSING_BANDS = [("0_7", "1-7"), ("7_14", "8-14"), ("14_30", "15-30"), ("30_60", "31-60"),
                   ("60_90", "61-90"), ("90_120", "91-120"), ("120_plus", "over 120")]
@@ -172,6 +183,12 @@ def write_numbers_check(ledger: dict, out: Path = HERE / "numbers_check.md") -> 
     charts = sorted(k for k in uses if k.startswith("(chart)"))
     lines += ["", "Charts draw only from the ledger (charts.py chart_data); "
               f"charts used: {', '.join(c[8:] for c in charts)}.", ""]
+
+    allowed = allow_list(TALK_MD.read_text(encoding="utf-8"))
+    if allowed:
+        lines += ["## Typed phrases allowed in the script", "", "| Phrase | Source |", "|---|---|"]
+        lines += [f"| {a} | {ALLOW_SOURCES.get(a, '**no source given**')} |" for a in allowed]
+        lines.append("")
 
     if "crossing.issued" in ledger:
         lines += ["## Red-line crossing hindcast, per band of days of warning", "",

@@ -150,24 +150,63 @@ def _month(date: str) -> str:
     return f"{d.day} {d.strftime('%b')}"
 
 
+MONTH_DOY = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+
+
 def draw_hook(d, plt):
+    """The app front page's year-over-year overlay, in the deck's light look (plan D18): each
+    year by day of year, older years in greys from light to dark, the freeze year in the accent
+    colour ending on the freeze date, the red line dashed. No level label: the speaker reads
+    today's level from the app on the day."""
+    import numpy as np
     import pandas as pd
     fig, ax = _fig(plt)
     s = pd.DataFrame(d["series"], columns=["date", "level"])
     s["date"] = pd.to_datetime(s["date"])
-    ax.plot(s["date"], s["level"], color=INK_2, linewidth=1.6)
-    ax.axhline(d["red_line_m"], color=ACCENT, linewidth=2, linestyle=(0, (6, 4)))
-    ax.text(s["date"].iloc[0], d["red_line_m"] - 0.12, "red line", color=ACCENT, va="top")
-    fd = pd.Timestamp(d["freeze_date"])
-    ax.plot([fd], [d["freeze_level_m"]], "o", color=ACCENT, markersize=12,
+    s["year"], s["doy"] = s["date"].dt.year, s["date"].dt.dayofyear
+    fy = pd.Timestamp(d["freeze_date"]).year
+    past = sorted(y for y in s["year"].unique() if y != fy)
+    greys = [_mix(MUTED, INK_2, t) for t in np.linspace(0, 1, len(past))]
+
+    ends = []
+    for y, c in zip(past, greys):
+        g = s[s["year"] == y]
+        ax.plot(g["doy"], g["level"], color=c, linewidth=2)
+        ends.append([float(g["level"].iloc[-1]), str(y), c])
+    g = s[s["year"] == fy]
+    ax.plot(g["doy"], g["level"], color=ACCENT, linewidth=4.5, solid_capstyle="round", zorder=4)
+    ax.plot([g["doy"].iloc[-1]], [g["level"].iloc[-1]], "o", color=ACCENT, markersize=12,
             markeredgecolor=SURFACE, markeredgewidth=2, zorder=5)
-    ax.annotate(f"today\n{d['freeze_level_m']:.2f} m", (fd, d["freeze_level_m"]),
-                xytext=(18, 0), textcoords="offset points", ha="left", va="center", color=INK)
-    ax.set_xlim(s["date"].iloc[0], fd + pd.Timedelta(days=365 * 6))
+    ax.annotate(str(fy), (g["doy"].iloc[-1], g["level"].iloc[-1]), xytext=(14, -6),
+                textcoords="offset points", color=INK, fontweight="bold", va="top")
+
+    ax.axhline(d["red_line_m"], color=ACCENT, linewidth=2, linestyle=(0, (6, 4)), zorder=3)
+    ax.text(398, d["red_line_m"] + 0.06, "red line", color=ACCENT, va="bottom", ha="right")
+
+    # Direct labels at each past year's 31 December, spread apart so none overlap.
+    lo, hi = s["level"].min(), s["level"].max()
+    gap = (hi - lo) * 0.075
+    ends.sort()
+    for i in range(1, len(ends)):
+        ends[i][0] = max(ends[i][0], ends[i - 1][0] + gap)
+    for yv, label, c in ends:
+        ax.text(370, yv, label, color=INK_2, va="center", fontsize=20)
+
+    ax.set_xlim(1, 400)
+    ax.set_ylim(lo - 0.25, max(hi, ends[-1][0]) + 0.25)
+    ax.set_xticks(MONTH_DOY)
+    ax.set_xticklabels(["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"])
     ax.set_ylabel("lake level (m)")
     ax.grid(axis="x", visible=False)
     fig.tight_layout()
     return fig
+
+
+def _mix(a: str, b: str, t: float) -> str:
+    """Hex colour a fraction t of the way from a to b."""
+    ca = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+    cb = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(ca, cb))
 
 
 def draw_olympics(d, plt):

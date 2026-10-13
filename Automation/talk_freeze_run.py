@@ -12,6 +12,7 @@ What is measured (intent/kinneret-talk-deck plan D3-D5, D17):
     is ported unchanged from the last commit before its retirement (4f9e553^)
   - two baselines on the champion's own fold rows: zero change, and the seasonal average
   - the hook's level facts: freeze-date level, red line, "lowest since" year, the level series
+  - two winter scenarios: the driest and wettest of the last 20 winters (plan D18)
   - the champion R² history: every committed docs/olympics_results.json (historical) + the freeze
   - the frontier: 14-30-day long-range skill (historical, perfect-prognosis) and the red-line
     crossing hindcast (re-run on the freeze)
@@ -56,8 +57,11 @@ ERA5_FILE = "Silver Data/Meteorological/era5_kinneret_daily.csv"
 OLYMPICS_FILE = "docs/olympics_results.json"
 LONGRANGE_FILE = "docs/longrange_phaseb_results.json"
 THIS = "Automation/talk_freeze_run.py"
+TRUTH_TESTS = ["tests/test_talk_truth.py", "tests/test_talk_opening.py"]
 
 DEFAULT_FREEZE = "2026-10-11"
+HOOK_FIRST_YEAR = 2020        # the year-over-year overlay starts here, as on the app's front page
+SCENARIO_WINTERS = 20         # dry/wet winter scenarios: the last 20 complete winters
 RED_LINE = -213.0
 FOLDS = ["2021", "2022", "2023", "2024"]
 MODELS = ["baseline_gbr", "xgboost", "lgbm", "gru", "gbr_max_chain",
@@ -107,9 +111,12 @@ class Ledger:
         self.entries[key] = dict(value=value, display=display, unit=unit, source=source,
                                  date=self.freeze, kind="freeze", **extra)
 
-    def historical(self, key, value, display, unit, source, date, **extra):
-        # A historical number always carries its date wherever it is shown (spec A2).
-        self.entries[key] = dict(value=value, display=f"{display} ({month_year(date)})",
+    def historical(self, key, value, display, unit, source, date, when=None, **extra):
+        # A historical number always carries its date wherever it is shown (spec A2): `when`
+        # (default "Mon YYYY") is appended unless the display already names the date's year.
+        if date[:4] not in display:
+            display = f"{display} ({when or month_year(date)})"
+        self.entries[key] = dict(value=value, display=display,
                                  unit=unit, source=source, date=date, kind="historical", **extra)
 
     def write(self, path: Path):
@@ -346,11 +353,39 @@ def measure_level(led: Ledger):
     led.freeze_entry("level.first_year", int(raw.index.min().year), str(raw.index.min().year),
                      "year", src)
 
-    # The hook's multi-year record: weekly points, always ending on the freeze date.
-    weekly = daily.iloc[::-7][::-1]
-    series = [[d.strftime("%Y-%m-%d"), round(float(v), 3)] for d, v in weekly.items()]
-    led.freeze_entry("level.series", series, "level series", "m", f"{src} (weekly, interpolated daily)")
+    # The hook's year-over-year overlay (plan D18): daily from 1 January of HOOK_FIRST_YEAR,
+    # ending on the freeze date.
+    recent = daily[daily.index >= pd.Timestamp(HOOK_FIRST_YEAR, 1, 1)]
+    series = [[d.strftime("%Y-%m-%d"), round(float(v), 3)] for d, v in recent.items()]
+    led.freeze_entry("level.series", series, "level series", "m", f"{src} (daily, interpolated)")
     print(f"  -> level {level} m on {led.freeze}, lowest since {year}", flush=True)
+
+
+def measure_scenarios(led: Ledger):
+    """Two winters for the coming one, both real past winters, never a forecast (plan D18, A20).
+    A winter's change = the level on 31 May minus the level on the freeze calendar date (it can be
+    negative); over the last SCENARIO_WINTERS complete winters, dry = smallest, wet = largest."""
+    fd = pd.Timestamp(led.freeze)
+    daily = load_daily()
+    last = fd.year - 1 if fd >= pd.Timestamp(fd.year, 5, 31) else fd.year - 2
+    changes = {}
+    for y in range(last - SCENARIO_WINTERS + 1, last + 1):
+        start, end = pd.Timestamp(y, fd.month, fd.day), pd.Timestamp(y + 1, 5, 31)
+        changes[y] = float(daily[end] - daily[start])
+    freeze_m = led.entries["level.freeze_m"]["value"]
+    window = f"{last - SCENARIO_WINTERS + 1}-{last + 1}"
+    for name, y in (("dry", min(changes, key=changes.get)), ("wet", max(changes, key=changes.get))):
+        season, date = f"{y}–{y + 1}", f"{y + 1}-05-31"   # both years: the display shows its date
+        change, spring = round(changes[y], 3), round(freeze_m + changes[y], 3)
+        src = (f"{LEVEL_FILE} ({'smallest' if name == 'dry' else 'largest'} winter change of the "
+               f"{SCENARIO_WINTERS} winters {window}: level on 31 May minus the level on {fd:%d %b})")
+        when = f"winter {season}"
+        led.historical(f"scenario.{name}.season", season, season, "winter", src, date)
+        led.historical(f"scenario.{name}.change_m", change, f"{change:+.2f} m", "m", src, date,
+                       when=when)
+        led.historical(f"scenario.{name}.spring_m", spring, f"{spring:.2f} m", "m",
+                       f"{src}; freeze level plus that rise", date, when=when)
+        print(f"  -> {name} winter {season}: change {change:+} m, spring {spring} m", flush=True)
 
 
 # ─── 3. the champion's R² history ───────────────────────────────────────────
@@ -475,7 +510,7 @@ def measure_crossings(led: Ledger):
 # ─── 5. truth tests and the stamp ───────────────────────────────────────────
 
 def run_truth_tests_and_stamp():
-    r = subprocess.run([sys.executable, "-m", "pytest", "tests/test_talk_truth.py", "-q"],
+    r = subprocess.run([sys.executable, "-m", "pytest", *TRUTH_TESTS, "-q"],
                        cwd=ROOT)
     if r.returncode != 0:
         if STAMP_PATH.exists():
@@ -498,6 +533,7 @@ def main():
 
     led = Ledger(args.freeze)
     measure_level(led)
+    measure_scenarios(led)
     if args.keep_models:
         old = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
         if old["freeze_date"]["value"] != args.freeze:

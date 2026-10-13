@@ -3,40 +3,52 @@
      fills them from numbers_ledger.json and stops on any digit typed outside a placeholder or the
      allow line below. Budget: about fifteen minutes spoken. -->
 
-allow: 2023
+allow: 2023 | 2005
 
 ## slide title
 object: picture:images/title.png
 text: Better data, not bigger models | Yonatan Most · Adnan Agbaria
 notes:
-Good morning. I'm Yonatan Most, and this work is joint with Adnan Agbaria from Kinneret Academic College.
-I'm going to tell you a story about forecasting the lake. But the story has a twist, and the twist is not about the model.
+This is the Kinneret, as our app draws it. The water is filled to the lake's level, and the orange dashed line is the lower red line.
+This morning the lake stood at [today's level, from the app]. Under the red line.
 accepted:
 
 ## slide hook
 object: chart:hook
-text: The red line
+text: Which winter is coming?
 notes:
-This is the Kinneret, every measurement since {level.first_year}. The dashed red line is the lower red line, minus two hundred and thirteen metres.
-On {freeze_date} the lake stood at {level.freeze_m} metres. That's {level.below_red_line_cm} centimetres under the red line.
-For this date in the year, it's the lowest the lake has been since {level.lowest_since_year}.
-So the question everyone in this room cares about is simple: where will the lake be next week, next month, next summer?
-I set out to answer it with AI. Here is what I learned.
+Here is every year since twenty twenty, laid on top of each other. The red one is this year. It's the lowest line on the chart, and it's still going down.
+What happens next depends on one thing: the winter.
+If this winter is like {scenario.dry.season}, the driest of the last twenty, the lake keeps falling. It ends the spring {scenario.dry.change_m} lower, at {scenario.dry.spring_m}, deeper under the red line. That means leaning even harder on desalination, a lake under stress, with worse water quality and more risk of algae, and pressure that spreads out in wider circles, to farming and to everyone who depends on this water.
+If it's like {scenario.wet.season}, the wettest, the lake climbs {scenario.wet.change_m}, to {scenario.wet.spring_m}, back above the red line. Then the whole conversation changes.
+Both of those are real winters, not forecasts. So which one is coming? And wouldn't it help every decision in this room to know a little earlier?
+accepted:
+
+## slide centaur
+object: picture:images/centaur.png
+text:
+notes:
+Before I answer, a picture. This is a centaur, half human and half horse. The picture is AI-made.
+After Garry Kasparov lost to a chess computer, he started asking a different question: what happens when a human and a computer play as one team? Chess players call those teams centaurs.
+In 2005 there was an open freestyle chess tournament on the internet. Anyone could enter, with any computer help they liked. The winners were not grandmasters, and not the strongest machine. They were two amateur players from the United States, running three ordinary computers, with a very good way of working together with them. The process beat the raw strength.
+And today Terence Tao, one of the great mathematicians alive, works on real research problems with AI tools at his side. The AI explores and checks; he decides what matters.
+Keep the centaur in mind. We'll come back to it.
 accepted:
 
 ## slide who
-object: picture:images/who.png
-text:
+object: picture:images/qr.png
+text: Yonatan Most · Adnan Agbaria
 notes:
-First, who am I? I'm a process engineer. I work with water treatment, pumps and pipes, not with neural networks.
-I'm also a master's student, and I'm not a data scientist.
-I'm telling you this because it matters for the ending. Everything you'll see was built by a non-specialist, with an AI as a partner.
+So who am I? Let me start with what I'm not. I'm not a meteorologist. I'm not a data analyst. I'm not a software engineer.
+I'm a process engineer. I work with water treatment, pumps and pipes. This work is joint with my co-author, Adnan Agbaria, from Kinneret Academic College.
+This code opens the app we built. It shows today's level and this week's forecast, so you can check everything I say against today's numbers.
 accepted:
 
 ## slide olympics
 object: chart:olympics
 text: Eight models, one race
 notes:
+From here on, every number I show you was measured on one data freeze, {freeze_date}, so they all agree with each other. Only today's level comes from the app.
 So I did what everyone does. I held a Model Olympics.
 Eight models, each one trained to forecast the lake's daily volume change: how many cubic metres the lake gains or loses each day, over the next week.
 To score them I use R squared. It's a score where one is a perfect forecast and zero means you did no better than guessing the average.
@@ -156,11 +168,13 @@ accepted:
 
 ## slide close
 object: chart:hook
+qr: app
 text: Better data, not bigger models
 notes:
-Let's go back to where we started. The lake, under the red line.
+Let's go back to where we started. The lake, under the red line, waiting to see which winter comes.
 I didn't get a better forecast by finding a bigger model. I got it by cleaning the data, and a non-specialist can do that now, with an AI as a partner, not as an oracle.
+That's the centaur. Not the strongest player, not the strongest machine, but a good process, with the person deciding what matters.
 What would move this line further? Pumping and abstraction data. And the rain forecast for the weeks ahead, which today we simply don't have.
 The AI opportunity here is not AI as the predictor. It's AI as the partner that helps us build clean data. Better data is what unlocks better forecasting.
-Thank you.
+The code in the corner opens the app, with today's level. Thank you.
 accepted:
