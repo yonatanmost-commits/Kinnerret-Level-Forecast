@@ -69,7 +69,7 @@ text:
 notes:
 You all know this picture better than I do. Raw water comes in, you treat it in stages, and clean water comes out.
 Data works the same way. I already knew the stages from my first pipeline: collect the raw data, line it up in one table, clean it, then compute what matters. So building this one took hours, not weeks.
-The days went into choosing what the model sees: which past days to show it, and where. I asked more than one AI about that, and I checked every step.
+The days went into choosing what the model sees: which past days to show it, and where. I asked more than one AI about that.
 accepted:
 
 ## slide model
@@ -174,7 +174,7 @@ object: picture:images/sensors.png
 text:
 notes:
 Second: records start, stop and change names. The Sede Nehemya station on the Jordan stopped in {data.flow.sede_nehemya.end}, and the Yarmuk record ends in {data.flow.yarmuk.end}. The station I first took as the lake's outflow, the Baptism Site, turned out to be on the lower Jordan, near the Dead Sea, not at the lake's outlet. The champion doesn't use it, but some of the other Olympics models do.
-So my model's table only starts in {data.gold.start}, where all my sources line up.
+My model's table starts in {data.gold.start}, where the files I could download line up. Some of the weather stations go back further, so an earlier start may well be possible.
 This applies to you: every data feed needs a backup source, and an alarm that rings when it goes quiet.
 accepted:
 
@@ -182,7 +182,7 @@ accepted:
 object: picture:images/share.png
 text:
 notes:
-Third, and most critical: human consumption. Pumping and abstraction from the lake. That data wasn't available to me at all. The biggest human hand on the water balance is invisible to my model.
+Third, and most critical: human consumption. Pumping and abstraction from the lake. That data wasn't available to me at all. The human hand on the water balance is invisible to my model.
 And that's my first takeaway: more people handling data, in more advanced ways, and sharing it, is a much better starting point than any model.
 accepted:
 
