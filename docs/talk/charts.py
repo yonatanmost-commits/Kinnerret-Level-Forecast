@@ -5,9 +5,9 @@ chart_data(name, ledger) returns exactly the values a chart plots; draw(name, le
 them. The truth tests (tests/test_talk_truth.py) check chart_data against the real sources, so
 nothing reaches a chart except through it.
 
-Look (plan D9/D10, dataviz skill, light theme): a near-white surface, muted grey series, one accent
-red reserved for the red line and the champion, a validated blue for a second series. Chart
-text 20 pt and up, at slide size (13.33 x 7.5 in).
+Look (plan D9/D10, dataviz skill, editorial - originator 2026-10-13): each chart states its point
+as a headline, labels values directly, highlights one thing in teal and fades the rest; red is
+kept for the red line. Chart text 20 pt and up, at slide size (13.33 x 7.5 in).
 
 Run:  python docs/talk/charts.py          # draws every chart into docs/talk/charts/
 """
@@ -35,6 +35,7 @@ MODEL_LABELS = {
 }
 BANDS = ["0_7", "7_14", "14_30", "30_60", "60_90", "90_120", "120_plus"]
 BAND_LABELS = ["1-7", "8-14", "15-30", "31-60", "61-90", "91-120", ">120"]
+BAND_SHORT = ["1 wk", "2 wk", "1 mo", "2 mo", "3 mo", "4 mo", "more"]   # the frontier's x-axis
 
 # Short on-chart cause labels for the R² timeline, keyed by snapshot commit (the full cause
 # stays in the ledger). The freeze point is keyed "freeze".
@@ -49,14 +50,17 @@ TIMELINE_SHORT = {
     "freeze": "data\nfreeze",
 }
 
-# Colours (dataviz reference palette, light mode; blue/red pair validated)
-SURFACE = "#fcfcfb"
-INK = "#0b0b0b"
-INK_2 = "#52514e"
-MUTED = "#a8a7a1"
-GRID = "#e7e6e2"
-ACCENT = "#e34948"   # red line + champion only
-BLUE = "#2a78d6"
+# Colours (dataviz six checks run 2026-10-13 on the warm surface: teal/ochre and teal/red pass,
+# incl. colour-blind separation). Teal = the thing to look at; red = the red line only;
+# ochre = the second category (a model change); everything else fades to MUTED.
+SURFACE = "#fbfaf7"
+INK = "#1d1d1b"
+INK_2 = "#5f5d57"
+MUTED = "#cfccc3"
+GRID = "#ecebe6"
+TEAL = "#009c8f"
+OCHRE = "#c4831f"
+RED = "#d6453d"
 
 
 def load_ledger(path: Path = LEDGER_PATH) -> dict:
@@ -121,6 +125,11 @@ def chart_data(name: str, ledger: dict) -> dict:
 
 
 # ─── drawing ────────────────────────────────────────────────────────────────
+# Editorial look (originator, 2026-10-13): every chart states its point as a headline, values are
+# labelled directly instead of read off an axis, one element is highlighted and the rest fade.
+
+HEADLINE_FONT = ["Georgia", "DejaVu Serif"]
+
 
 def _style():
     import matplotlib
@@ -133,15 +142,28 @@ def _style():
         "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "savefig.facecolor": SURFACE,
         "axes.edgecolor": GRID, "axes.labelcolor": INK_2, "text.color": INK,
         "xtick.color": INK_2, "ytick.color": INK_2,
-        "axes.spines.top": False, "axes.spines.right": False,
-        "axes.grid": True, "grid.color": GRID, "grid.linewidth": 1,
-        "lines.linewidth": 2,
+        "axes.spines.top": False, "axes.spines.right": False, "axes.spines.left": False,
+        "axes.grid": False, "grid.color": GRID, "grid.linewidth": 1,
+        "xtick.major.size": 0, "ytick.major.size": 0, "xtick.major.pad": 10,
+        "lines.linewidth": 2, "lines.solid_capstyle": "round",
     })
     return plt
 
 
-def _fig(plt, w=13.33, h=6.6):
-    return plt.subplots(figsize=(w, h))
+def _fig(plt, headline: str, sub: str = "", w=13.33, h=7.0, top=0.80, **kw):
+    """A figure with its takeaway as a headline, and a quieter line under it."""
+    fig, ax = plt.subplots(figsize=(w, h), **kw)
+    fig.text(0.035, 0.955, headline, fontfamily=HEADLINE_FONT, fontsize=32, fontweight="bold",
+             color=INK, va="top")
+    if sub:
+        fig.text(0.035, 0.875, sub, fontsize=20, color=INK_2, va="top")
+    fig.subplots_adjust(left=0.06, right=0.95, top=top, bottom=0.11)
+    return fig, ax
+
+
+def _dot(ax, x, y, color, size=13, z=5):
+    ax.plot([x], [y], "o", color=color, markersize=size, markeredgecolor=SURFACE,
+            markeredgewidth=2.5, zorder=z)
 
 
 def _month(date: str) -> str:
@@ -150,56 +172,8 @@ def _month(date: str) -> str:
     return f"{d.day} {d.strftime('%b')}"
 
 
-MONTH_DOY = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
-
-
-def draw_hook(d, plt):
-    """The app front page's year-over-year overlay, in the deck's light look (plan D18): each
-    year by day of year, older years in greys from light to dark, the freeze year in the accent
-    colour ending on the freeze date, the red line dashed. No level label: the speaker reads
-    today's level from the app on the day."""
-    import numpy as np
-    import pandas as pd
-    fig, ax = _fig(plt)
-    s = pd.DataFrame(d["series"], columns=["date", "level"])
-    s["date"] = pd.to_datetime(s["date"])
-    s["year"], s["doy"] = s["date"].dt.year, s["date"].dt.dayofyear
-    fy = pd.Timestamp(d["freeze_date"]).year
-    past = sorted(y for y in s["year"].unique() if y != fy)
-    greys = [_mix(MUTED, INK_2, t) for t in np.linspace(0, 1, len(past))]
-
-    ends = []
-    for y, c in zip(past, greys):
-        g = s[s["year"] == y]
-        ax.plot(g["doy"], g["level"], color=c, linewidth=2)
-        ends.append([float(g["level"].iloc[-1]), str(y), c])
-    g = s[s["year"] == fy]
-    ax.plot(g["doy"], g["level"], color=ACCENT, linewidth=4.5, solid_capstyle="round", zorder=4)
-    ax.plot([g["doy"].iloc[-1]], [g["level"].iloc[-1]], "o", color=ACCENT, markersize=12,
-            markeredgecolor=SURFACE, markeredgewidth=2, zorder=5)
-    ax.annotate(str(fy), (g["doy"].iloc[-1], g["level"].iloc[-1]), xytext=(14, -6),
-                textcoords="offset points", color=INK, fontweight="bold", va="top")
-
-    ax.axhline(d["red_line_m"], color=ACCENT, linewidth=2, linestyle=(0, (6, 4)), zorder=3)
-    ax.text(398, d["red_line_m"] + 0.06, "red line", color=ACCENT, va="bottom", ha="right")
-
-    # Direct labels at each past year's 31 December, spread apart so none overlap.
-    lo, hi = s["level"].min(), s["level"].max()
-    gap = (hi - lo) * 0.075
-    ends.sort()
-    for i in range(1, len(ends)):
-        ends[i][0] = max(ends[i][0], ends[i - 1][0] + gap)
-    for yv, label, c in ends:
-        ax.text(370, yv, label, color=INK_2, va="center", fontsize=20)
-
-    ax.set_xlim(1, 400)
-    ax.set_ylim(lo - 0.25, max(hi, ends[-1][0]) + 0.25)
-    ax.set_xticks(MONTH_DOY)
-    ax.set_xticklabels(["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"])
-    ax.set_ylabel("lake level (m)")
-    ax.grid(axis="x", visible=False)
-    fig.tight_layout()
-    return fig
+def _runtime(seconds: float) -> str:
+    return f"{seconds / 60:.0f} min" if seconds >= 90 else f"{seconds:.0f} s"
 
 
 def _mix(a: str, b: str, t: float) -> str:
@@ -209,109 +183,193 @@ def _mix(a: str, b: str, t: float) -> str:
     return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(ca, cb))
 
 
+MONTH_DOY = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
+
+
+def draw_hook(d, plt):
+    """The app front page's year-over-year overlay (plan D18): earlier years faded, the freeze
+    year highlighted and ending on the freeze date, the red line dashed. No level label: the
+    speaker reads today's level from the app on the day."""
+    import pandas as pd
+    s = pd.DataFrame(d["series"], columns=["date", "level"])
+    s["date"] = pd.to_datetime(s["date"])
+    s["year"], s["doy"] = s["date"].dt.year, s["date"].dt.dayofyear
+    fy = pd.Timestamp(d["freeze_date"]).year
+    past = sorted(y for y in s["year"].unique() if y != fy)
+    fig, ax = _fig(plt, f"{fy} is the lowest line on the chart",
+                   f"Kinneret level through the year, in metres, {past[0]} to {fy}")
+
+    ends = []
+    for y in past:
+        g = s[s["year"] == y]
+        ax.plot(g["doy"], g["level"], color=MUTED, linewidth=2.2)
+        ends.append([float(g["level"].iloc[-1]), str(y)])
+    ax.axhline(d["red_line_m"], color=RED, linewidth=2.5, linestyle=(0, (6, 4)), zorder=3)
+    ax.text(3, d["red_line_m"] + 0.07, "red line", color=RED, va="bottom", fontweight="bold")
+
+    g = s[s["year"] == fy]
+    ax.plot(g["doy"], g["level"], color=TEAL, linewidth=5, zorder=4)
+    _dot(ax, g["doy"].iloc[-1], g["level"].iloc[-1], TEAL, size=15)
+    ax.annotate(str(fy), (g["doy"].iloc[-1], g["level"].iloc[-1]), xytext=(16, -4),
+                textcoords="offset points", color=TEAL, fontweight="bold", fontsize=24, va="top")
+
+    lo, hi = s["level"].min(), s["level"].max()
+    gap = (hi - lo) * 0.075                      # spread the year labels so none overlap
+    ends.sort()
+    for i in range(1, len(ends)):
+        ends[i][0] = max(ends[i][0], ends[i - 1][0] + gap)
+    for yv, label in ends:
+        ax.text(372, yv, label, color=INK_2, va="center")
+
+    ax.set_xlim(1, 405)
+    ax.set_ylim(lo - 0.3, max(hi, ends[-1][0]) + 0.2)
+    ax.set_xticks(MONTH_DOY, ["Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""])
+    ax.yaxis.grid(True)
+    ax.yaxis.set_major_formatter(lambda v, _: f"{v:.0f}")
+    return fig
+
+
 def draw_olympics(d, plt):
-    fig, ax = _fig(plt)
-    for p in d["points"]:
-        col = ACCENT if p["champion"] else MUTED
-        ax.plot([p["runtime_s"] / 60], [p["r2"]], "o", color=col, markersize=14,
-                markeredgecolor=SURFACE, markeredgewidth=2, zorder=3)
-    for p in d["points"]:
-        if p["champion"] or p["model"] == "gru":
-            ax.annotate(p["label"], (p["runtime_s"] / 60, p["r2"]), xytext=(14, 0),
-                        textcoords="offset points", va="center",
-                        color=INK if p["champion"] else INK_2)
-    ax.set_xscale("log")
-    from matplotlib.ticker import FixedLocator, FuncFormatter, NullLocator
-    ax.xaxis.set_major_locator(FixedLocator([0.1, 1, 10, 60]))
-    ax.xaxis.set_minor_locator(NullLocator())
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:g}"))
-    ax.set_xlabel("training time (minutes, log scale)")
-    ax.set_ylabel("R² (1 = perfect)")
-    ax.axhline(0, color=INK_2, linewidth=1)
-    fig.tight_layout()
+    pts = sorted(d["points"], key=lambda p: p["r2"], reverse=True)
+    fig, ax = _fig(plt, "Simple won. The neural network learned nothing.",
+                   "Score on next-week forecasts (1 = perfect, 0 = no better than the average)")
+    fig.subplots_adjust(left=0.30, right=0.86)
+    ys = range(len(pts))[::-1]
+    for y, p in zip(ys, pts):
+        col = TEAL if p["champion"] else MUTED
+        ax.barh(y, p["r2"], color=col, height=0.62)
+        txt_col = INK if (p["champion"] or p["model"] == "gru") else INK_2
+        weight = "bold" if p["champion"] else "normal"
+        ax.text(-0.02, y, p["label"].replace("Champion: two", "Two"), ha="right", va="center",
+                color=txt_col, fontweight=weight)
+        ax.text(max(p["r2"], 0) + 0.015, y, f"{p['r2']:.2f}", va="center", color=txt_col,
+                fontweight=weight)
+        ax.text(1.06, y, _runtime(p["runtime_s"]), va="center", ha="right", color=txt_col,
+                fontweight=weight, transform=ax.get_yaxis_transform())
+    ax.text(1.06, len(pts) - 0.35, "time", ha="right", va="bottom", color=INK_2,
+            transform=ax.get_yaxis_transform())
+    ax.axvline(0, color=INK_2, linewidth=1.2)
+    ax.set_xlim(0, 0.9)
+    ax.set_ylim(-0.6, len(pts) - 0.4)
+    ax.set_xticks([]), ax.set_yticks([])
+    ax.spines["bottom"].set_visible(False)
     return fig
 
 
 def draw_timeline(d, plt):
-    fig, ax = _fig(plt, h=6.8)
     pts = d["points"]
+    fig, ax = _fig(plt, "Most of the gain came from fixing data",
+                   "The champion's score, step by step")
     xs = list(range(len(pts)))
     ys = [p["r2"] for p in pts]
-    ax.step(xs, ys, where="post", color=MUTED, linewidth=2)
+    ax.step(xs, ys, where="post", color=MUTED, linewidth=2.5, zorder=2)
     for x, p in zip(xs, pts):
-        col = ACCENT if p["kind"] == "freeze" else (BLUE if p["cause_type"] == "data" else INK_2)
-        ax.plot([x], [p["r2"]], "o", color=col, markersize=12, markeredgecolor=SURFACE,
-                markeredgewidth=2, zorder=3)
+        col = INK if p["kind"] == "freeze" else (TEAL if p["cause_type"] == "data" else OCHRE)
+        _dot(ax, x, p["r2"], col, size=16 if x in (0, len(pts) - 1) else 13)
         prev = pts[x - 1]["r2"] if x else p["r2"] - 1
-        above = p["r2"] >= prev            # rises labelled above, drops below
-        ax.annotate(p["short"], (x, p["r2"]), xytext=(0, 26 if above else -30),
+        if x and p["r2"] - prev > 0.03:            # a big jump: label it beside its riser
+            ax.annotate(p["short"], (x, (p["r2"] + prev) / 2), xytext=(-16, 0),
+                        textcoords="offset points", ha="right", va="center", color=INK,
+                        linespacing=1.0)
+            continue
+        above = x and p["r2"] >= prev              # rises labelled above, drops (and start) below
+        ax.annotate(p["short"], (x, p["r2"]), xytext=(0, 22 if above else -24),
                     textcoords="offset points", ha="center", va="bottom" if above else "top",
-                    fontsize=20, color=INK_2, linespacing=1.0)
-    ax.set_xticks(xs, [_month(p["date"]) for p in pts])
-    ax.set_ylabel("R² of the 1-week model")
-    lo, hi = min(ys), max(ys)
-    ax.set_ylim(lo - 0.06, hi + 0.06)
-    ax.grid(axis="x", visible=False)
-    fig.tight_layout()
+                    color=INK_2, linespacing=1.0)
+    for x in (0, len(pts) - 1):                    # the two numbers that matter: start and now
+        ax.annotate(f"{ys[x]:.2f}", (x, ys[x]), xytext=(-22 if x == 0 else 22, 0),
+                    textcoords="offset points", ha="right" if x == 0 else "left", va="center",
+                    fontsize=30, fontweight="bold", color=INK)
+    seen, ticks = set(), []
+    for p in pts:                                  # each date once
+        m = _month(p["date"])
+        ticks.append("" if m in seen else m)
+        seen.add(m)
+    ax.set_xticks(xs, ticks)
+    ax.set_yticks([])
+    ax.set_xlim(-0.9, len(pts) - 0.1)
+    ax.set_ylim(min(ys) - 0.035, max(ys) + 0.035)
+    for x0, col, name in ((0.66, TEAL, "data fix"), (0.79, OCHRE, "model change")):
+        fig.text(x0, 0.872, "●", color=col, va="top", fontsize=22)
+        fig.text(x0 + 0.022, 0.875, name, color=INK_2, va="top")
     return fig
 
 
 def draw_one_week(d, plt):
-    fig, ax = _fig(plt, h=5.6)
-    names = ["the lake stays the same", "the champion"]
-    vals = [d["zero_change_r2"], d["champion_r2"]]
-    ax.barh(names, vals, color=[MUTED, ACCENT], height=0.5)
-    for i, v in enumerate(vals):
-        ax.text(max(v, 0) + 0.02, i, f"{v:.2f}", va="center", color=INK)
-    ax.axvline(0, color=INK_2, linewidth=1)
-    ax.set_xlim(min(0, min(vals)) - 0.05, 1)
-    ax.set_xlabel("R² on daily volume change (1 = perfect)")
-    ax.grid(axis="y", visible=False)
-    fig.tight_layout()
+    fig, ax = _fig(plt, "One week ahead, the model clearly beats “no change”",
+                   "Score on next-week forecasts (1 = perfect, 0 = no better than the average)",
+                   h=6.2)
+    fig.subplots_adjust(left=0.30, right=0.92, bottom=0.08)
+    rows = [("the champion", d["champion_r2"], TEAL, INK),
+            ("the lake stays the same", d["zero_change_r2"], MUTED, INK_2)]
+    for y, (name, v, col, tcol) in zip((1, 0), rows):
+        ax.barh(y, v, color=col, height=0.55)
+        ax.text(-0.02, y, name, ha="right", va="center", color=tcol, fontsize=24)
+        ax.text(max(v, 0) + 0.02, y, f"{v:.2f}", va="center", color=tcol, fontsize=40,
+                fontweight="bold")
+    ax.axvline(0, color=INK_2, linewidth=1.2)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-0.6, 1.6)
+    ax.set_xticks([]), ax.set_yticks([])
+    ax.spines["bottom"].set_visible(False)
     return fig
 
 
 def draw_frontier(d, plt):
-    import numpy as np
-    fig, axes = plt.subplots(1, 3, figsize=(13.33, 6.6),
-                             gridspec_kw={"width_ratios": [1, 1.3, 2.6]})
+    fig, axes = _fig(plt, "The further ahead, the less we can see",
+                     "Each panel is measured its own way: read them side by side", h=7.0,
+                     ncols=3, gridspec_kw={"width_ratios": [0.8, 1.2, 2.6], "wspace": 0.3})
+    fig.subplots_adjust(left=0.035, right=0.84, top=0.70, bottom=0.14)
     by = {}
     for p in d["points"]:
         by.setdefault(p["group"], []).append(p)
+    titles = ["1 week", "2 to 4 weeks", "Summer red-line date"]
+    notes = ["machine learning", "best case", "seasonal method, not machine learning"]
+    for ax, t, n in zip(axes, titles, notes):
+        ax.set_title(t, loc="left", fontsize=24, fontweight="bold", color=INK, pad=38)
+        ax.text(0, 1.02, n, transform=ax.transAxes, color=INK_2, fontsize=20, va="bottom")
+        ax.set_yticks([])
 
     ax = axes[0]
     p = by["7d"][0]
-    ax.bar([0], [p["value"]], color=ACCENT, width=0.6)
-    ax.text(0, p["value"] + 0.03, f"{p['value']:.2f}", ha="center")
-    ax.set_xticks([0], ["1 week"])
+    ax.bar([0], [p["value"]], color=TEAL, width=0.7)
+    ax.text(0, p["value"] + 0.04, f"{p['value']:.2f}", ha="center", fontsize=30,
+            fontweight="bold")
+    ax.set_xticks([0], ["skill"])
+    ax.set_xlim(-0.7, 0.7)
     ax.set_ylim(-0.8, 1)
-    ax.axhline(0, color=INK_2, linewidth=1)
-    ax.set_title("1 week: R²", color=INK_2)
+    ax.axhline(0, color=INK_2, linewidth=1.2)
+    ax.spines["bottom"].set_visible(False)
 
     ax = axes[1]
     pts = by["14_30d"]
-    vals = [q["value"] for q in pts]
-    ax.bar(range(len(pts)), vals, color=[BLUE if v > 0 else MUTED for v in vals], width=0.6)
-    for i, v in enumerate(vals):
-        ax.text(i, v + (0.03 if v > 0 else -0.03), f"{v:+.2f}", ha="center",
-                va="bottom" if v > 0 else "top")
+    for i, q in enumerate(pts):
+        v = q["value"]
+        ax.bar(i, v, color=TEAL if v > 0 else MUTED, width=0.7)
+        ax.text(i, v + (0.04 if v > 0 else -0.04), f"{v:+.2f}", ha="center", fontsize=30,
+                fontweight="bold", va="bottom" if v > 0 else "top", color=INK if v > 0 else INK_2)
     ax.set_xticks(range(len(pts)), ["winter", "summer"])
     ax.set_ylim(-0.8, 1)
-    ax.axhline(0, color=INK_2, linewidth=1)
-    ax.set_title("2-4 weeks: skill\nbest case", color=INK_2)
+    ax.axhline(0, color=INK_2, linewidth=1.2)
+    ax.spines["bottom"].set_visible(False)
 
     ax = axes[2]
-    for method, col in (("scaled", ACCENT), ("unscaled", MUTED)):
+    for method, col, name in (("unscaled", MUTED, "plain average"),
+                              ("scaled", TEAL, "seasonal method")):
         pts = [q for q in by["summer"] if q["method"] == method]
-        ax.plot(range(len(pts)), [q["value"] for q in pts], "o-", color=col, markersize=9,
-                label="seasonal method" if method == "scaled" else "plain seasonal average")
-    ax.set_xticks(range(len(BAND_LABELS)), BAND_LABELS, rotation=0, fontsize=20)
-    ax.set_xlabel("days of warning")
-    ax.set_title("summer red line: average days off", color=INK_2)
-    ax.legend(frameon=False, loc="upper left")
-    for a in axes:
-        a.grid(axis="x", visible=False)
-    fig.tight_layout()
+        vals = [q["value"] for q in pts]
+        ax.plot(range(len(pts)), vals, color=col, linewidth=3.5 if method == "scaled" else 2.5,
+                zorder=3 if method == "scaled" else 2)
+        for i, v in enumerate(vals):
+            _dot(ax, i, v, col, size=10, z=4)
+        ax.text(len(pts) - 0.7, vals[-1], name, color=INK if method == "scaled" else INK_2,
+                va="center", linespacing=1.0)
+    ax.set_xticks(range(len(BAND_SHORT)), BAND_SHORT, fontsize=20)
+    ax.set_xlabel("warning given, up to", color=INK_2)
+    ax.set_yticks([0, 10, 20, 30])
+    ax.yaxis.grid(True)
+    ax.set_ylabel("days off, on average", color=INK_2)
+    ax.set_xlim(-0.4, len(BAND_SHORT) - 0.6)
     return fig
 
 
