@@ -22,7 +22,7 @@ The talk runs about 15 minutes, leaving time for Q&A inside the slot.
 
 The talk follows the spine's arc: the red-line hook, who I am, the soft drop (Model Olympics), the pivot, the data story, the 1-week results, the long-term wall, and the close.
 
-Every number on a slide comes from a re-run on a fixed, dated data freeze.
+Every number on a slide comes from a re-run on a fixed, dated data freeze, or is a historical value shown with its original date.
 
 The slides are delivered as PPTX and PDF and, after Adnan's review, sent to the organisers by 1 Nov 2026.
 
@@ -33,6 +33,10 @@ The deck comes with a Q&A prep sheet: the likely hard questions, with prepared a
 There is a narrated, auto-timed PPTX: the script read aloud by TTS over a timed slideshow. It is my private rehearsal aid and is not submitted. The narration uses the /TTL skill, whose API key lives in `.env`, which stays gitignored.
 
 Adnan Agbaria is credited as co-author and reviews the draft before submission.
+
+The deck is done when four judges accept it: me, Claude, Adnan and the conference team. Each judges two things in their own way: is it true? (the numbers are real and honest, and no claim outruns its evidence, which is the guard against reading as AI hype) and is it interesting? (the story is told well).
+
+The first full build is not the end. After it, Claude and I walk through the deck slide by slide, editing until I accept each slide.
 
 ## Affected users and systems
 - Me, the presenter.
@@ -45,13 +49,13 @@ Adnan Agbaria is credited as co-author and reviews the draft before submission.
 - The slides reach the organisers as PPTX or PDF by 1 Nov 2026.
 - The talk runs about 15 minutes, within a 15–20 minute slot that includes Q&A.
 - The talk is in English.
-- No number appears on a slide unless it was re-measured on the stated data freeze date.
-- The deck says "deep learning vs. classic ML", never "AI vs. ML".
+- No number appears on a slide unless it was re-measured on the stated data freeze date, or it is a historical value labelled with its original date (for example, the R² timeline and the Wade Storm gain).
+- The deck says "neural network vs. classic ML", never "AI vs. ML", and not "deep learning", which is less familiar to this audience.
 - The "worst in a decade" level claim is checked against current data before it appears on a slide.
 - Adnan is named on the title slide and sees the draft before submission.
 - The slides use my own clean, chart-led style, readable in a hall. No template or branding is imposed.
 - The talk is free to depart from the accepted abstract.
-- The data freeze date for all re-measured numbers is 2026-10-11.
+- One data freeze date is named for all re-measured numbers. 2026-10-11 is the default, and it may move as the research needs, as long as all numbers move together.
 - Adnan receives the slides for review by 25 Oct 2026 at the latest.
 - Storytelling is the number one concern. The talk must be fluent and interesting, hook the listener, be easy to follow, use common language, be light on the ear and calm on the eye.
 - The deck holds a healthy tension, data-driven on one side and storytelling on the other: the charts earn credibility, and the pictures and metaphors carry the story.
@@ -60,7 +64,7 @@ Adnan Agbaria is credited as co-author and reviews the draft before submission.
 - Each slide has a single object to look at: a picture, a graph or, occasionally, a table (the least preferred). Listeners focus on the talk, not on reading the slide.
 
 ## Out of scope
-- New modelling work: no new models or horizons. Existing results are only re-measured on the freeze.
+- New modelling work: no new models or horizons. Existing results are only re-measured on the freeze. Reviving the retired GRU for the freeze run counts as re-measurement, not new modelling.
 - A Hebrew version.
 - Changes to the publication paper.
 - Conference logistics, such as confirming the 10 Nov reception.
