@@ -101,3 +101,9 @@ Data Analysisi/
 # intent lane renders (generated)
 intent/**/loop.html
 intent/index.html
+
+# Kinneret talk deck (intent/kinneret-talk-deck): private rehearsal, audio, slide previews, run cache
+docs/talk/talk_rehearsal.pptx
+docs/talk/audio/
+docs/talk/slide_*.png
+docs/talk/freeze_cache/
