@@ -1,0 +1,7 @@
+Now, the data. Everything from here on was frozen on one date, the eleventh of October, twenty twenty-six, so every number you will hear was measured the same way. Only today's level comes from the app.
+
+Three sources hold the story of this lake. The Kinneret Drainage Authority's website, for the lake's level, measured every day for decades. The Hydrological Service, for the rivers, above all the Jordan, as it flows into the lake. And for the weather, the Meteorological Service's records, kept up to date through Open-Meteo, an open weather archive: the rain, the heat, the wind and the sun.
+
+Finding them took a while, and the river data was the hardest to find. Three sources, three formats, and none of it made to be used together.
+
+So the real work began: turning three streams into one table.
