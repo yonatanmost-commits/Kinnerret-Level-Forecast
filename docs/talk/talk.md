@@ -57,7 +57,7 @@ accepted:
 
 ## slide sources
 object: picture:images/sources.png
-text:
+text: Data Sources
 notes:
 Then the hunt for data. Three national authorities: the Water Authority for the lake's level, the Hydrological Service for the rivers, above all the Jordan, and the Meteorological Service for the rain, the heat, the wind and the sun.
 Finding them took a while; the river data was the hardest to find. Three agencies, three formats, and none of it made to be used together.
