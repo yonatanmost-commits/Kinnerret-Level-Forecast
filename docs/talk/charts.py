@@ -110,7 +110,7 @@ def chart_data(name: str, ledger: dict) -> dict:
         for method, label in (("scaled", "seasonal method, scaled to recent weeks - not machine learning"),
                               ("unscaled", "plain seasonal average")):
             for band, blabel in zip(BANDS, BAND_LABELS):
-                k = f"crossing.{method}.mae_{band}"
+                k = f"crossing.paired.{method}.mae_{band}"   # only forecasts both brought to the line
                 pts.append({"group": "summer", "key": k, "value": _v(ledger, k),
                             "method": method, "band": blabel, "label": label})
         return {"points": pts, "crossings": _v(ledger, "crossing.n"),
@@ -268,7 +268,7 @@ def draw_frontier(d, plt):
                 label="seasonal method" if method == "scaled" else "plain seasonal average")
     ax.set_xticks(range(len(BAND_LABELS)), BAND_LABELS, rotation=0, fontsize=20)
     ax.set_xlabel("days of warning")
-    ax.set_title("summer red line: days off", color=INK_2)
+    ax.set_title("summer red line: average days off", color=INK_2)
     ax.legend(frameon=False, loc="upper left")
     for a in axes:
         a.grid(axis="x", visible=False)

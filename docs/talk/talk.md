@@ -41,8 +41,8 @@ So I did what everyone does. I held a Model Olympics.
 Eight models, each one trained to forecast the lake's daily volume change: how many cubic metres the lake gains or loses each day, over the next week.
 To score them I use R squared. It's a score where one is a perfect forecast and zero means you did no better than guessing the average.
 On the right of this chart are the slow models, and higher is better.
-The winner, in red, is the champion: classic machine learning, called gradient boosting. Think of many small decision trees, each one fixing the mistakes of the one before. It scored {champion.r2}, and trained in {olympics.baseline_gbr.runtime_s}.
-And the neural network? The one you'd expect to win in an AI session? It scored {olympics.gru.r2_mean}. About zero. It took {olympics.gru.runtime_s} to learn nothing.
+The winner, in red, is the champion: classic machine learning, called gradient boosting. Think of many small decision trees, each one fixing the mistakes of the one before. It scored {champion.r2}, and was trained and tested in {olympics.baseline_gbr.runtime_s}.
+And the neural network? The one you'd expect to win in an AI session? It scored {olympics.gru.r2_mean}. About zero. Training and testing it took {olympics.gru.runtime_s}, to learn nothing.
 This is the soft drop. The fancy model didn't save me.
 accepted:
 
@@ -124,7 +124,7 @@ This is the frontier, on one slide. Each panel is measured its own way, so read 
 On the left, one week: the champion is skilful.
 In the middle, two to four weeks. In winter we keep some skill, because the ground remembers recent rain. In summer, none. And these bars are a best case: they were measured as if we knew the weather ahead. A real forecast would do worse.
 On the right, the summer red line. This one is not machine learning. It's a seasonal method: the usual summer decline, scaled to the last few weeks.
-We replayed it for every crossing of the red line since {crossing.first_year}, issuing a forecast every day from the last rain. With a month's warning or less, it misses the crossing date by {crossing.scaled.mae_14_30} days or less. With two to three months' warning it's off by about {crossing.scaled.mae_60_90} days, and there the plain seasonal average does better, at {crossing.unscaled.mae_60_90}. And {crossing.never_crossed} of its {crossing.issued} forecasts never reached the line at all.
+We replayed it for every crossing of the red line since {crossing.first_year}, issuing a forecast every day from the last rain. With two weeks' to a month's warning, it misses the crossing date by, on average, about {crossing.paired.scaled.mae_14_30} days. With two to three months' warning it's off by, on average, about {crossing.paired.scaled.mae_60_90} days, and there the plain seasonal average does better, at about {crossing.paired.unscaled.mae_60_90}. And {crossing.never_crossed} of its {crossing.issued} forecasts never reached the line at all, every one of them issued two months or more ahead.
 The frontier is where the data runs out.
 accepted:
 

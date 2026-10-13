@@ -225,6 +225,62 @@
     "date": "2026-10-11",
     "kind": "freeze"
   },
+  "crossing.issued_0_7": {
+    "value": 56,
+    "display": "56",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.issued_120_plus": {
+    "value": 89,
+    "display": "89",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.issued_14_30": {
+    "value": 112,
+    "display": "112",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.issued_30_60": {
+    "value": 186,
+    "display": "186",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.issued_60_90": {
+    "value": 161,
+    "display": "161",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.issued_7_14": {
+    "value": 49,
+    "display": "49",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.issued_90_120": {
+    "value": 100,
+    "display": "100",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
   "crossing.last_rain_mm": {
     "value": 5,
     "display": "5",
@@ -249,6 +305,188 @@
     "date": "2026-10-11",
     "kind": "freeze",
     "note": "scaled forecasts that never reached the red line within 400 days"
+  },
+  "crossing.paired.n_0_7": {
+    "value": 56,
+    "display": "56",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.paired.n_120_plus": {
+    "value": 17,
+    "display": "17",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.paired.n_14_30": {
+    "value": 112,
+    "display": "112",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.paired.n_30_60": {
+    "value": 186,
+    "display": "186",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.paired.n_60_90": {
+    "value": 138,
+    "display": "138",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.paired.n_7_14": {
+    "value": 49,
+    "display": "49",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.paired.n_90_120": {
+    "value": 99,
+    "display": "99",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.paired.scaled.mae_0_7": {
+    "value": 0.8,
+    "display": "1",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 56
+  },
+  "crossing.paired.scaled.mae_120_plus": {
+    "value": 21.0,
+    "display": "21",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 17
+  },
+  "crossing.paired.scaled.mae_14_30": {
+    "value": 1.8,
+    "display": "2",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 112
+  },
+  "crossing.paired.scaled.mae_30_60": {
+    "value": 6.8,
+    "display": "7",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 186
+  },
+  "crossing.paired.scaled.mae_60_90": {
+    "value": 21.5,
+    "display": "22",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 138
+  },
+  "crossing.paired.scaled.mae_7_14": {
+    "value": 1.0,
+    "display": "1",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 49
+  },
+  "crossing.paired.scaled.mae_90_120": {
+    "value": 21.7,
+    "display": "22",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 99
+  },
+  "crossing.paired.unscaled.mae_0_7": {
+    "value": 1.0,
+    "display": "1",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 56
+  },
+  "crossing.paired.unscaled.mae_120_plus": {
+    "value": 37.8,
+    "display": "38",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 17
+  },
+  "crossing.paired.unscaled.mae_14_30": {
+    "value": 3.8,
+    "display": "4",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 112
+  },
+  "crossing.paired.unscaled.mae_30_60": {
+    "value": 8.6,
+    "display": "9",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 186
+  },
+  "crossing.paired.unscaled.mae_60_90": {
+    "value": 17.8,
+    "display": "18",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 138
+  },
+  "crossing.paired.unscaled.mae_7_14": {
+    "value": 2.1,
+    "display": "2",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 49
+  },
+  "crossing.paired.unscaled.mae_90_120": {
+    "value": 21.7,
+    "display": "22",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "n": 99
   },
   "crossing.scaled.mae_0_7": {
     "value": 0.8,
@@ -313,6 +551,62 @@
     "kind": "freeze",
     "n": 99
   },
+  "crossing.scaled.never_0_7": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.scaled.never_120_plus": {
+    "value": 67,
+    "display": "67",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.scaled.never_14_30": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.scaled.never_30_60": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.scaled.never_60_90": {
+    "value": 23,
+    "display": "23",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.scaled.never_7_14": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.scaled.never_90_120": {
+    "value": 1,
+    "display": "1",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
   "crossing.unscaled.mae_0_7": {
     "value": 1.0,
     "display": "1",
@@ -375,6 +669,62 @@
     "date": "2026-10-11",
     "kind": "freeze",
     "n": 100
+  },
+  "crossing.unscaled.never_0_7": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.unscaled.never_120_plus": {
+    "value": 72,
+    "display": "72",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.unscaled.never_14_30": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.unscaled.never_30_60": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.unscaled.never_60_90": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.unscaled.never_7_14": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "crossing.unscaled.never_90_120": {
+    "value": 0,
+    "display": "0",
+    "unit": "forecasts",
+    "source": "Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm)",
+    "date": "2026-10-11",
+    "kind": "freeze"
   },
   "crossing.unscaled.never_crossed": {
     "value": 72,

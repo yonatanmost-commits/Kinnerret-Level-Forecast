@@ -413,8 +413,7 @@ def measure_crossings(led: Ledger):
         .set_index("date")["rainfall_mm"]
     crossings = [c for c in crossing_days(daily[daily.index >= CROSSING_FROM])]
 
-    errors = {"scaled": [], "unscaled": []}       # (lead days, error days)
-    never = {"scaled": 0, "unscaled": 0}
+    rows = []                                     # (lead days, scaled k, unscaled k); k None = never
     for cross in crossings:
         wet = rain[(rain.index < cross) & (rain >= LAST_RAIN_MM)]
         if wet.empty:
@@ -422,38 +421,55 @@ def measure_crossings(led: Ledger):
         last_rain = wet.index.max()
         rate = recession_by_doy(daily, exclude_year=cross.year)
         for t in pd.date_range(last_rain, cross - pd.Timedelta(days=1)):
-            lead = (cross - t).days
             win_start = t - pd.Timedelta(days=OBS_WINDOW)
             obs_rate = (float(daily[t]) - float(daily[win_start])) / OBS_WINDOW
             clim_win = np.mean([rate[d.dayofyear] for d in pd.date_range(win_start, t)])
             scale = float(np.clip(obs_rate / clim_win, *SCALE_CLAMP)) if clim_win < -1e-4 else 1.0
-            for name, s in (("scaled", scale), ("unscaled", 1.0)):
-                k = days_to_cross(float(daily[t]), t, rate, s)
-                if k is None:
-                    never[name] += 1
-                else:
-                    errors[name].append((lead, k - lead))
+            rows.append(((cross - t).days,
+                         days_to_cross(float(daily[t]), t, rate, scale),
+                         days_to_cross(float(daily[t]), t, rate, 1.0)))
+    f = pd.DataFrame(rows, columns=["lead", "scaled", "unscaled"])
+    for m in ("scaled", "unscaled"):
+        f[f"err_{m}"] = (f[m] - f["lead"]).abs()   # NaN where the forecast never crossed
 
     src = (f"{THIS} (crossing hindcast: {LEVEL_FILE} + {ERA5_FILE}; leave-one-year-out "
            f"recession from {rb.__name__}.py, issued daily from the last rain >= {LAST_RAIN_MM} mm)")
+    never = {m: int(f[m].isna().sum()) for m in ("scaled", "unscaled")}
     led.freeze_entry("crossing.n", len(crossings), str(len(crossings)), "crossings", src)
-    n_issued = len(errors["scaled"]) + never["scaled"]
     led.freeze_entry("crossing.never_crossed", never["scaled"], str(never["scaled"]), "forecasts", src,
                      note=f"scaled forecasts that never reached the red line within {CROSSING_CAP_DAYS} days")
     led.freeze_entry("crossing.unscaled.never_crossed", never["unscaled"], str(never["unscaled"]),
                      "forecasts", src)
-    led.freeze_entry("crossing.issued", n_issued, str(n_issued), "forecasts", src)
+    led.freeze_entry("crossing.issued", len(f), str(len(f)), "forecasts", src)
     led.freeze_entry("crossing.last_rain_mm", LAST_RAIN_MM, str(LAST_RAIN_MM), "mm", src)
     led.freeze_entry("crossing.first_year", int(crossings[0].year), str(crossings[0].year), "year", src)
-    for name, errs in errors.items():
-        e = pd.DataFrame(errs, columns=["lead", "err"])
-        for band, lo, hi in BANDS:
-            sel = e[(e["lead"] > lo) & (e["lead"] <= hi)]["err"].abs()   # band (lo, hi] days of warning
-            val = round(float(sel.mean()), 1)
-            led.freeze_entry(f"crossing.{name}.mae_{band}", val, f"{val:.0f}", "days", src,
-                             n=int(len(sel)))
-    print("  -> crossings", len(crossings), "issued", n_issued, "never", never,
-          [led.entries[f"crossing.scaled.mae_{b}"]["value"] for b, _, _ in BANDS], flush=True)
+
+    # Per band of days of warning, (lo, hi]. Each method alone over the forecasts it brought to the
+    # line, its misses, and - for any scaled-vs-unscaled comparison - both methods over only the
+    # forecasts BOTH brought to the line ("paired"), since the two miss different forecasts.
+    for band, lo, hi in BANDS:
+        b = f[(f["lead"] > lo) & (f["lead"] <= hi)]
+        both = b.dropna(subset=["scaled", "unscaled"])
+        led.freeze_entry(f"crossing.issued_{band}", len(b), str(len(b)), "forecasts", src)
+        led.freeze_entry(f"crossing.paired.n_{band}", len(both), str(len(both)), "forecasts", src)
+        for m in ("scaled", "unscaled"):
+            val = round(float(b[f"err_{m}"].mean()), 1)
+            led.freeze_entry(f"crossing.{m}.mae_{band}", val, f"{val:.0f}", "days", src,
+                             n=int(b[m].notna().sum()))
+            miss = int(b[m].isna().sum())
+            led.freeze_entry(f"crossing.{m}.never_{band}", miss, str(miss), "forecasts", src)
+            pv = round(float(both[f"err_{m}"].mean()), 1)
+            led.freeze_entry(f"crossing.paired.{m}.mae_{band}", pv, f"{pv:.0f}", "days",
+                             src + " (paired: forecasts both methods brought to the line)",
+                             n=len(both))
+    print("  -> crossings", len(crossings), "issued", len(f), "never", never, flush=True)
+    for band, _, _ in BANDS:
+        e = led.entries
+        print(f"     {band:>8}: issued {e[f'crossing.issued_{band}']['value']:>4}  "
+              f"miss s/u {e[f'crossing.scaled.never_{band}']['value']:>3}/{e[f'crossing.unscaled.never_{band}']['value']:>3}  "
+              f"paired n {e[f'crossing.paired.n_{band}']['value']:>4}  "
+              f"paired MAE s/u {e[f'crossing.paired.scaled.mae_{band}']['value']}/{e[f'crossing.paired.unscaled.mae_{band}']['value']}",
+              flush=True)
 
 
 # ─── 5. truth tests and the stamp ───────────────────────────────────────────
