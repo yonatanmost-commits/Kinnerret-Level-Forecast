@@ -156,6 +156,7 @@ def chart_data(name: str, ledger: dict) -> dict:
             end = ledger.get(f"data.{sid}.end")
             series.append({
                 "id": sid, "label": label, "start": _v(ledger, f"data.{sid}.start"),
+                "used": ledger[f"data.{sid}.start"]["model_input"],
                 "end": end and end["value"],
                 "gaps": [[_v(ledger, f"data.{sid}.gap{n}.start"), _v(ledger, f"data.{sid}.gap{n}.end")]
                          for n in numbered(sid, "gap")],
@@ -458,8 +459,7 @@ def draw_coverage(d, plt):
     import pandas as pd
     t = lambda x: mdates.date2num(pd.Timestamp(x))
     min_w = 160                                        # days: the narrowest gap that is drawn
-    fig, ax = _fig(plt, f"Why the model starts in {d['line_display']}",
-                   "Each source's daily record, as it stood on the data freeze", top=0.78)
+    fig, ax = _fig(plt, f"Why the model starts in {d['line_display']}", top=0.78)
     fig.subplots_adjust(left=0.25)
     rows = d["series"][::-1]
     for y, s in enumerate(rows):
@@ -472,7 +472,8 @@ def draw_coverage(d, plt):
             x0 = mid + half
         segs.append((x0, b))
         for x0, x1 in segs:
-            ax.barh(y, x1 - x0, left=x0, height=0.5, color=TEAL, edgecolor="none")
+            ax.barh(y, x1 - x0, left=x0, height=0.5, color=TEAL if s["used"] else MUTED,
+                    edgecolor="none")
         if s["end"]:
             ax.text(b + 200, y, f"until {pd.Timestamp(s['end']).year}", va="center",
                     color=INK_2, fontsize=20)
@@ -486,16 +487,20 @@ def draw_coverage(d, plt):
     ax.text(line - 200, len(rows) - 0.45, d["line"]["label"], ha="right", va="bottom",
             color=INK, fontsize=22, fontweight=STRONG_WEIGHT)
     ax.set_ylim(-0.6, len(rows) + 0.1)
-    ax.set_yticks(range(len(rows)), [s["label"] for s in rows], color=INK)
+    ax.set_yticks(range(len(rows)), [s["label"] for s in rows])
+    for tick, s in zip(ax.get_yticklabels(), rows):
+        tick.set_color(INK if s["used"] else INK_2)
     ax.xaxis_date()
     ax.xaxis.set_major_locator(mdates.YearLocator(10))
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     ax.set_xlim(t("1965-01-01"), t("2032-06-01"))
     ax.spines["bottom"].set_color(GRID)
-    fig.text(0.62, 0.875, "▼", color=INK_2, va="top", fontsize=16)
-    fig.text(0.638, 0.875, "a gap", color=INK_2, va="top")
-    fig.text(0.735, 0.872, "◆", color=OCHRE, va="top", fontsize=20)
-    fig.text(0.757, 0.875, "source changed", color=INK_2, va="top")
+    fig.text(0.035, 0.875, "Each record at the data freeze", color=INK_2, va="top")
+    for x0, mark, col, size, name in ((0.40, "■", MUTED, 22, "not used by the model"),
+                                      (0.665, "▼", INK_2, 16, "a gap"),
+                                      (0.78, "◆", OCHRE, 20, "source changed")):
+        fig.text(x0, 0.872, mark, color=col, va="top", fontsize=size)
+        fig.text(x0 + 0.022, 0.875, name, color=INK_2, va="top")
     return fig
 
 

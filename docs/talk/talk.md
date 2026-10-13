@@ -64,7 +64,7 @@ Finding them took a while; the river data was the hardest to find. Three agencie
 accepted:
 
 ## slide coverage
-object: chart:coverage
+object: chart:coverage_painted
 text:
 notes:
 Here is every record against time. The lake level goes back to {data.level.start}, the Jordan at Obstacle Bridge to {data.flow.obstacle_bridge.start}. Some records stopped, some paused, some changed source. The weather downloads start in {data.weather.start}. Only from {data.gold.start} do all the sources line up, so that is where my model's table starts.

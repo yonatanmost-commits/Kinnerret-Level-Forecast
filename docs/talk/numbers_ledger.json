@@ -786,7 +786,9 @@
     "unit": "date",
     "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (JORDAN - BAPTISM SITE): first reading",
     "date": "2012-07-27",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": true,
+    "model_column": "outflow_baptism_m3"
   },
   "data.flow.obstacle_bridge.gap1.end": {
     "value": "2026-05-01",
@@ -810,7 +812,9 @@
     "unit": "date",
     "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (JORDAN - OBSTACLE BRIDGE): first reading",
     "date": "1970-10-01",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": true,
+    "model_column": "inflow_obstacle_m3"
   },
   "data.flow.old_bridge.end": {
     "value": "2017-09-29",
@@ -826,7 +830,8 @@
     "unit": "date",
     "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (JORDAN - NEAR OLD BRIDGE): first reading",
     "date": "2013-02-06",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": false
   },
   "data.flow.sede_nehemya.end": {
     "value": "2022-09-16",
@@ -858,7 +863,8 @@
     "unit": "date",
     "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (JORDAN - SEDE NEHEMYA): first reading",
     "date": "1969-10-01",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": false
   },
   "data.flow.yarmuk.end": {
     "value": "2000-05-13",
@@ -874,7 +880,8 @@
     "unit": "date",
     "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (YARMUQ - NAHARAYIM): first reading",
     "date": "1985-09-30",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": false
   },
   "data.gold.start": {
     "value": "2012-09-01",
@@ -890,7 +897,9 @@
     "unit": "date",
     "source": "Silver Data/Kinneret Level/kinneret_level.csv (kinneret_level): first reading",
     "date": "1966-09-01",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": true,
+    "model_column": "level_m"
   },
   "data.radiation.start": {
     "value": "2012-06-01",
@@ -898,7 +907,9 @@
     "unit": "date",
     "source": "Silver Data/Meteorological/met_data_daily_clean.csv (tzamach_global_radiation_MJm2): first reading",
     "date": "2012-06-01",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": true,
+    "model_column": "radiation_MJm2"
   },
   "data.radiation.switch1": {
     "value": "2026-04-25",
@@ -915,7 +926,9 @@
     "unit": "date",
     "source": "Silver Data/Meteorological/met_data_daily_clean.csv (any reading): first reading",
     "date": "2012-06-01",
-    "kind": "historical"
+    "kind": "historical",
+    "model_input": true,
+    "model_column": "rainfall_mm"
   },
   "data.weather.switch1": {
     "value": "2026-05-19",

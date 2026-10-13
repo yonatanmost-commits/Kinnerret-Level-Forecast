@@ -60,7 +60,7 @@ OLYMPICS_FILE = "docs/olympics_results.json"
 LONGRANGE_FILE = "docs/longrange_phaseb_results.json"
 THIS = "Automation/talk_freeze_run.py"
 TRUTH_TESTS = ["tests/test_talk_truth.py", "tests/test_talk_opening.py",
-               "tests/test_talk_coverage.py"]
+               "tests/test_talk_coverage.py", "tests/test_talk_coverage_inputs.py"]
 
 DEFAULT_FREEZE = "2026-10-11"
 HOOK_FIRST_YEAR = 2020        # the year-over-year overlay starts here, as on the app's front page
@@ -593,6 +593,12 @@ COVERAGE = {                        # series -> (file, date column, reading colu
     "weather": (MET_FILE, "date", None),
     "radiation": (MET_FILE, "date", "tzamach_global_radiation_MJm2"),
 }
+# The gold-table column that carries each record into the model; None = not a model input, drawn
+# grey on the coverage slide so "all sources line up" holds for every coloured bar.
+MODEL_COLUMNS = {"level": "level_m", "flow.obstacle_bridge": "inflow_obstacle_m3",
+                 "flow.sede_nehemya": None, "flow.yarmuk": None, "flow.old_bridge": None,
+                 "flow.baptism_site": "outflow_baptism_m3", "weather": "rainfall_mm",
+                 "radiation": "radiation_MJm2"}
 GAP_NOTES = {"flow.baptism_site": "station 46105 retired; the new station 316 resumes the record"}
 LONG_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
                "September", "October", "November", "December"]
@@ -625,6 +631,7 @@ def measure_data_spans(led: Ledger):
     iso = lambda d: d.strftime("%Y-%m-%d")
     month = lambda d: f"{LONG_MONTHS[d.month - 1]} {d.year}"
     gold = pd.read_csv(ROOT / GOLD_FILE, usecols=["date"], parse_dates=["date"])["date"]
+    gold_cols = set(pd.read_csv(ROOT / GOLD_FILE, nrows=1).columns)
     g0, freeze = gold.min(), pd.Timestamp(led.freeze)
     led.historical("data.gold.start", iso(g0), month(g0), "date",
                    f"{GOLD_FILE} (first row of the model table)", iso(g0))
@@ -633,8 +640,12 @@ def measure_data_spans(led: Ledger):
         days = _reading_days(path, date_col, col)
         days = days[days <= freeze]
         what = f"{path} ({col or 'any reading'})"
+        col_in = MODEL_COLUMNS[sid]
+        if col_in is not None and col_in not in gold_cols:
+            raise SystemExit(f"{sid}: model column {col_in} is not in {GOLD_FILE}")
         led.historical(f"data.{sid}.start", iso(days[0]), month(days[0]), "date",
-                       f"{what}: first reading", iso(days[0]))
+                       f"{what}: first reading", iso(days[0]), model_input=col_in is not None,
+                       **({"model_column": col_in} if col_in else {}))
         if (freeze - days[-1]).days > STOPPED_DAYS:
             led.historical(f"data.{sid}.end", iso(days[-1]), month(days[-1]), "date",
                            f"{what}: last reading", iso(days[-1]))
