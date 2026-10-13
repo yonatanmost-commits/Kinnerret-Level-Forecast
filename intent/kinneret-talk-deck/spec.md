@@ -25,29 +25,42 @@ From: intent/kinneret-talk-deck/intent.md v1.
 - R20. A narrated rehearsal PPTX plays the script as TTS audio (via /TTL) on auto-timed slides. Each slide's timing matches its narration, and it is kept private.
 - R21. Adnan receives the draft by 25 Oct 2026 at the latest. After his review, the slides go to the organisers by 1 Nov 2026.
 
+- R23. After the first full build, the user and Claude walk through the deck slide by slide. For each slide the user comments, Claude revises it and rebuilds, and the user sees the rebuilt slide as a picture of the real slide. A slide is done when the user says so. The first build is the middle of the lane, not its end.
+- R24. Four judges accept the deck: Claude, the user, Adnan and the conference team. Each judges two things, each in their own way: is it true? (every number is real and honest) and is it interesting? (the story is told well). The lane ends when all four have accepted.
+- R25. Numbers reach the slides, notes and Q&A sheet only from the stored results of the one freeze. A number typed straight into the text is refused when the deck is built.
+- R26. The first full build is ready by 20 Oct 2026, leaving at least five days of slide-by-slide walk-through before the draft goes to Adnan on 25 Oct.
+
 ## Acceptance criteria
-- A1 (R1). Given the speaker notes, when the slides are read in order, then every arc segment appears in spine order, and the last slide shows the hook's graph again.
-- A2 (R2, R20). Given the narrated rehearsal PPTX, when its total auto-timing is summed, then it is between 14:00 and 16:00.
-- A3 (R3). Given the script, when it is scanned for technical terms, then each one is either in an approved list explained at first use or absent. A listener outside data science (a reviewer the user picks) can retell the story in three sentences after one listen to the narrated run.
-- A4 (R4, R6). Given each slide, when it is inspected, then it holds exactly one picture, graph or table, has at most 12 words of on-slide text (excluding chart axis labels), and uses no font smaller than 28 pt for slide text or 20 pt for chart labels.
-- A5 (R5). Given the deck, when slides are counted, then at least 3 are picture-only, with no text, and each has a metaphor written in its speaker notes.
-- A6 (R7). Given the deck, when slides are classified, then both evidence slides (charts or tables) and story slides (pictures) are present, and every number in the script sits on or next to an evidence slide.
-- A7 (R8). Given the slides and script, when they are searched for "AI vs. ML", "AI versus machine learning" or an equivalent, then there are no hits.
-- A22 (R8). Given the slides and script, when they are searched for "deep learning", then there are no hits outside the Q&A sheet, and the Olympics slide labels the GRU as a "neural network".
-- A8 (R9). Given every number in the slides, notes and Q&A sheet, when each is looked up, then it maps to a stored result produced from the one stated freeze, recorded in a numbers ledger with its source and the freeze date.
-- A9 (R10). Given the freeze re-run, when it completes, then all 8 configurations have an R² (mean and per fold) and a measured runtime, and the Olympics chart plots exactly those values.
-- A10 (R11). Given the freeze data, when persistence is scored under the champion's walk-forward CV, then its R² and MAE are recorded, and the slide or script states the champion-minus-persistence margin from them.
-- A11 (R12). Given the R² history (the 7 git snapshots plus the freeze run), when the timeline is drawn, then every point is plotted at its date and value, and every step carries a cause label.
-- A21 (R22, R12). Given the R² timeline, when the 0.694 → 0.758 step is shown, then it is labelled as the Wade Storm / Signal Harvest step. The script names at least one of the six fixes in plain words (for example, "it noticed the lake's outflow was being ignored"), says Wade Storm is an AI persona, and gives the measured gain. Both numbers are re-checked against the freeze or labelled with their original date.
-- A12 (R13). Given the level record through the freeze date, when the hook is drawn, then it shows the red line at −213.0 m and the freeze-date level. Any "lowest in N years" claim is true for that calendar date. At 2026-10-11 the level is −213.655 m, which supports "lowest since 2018" and refutes "worst in a decade".
-- A13 (R14). Given the close slide's script, when it is read, then it names at least pumping/abstraction data and one other specific missing series.
-- A14 (R15). Given the long-term wall section, when it is read, then it has 2–3 challenges, each followed by a "this applies to you" line, and none is worded as a personal failure.
-- A15 (R16). Given the title slide, when it is inspected, then it shows Adnan Agbaria as co-author.
-- A16 (R17). Given the PPTX and the PDF, when they are compared, then they have the same slide count and slide order, and the PDF renders every chart and font correctly.
-- A17 (R18). Given each slide, when its notes are opened, then they are non-empty, and the notes in order read as one continuous script.
-- A18 (R19). Given the Q&A sheet, when it is read, then it covers at least: "why not an LSTM / deep learning?", "is R² on level or on volume?", "how do you handle pumping?", and "how far ahead can you actually see?". Every number in it is in the numbers ledger.
-- A19 (R20). Given the rehearsal PPTX, when it plays, then each slide advances when its narration ends. The file is not in the submission email, and the TTS key stays in the gitignored `.env`.
-- A20 (R21). Given the calendar, when 25 Oct 2026 ends, then the draft has been sent to Adnan. When 1 Nov 2026 ends, then the reviewed PPTX/PDF has been sent to wateredgeil@mx.kinneret.ac.il.
+### Claude: is it true? (locked tests, run only when the facts change)
+- A1 (R24). Given a change to the facts (a new freeze date, a re-run of the freeze measurements, or a change to the stored numbers), when the truth tests run, then A2–A6 all pass. A change to wording, pictures or layout alone does not re-run them.
+- A2 (R9, R19, R25). Given every number in the slides, notes and Q&A sheet, when each is looked up, then it maps to a stored result from the one stated freeze, recorded with its source and the freeze date.
+- A3 (R10). Given the freeze re-run, when it completes, then all 8 configurations have an R² (mean and per fold) and a measured runtime, and the Olympics chart plots exactly those values.
+- A4 (R11). Given the freeze data, when persistence is scored under the champion's walk-forward CV, then its R² and MAE are recorded, and the slide or script states the champion-minus-persistence margin from them.
+- A5 (R12, R22). Given the R² history (the 7 git snapshots plus the freeze run), when the timeline is drawn, then every point sits at its date and value and every step carries a cause label. The 0.694 → 0.758 step is labelled as the Wade Storm / Signal Harvest step, and both its numbers are re-checked against the freeze or labelled with their original date.
+- A6 (R13). Given the level record through the freeze date, when the hook is drawn, then it shows the red line at −213.0 m and the freeze-date level, and any "lowest in N years" claim is true for that calendar date. At 2026-10-11 the level is −213.655 m, which supports "lowest since 2018" and refutes "worst in a decade".
+- A7 (R25). Given any build, when the text contains a number that does not come from the stored results, then the build stops and names it. This is an instant text scan, not a re-measurement, so it runs on every build.
+
+### Claude: is it interesting? (a review checklist, not locked tests)
+- A8 (R1, R3–R8, R14–R16, R18, R19, R22). Given a build, when Claude reads it against the style checklist, then Claude reports which items hold and which don't, as review notes the user can overrule. The checklist: the arc runs in spine order and the last slide shows the hook's graph again; one picture, graph or table per slide; at most 12 words of slide text; fonts of 28 pt and up for slide text and 20 pt and up for chart labels; at least 3 picture-only slides, each with its metaphor in the notes; every technical term explained at first use or absent; no "AI vs. ML"; no "deep learning" outside the Q&A sheet, and the GRU labelled a "neural network"; the Wade Storm story names one fix in plain words, says it is an AI persona and gives the measured gain; the close names pumping/abstraction data and one other missing series; the long-term wall has 2–3 challenges, each with a "this applies to you" line and none worded as a failure; the title slide names Adnan Agbaria as co-author; every slide has notes, and they read as one script; the Q&A sheet covers "why not an LSTM / deep learning?", "is R² on level or on volume?", "how do you handle pumping?" and "how far ahead can you actually see?".
+
+### Build checks (reported as warnings, never blocking)
+- A9 (R17). Given a build, when it finishes, then it reports whether the PPTX and PDF have the same slide count and order, and whether every chart and font rendered in the PDF.
+- A10 (R2, R20). Given a rehearsal build, when it finishes, then it reports the total auto-timing (target 14:00–16:00) and whether each slide advances when its narration ends. The rehearsal file stays out of the submission, and the TTS key stays in the gitignored `.env`.
+
+### The user: is it true? and is it interesting?
+- A11 (R9, R24). Given a readable list of every number in the talk and where it appears, when the user reads it, then the user confirms every number is honest.
+- A12 (R23). Given the first build, when the user and Claude walk through it, then every slide has been seen by the user as a rebuilt slide picture after its last change, and accepted by the user.
+- A13 (R2, R3, R20, R24). Given the narrated rehearsal of the walked-through deck, when the user listens to it, then the user accepts it as a story told well. A listener outside data science, whom the user picks, can retell the story in three sentences after one listen.
+
+### Adnan: is it true? and is it interesting?
+- A14 (R21, R24). Given the draft and the numbers list sent to Adnan by 25 Oct 2026, when he reviews the numbers, then each of his comments on the facts is fixed or answered before submission.
+- A15 (R21, R24). Given the same draft, when he reviews the story, then each of his comments on the telling is fixed or answered before submission.
+
+### The conference team
+- A16 (R21, R24). Given the reviewed PPTX and PDF sent to wateredgeil@mx.kinneret.ac.il by 1 Nov 2026, when the organisers receive them, then they are on time, in the requested format, fit the session, and are accepted into the program. The team cannot check our data, so their "is it true?" is that the deck is what was promised.
+
+### Schedule
+- A17 (R26). Given the calendar, when 20 Oct 2026 ends, then the first full build exists and the walk-through has started.
 
 ## Out of scope
 - New modelling work. The freeze re-run and the persistence scoring are measurements of existing models and a standard baseline, not new models or horizons.
@@ -60,11 +73,14 @@ From: intent/kinneret-talk-deck/intent.md v1.
 - The re-run and the persistence scoring sit right at the edge of "no new modelling work". I read them as measurement, not modelling. Reject this point if you see it differently.
 - The champion retrains daily, so the working-tree `docs/olympics_results.json` (R² 0.762, retrained 2026-10-12, uncommitted) keeps moving. Since the date is flexible, the plan can either pin a dated run like that one or re-run all 8 models on one cut. Mixing runs from different dates is the one thing to avoid.
 - The R² timeline mixes three kinds of change: model improvements (0.694 → 0.771, May–June), a stale-data reading (0.751), and the QC fix (0.764). Without labels it reads as instability, so its labels must be right.
-- The Wade Storm gain (0.694 → 0.758) is historical. It was measured on 2026-05-31, and the 0.694 baseline was partly scored on corrupted 2023 rainfall data. It can't be re-measured on the freeze without rebuilding the pre-fix pipeline, so it conflicts with R9 unless it's labelled with its date. I recommend treating it as a dated historical step on the timeline (as A21 allows) rather than reconstructing it.
+- The Wade Storm gain (0.694 → 0.758) is historical. It was measured on 2026-05-31, and the 0.694 baseline was partly scored on corrupted 2023 rainfall data. It can't be re-measured on the freeze without rebuilding the pre-fix pipeline, so it conflicts with R9 unless it's labelled with its date. I recommend treating it as a dated historical step on the timeline (as A5 allows) rather than reconstructing it.
 - The GRU was retired from the training pipeline on 2026-06-01 (about 15 min per run on CPU). Its stored result is a frozen historical constant. Re-running it on the freeze (R10) means reviving the retired code path. The alternative is keeping its June result, labelled with its date. Both keep the punchline (R² ≈ 0).
-- R² is on daily volume change, not level. Stated loosely, technical listeners will ask about it (see A18).
+- R² is on daily volume change, not level. Stated loosely, technical listeners will ask about it (see A8, Q&A sheet).
 - The 47 mm summer-recession result comes from a climatology method, not ML. If it's used in the long-term wall, it must be attributed that way.
 - The 15-minute budget is tight for 8 segments. Trimming from the spine's 18 minutes is a design choice for the plan.
+
+- The style rules (fonts, word counts, picture-only slides) are no longer tests that can fail the build. They can slip, so they rely on Claude's checklist and on the user's slide-by-slide walk-through to catch them.
+- The 20 Oct first-build date is a proposal. It leaves five days of walk-through before 25 Oct, but the freeze re-run (with the GRU at about 15 min per run) and the images must land first.
 
 ## Open questions
 - Intent: which data freeze date? Answered: 2026-10-11 by default, and flexible as needed (originator). The plan fixes the final date, and all numbers share it.
@@ -76,5 +92,5 @@ From: intent/kinneret-talk-deck/intent.md v1.
 - Intent: 2–3 transferable challenges? Proposed for review: (1) bad data hides silently: a "-" sentinel corrupted inflow through a four-link chain, so you fix it at the source; (2) sensors and stations die: a retired station and a dead radiation sensor, so you build fallbacks; (3) the data you most need is often someone else's: pumping, so you share it. Resolved in the script, reviewed by the originator.
 - Intent: current level vs red line, and the hook source? Answered: −213.655 m on 2026-10-11, 0.66 m below the −213.0 red line. The source is `Silver Data/Kinneret Level/kinneret_level.csv` (1966-09-01 → 2026-10-11).
 - Intent: backup slides? Answered by recommendation: none, the Q&A sheet covers it (see Out of scope).
-- Intent: which arc segments get trimmed to fit 15 minutes? Carried to the plan, which sets a per-segment time budget checked by A2.
-- New: who is the outside listener for A3? Resolvable by the originator before rehearsal.
+- Intent: which arc segments get trimmed to fit 15 minutes? Carried to the plan, which sets a per-segment time budget checked by A10.
+- New: who is the outside listener for A13? Resolvable by the originator before rehearsal.
