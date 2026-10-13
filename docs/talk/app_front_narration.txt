@@ -1,0 +1,7 @@
+This is the front page of the app we built. The lake, below the red line, and still falling.
+
+It started in my master's degree, in a data science course with Adnan Agbaria, now my co-author. I picked up a challenge: could I forecast the Kinneret?
+
+So, a disclaimer, before we go any further. I won't be able to give you a forecast for one year from now. What I took on was one week, because that is about as far as the weather forecast can see.
+
+It may turn out to be useless. But I gave it my best shot.
