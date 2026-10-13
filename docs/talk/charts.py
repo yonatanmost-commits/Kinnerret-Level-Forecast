@@ -98,13 +98,18 @@ def chart_data(name: str, ledger: dict) -> dict:
                 "cause_type": ledger[k]["cause_type"],
                 "short": TIMELINE_SHORT.get(ledger[k]["sha"], ledger[k]["cause"])}
                for d, k in hist]
-        # One yardstick throughout (plan D19): the history is the old champion scored one day at a
-        # time, so it ends on that same score on the freeze, never on the weekly champion.
-        c = ledger["history.freeze_day_ahead.r2"]
-        pts.append({"key": "history.freeze_day_ahead.r2", "sha": None, "date": c["date"],
+        # One yardstick throughout (plan D19): the history is the champion scored one day ahead,
+        # so it ends on that same score on the freeze - the one-day slide's value, never the
+        # weekly score.
+        c = ledger["day_ahead.model.r2"]
+        pts.append({"key": "day_ahead.model.r2", "sha": None, "date": c["date"],
                     "r2": c["value"], "kind": "freeze", "cause": c["cause"],
                     "cause_type": c["cause_type"], "short": TIMELINE_SHORT["freeze"]})
-        return {"points": pts, "note": c["note"]}
+        return {"points": pts, "note": "Scored one day ahead"}
+    if name == "one_day":
+        return {"model_r2": _v(ledger, "day_ahead.model.r2"),
+                "zero_change_r2": _v(ledger, "day_ahead.zero_change.r2"),
+                "seasonal_r2": _v(ledger, "day_ahead.seasonal.r2")}
     if name == "one_week":
         return {"champion_r2": _v(ledger, "champion.r2"),
                 "zero_change_r2": _v(ledger, "baseline.zero_change.r2")}
@@ -263,7 +268,7 @@ def draw_olympics(d, plt):
 def draw_timeline(d, plt):
     pts = d["points"]
     fig, ax = _fig(plt, "Most of the gain came from fixing data",
-                   "The old champion's score, step by step, scored one day ahead")
+                   "The champion's score, step by step, scored one day ahead")
     xs = list(range(len(pts)))
     ys = [p["r2"] for p in pts]
     ax.step(xs, ys, where="post", color=MUTED, linewidth=2.5, zorder=2)
@@ -296,6 +301,27 @@ def draw_timeline(d, plt):
     for x0, col, name in ((0.66, TEAL, "data fix"), (0.79, OCHRE, "model change")):
         fig.text(x0, 0.872, "●", color=col, va="top", fontsize=22)
         fig.text(x0 + 0.022, 0.875, name, color=INK_2, va="top")
+    return fig
+
+
+def draw_one_day(d, plt):
+    fig, ax = _fig(plt, "Tomorrow, the model reads the lake well",
+                   "One day ahead, best case (the real weather) · 1 = perfect, 0 = average",
+                   h=6.2)
+    fig.subplots_adjust(left=0.30, right=0.92, bottom=0.08)
+    rows = [("the model", d["model_r2"], TEAL, INK),
+            ("the usual for the season", d["seasonal_r2"], MUTED, INK_2),
+            ("the lake stays the same", d["zero_change_r2"], MUTED, INK_2)]
+    for y, (name, v, col, tcol) in zip((2, 1, 0), rows):
+        ax.barh(y, v, color=col, height=0.55)
+        ax.text(-0.02, y, name, ha="right", va="center", color=tcol, fontsize=24)
+        ax.text(max(v, 0) + 0.02, y, f"{v:.2f}", va="center", color=tcol, fontsize=36,
+                fontweight="bold")
+    ax.axvline(0, color=INK_2, linewidth=1.2)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-0.6, 2.6)
+    ax.set_xticks([]), ax.set_yticks([])
+    ax.spines["bottom"].set_visible(False)
     return fig
 
 
@@ -378,7 +404,7 @@ def draw_frontier(d, plt):
 
 
 DRAWERS = {"hook": draw_hook, "olympics": draw_olympics, "timeline": draw_timeline,
-           "one_week": draw_one_week, "frontier": draw_frontier}
+           "one_day": draw_one_day, "one_week": draw_one_week, "frontier": draw_frontier}
 
 
 def draw(name: str, ledger: dict, path: Path) -> Path:

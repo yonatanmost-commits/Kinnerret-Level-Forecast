@@ -144,6 +144,8 @@ ALLOW_SOURCES = {
             "fixed 2026-05-30 (R² history step ac2ede5)",
     "2005": "the PAL/CSS Freestyle chess tournament, won by two amateurs using three computers: "
             "G. Kasparov, 'The Chess Master and the Computer', New York Review of Books, 11 Feb 2010",
+    "1960": "the start of the ERA5 weather reanalysis used to rebuild the past (Open-Meteo archive, "
+            "1960-01-01 onward; commit ea3a1af; paper Table C)",
 }
 
 CROSSING_BANDS = [("0_7", "1-7"), ("7_14", "8-14"), ("14_30", "15-30"), ("30_60", "31-60"),

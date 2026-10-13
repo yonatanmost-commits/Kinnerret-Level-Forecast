@@ -352,16 +352,78 @@ def measure_models(led: Ledger, tf, df: pd.DataFrame):
     print(f"  -> champion {champ}", flush=True)
 
     # The old champion's one-day-at-a-time score on the freeze: the timeline's last point only.
-    one_day, _ = _cached_cv(led.freeze, key, "baseline_gbr_one_day", lambda: tf.run_cv(df)[0])
-    od = round(float(np.mean([r["s2_r2"] for r in one_day])), 3)
-    led.freeze_entry("history.freeze_day_ahead.r2", od, f"{od:.3f}", "R²",
-                     f"{THIS} (baseline_gbr run_cv on the freeze, folds 2021-2024)",
-                     yardstick=ONE_DAY,
-                     note="one day at a time: the old champion (two-stage gradient boosting) "
-                          "predicts each day with the real lake changes up to the day before, the "
-                          "yardstick of the whole history; never compared with weekly scores")
-
     measure_baselines(led, tf, df, champ)
+
+    # The one-day slide (spec R33, A21): the same two-stage model scored one day ahead, with the
+    # real lake state up to the day before. It closes the timeline too (one fact, one key).
+    one_day, _ = _cached_cv(led.freeze, key, "baseline_gbr_one_day", lambda: tf.run_cv(df)[0])
+    measure_day_ahead(led, tf, df, one_day)
+
+
+DAY_AHEAD_NOTE = ("scored one day ahead: the two-stage gradient boosting predicts tomorrow's volume "
+                  "change from today's real lake state and the real weather, the yardstick of the "
+                  "whole score history; never compared with weekly scores")
+
+
+def day_ahead_rows(tf, df: pd.DataFrame, test_yr: int) -> pd.DataFrame:
+    """The exact rows run_cv scores Stage 2 on: test-year days where Stage 1 predicts (its inputs
+    present) and Stage 2's inputs and target are present. No fitting."""
+    te = df[df["date"].dt.year == test_yr].copy()
+    s1 = te.dropna(subset=tf.S1_FEATURES + [tf.S1_TARGET])
+    te["predicted_inflow_m3"] = np.nan
+    te.loc[s1.index, "predicted_inflow_m3"] = 1.0
+    return te.dropna(subset=tf.S2_FEATURES + [tf.S2_TARGET])
+
+
+def measure_day_ahead(led: Ledger, tf, df: pd.DataFrame, one_day_cv: list):
+    """day_ahead.*: baseline_gbr's run_cv score and both baselines on the same day-ahead rows,
+    each aggregated as the mean of its per-fold R² (plan D19, spec R33)."""
+    src = f"{THIS} (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)"
+    extra = dict(yardstick=ONE_DAY)
+    by_fold = {r["fold"]: r for r in one_day_cv}
+    r2s = [by_fold[f]["s2_r2"] for f in FOLDS]
+    r2_mean = round(float(np.mean(r2s)), 3)
+    mae_mean = round(float(np.mean([by_fold[f]["s2_mae_Mm3"] for f in FOLDS])), 3)
+    led.freeze_entry("day_ahead.model.r2", r2_mean, f"{r2_mean:.2f}", "R²", src,
+                     note=DAY_AHEAD_NOTE, **extra)
+    led.freeze_entry("day_ahead.model.mae", mae_mean, f"{mae_mean:.2f}", "Mm³/day", src, **extra)
+    for f in FOLDS:
+        led.freeze_entry(f"day_ahead.model.r2_{f}", by_fold[f]["s2_r2"], fmt_r2(by_fold[f]["s2_r2"]),
+                         "R²", src, **extra)
+        led.freeze_entry(f"day_ahead.model.n_{f}", by_fold[f]["n_test"], str(by_fold[f]["n_test"]),
+                         "days", src)
+
+    target = tf.S2_TARGET
+    scores = {"zero_change": [], "seasonal": []}
+    for fold_name, train_yrs, test_yr in tf.CV_FOLDS:
+        rows = day_ahead_rows(tf, df, test_yr)
+        if len(rows) != by_fold[fold_name]["n_test"]:
+            raise SystemExit(f"fold {fold_name}: {len(rows)} day-ahead rows, the model scored "
+                             f"{by_fold[fold_name]['n_test']}")
+        y = rows[target].values
+        train = df[df["date"].dt.year.isin(train_yrs)].dropna(subset=[target])
+        doy_mean = train.groupby(train["date"].dt.dayofyear)[target].mean()
+        doy_mean = doy_mean.reindex(range(1, 367)).interpolate(limit_direction="both")
+        seasonal = doy_mean.loc[rows["date"].dt.dayofyear].values
+        for name, pred in (("zero_change", np.zeros_like(y)), ("seasonal", seasonal)):
+            scores[name].append((fold_name, round(tf.r2(y, pred), 3), tf.mae(y, pred)))
+
+    bsrc = {"zero_change": f"{THIS} (zero change: predicts no volume change, on the day-ahead rows)",
+            "seasonal": f"{THIS} (seasonal average by day of year from each fold's training years, "
+                        f"on the day-ahead rows)"}
+    for name, folds in scores.items():
+        m = round(float(np.mean([f[1] for f in folds])), 3)
+        mae = round(float(np.mean([round(f[2], 3) for f in folds])), 3)
+        led.freeze_entry(f"day_ahead.{name}.r2", m, fmt_r2(m), "R²", bsrc[name], **extra)
+        led.freeze_entry(f"day_ahead.{name}.mae", mae, f"{mae:.2f}", "Mm³/day", bsrc[name], **extra)
+        for fold_name, r2v, _ in folds:
+            led.freeze_entry(f"day_ahead.{name}.r2_{fold_name}", r2v, fmt_r2(r2v), "R²", bsrc[name],
+                             **extra)
+        print(f"  -> day-ahead {name}: R² {m}", flush=True)
+    margin = round(r2_mean - led.entries["day_ahead.zero_change.r2"]["value"], 3)
+    led.freeze_entry("day_ahead.margin.zero_change.r2", margin, fmt_r2(margin), "R²",
+                     f"{THIS} (day-ahead model R² minus zero-change R², same rows)", **extra)
+    print(f"  -> day-ahead model: R² {r2_mean}  margin over zero change {margin}", flush=True)
 
 
 def weekly_rows(tf, df: pd.DataFrame, model: str, test_yr: int) -> pd.DataFrame:
@@ -505,6 +567,37 @@ def measure_scenarios(led: Ledger):
         print(f"  -> {name} winter {season}: change {change:+} m, spring {spring} m", flush=True)
 
 
+# ─── 2b. the data's spans (plan D20, spec R14) ──────────────────────────────
+
+FLOW_FILE = "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv"
+GOLD_FILE = "Gold Data/kinneret_gold_features.csv"
+FLOW_SPANS = {                      # ledger name -> (column, which end the talk speaks)
+    "obstacle_bridge": ("JORDAN - OBSTACLE BRIDGE", "start"),
+    "sede_nehemya": ("JORDAN - SEDE NEHEMYA", "end"),
+    "yarmuk": ("YARMUQ - NAHARAYIM", "end"),
+    "baptism_site": ("JORDAN - BAPTISM SITE", "start"),
+}
+LONG_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
+               "September", "October", "November", "December"]
+
+
+def measure_data_spans(led: Ledger):
+    """Where the records start and stop, as dated historical facts (the display names the year)."""
+    gold = pd.read_csv(ROOT / GOLD_FILE, usecols=["date"], parse_dates=["date"])["date"]
+    g0 = gold.min()
+    led.historical("data.gold.start", g0.strftime("%Y-%m-%d"),
+                   f"{LONG_MONTHS[g0.month - 1]} {g0.year}", "date",
+                   f"{GOLD_FILE} (first row of the model table)", g0.strftime("%Y-%m-%d"))
+    flow = pd.read_csv(ROOT / FLOW_FILE, parse_dates=["Date"]).set_index("Date")
+    for name, (col, end) in FLOW_SPANS.items():
+        seen = flow[col].dropna().index
+        d = seen.min() if end == "start" else seen.max()
+        led.historical(f"data.flow.{name}.{end}", d.strftime("%Y-%m-%d"), str(d.year), "date",
+                       f"{FLOW_FILE} ({'first' if end == 'start' else 'last'} daily reading, {col})",
+                       d.strftime("%Y-%m-%d"))
+    print(f"  -> data spans: gold from {g0.date()}", flush=True)
+
+
 # ─── 3. the champion's R² history ───────────────────────────────────────────
 
 def measure_history(led: Ledger):
@@ -521,7 +614,7 @@ def measure_history(led: Ledger):
         led.historical(f"history.{sha}.r2", r2v, f"{r2v:.3f}", "R²",
                        f"git:{sha}:{OLYMPICS_FILE}#models.baseline_gbr.cv_vol_r2_mean",
                        commit_date(sha), sha=sha, seq=seq, cause=cause, cause_type=ctype)
-    led.entries["history.freeze_day_ahead.r2"].update(cause=FREEZE_CAUSE[1], cause_type=FREEZE_CAUSE[0])
+    led.entries["day_ahead.model.r2"].update(cause=FREEZE_CAUSE[1], cause_type=FREEZE_CAUSE[0])
 
 
 # ─── 4. the frontier ────────────────────────────────────────────────────────
@@ -656,8 +749,7 @@ def main():
         if old["freeze_date"]["value"] != args.freeze:
             raise SystemExit("--keep-models needs a ledger on the same freeze date")
         for k, e in old.items():
-            if k.split(".")[0] in ("olympics", "champion", "baseline", "margin") or \
-                    k == "history.freeze_day_ahead.r2":
+            if k.split(".")[0] in ("olympics", "champion", "baseline", "margin", "day_ahead"):
                 led.entries[k] = {f: v for f, v in e.items() if f not in ("cause", "cause_type")}
     else:
         tf = load_training_module()
@@ -667,6 +759,7 @@ def main():
               f"({df['date'].min().date()} to {df['date'].max().date()})", flush=True)
         measure_models(led, tf, df)
     measure_history(led)
+    measure_data_spans(led)
     measure_longrange(led)
     measure_crossings(led)
 

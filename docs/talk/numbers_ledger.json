@@ -762,6 +762,252 @@
     "date": "2026-10-11",
     "kind": "freeze"
   },
+  "data.flow.baptism_site.start": {
+    "value": "2012-07-27",
+    "display": "2012",
+    "unit": "date",
+    "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (first daily reading, JORDAN - BAPTISM SITE)",
+    "date": "2012-07-27",
+    "kind": "historical"
+  },
+  "data.flow.obstacle_bridge.start": {
+    "value": "1970-10-01",
+    "display": "1970",
+    "unit": "date",
+    "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (first daily reading, JORDAN - OBSTACLE BRIDGE)",
+    "date": "1970-10-01",
+    "kind": "historical"
+  },
+  "data.flow.sede_nehemya.end": {
+    "value": "2022-09-16",
+    "display": "2022",
+    "unit": "date",
+    "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (last daily reading, JORDAN - SEDE NEHEMYA)",
+    "date": "2022-09-16",
+    "kind": "historical"
+  },
+  "data.flow.yarmuk.end": {
+    "value": "2000-05-13",
+    "display": "2000",
+    "unit": "date",
+    "source": "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (last daily reading, YARMUQ - NAHARAYIM)",
+    "date": "2000-05-13",
+    "kind": "historical"
+  },
+  "data.gold.start": {
+    "value": "2012-09-01",
+    "display": "September 2012",
+    "unit": "date",
+    "source": "Gold Data/kinneret_gold_features.csv (first row of the model table)",
+    "date": "2012-09-01",
+    "kind": "historical"
+  },
+  "day_ahead.margin.zero_change.r2": {
+    "value": 0.786,
+    "display": "0.79",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (day-ahead model R² minus zero-change R², same rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.model.mae": {
+    "value": 0.645,
+    "display": "0.65",
+    "unit": "Mm³/day",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.model.n_2021": {
+    "value": 352,
+    "display": "352",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "day_ahead.model.n_2022": {
+    "value": 340,
+    "display": "340",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "day_ahead.model.n_2023": {
+    "value": 312,
+    "display": "312",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "day_ahead.model.n_2024": {
+    "value": 346,
+    "display": "346",
+    "unit": "days",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze"
+  },
+  "day_ahead.model.r2": {
+    "value": 0.762,
+    "display": "0.76",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "note": "scored one day ahead: the two-stage gradient boosting predicts tomorrow's volume change from today's real lake state and the real weather, the yardstick of the whole score history; never compared with weekly scores",
+    "yardstick": "one_day",
+    "cause": "re-measured on the talk's data freeze",
+    "cause_type": "data"
+  },
+  "day_ahead.model.r2_2021": {
+    "value": 0.676,
+    "display": "0.68",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.model.r2_2022": {
+    "value": 0.875,
+    "display": "0.88",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.model.r2_2023": {
+    "value": 0.673,
+    "display": "0.67",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.model.r2_2024": {
+    "value": 0.823,
+    "display": "0.82",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.seasonal.mae": {
+    "value": 1.014,
+    "display": "1.01",
+    "unit": "Mm³/day",
+    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.seasonal.r2": {
+    "value": 0.313,
+    "display": "0.31",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.seasonal.r2_2021": {
+    "value": 0.362,
+    "display": "0.36",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.seasonal.r2_2022": {
+    "value": 0.36,
+    "display": "0.36",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.seasonal.r2_2023": {
+    "value": 0.086,
+    "display": "0.09",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.seasonal.r2_2024": {
+    "value": 0.444,
+    "display": "0.44",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.zero_change.mae": {
+    "value": 1.467,
+    "display": "1.47",
+    "unit": "Mm³/day",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.zero_change.r2": {
+    "value": -0.024,
+    "display": "-0.02",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.zero_change.r2_2021": {
+    "value": -0.049,
+    "display": "-0.05",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.zero_change.r2_2022": {
+    "value": -0.001,
+    "display": "-0.00",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.zero_change.r2_2023": {
+    "value": -0.043,
+    "display": "-0.04",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
+  "day_ahead.zero_change.r2_2024": {
+    "value": -0.001,
+    "display": "-0.00",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, on the day-ahead rows)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day"
+  },
   "freeze_date": {
     "value": "2026-10-11",
     "display": "11 October 2026",
@@ -892,18 +1138,6 @@
     "sha": "c3a72b3",
     "seq": 0,
     "cause": "starting point: two-stage gradient boosting, first tracked score",
-    "cause_type": "data"
-  },
-  "history.freeze_day_ahead.r2": {
-    "value": 0.762,
-    "display": "0.762",
-    "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024)",
-    "date": "2026-10-11",
-    "kind": "freeze",
-    "yardstick": "one_day",
-    "note": "one day at a time: the old champion (two-stage gradient boosting) predicts each day with the real lake changes up to the day before, the yardstick of the whole history; never compared with weekly scores",
-    "cause": "re-measured on the talk's data freeze",
     "cause_type": "data"
   },
   "level.below_red_line_cm": {
