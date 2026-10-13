@@ -1,0 +1,10 @@
+Before I answer, a picture. This is a centaur, half human and half horse. This picture, like the others in this talk, is AI-made.
+
+After Garry Kasparov lost to a chess computer, he started asking a different question: what happens when a human and a computer play as one team? Chess players call those teams centaurs.
+
+In two thousand and five there was an open freestyle chess tournament on the internet. Anyone could enter, with any computer help they liked. The winners were not grandmasters, and not the strongest machine. They were two amateur players from the United States, running three ordinary computers, with a very good way of working together with them. The process beat the raw strength.
+
+And today Terence Tao, one of the great mathematicians alive, works on real research problems with AI tools at his side. AI tools suggest and explore, proof-checking software verifies, and he decides what matters.
+
+Keep the centaur in mind. We'll come back to it.
+
