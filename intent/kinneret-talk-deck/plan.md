@@ -38,6 +38,26 @@ From: intent/kinneret-talk-deck/spec.md v5 (v4 accepted in chat 2026-10-13; R27/
   - **The timeline is one-day (ruled 2026-10-13, superseding the weekly timeline of 8de942f).** With `baseline_gbr` champion, its git history is one-day only, and its weekly history cannot be rebuilt (the old data is not in git). `history.<sha>.r2` stays as built in 17cdb30, from `baseline_gbr`'s one-day `cv_vol_r2_mean`. The timeline closes on `day_ahead.model.r2`, the same value as the one-day slide: one fact, one key. `history.freeze_day_ahead.r2` is retired. The chart and the talk name the one-day yardstick. Slide order: one-day (R33), timeline, one-week. The one-day score has its own slide (R33). Keys are `day_ahead.model.{r2,mae,n_<fold>}` (from `baseline_gbr`'s `run_cv`, cached) and `day_ahead.{zero_change,seasonal}.{r2,r2_<fold>}`, scored on those same rows. The first freeze run's baselines were already on those rows (−0.024 and 0.313). There is also `day_ahead.margin.zero_change.r2`. Each carries `yardstick: one_day`. The one-day slide uses a new `chart_data("one_day")`. The truth test file is unlocked so the builder can revise A5 and add A21 (it re-locks the file and sends READY tests-locked).
   - **Locked tests:** the truth test file hard-codes `baseline_gbr` as the champion (A4) and ends the timeline on `champion.r2` (A5). The originator unlocks it, the builder revises A3, A4, A5 and A19 to this definition and re-locks it, then the freeze re-runs from the model cache (only the baselines are new).
   - Chosen over keeping the one-day champion with its chained score beside it (it no longer wins, so the race loses its point) and over re-measuring the whole history weekly (re-running old commits, too heavy before 1 Nov).
+- D20. The journey arc (R1, R34–R37, originator 2026-10-13). `talk.md` is re-ordered and re-told along the ten beats, with 22 slides:
+  - title, hook, centaur, who (the first-pipeline story)
+  - week, sources (the hunt), pipeline (hours; days on the lag columns), model (XGBoost → gradient boosting)
+  - olympics (gradient boosting wins every run; the neural-network defeat), persona (`pivot` merged into it), rain
+  - lesson (new, a picture: ride the flow or take the wheel)
+  - one_day (new, R33), timeline, one_week (mentions the app)
+  - push (new: Adnan's ask and the long-range shots in the dark), frontier
+  - silent, sensors (the river records and the Baptism Site), share (human consumption, the most critical missing data)
+  - brain (new, a picture: build your own expertise), close (the scale line, the hook graph, the centaur)
+  - The `wall` divider slide is dropped. The three challenges stay as R15's "this applies to you" lines, and `share` doubles as the first takeaway.
+  - **Budget:** the spoken total stays 14–16 minutes (A10). The new beats are paid for by shorter olympics, persona, rain and frontier notes. The walk-through moves time between slides.
+  - **Facts checked 2026-10-13:**
+    - the champion's features exclude `outflow_baptism_m3`; the direct runners use it as `outflow_lag1_m3`;
+    - the Baptism Site series starts 2012-07-27, Obstacle Bridge 1970, Sede Nehemya stops 2022-09, Yarmuk Naharayim stops 2000-05;
+    - the gold table starts 2012-09-01;
+    - the recorded long-range attempts are the temperature forecast, CORDEX, the DTR cloud proxy (commit 07f8805) and ERA5 from 1960 (commit ea3a1af);
+    - there is no record of cosmic-radiation work.
+  - These dates go into the ledger as `historical` entries (`data.<series>.start` / `.end`) if they are spoken.
+  - **New picture prompts:** `lesson` and `brain`, in the centaur style.
+  - Chosen over keeping the spine order with the new beats inserted (the originator chose the journey).
 - D16. The talk files live in `docs/talk/`, with the builder beside its content. Follows `docs/paper/md_to_docx.py` beside `Kinneret_Forecast_Methods_Results.md`.
 
 ## Files that change
