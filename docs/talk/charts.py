@@ -82,6 +82,8 @@ def chart_data(name: str, ledger: dict) -> dict:
             "freeze_date": _v(ledger, "freeze_date"),
             "lowest_since_year": _v(ledger, "level.lowest_since_year"),
         }
+    if name == "close":                            # the last slide: the hook's graph again
+        return chart_data("hook", ledger)
     if name == "olympics":
         champ = _v(ledger, "champion.model")       # the best weekly mean (plan D19)
         return {"champion": champ,
@@ -95,7 +97,7 @@ def chart_data(name: str, ledger: dict) -> dict:
         hist = [(d, k) for (d, _), k in hist]
         pts = [{"key": k, "sha": ledger[k]["sha"], "date": d, "r2": ledger[k]["value"],
                 "kind": "historical", "cause": ledger[k]["cause"],
-                "cause_type": ledger[k]["cause_type"],
+                "cause_type": ledger[k]["cause_type"], "cause_mix": ledger[k].get("cause_mix"),
                 "short": TIMELINE_SHORT.get(ledger[k]["sha"], ledger[k]["cause"])}
                for d, k in hist]
         # One yardstick throughout (plan D19): the history is the champion scored one day ahead,
@@ -159,10 +161,10 @@ def _style():
     return plt
 
 
-def _fig(plt, headline: str, sub: str = "", w=13.33, h=7.0, top=0.80, **kw):
+def _fig(plt, headline: str, sub: str = "", w=13.33, h=7.0, top=0.80, size=32, **kw):
     """A figure with its takeaway as a headline, and a quieter line under it."""
     fig, ax = plt.subplots(figsize=(w, h), **kw)
-    fig.text(0.035, 0.955, headline, fontfamily=HEADLINE_FONT, fontsize=32, fontweight="bold",
+    fig.text(0.035, 0.955, headline, fontfamily=HEADLINE_FONT, fontsize=size, fontweight="bold",
              color=INK, va="top")
     if sub:
         fig.text(0.035, 0.875, sub, fontsize=20, color=INK_2, va="top")
@@ -195,7 +197,7 @@ def _mix(a: str, b: str, t: float) -> str:
 MONTH_DOY = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
 
 
-def draw_hook(d, plt):
+def draw_hook(d, plt, headline=None):
     """The app front page's year-over-year overlay (plan D18): earlier years faded, the freeze
     year highlighted and ending on the freeze date, the red line dashed. No level label: the
     speaker reads today's level from the app on the day."""
@@ -205,7 +207,7 @@ def draw_hook(d, plt):
     s["year"], s["doy"] = s["date"].dt.year, s["date"].dt.dayofyear
     fy = pd.Timestamp(d["freeze_date"]).year
     past = sorted(y for y in s["year"].unique() if y != fy)
-    fig, ax = _fig(plt, f"{fy} is the lowest line on the chart",
+    fig, ax = _fig(plt, headline or f"{fy} is the lowest line on the chart",
                    f"Kinneret level through the year, in metres, {past[0]} to {fy}")
 
     ends = []
@@ -240,8 +242,9 @@ def draw_hook(d, plt):
 
 def draw_olympics(d, plt):
     pts = sorted(d["points"], key=lambda p: p["r2"], reverse=True)
-    fig, ax = _fig(plt, "Simple won. The neural network learned nothing.",
-                   "Next-week forecasts, best case (the real weather) · 1 = perfect, 0 = average")
+    fig, ax = _fig(plt, "Simple won. The neural network did no better than average.",
+                   "Next-week forecasts, best case (the real weather) · 1 = perfect, 0 = average",
+                   size=27)
     fig.subplots_adjust(left=0.30, right=0.86)
     ys = range(len(pts))[::-1]
     for y, p in zip(ys, pts):
@@ -267,14 +270,19 @@ def draw_olympics(d, plt):
 
 def draw_timeline(d, plt):
     pts = d["points"]
-    fig, ax = _fig(plt, "Most of the gain came from fixing data",
+    fig, ax = _fig(plt, "What moved the score",
                    "The champion's score, step by step, scored one day ahead")
     xs = list(range(len(pts)))
     ys = [p["r2"] for p in pts]
     ax.step(xs, ys, where="post", color=MUTED, linewidth=2.5, zorder=2)
     for x, p in zip(xs, pts):
         col = INK if p["kind"] == "freeze" else (TEAL if p["cause_type"] == "data" else OCHRE)
-        _dot(ax, x, p["r2"], col, size=16 if x in (0, len(pts) - 1) else 13)
+        if p.get("cause_mix"):                     # both a data fix and model changes: half each
+            ax.plot([x], [p["r2"]], "o", markersize=19, fillstyle="left", markerfacecolor=TEAL,
+                    markerfacecoloralt=OCHRE, markeredgecolor=SURFACE, markeredgewidth=2.5,
+                    zorder=5)
+        else:
+            _dot(ax, x, p["r2"], col, size=16 if x in (0, len(pts) - 1) else 13)
         prev = pts[x - 1]["r2"] if x else p["r2"] - 1
         if x and p["r2"] - prev > 0.03:            # a big jump: label it beside its riser
             ax.annotate(p["short"], (x, (p["r2"] + prev) / 2), xytext=(-16, 0),
@@ -298,9 +306,11 @@ def draw_timeline(d, plt):
     ax.set_yticks([])
     ax.set_xlim(-0.9, len(pts) - 0.1)
     ax.set_ylim(min(ys) - 0.035, max(ys) + 0.035)
-    for x0, col, name in ((0.66, TEAL, "data fix"), (0.79, OCHRE, "model change")):
+    for x0, col, name in ((0.585, TEAL, "data fix"), (0.70, OCHRE, "model change")):
         fig.text(x0, 0.872, "●", color=col, va="top", fontsize=22)
         fig.text(x0 + 0.022, 0.875, name, color=INK_2, va="top")
+    fig.text(0.865, 0.872, "◐", color=TEAL, va="top", fontsize=22)
+    fig.text(0.887, 0.875, "both", color=INK_2, va="top")
     return fig
 
 
@@ -403,7 +413,8 @@ def draw_frontier(d, plt):
     return fig
 
 
-DRAWERS = {"hook": draw_hook, "olympics": draw_olympics, "timeline": draw_timeline,
+DRAWERS = {"hook": draw_hook,
+           "close": lambda d, plt: draw_hook(d, plt, "Better data, not bigger models"), "olympics": draw_olympics, "timeline": draw_timeline,
            "one_day": draw_one_day, "one_week": draw_one_week, "frontier": draw_frontier}
 
 

@@ -18,7 +18,7 @@ accepted:
 object: chart:hook
 text: Which winter is coming?
 notes:
-Here is every year since twenty twenty, laid on top of each other. The red one is this year. It's the lowest line on the chart, and it's still going down.
+Here is every year since twenty twenty, laid on top of each other. The teal one is this year. It's the lowest line on the chart, and it's still going down.
 What happens next depends on one thing: the winter.
 If this winter is like {scenario.dry.season}, the worst of the last twenty, the lake keeps falling. It ends the spring {scenario.dry.change_m} lower, at {scenario.dry.spring_m}, deeper under the red line. That means leaning even harder on desalination, a lake under stress, with worse water quality and more risk of algae, and pressure that spreads out in wider circles, to farming and to everyone who depends on this water.
 If it's like {scenario.wet.season}, the best, the lake climbs {scenario.wet.change_m}, to {scenario.wet.spring_m}, back above the red line. Then the whole conversation changes.
@@ -111,7 +111,7 @@ object: picture:images/lesson.png
 text: Ride the flow, or take the wheel
 notes:
 Here's the lesson I'd pass on. I didn't dive deep into every one of Wade Storm's pointers. I'm not a meteorologist; I rode the flow.
-But you have to learn when to ride the agentic flow, and when to take it into your own hands, or it drifts. What decided which changes stayed was measurement, not trust.
+But you have to learn when to ride the agentic flow, letting the AI run the work step after step on its own, and when to take it into your own hands, or it drifts. What decided which changes stayed was measurement, not trust.
 That's the centaur again: the machine explores, the person decides.
 accepted:
 
@@ -129,7 +129,7 @@ text: What moved the score
 notes:
 This is the history of that one-day score, and every step is labelled with what caused it.
 It started at {history.c3a72b3.r2}. The rain fix, and then six simple fixes Wade Storm suggested, took it to {history.ac2ede5.r2}. One example: tell the model not just how much it rained, but how hard. A downpour runs off into the river; a drizzle soaks into the ground. I credit both, and every fix earned its place by measurement.
-The teal steps are data. Most of the movement came from data, not from the model. On our freeze it scores {day_ahead.model.r2}.
+That was the biggest step by far, and it was both: a data fix and six model changes, together. After it the moves were small, and mostly data. On our freeze it scores {day_ahead.model.r2}.
 accepted:
 
 ## slide one_week
@@ -183,6 +183,7 @@ object: picture:images/share.png
 text:
 notes:
 Third, and most critical: human consumption. Pumping and abstraction from the lake. That data wasn't available to me at all. The human hand on the water balance is invisible to my model.
+This applies to you: if you hold data like this, share it.
 And that's my first takeaway: more people handling data, in more advanced ways, and sharing it, is a much better starting point than any model.
 accepted:
 
@@ -194,7 +195,7 @@ The second takeaway: build expertise. Dive deep into fields that aren't yours, a
 accepted:
 
 ## slide close
-object: chart:hook
+object: chart:close
 qr: app
 text: Better data, not bigger models
 notes:

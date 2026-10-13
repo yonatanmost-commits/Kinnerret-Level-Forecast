@@ -16,3 +16,6 @@ Not the champion's. The champion never uses the Baptism Site. Some of the other 
 
 ## Why does your data start where it does?
 The model's table starts in {data.gold.start}, where the files I could download line up: the weather downloads start a few months earlier, and so does the Baptism Site record. Some weather stations around the lake go back further, so an earlier start may well be possible. The river stations that stopped, the Yarmuk in {data.flow.yarmuk.end} and Sede Nehemya in {data.flow.sede_nehemya.end}, are records that end; they are not the reason for the start date.
+
+## Why one week? Where does "good for about a week" come from?
+It's my reasoning, not something I measured. The model needs the weather of the coming days, and weather forecasts lose most of their skill after about a week: further out, they are not much better than the usual weather for the season. That is the common experience of weather services. And every score in the talk uses the weather that actually happened, so it is a best case: a real forecast would only do worse.

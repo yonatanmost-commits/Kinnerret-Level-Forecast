@@ -1114,7 +1114,8 @@
     "sha": "ac2ede5",
     "seq": 1,
     "cause": "Wade Storm: the missing 2023 rain fixed, plus the six Signal Harvest fixes",
-    "cause_type": "data"
+    "cause_type": "data",
+    "cause_mix": "data + model"
   },
   "history.bae3e37.r2": {
     "value": 0.751,

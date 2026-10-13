@@ -33,7 +33,7 @@ Measured numbers come from one re-run on the freeze. Historical numbers keep the
 | `scenario.wet.season` | 2018–2019 | winter | slide hook | historical | 2019-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (largest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |
 | `scenario.wet.spring_m` | -210.36 m (winter 2018–2019) | m | slide hook | historical | 2019-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (largest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct); freeze level plus that rise |
 
-Charts draw only from the ledger (charts.py chart_data); charts used: frontier, hook, olympics, one_day, one_week, timeline.
+Charts draw only from the ledger (charts.py chart_data); charts used: close, frontier, hook, olympics, one_day, one_week, timeline.
 
 ## Typed phrases allowed in the script
 

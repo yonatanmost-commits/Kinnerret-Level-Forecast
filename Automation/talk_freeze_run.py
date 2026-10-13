@@ -77,7 +77,10 @@ BANDS = [("0_7", 0, 7), ("7_14", 7, 14), ("14_30", 14, 30), ("30_60", 30, 60),
          ("60_90", 60, 90), ("90_120", 90, 120), ("120_plus", 120, 10**6)]
 
 # Why the champion's R² moved at each committed snapshot (plan D7, spec R12/R22). Keyed by
-# commit; the first snapshot is the starting point. cause_type is "model" or "data".
+# commit; the first snapshot is the starting point. cause_type is "model" or "data"; a step that
+# was both carries cause_mix (the rain fix is data, the six Signal Harvest fixes mostly model-side:
+# target transform, GBR parameters, features), and the chart colours it as both.
+CAUSE_MIX = {"ac2ede5": "data + model"}
 HISTORY_CAUSES = {
     "c3a72b3": ("data", "starting point: two-stage gradient boosting, first tracked score"),
     "ac2ede5": ("data", "Wade Storm: the missing 2023 rain fixed, plus the six Signal Harvest fixes"),
@@ -613,7 +616,8 @@ def measure_history(led: Ledger):
         ctype, cause = HISTORY_CAUSES[sha]
         led.historical(f"history.{sha}.r2", r2v, f"{r2v:.3f}", "R²",
                        f"git:{sha}:{OLYMPICS_FILE}#models.baseline_gbr.cv_vol_r2_mean",
-                       commit_date(sha), sha=sha, seq=seq, cause=cause, cause_type=ctype)
+                       commit_date(sha), sha=sha, seq=seq, cause=cause, cause_type=ctype,
+                       **({"cause_mix": CAUSE_MIX[sha]} if sha in CAUSE_MIX else {}))
     led.entries["day_ahead.model.r2"].update(cause=FREEZE_CAUSE[1], cause_type=FREEZE_CAUSE[0])
 
 

@@ -316,7 +316,7 @@ def _lay_out(slide, s: Slide, text: str, warnings: list[str]):
     else:
         warnings.append(f"slide {s.id}: unknown object {s.object!r}")
     if s.extra.get("qr") == "app":
-        _picture_fit(slide, QR_IMAGE, SLIDE_W - 1.75, SLIDE_H - 1.75, 1.45, 1.45)
+        _picture_fit(slide, QR_IMAGE, SLIDE_W - 1.75, 0.3, 1.45, 1.45)     # top right: clear of the data
 
 
 def build_pptx(slides: list[Slide], ledger: dict, out: Path = PPTX_PATH) -> list[str]:
@@ -349,6 +349,11 @@ def export(pptx: Path = PPTX_PATH, pdf: Path | None = PDF_PATH,
     """PowerPoint itself renders the PDF and slide pictures (slide_NN.png beside this file):
     the real renderer is the proof for fonts and layout. Leaves a running PowerPoint as it was."""
     import win32com.client
+    if pdf is not None and Path(pdf).exists():
+        try:
+            Path(pdf).open("r+b").close()
+        except PermissionError:
+            raise BuildStopped(f"{Path(pdf).name} is open in a PDF viewer - close it and build again")
     app = win32com.client.Dispatch("PowerPoint.Application")
     was_open = app.Presentations.Count
     pres = app.Presentations.Open(str(pptx), True, False, False)   # read-only, no window
