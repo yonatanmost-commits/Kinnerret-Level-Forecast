@@ -1,0 +1,11 @@
+Second step, run by hand in Gemini on 2026-10-13 with the first centaur picture attached
+(the API key has no image quota). make_images.py does not send this file.
+
+Keep this exact composition, pose and style, and improve it:
+- Render at the highest resolution available, crisp clean ink lines, no blur or noise.
+- Exactly 16:9, landscape.
+- Slightly richer colour, still light and airy: warm sandstone terrace, the centaur's coat in soft warm grey, the tunic trim in a clear warm red (#E34948).
+- Replace the background hills with a calm view of the Sea of Galilee: a soft blue lake (#2A78D6, very pale and watery) with gentle hills beyond it, under a pale sky.
+- Keep the empty, near-white space on the left third of the image.
+- A correctly set-up chessboard with well-drawn pieces.
+- No text, no letters, no numbers, no logos, no watermark.
