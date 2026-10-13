@@ -22,8 +22,8 @@ Measured numbers come from one re-run on the freeze. Historical numbers keep the
 | `level.lowest_since_year` | 2018 | year | slide hook | freeze | 2026-10-11 | Silver Data/Kinneret Level/kinneret_level.csv (Water Authority daily level) (latest earlier year at or below this level on the same calendar date) |
 | `margin.zero_change.r2` | 0.79 | R² | slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (champion R² minus zero-change R²) |
 | `olympics.baseline_gbr.runtime_s` | 14 s | s | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine) |
-| `olympics.gru.r2_mean` | -0.03 | R² | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze) |
-| `olympics.gru.runtime_s` | 71 min | s | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine) |
+| `olympics.gru.r2_mean` | -0.03 | R² | slide olympics, Q&A sheet | freeze | 2026-10-11 | Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze) |
+| `olympics.gru.runtime_s` | 71 min | s | slide olympics, Q&A sheet | freeze | 2026-10-11 | Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine) |
 
 Charts draw only from the ledger (charts.py chart_data); charts used: frontier, hook, olympics, one_week, timeline.
 
