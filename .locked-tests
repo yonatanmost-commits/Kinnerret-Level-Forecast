@@ -3,4 +3,4 @@
 tests/test_jordan_flow.py  # 2026-10-10
 tests/test_talk_truth.py  # intent/kinneret-talk-deck A1-A7,A19, 2026-10-13
 tests/test_talk_gates.py  # intent/kinneret-talk-deck A1-A7,A19, 2026-10-13
-tests/test_talk_opening.py  # intent/kinneret-talk-deck A20, 2026-10-13
+tests/test_talk_opening.py  # intent/kinneret-talk-deck A20 (change to 31 May), 2026-10-13
