@@ -222,7 +222,9 @@ PDF_PATH = HERE / "talk.pdf"
 CHARTS_DIR = HERE / "charts"
 SLIDE_W, SLIDE_H = 13.333, 7.5                 # inches, 16:9
 SURFACE, INK, INK_2, MUTED = "fbfaf7", "1d1d1b", "5f5d57", "e9e6de"
-HEAD_FONT, BODY_FONT = "Georgia", "Segoe UI"
+# One family at weights heavier than Light (originator, 2026-10-13); the weight is in the font
+# name, so text is never set bold on top of it.
+HEAD_FONT, BODY_FONT = "Segoe UI Semibold", "Segoe UI Semilight"
 QR_IMAGE = HERE / "images" / "qr.png"
 
 
@@ -298,12 +300,12 @@ def _lay_out(slide, s: Slide, text: str, warnings: list[str]):
     elif s.id == "title":
         title, _, names = text.partition("|")
         _picture_fit(slide, HERE / target, 7.6, 0.4, 5.2, 6.7)
-        _text(slide, title.strip(), 0.8, 1.6, 6.6, 2.6, 48, bold=True, anchor="top")
+        _text(slide, title.strip(), 0.8, 1.6, 6.6, 2.6, 48, anchor="top")
         _text(slide, names.strip(), 0.8, 4.4, 6.6, 1.0, 28, font=BODY_FONT, color=INK_2,
               anchor="top")
     elif target == "images/qr.png":
         _picture_fit(slide, HERE / target, 7.9, 1.25, 5.0, 5.0)
-        _text(slide, text.replace(" · ", "\n"), 0.8, 1.25, 6.6, 5.0, 40, bold=True)
+        _text(slide, text.replace(" · ", "\n"), 0.8, 1.25, 6.6, 5.0, 40)
     elif kind == "picture":
         path = HERE / target
         if path.exists():
@@ -312,7 +314,7 @@ def _lay_out(slide, s: Slide, text: str, warnings: list[str]):
             _placeholder(slide, path.stem)
             warnings.append(f"slide {s.id}: picture {target} not made yet")
         if text:
-            _text(slide, text, 0.6, 0.8, 4.0, 5.9, 36, bold=True)
+            _text(slide, text, 0.6, 0.8, 4.0, 5.9, 36)
     else:
         warnings.append(f"slide {s.id}: unknown object {s.object!r}")
     if s.extra.get("qr") == "app":
@@ -381,8 +383,9 @@ def check_render(slides: list[Slide], pdf: Path = PDF_PATH) -> list[str]:
     if doc.page_count != len(slides):
         warnings.append(f"PDF has {doc.page_count} pages, the deck {len(slides)} slides")
     fonts = {f[3].split("+")[-1] for page in doc for f in page.get_fonts()}
-    for want in (HEAD_FONT, BODY_FONT.replace(" ", "")):
-        if not any(want.lower() in f.lower().replace(" ", "") for f in fonts):
+    squash = lambda name: re.sub(r"[\s-]", "", name).lower()
+    for want in (HEAD_FONT, BODY_FONT):
+        if not any(squash(want) in squash(f) for f in fonts):
             warnings.append(f"font {want} not embedded in the PDF (fonts: {sorted(fonts)})")
     for i, (s, page) in enumerate(zip(slides, doc), 1):
         if s.object and not page.get_images():

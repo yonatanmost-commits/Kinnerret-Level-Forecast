@@ -5,7 +5,7 @@
 
 ## Build 1: 2026-10-13, 22 slides (talk.md at cb51760 + the fix below)
 
-Build warnings (A9): the PPTX and PDF both have 22 slides in the same order. Georgia and Segoe UI
+Build warnings (A9): the PPTX and PDF both have 22 slides in the same order. The fonts (Segoe UI Semibold and Semilight since the font change; Georgia and Segoe UI at first)
 are embedded, and every chart and picture slide carries an image. Twelve pictures are not made yet,
 so those slides show a labelled placeholder. None of the 22 slides is accepted yet (A12).
 

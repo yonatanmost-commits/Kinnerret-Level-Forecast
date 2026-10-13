@@ -139,7 +139,10 @@ def chart_data(name: str, ledger: dict) -> dict:
 # Editorial look (originator, 2026-10-13): every chart states its point as a headline, values are
 # labelled directly instead of read off an axis, one element is highlighted and the rest fade.
 
-HEADLINE_FONT = ["Georgia", "DejaVu Serif"]
+# One family, Segoe UI, at weights heavier than Light (originator, 2026-10-13): Semilight for
+# body text, Semibold for headlines and emphasis. The lake animation uses the same pair.
+HEADLINE_FONT = ["Segoe UI", "DejaVu Sans"]
+BODY_WEIGHT, STRONG_WEIGHT = 350, 600
 
 
 def _style():
@@ -147,7 +150,7 @@ def _style():
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     plt.rcParams.update({
-        "font.family": ["Segoe UI", "DejaVu Sans"],
+        "font.family": ["Segoe UI", "DejaVu Sans"], "font.weight": BODY_WEIGHT,
         "font.size": 20, "axes.titlesize": 22, "axes.labelsize": 20,
         "xtick.labelsize": 20, "ytick.labelsize": 20, "legend.fontsize": 20,
         "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "savefig.facecolor": SURFACE,
@@ -164,7 +167,7 @@ def _style():
 def _fig(plt, headline: str, sub: str = "", w=13.33, h=7.0, top=0.80, size=32, **kw):
     """A figure with its takeaway as a headline, and a quieter line under it."""
     fig, ax = plt.subplots(figsize=(w, h), **kw)
-    fig.text(0.035, 0.955, headline, fontfamily=HEADLINE_FONT, fontsize=size, fontweight="bold",
+    fig.text(0.035, 0.955, headline, fontfamily=HEADLINE_FONT, fontsize=size, fontweight=STRONG_WEIGHT,
              color=INK, va="top")
     if sub:
         fig.text(0.035, 0.875, sub, fontsize=20, color=INK_2, va="top")
@@ -216,13 +219,13 @@ def draw_hook(d, plt, headline=None):
         ax.plot(g["doy"], g["level"], color=MUTED, linewidth=2.2)
         ends.append([float(g["level"].iloc[-1]), str(y)])
     ax.axhline(d["red_line_m"], color=RED, linewidth=2.5, linestyle=(0, (6, 4)), zorder=3)
-    ax.text(3, d["red_line_m"] + 0.07, "red line", color=RED, va="bottom", fontweight="bold")
+    ax.text(3, d["red_line_m"] + 0.07, "red line", color=RED, va="bottom", fontweight=STRONG_WEIGHT)
 
     g = s[s["year"] == fy]
     ax.plot(g["doy"], g["level"], color=TEAL, linewidth=5, zorder=4)
     _dot(ax, g["doy"].iloc[-1], g["level"].iloc[-1], TEAL, size=15)
     ax.annotate(str(fy), (g["doy"].iloc[-1], g["level"].iloc[-1]), xytext=(16, -4),
-                textcoords="offset points", color=TEAL, fontweight="bold", fontsize=24, va="top")
+                textcoords="offset points", color=TEAL, fontweight=STRONG_WEIGHT, fontsize=24, va="top")
 
     lo, hi = s["level"].min(), s["level"].max()
     gap = (hi - lo) * 0.075                      # spread the year labels so none overlap
@@ -251,7 +254,7 @@ def draw_olympics(d, plt):
         col = TEAL if p["champion"] else MUTED
         ax.barh(y, p["r2"], color=col, height=0.62)
         txt_col = INK if (p["champion"] or p["model"] == "gru") else INK_2
-        weight = "bold" if p["champion"] else "normal"
+        weight = STRONG_WEIGHT if p["champion"] else BODY_WEIGHT
         ax.text(-0.02, y, p["label"], ha="right", va="center",
                 color=txt_col, fontweight=weight)
         ax.text(max(p["r2"], 0) + 0.015, y, f"{p['r2']:.2f}", va="center", color=txt_col,
@@ -296,7 +299,7 @@ def draw_timeline(d, plt):
     for x in (0, len(pts) - 1):                    # the two numbers that matter: start and now
         ax.annotate(f"{ys[x]:.2f}", (x, ys[x]), xytext=(-22 if x == 0 else 22, 0),
                     textcoords="offset points", ha="right" if x == 0 else "left", va="center",
-                    fontsize=30, fontweight="bold", color=INK)
+                    fontsize=30, fontweight=STRONG_WEIGHT, color=INK)
     seen, ticks = set(), []
     for p in pts:                                  # each date once
         m = _month(p["date"])
@@ -310,7 +313,7 @@ def draw_timeline(d, plt):
         fig.text(x0, 0.872, "●", color=col, va="top", fontsize=22)
         fig.text(x0 + 0.022, 0.875, name, color=INK_2, va="top")
     fig.text(0.865, 0.872, "◐", color=TEAL, va="top", fontsize=22)
-    fig.text(0.887, 0.875, "both", color=INK_2, va="top")
+    fig.text(0.893, 0.875, "both", color=INK_2, va="top")
     return fig
 
 
@@ -326,7 +329,7 @@ def draw_one_day(d, plt):
         ax.barh(y, v, color=col, height=0.55)
         ax.text(-0.02, y, name, ha="right", va="center", color=tcol, fontsize=24)
         ax.text(max(v, 0) + 0.02, y, f"{v:.2f}", va="center", color=tcol, fontsize=36,
-                fontweight="bold")
+                fontweight=STRONG_WEIGHT)
     ax.axvline(0, color=INK_2, linewidth=1.2)
     ax.set_xlim(0, 1)
     ax.set_ylim(-0.6, 2.6)
@@ -346,7 +349,7 @@ def draw_one_week(d, plt):
         ax.barh(y, v, color=col, height=0.55)
         ax.text(-0.02, y, name, ha="right", va="center", color=tcol, fontsize=24)
         ax.text(max(v, 0) + 0.02, y, f"{v:.2f}", va="center", color=tcol, fontsize=40,
-                fontweight="bold")
+                fontweight=STRONG_WEIGHT)
     ax.axvline(0, color=INK_2, linewidth=1.2)
     ax.set_xlim(0, 1)
     ax.set_ylim(-0.6, 1.6)
@@ -366,7 +369,7 @@ def draw_frontier(d, plt):
     titles = ["1 week", "2 to 4 weeks", "Summer red-line date"]
     notes = ["best case", "best case", "seasonal method, not machine learning"]
     for ax, t, n in zip(axes, titles, notes):
-        ax.set_title(t, loc="left", fontsize=24, fontweight="bold", color=INK, pad=38)
+        ax.set_title(t, loc="left", fontsize=24, fontweight=STRONG_WEIGHT, color=INK, pad=38)
         ax.text(0, 1.02, n, transform=ax.transAxes, color=INK_2, fontsize=20, va="bottom")
         ax.set_yticks([])
 
@@ -374,7 +377,7 @@ def draw_frontier(d, plt):
     p = by["7d"][0]
     ax.bar([0], [p["value"]], color=TEAL, width=0.7)
     ax.text(0, p["value"] + 0.04, f"{p['value']:.2f}", ha="center", fontsize=30,
-            fontweight="bold")
+            fontweight=STRONG_WEIGHT)
     ax.set_xticks([0], ["skill"])
     ax.set_xlim(-0.7, 0.7)
     ax.set_ylim(-0.8, 1)
@@ -387,7 +390,7 @@ def draw_frontier(d, plt):
         v = q["value"]
         ax.bar(i, v, color=TEAL if v > 0 else MUTED, width=0.7)
         ax.text(i, v + (0.04 if v > 0 else -0.04), f"{v:+.2f}", ha="center", fontsize=30,
-                fontweight="bold", va="bottom" if v > 0 else "top", color=INK if v > 0 else INK_2)
+                fontweight=STRONG_WEIGHT, va="bottom" if v > 0 else "top", color=INK if v > 0 else INK_2)
     ax.set_xticks(range(len(pts)), ["winter", "summer"])
     ax.set_ylim(-0.8, 1)
     ax.axhline(0, color=INK_2, linewidth=1.2)
