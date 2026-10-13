@@ -39,6 +39,7 @@ APP_URL: str | None = "https://kinnerret-level-forecast-oxgcqpgurba4iyfxkwhkol.s
 GEMINI_MODEL = "gemini-3-pro-image"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 WIDTH_PX = 2000
+EMPTY_BASIN = "#E6E1D6"       # the dry part of the lake basin, a light sand on the deck's page
 
 
 # ─── title: the app's lake picture ──────────────────────────────────────────
@@ -49,6 +50,7 @@ def make_title(out: Path) -> Path:
     from app_utils import build_lake_svg
     level = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))["level.freeze_m"]["value"]
     svg = re.sub(r"<text\b.*?</text>", "", build_lake_svg(level), flags=re.S)
+    svg = svg.replace("#1E1A13", EMPTY_BASIN)    # the app's dark-theme empty basin -> the light deck
     out.write_bytes(bytes(resvg_py.svg_to_bytes(svg_string=svg, width=WIDTH_PX)))
     from PIL import Image                       # trim the margin the labels used to fill
     img = Image.open(out)

@@ -209,3 +209,232 @@ def write_numbers_check(ledger: dict, out: Path = HERE / "numbers_check.md") -> 
         lines.append("")
     out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return out
+
+
+# ─── the deck (plan D1, D2, D10) ────────────────────────────────────────────
+# One object per slide on a warm near-white page. Chart slides show the chart alone: its headline
+# is the slide's point. Metaphor pictures run full-bleed and the prompts leave their left third
+# empty, so any slide text sits there. A picture not made yet becomes a labelled placeholder and a
+# build warning, never a silent gap.
+
+PPTX_PATH = HERE / "talk.pptx"
+PDF_PATH = HERE / "talk.pdf"
+CHARTS_DIR = HERE / "charts"
+SLIDE_W, SLIDE_H = 13.333, 7.5                 # inches, 16:9
+SURFACE, INK, INK_2, MUTED = "fbfaf7", "1d1d1b", "5f5d57", "e9e6de"
+HEAD_FONT, BODY_FONT = "Georgia", "Segoe UI"
+QR_IMAGE = HERE / "images" / "qr.png"
+
+
+def _rgb(hex6):
+    from pptx.dml.color import RGBColor
+    return RGBColor.from_string(hex6)
+
+
+def _text(slide, text, left, top, width, height, size, font=HEAD_FONT, bold=False,
+          color=INK, align="left", anchor="middle"):
+    from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
+    from pptx.util import Inches, Pt
+    box = slide.shapes.add_textbox(Inches(left), Inches(top), Inches(width), Inches(height))
+    tf = box.text_frame
+    tf.word_wrap = True
+    tf.vertical_anchor = {"top": MSO_ANCHOR.TOP, "middle": MSO_ANCHOR.MIDDLE}[anchor]
+    for i, line in enumerate(text.split("\n")):
+        para = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        para.alignment = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER}[align]
+        run = para.add_run()
+        run.text = line
+        run.font.size, run.font.name, run.font.bold = Pt(size), font, bold
+        run.font.color.rgb = _rgb(color)
+    return box
+
+
+def _picture_fit(slide, path, left, top, width, height):
+    """The whole picture, as large as fits in the box, centred in it."""
+    from PIL import Image
+    from pptx.util import Inches
+    w, h = Image.open(path).size
+    scale = min(width / w, height / h)
+    pw, ph = w * scale, h * scale
+    return slide.shapes.add_picture(str(path), Inches(left + (width - pw) / 2),
+                                    Inches(top + (height - ph) / 2), Inches(pw), Inches(ph))
+
+
+def _picture_cover(slide, path):
+    """Full-bleed: the picture fills the slide, cropped evenly on the long side."""
+    from PIL import Image
+    from pptx.util import Inches
+    w, h = Image.open(path).size
+    pic = slide.shapes.add_picture(str(path), 0, 0, Inches(SLIDE_W), Inches(SLIDE_H))
+    excess = 1 - (SLIDE_W / SLIDE_H) / (w / h)
+    if excess > 0:                               # picture wider than the slide
+        pic.crop_left = pic.crop_right = excess / 2
+    elif excess < 0:                             # taller
+        cut = 1 - (w / h) / (SLIDE_W / SLIDE_H)
+        pic.crop_top = pic.crop_bottom = cut / 2
+    return pic
+
+
+def _placeholder(slide, name):
+    from pptx.enum.shapes import MSO_SHAPE
+    from pptx.util import Inches
+    box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(4.9), Inches(0.9), Inches(7.6),
+                                 Inches(5.7))
+    box.fill.solid()
+    box.fill.fore_color.rgb = _rgb(MUTED)
+    box.line.fill.background()
+    _text(slide, f"picture to make by hand:\n{name}.png\n(prompt in images/{name}.prompt.txt)",
+          4.9, 0.9, 7.6, 5.7, 24, font=BODY_FONT, color=INK_2, align="center")
+
+
+def _lay_out(slide, s: Slide, text: str, warnings: list[str]):
+    kind, _, target = s.object.partition(":")
+    if kind == "chart":
+        path = CHARTS_DIR / f"{target}.png"
+        if not path.exists():
+            warnings.append(f"slide {s.id}: chart {path.name} missing (run charts.py)")
+            return
+        _picture_fit(slide, path, 0, 0, SLIDE_W, SLIDE_H)
+    elif s.id == "title":
+        title, _, names = text.partition("|")
+        _picture_fit(slide, HERE / target, 7.6, 0.4, 5.2, 6.7)
+        _text(slide, title.strip(), 0.8, 1.6, 6.6, 2.6, 48, bold=True, anchor="top")
+        _text(slide, names.strip(), 0.8, 4.4, 6.6, 1.0, 28, font=BODY_FONT, color=INK_2,
+              anchor="top")
+    elif target == "images/qr.png":
+        _picture_fit(slide, HERE / target, 7.9, 1.25, 5.0, 5.0)
+        _text(slide, text.replace(" · ", "\n"), 0.8, 1.25, 6.6, 5.0, 40, bold=True)
+    elif kind == "picture":
+        path = HERE / target
+        if path.exists():
+            _picture_cover(slide, path)
+        else:
+            _placeholder(slide, path.stem)
+            warnings.append(f"slide {s.id}: picture {target} not made yet")
+        if text:
+            _text(slide, text, 0.6, 0.8, 4.0, 5.9, 36, bold=True)
+    else:
+        warnings.append(f"slide {s.id}: unknown object {s.object!r}")
+    if s.extra.get("qr") == "app":
+        _picture_fit(slide, QR_IMAGE, SLIDE_W - 1.75, SLIDE_H - 1.75, 1.45, 1.45)
+
+
+def build_pptx(slides: list[Slide], ledger: dict, out: Path = PPTX_PATH) -> list[str]:
+    """talk.md's slides -> talk.pptx, with filled speaker notes. Returns the build warnings."""
+    from pptx import Presentation
+    from pptx.util import Inches
+    prs = Presentation()
+    prs.slide_width, prs.slide_height = Inches(SLIDE_W), Inches(SLIDE_H)
+    blank = prs.slide_layouts[6]
+    warnings: list[str] = []
+    for s in slides:
+        slide = prs.slides.add_slide(blank)
+        slide.background.fill.solid()
+        slide.background.fill.fore_color.rgb = _rgb(SURFACE)
+        _lay_out(slide, s, fill(s.text, ledger), warnings)
+        slide.notes_slide.notes_text_frame.text = fill(s.notes, ledger)
+        if len(fill(s.text, ledger).replace("|", " ").split()) > 12:
+            warnings.append(f"slide {s.id}: more than 12 words of slide text")
+    try:
+        prs.save(out)
+    except PermissionError:
+        raise BuildStopped(f"{out.name} is open in PowerPoint - close it and build again")
+    return warnings
+
+
+# ─── PowerPoint: the PDF and the slide pictures (plan D2) ───────────────────
+
+def export(pptx: Path = PPTX_PATH, pdf: Path | None = PDF_PATH,
+           pictures: list[int] | None = None) -> list[Path]:
+    """PowerPoint itself renders the PDF and slide pictures (slide_NN.png beside this file):
+    the real renderer is the proof for fonts and layout. Leaves a running PowerPoint as it was."""
+    import win32com.client
+    app = win32com.client.Dispatch("PowerPoint.Application")
+    was_open = app.Presentations.Count
+    pres = app.Presentations.Open(str(pptx), True, False, False)   # read-only, no window
+    made = []
+    try:
+        if pdf is not None:
+            pres.SaveAs(str(pdf), 32)                                   # ppSaveAsPDF
+        for n in pictures or []:
+            path = HERE / f"slide_{n:02d}.png"
+            pres.Slides(n).Export(str(path), "PNG", 1920, 1080)
+            made.append(path)
+    finally:
+        pres.Close()
+        if was_open == 0 and app.Presentations.Count == 0:
+            app.Quit()
+    return made
+
+
+def check_render(slides: list[Slide], pdf: Path = PDF_PATH) -> list[str]:
+    """Build warnings A9: the PDF has the deck's slides in order, the fonts are embedded, and
+    every chart or picture slide carries an image."""
+    import fitz
+    warnings = []
+    doc = fitz.open(pdf)
+    if doc.page_count != len(slides):
+        warnings.append(f"PDF has {doc.page_count} pages, the deck {len(slides)} slides")
+    fonts = {f[3].split("+")[-1] for page in doc for f in page.get_fonts()}
+    for want in (HEAD_FONT, BODY_FONT.replace(" ", "")):
+        if not any(want.lower() in f.lower().replace(" ", "") for f in fonts):
+            warnings.append(f"font {want} not embedded in the PDF (fonts: {sorted(fonts)})")
+    for i, (s, page) in enumerate(zip(slides, doc), 1):
+        if s.object and not page.get_images():
+            warnings.append(f"page {i} ({s.id}): no image rendered")
+        drawn = "" if s.object.startswith("chart:") else s.text    # chart slides show the chart only
+        words = re.findall(r"[A-Za-z]{4,}", drawn)[:3]
+        text = page.get_text()
+        if words and not all(w in text for w in words):
+            warnings.append(f"page {i}: expected slide {s.id}'s text, found {text[:40]!r}")
+    return warnings
+
+
+def unaccepted(slides: list[Slide]) -> list[str]:
+    """A12: slides never accepted, or changed since they were."""
+    return [f"{s.id} ({'changed since accepted' if s.accepted else 'not accepted yet'}, "
+            f"hash {s.content_hash()})" for s in slides if s.accepted != s.content_hash()]
+
+
+def build(slide: int | None = None) -> None:
+    ledger = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
+    check_stamp()
+    for path in (TALK_MD, QA_MD):
+        check_numbers(path, ledger)
+    slides = parse_talk(TALK_MD.read_text(encoding="utf-8"))
+    warnings = build_pptx(slides, ledger)
+    write_numbers_check(ledger)
+    if slide is not None:
+        if not 1 <= slide <= len(slides):
+            raise BuildStopped(f"no slide {slide}; the deck has {len(slides)}")
+        made = export(pdf=None, pictures=[slide])
+        print(f"slide {slide} ({slides[slide - 1].id}): {made[0].relative_to(HERE)}")
+    else:
+        export(pictures=list(range(1, len(slides) + 1)))
+        warnings += check_render(slides)
+        print(f"built {PPTX_PATH.name} and {PDF_PATH.name}: {len(slides)} slides, "
+              f"pictures slide_01..{len(slides):02d}.png")
+    for w in warnings:
+        print("WARNING", w)
+    todo = unaccepted(slides)
+    if todo:
+        print(f"{len(todo)} of {len(slides)} slides not accepted:", "; ".join(todo))
+
+
+def main(argv=None) -> int:
+    import argparse
+    import sys
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    ap = argparse.ArgumentParser(description="talk.md -> talk.pptx, talk.pdf, slide pictures")
+    ap.add_argument("--slide", type=int, help="build, then render only slide N as a picture")
+    args = ap.parse_args(argv)
+    try:
+        build(args.slide)
+    except BuildStopped as e:
+        print("BUILD STOPPED:", e)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

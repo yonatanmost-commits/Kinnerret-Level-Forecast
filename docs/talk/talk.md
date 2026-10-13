@@ -95,7 +95,7 @@ object: picture:images/persona.png
 text: The newest oldest trick in the book
 notes:
 That's when I reached for the newest oldest trick in the book. You tell the AI: "You are a hydrology and meteorology specialist." It's role-play. The AI is not a hydrologist. But it reads your results differently. I called this persona Doctor Wade Storm.
-Wade Storm noticed what I hadn't: every model scored worst in 2023. Maybe not a model problem. Maybe a data problem. Even a great chef can't fix spoiled vegetables.
+Wade Storm noticed what I hadn't: every model that learned anything scored worst in 2023. Maybe not a model problem. Maybe a data problem. Even a great chef can't fix spoiled vegetables.
 accepted:
 
 ## slide rain
