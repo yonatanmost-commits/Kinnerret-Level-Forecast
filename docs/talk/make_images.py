@@ -7,13 +7,16 @@ Three kinds, one command:
                    title slide, spec R13), rasterized with resvg
   qr.png           QR code to the online app (segno). Until APP_URL is set it is a plain
                    placeholder square that says so - never a code that points nowhere
-  <name>.png       metaphor pictures from Gemini, one per <name>.prompt.txt beside it; the prompt
-                   file holds exactly what is sent, so a picture can be remade or reworded
+  <name>.png       metaphor pictures, one per <name>.prompt.txt beside it. Made BY HAND (plan D11,
+                   2026-10-13: the free Gemini key has no image quota): paste the prompt into
+                   Gemini with images/centaur.png attached as the style reference, and save the
+                   result as <name>.png. --gemini tries the API instead, for a key with quota
 
 Run:
-  python docs/talk/make_images.py                  # make whatever is missing
-  python docs/talk/make_images.py --only centaur   # (re)make one picture
-  python docs/talk/make_images.py --force          # remake everything
+  python docs/talk/make_images.py                  # make title/qr if missing; list missing pictures
+  python docs/talk/make_images.py --only title     # (re)make one picture
+  python docs/talk/make_images.py --force          # remake title and qr
+  python docs/talk/make_images.py --gemini         # also try the API for missing metaphor pictures
 
 GEMINI_API_KEY is read from the repo-root .env and never printed.
 """
@@ -106,11 +109,15 @@ def make_metaphor(prompt_file: Path, out: Path) -> Path:
 
 # ─── main ───────────────────────────────────────────────────────────────────
 
-def jobs() -> dict[str, callable]:
+def metaphor_prompts() -> dict[str, Path]:
+    return {p.name[:-len(".prompt.txt")]: p for p in sorted(IMAGES.glob("*.prompt.txt"))}
+
+
+def jobs(gemini: bool) -> dict[str, callable]:
     found = {"title": make_title, "qr": make_qr}
-    for p in sorted(IMAGES.glob("*.prompt.txt")):
-        name = p.name[:-len(".prompt.txt")]
-        found[name] = lambda out, p=p: make_metaphor(p, out)
+    if gemini:
+        for name, p in metaphor_prompts().items():
+            found[name] = lambda out, p=p: make_metaphor(p, out)
     return found
 
 
@@ -118,9 +125,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", action="append", help="make just this picture (repeatable)")
     ap.add_argument("--force", action="store_true", help="remake pictures that already exist")
+    ap.add_argument("--gemini", action="store_true", help="make metaphor pictures through the API")
     args = ap.parse_args()
     IMAGES.mkdir(exist_ok=True)
-    todo = jobs()
+    todo = jobs(args.gemini or bool(args.only and set(args.only) & set(metaphor_prompts())))
     for name in args.only or todo:
         if name not in todo:
             raise SystemExit(f"no picture called {name!r}; known: {', '.join(todo)}")
@@ -129,6 +137,10 @@ def main():
             continue
         todo[name](out)
         print("made", out.relative_to(HERE))
+    missing = [n for n in metaphor_prompts() if not (IMAGES / f"{n}.png").exists()]
+    if missing:
+        print("to make by hand in Gemini (prompt in images/<name>.prompt.txt, centaur.png as the "
+              "style reference):", ", ".join(missing))
 
 
 if __name__ == "__main__":

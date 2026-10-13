@@ -1,213 +1,241 @@
 {
   "baseline.seasonal.mae": {
-    "value": 1.014,
-    "display": "1.01",
+    "value": 1.023,
+    "display": "1.02",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.seasonal.n_2021": {
-    "value": 352,
-    "display": "352",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "value": 2506,
+    "display": "2506",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.seasonal.n_2022": {
-    "value": 340,
-    "display": "340",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "value": 2464,
+    "display": "2464",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.seasonal.n_2023": {
-    "value": 312,
-    "display": "312",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "value": 2338,
+    "display": "2338",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.seasonal.n_2024": {
-    "value": 346,
-    "display": "346",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "value": 2478,
+    "display": "2478",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.seasonal.r2": {
-    "value": 0.313,
+    "value": 0.314,
     "display": "0.31",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.seasonal.r2_2021": {
-    "value": 0.362,
-    "display": "0.36",
+    "value": 0.349,
+    "display": "0.35",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.seasonal.r2_2022": {
-    "value": 0.36,
+    "value": 0.365,
     "display": "0.36",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.seasonal.r2_2023": {
-    "value": 0.086,
-    "display": "0.09",
+    "value": 0.101,
+    "display": "0.10",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.seasonal.r2_2024": {
-    "value": 0.444,
+    "value": 0.44,
     "display": "0.44",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (seasonal average of the target day by day of year, from each fold's training years, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.zero_change.mae": {
-    "value": 1.467,
-    "display": "1.47",
+    "value": 1.475,
+    "display": "1.48",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.zero_change.n_2021": {
-    "value": 352,
-    "display": "352",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "value": 2506,
+    "display": "2506",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.zero_change.n_2022": {
-    "value": 340,
-    "display": "340",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "value": 2464,
+    "display": "2464",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.zero_change.n_2023": {
-    "value": 312,
-    "display": "312",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "value": 2338,
+    "display": "2338",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.zero_change.n_2024": {
-    "value": 346,
-    "display": "346",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "value": 2478,
+    "display": "2478",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "baseline.zero_change.r2": {
-    "value": -0.024,
+    "value": -0.021,
     "display": "-0.02",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "baseline.zero_change.r2_2021": {
-    "value": -0.049,
-    "display": "-0.05",
-    "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
-    "date": "2026-10-11",
-    "kind": "freeze"
-  },
-  "baseline.zero_change.r2_2022": {
-    "value": -0.001,
-    "display": "-0.00",
-    "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
-    "date": "2026-10-11",
-    "kind": "freeze"
-  },
-  "baseline.zero_change.r2_2023": {
-    "value": -0.043,
+    "value": -0.045,
     "display": "-0.04",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
-  "baseline.zero_change.r2_2024": {
-    "value": -0.001,
+  "baseline.zero_change.r2_2022": {
+    "value": -0.0,
     "display": "-0.00",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows)",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
+  },
+  "baseline.zero_change.r2_2023": {
+    "value": -0.038,
+    "display": "-0.04",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "weekly"
+  },
+  "baseline.zero_change.r2_2024": {
+    "value": -0.0,
+    "display": "-0.00",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day))",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "champion.mae": {
-    "value": 0.645,
-    "display": "0.65",
+    "value": 0.73,
+    "display": "0.73",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (champion = baseline_gbr, two-stage gradient boosting)",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "weekly"
+  },
+  "champion.model": {
+    "value": "baseline_gbr",
+    "display": "two-stage gradient boosting (the old champion)",
+    "unit": "model",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "champion.n_2021": {
-    "value": 352,
-    "display": "352",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (champion = baseline_gbr, two-stage gradient boosting)",
+    "value": 2506,
+    "display": "2506",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "champion.n_2022": {
-    "value": 340,
-    "display": "340",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (champion = baseline_gbr, two-stage gradient boosting)",
+    "value": 2464,
+    "display": "2464",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "champion.n_2023": {
-    "value": 312,
-    "display": "312",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (champion = baseline_gbr, two-stage gradient boosting)",
+    "value": 2338,
+    "display": "2338",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "champion.n_2024": {
-    "value": 346,
-    "display": "346",
-    "unit": "days",
-    "source": "Automation/talk_freeze_run.py (champion = baseline_gbr, two-stage gradient boosting)",
+    "value": 2478,
+    "display": "2478",
+    "unit": "forecast days",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
     "date": "2026-10-11",
     "kind": "freeze"
   },
   "champion.r2": {
-    "value": 0.762,
-    "display": "0.76",
+    "value": 0.733,
+    "display": "0.73",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (champion = baseline_gbr, two-stage gradient boosting)",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
     "date": "2026-10-11",
     "kind": "freeze",
-    "cause": "re-measured on the talk's data freeze",
-    "cause_type": "data"
+    "yardstick": "weekly"
+  },
+  "champion.runtime_s": {
+    "value": 260.9,
+    "display": "4 min",
+    "unit": "s",
+    "source": "Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr)",
+    "date": "2026-10-11",
+    "kind": "freeze"
   },
   "crossing.first_year": {
     "value": 2008,
@@ -864,6 +892,18 @@
     "sha": "c3a72b3",
     "seq": 0,
     "cause": "starting point: two-stage gradient boosting, first tracked score",
+    "cause_type": "data"
+  },
+  "history.freeze_day_ahead.r2": {
+    "value": 0.762,
+    "display": "0.762",
+    "unit": "R²",
+    "source": "Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024)",
+    "date": "2026-10-11",
+    "kind": "freeze",
+    "yardstick": "one_day",
+    "note": "one day at a time: the old champion (two-stage gradient boosting) predicts each day with the real lake changes up to the day before, the yardstick of the whole history; never compared with weekly scores",
+    "cause": "re-measured on the talk's data freeze",
     "cause_type": "data"
   },
   "level.below_red_line_cm": {
@@ -10820,72 +10860,80 @@
     "kind": "freeze"
   },
   "margin.seasonal.r2": {
-    "value": 0.449,
-    "display": "0.45",
+    "value": 0.419,
+    "display": "0.42",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (champion R² minus seasonal-average R²)",
+    "source": "Automation/talk_freeze_run.py (champion R² minus seasonal-average R², same weekly rows)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "margin.zero_change.r2": {
-    "value": 0.786,
-    "display": "0.79",
+    "value": 0.754,
+    "display": "0.75",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (champion R² minus zero-change R²)",
+    "source": "Automation/talk_freeze_run.py (champion R² minus zero-change R², same weekly rows)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.baseline_gbr.mae_mean": {
-    "value": 0.645,
-    "display": "0.65",
+    "value": 0.73,
+    "display": "0.73",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.baseline_gbr.r2_2021": {
-    "value": 0.676,
-    "display": "0.68",
+    "value": 0.654,
+    "display": "0.65",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.baseline_gbr.r2_2022": {
-    "value": 0.875,
-    "display": "0.88",
+    "value": 0.874,
+    "display": "0.87",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.baseline_gbr.r2_2023": {
-    "value": 0.673,
-    "display": "0.67",
+    "value": 0.614,
+    "display": "0.61",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.baseline_gbr.r2_2024": {
-    "value": 0.823,
-    "display": "0.82",
+    "value": 0.789,
+    "display": "0.79",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.baseline_gbr.r2_mean": {
-    "value": 0.762,
-    "display": "0.76",
+    "value": 0.733,
+    "display": "0.73",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.baseline_gbr.runtime_s": {
-    "value": 13.9,
-    "display": "14 s",
+    "value": 260.9,
+    "display": "4 min",
     "unit": "s",
     "source": "Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine)",
     "date": "2026-10-11",
@@ -10895,49 +10943,55 @@
     "value": 0.777,
     "display": "0.78",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_max_chain.r2_2021": {
     "value": 0.635,
     "display": "0.64",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_max_chain.r2_2022": {
     "value": 0.865,
     "display": "0.86",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_max_chain.r2_2023": {
     "value": 0.407,
     "display": "0.41",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_max_chain.r2_2024": {
     "value": 0.775,
     "display": "0.78",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_max_chain.r2_mean": {
     "value": 0.67,
     "display": "0.67",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_max_chain.runtime_s": {
     "value": 57.7,
@@ -10951,49 +11005,55 @@
     "value": 0.77,
     "display": "0.77",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_chain_s2_roll1.r2_2021": {
     "value": 0.633,
     "display": "0.63",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_chain_s2_roll1.r2_2022": {
     "value": 0.87,
     "display": "0.87",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_chain_s2_roll1.r2_2023": {
     "value": 0.378,
     "display": "0.38",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_chain_s2_roll1.r2_2024": {
     "value": 0.762,
     "display": "0.76",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_chain_s2_roll1.r2_mean": {
     "value": 0.661,
     "display": "0.66",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_chain_s2_roll1.runtime_s": {
     "value": 58.4,
@@ -11007,49 +11067,55 @@
     "value": 0.711,
     "display": "0.71",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_direct_s2_anchor.r2_2021": {
     "value": 0.691,
     "display": "0.69",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_direct_s2_anchor.r2_2022": {
     "value": 0.862,
     "display": "0.86",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_direct_s2_anchor.r2_2023": {
     "value": 0.479,
     "display": "0.48",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_direct_s2_anchor.r2_2024": {
     "value": 0.795,
     "display": "0.80",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_direct_s2_anchor.r2_mean": {
     "value": 0.707,
     "display": "0.71",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_s1_direct_s2_anchor.runtime_s": {
     "value": 50.7,
@@ -11063,49 +11129,55 @@
     "value": 0.748,
     "display": "0.75",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_single_stage.r2_2021": {
     "value": 0.638,
     "display": "0.64",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_single_stage.r2_2022": {
     "value": 0.808,
     "display": "0.81",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_single_stage.r2_2023": {
     "value": 0.464,
     "display": "0.46",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_single_stage.r2_2024": {
     "value": 0.765,
     "display": "0.77",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_single_stage.r2_mean": {
     "value": 0.669,
     "display": "0.67",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gbr_single_stage.runtime_s": {
     "value": 26.3,
@@ -11119,49 +11191,55 @@
     "value": 1.485,
     "display": "1.49",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gru.r2_2021": {
     "value": -0.06,
     "display": "-0.06",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gru.r2_2022": {
     "value": -0.0,
     "display": "-0.00",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gru.r2_2023": {
     "value": -0.04,
     "display": "-0.04",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gru.r2_2024": {
     "value": -0.0,
     "display": "-0.00",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gru.r2_mean": {
     "value": -0.025,
     "display": "-0.03",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.gru.runtime_s": {
     "value": 4239.5,
@@ -11175,49 +11253,55 @@
     "value": 0.728,
     "display": "0.73",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.lgbm.r2_2021": {
     "value": 0.627,
     "display": "0.63",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.lgbm.r2_2022": {
     "value": 0.867,
     "display": "0.87",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.lgbm.r2_2023": {
     "value": 0.341,
     "display": "0.34",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.lgbm.r2_2024": {
     "value": 0.745,
     "display": "0.74",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.lgbm.r2_mean": {
     "value": 0.645,
     "display": "0.65",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.lgbm.runtime_s": {
     "value": 5.2,
@@ -11231,49 +11315,55 @@
     "value": 0.723,
     "display": "0.72",
     "unit": "Mm³/day",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.xgboost.r2_2021": {
     "value": 0.647,
     "display": "0.65",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.xgboost.r2_2022": {
     "value": 0.871,
     "display": "0.87",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.xgboost.r2_2023": {
     "value": 0.404,
     "display": "0.40",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.xgboost.r2_2024": {
     "value": 0.799,
     "display": "0.80",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.xgboost.r2_mean": {
     "value": 0.68,
     "display": "0.68",
     "unit": "R²",
-    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze)",
+    "source": "Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened)",
     "date": "2026-10-11",
-    "kind": "freeze"
+    "kind": "freeze",
+    "yardstick": "weekly"
   },
   "olympics.xgboost.runtime_s": {
     "value": 4.1,

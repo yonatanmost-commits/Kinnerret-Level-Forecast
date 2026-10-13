@@ -10,7 +10,9 @@ the ledger's hash, which the deck builder checks (plan D8).
 What is measured (intent/kinneret-talk-deck plan D3-D5, D17):
   - the 8 Model Olympics configurations, walk-forward CV (folds 2021-2024), timed; the GRU's CV
     is ported unchanged from the last commit before its retirement (4f9e553^)
-  - two baselines on the champion's own fold rows: zero change, and the seasonal average
+  - all 8 on one weekly yardstick (plan D19): the champion is the best weekly mean; the old
+    champion's one-day score is kept apart, as the timeline's freeze point
+  - two baselines on the champion's own weekly rows: zero change, and the seasonal average
   - the hook's level facts: freeze-date level, red line, "lowest since" year, the level series
   - two winter scenarios: the driest and wettest of the last 20 winters (plan D18)
   - the champion R² history: every committed docs/olympics_results.json (historical) + the freeze
@@ -210,12 +212,32 @@ def run_cv_gru(tf, df: pd.DataFrame, bathy_coeffs: list):
 
 CACHE_DIR = TALK_DIR / "freeze_cache"     # gitignored; lets a killed run resume
 
+# The two yardsticks (plan D19). Every Olympics score is weekly; the old champion's one-day score
+# is kept only for the timeline, which was measured that way from the start.
+WEEKLY = "weekly"
+ONE_DAY = "one_day"
+DIRECT = {"xgboost", "lgbm", "gbr_s1_direct_s2_anchor", "gbr_single_stage"}
+CHAINED = {"baseline_gbr", "gbr_max_chain", "gbr_s1_chain_s2_roll1"}
+MODEL_NAMES = {
+    "baseline_gbr": "two-stage gradient boosting (the old champion)",
+    "xgboost": "XGBoost", "lgbm": "LightGBM", "gru": "neural network (GRU)",
+    "gbr_max_chain": "gradient boosting, fully chained",
+    "gbr_s1_direct_s2_anchor": "gradient boosting, direct",
+    "gbr_single_stage": "gradient boosting, one stage",
+    "gbr_s1_chain_s2_roll1": "gradient boosting, rolling",
+}
 
-def _cached_cv(freeze: str, model: str, runner):
-    """Run one model's timed CV, or reuse its result from an earlier run on the same freeze and
-    the same gold table bytes (the machine is low on memory and a long run can be killed)."""
-    gold = hashlib.sha256((ROOT / "Gold Data" / "kinneret_gold_features.csv").read_bytes()).hexdigest()
-    path = CACHE_DIR / f"{freeze}_{gold[:12]}_{model}.json"
+
+def freeze_key(df: pd.DataFrame) -> str:
+    """Identity of the freeze data: a hash of the gold rows up to the freeze. The gold file is
+    refreshed every day, but its rows up to the freeze are what every model here sees."""
+    return hashlib.sha256(pd.util.hash_pandas_object(df, index=True).values.tobytes()).hexdigest()[:12]
+
+
+def _cached_cv(freeze: str, key: str, model: str, runner):
+    """Run one model's timed CV, or reuse its result from an earlier run on the same freeze rows
+    (the machine is low on memory and a long run can be killed)."""
+    path = CACHE_DIR / f"{freeze}_{key}_{model}.json"
     if path.exists():
         hit = json.loads(path.read_text(encoding="utf-8"))
         print(f"  (reusing {model} from {path.name})", flush=True)
@@ -227,10 +249,63 @@ def _cached_cv(freeze: str, model: str, runner):
     path.write_text(json.dumps({"cv": cv, "seconds": seconds}, indent=2), encoding="utf-8")
     return cv, seconds
 
+class _LogTarget:
+    """baseline_gbr's Stage 2 is fit on signed_log1p(volume change); undo it on predict, so the
+    7-day chain carries volumes, as run_cv scores them."""
+    def __init__(self, tf, model):
+        self.tf, self.model = tf, model
+
+    def predict(self, X):
+        return self.tf.inv_signed_log1p_transform(self.model.predict(X))
+
+
+def run_cv_baseline_weekly(tf, df: pd.DataFrame, bathy_coeffs: list) -> list:
+    """baseline_gbr on the weekly yardstick (plan D19, ruling Q1): run_cv's own two models,
+    trained exactly as run_cv trains them (signed-log Stage 2 included), then run as a 7-day
+    chain from every start day with _simulate_7d_chain, scored on all seven days."""
+    print("\n=== baseline_gbr, weekly (run_cv's models as a 7-day chain) ===")
+    cv_results = []
+    df_idx = df.set_index("date")
+    for fold_name, train_yrs, test_yr in tf.CV_FOLDS:
+        tr = df[df["date"].dt.year.isin(train_yrs)].copy()
+        te = df[df["date"].dt.year == test_yr]
+
+        s1_tr = tr.dropna(subset=tf.S1_FEATURES + [tf.S1_TARGET])
+        rf1 = tf.GBRegressor(**tf.GBR_CV_PARAMS)
+        rf1.fit(s1_tr[tf.S1_FEATURES].values, s1_tr[tf.S1_TARGET].values)
+
+        tr["predicted_inflow_m3"] = tr[tf.S1_TARGET]          # actual inflow as training proxy
+        s2_tr = tr.dropna(subset=tf.S2_FEATURES + [tf.S2_TARGET])
+        rf2 = tf.GBRegressor(**tf.GBR_CV_PARAMS)
+        rf2.fit(s2_tr[tf.S2_FEATURES].values, tf.signed_log1p_transform(s2_tr[tf.S2_TARGET].values))
+
+        preds_rows, all_pred, all_true = [], [], []
+        for anchor_date in sorted(te["date"].unique()):
+            window = tf._simulate_7d_chain(rf1, _LogTarget(tf, rf2), pd.Timestamp(anchor_date),
+                                           df_idx, bathy_coeffs, roll_dvol_only=False)
+            for r in window:
+                day = r["date"] + pd.Timedelta(days=int(r["horizon_h"]))
+                true_dvol = float(df_idx.loc[day, tf.S2_TARGET])
+                if not np.isnan(true_dvol):
+                    all_pred.append(r["pred_dvol"])
+                    all_true.append(true_dvol)
+            preds_rows.extend(window)
+
+        s2_r2_val = tf.r2(np.array(all_true), np.array(all_pred))
+        s2_mae_val = tf.mae(np.array(all_true), np.array(all_pred))
+        drift = tf._mean_7d_drift(df, pd.DataFrame(preds_rows), bathy_coeffs)
+        cv_results.append({"fold": fold_name, "n_test": len(all_pred), "s1_r2": None,
+                           "s2_r2": round(s2_r2_val, 3), "s2_mae": round(s2_mae_val, 3),
+                           "drift_m": round(drift, 4)})
+        print(f"  {fold_name}:  S2 R²={s2_r2_val:.3f}  MAE={s2_mae_val:.3f}  drift={drift:.4f} m",
+              flush=True)
+    return cv_results
+
+
 def measure_models(led: Ledger, tf, df: pd.DataFrame):
     bathy = tf.fit_vol2level_poly()
     runners = {
-        "baseline_gbr":            lambda: tf.run_cv(df)[0],
+        "baseline_gbr":            lambda: run_cv_baseline_weekly(tf, df, bathy),
         "xgboost":                 lambda: tf.run_cv_xgb(df, bathy),
         "lgbm":                    lambda: tf.run_cv_lgb(df, bathy),
         "gru":                     lambda: run_cv_gru(tf, df, bathy),
@@ -239,83 +314,125 @@ def measure_models(led: Ledger, tf, df: pd.DataFrame):
         "gbr_single_stage":        lambda: tf.run_cv_single_stage(df, bathy),
         "gbr_s1_chain_s2_roll1":   lambda: tf.run_cv_s1_chain_s2_roll1(df, bathy),
     }
-    src = f"{THIS} (walk-forward CV, folds 2021-2024, gold table cut at the freeze)"
-    champion_cv = None
+    key = freeze_key(df)
+    print(f"freeze rows key {key}", flush=True)
+    src = (f"{THIS} (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: "
+           f"each forecast starts from one day's real state and predicts days 1-7, scored on all "
+           f"seven, with the weather that actually happened)")
+    cvs = {}
     for m in MODELS:
-        cv, seconds = _cached_cv(led.freeze, m, runners[m])
+        cv, seconds = _cached_cv(led.freeze, key, m, runners[m])
+        cvs[m] = cv
         by_fold = {r["fold"]: r["s2_r2"] for r in cv}
         assert sorted(by_fold) == FOLDS, f"{m}: folds {sorted(by_fold)}"
         maes = [r.get("s2_mae_Mm3", r.get("s2_mae")) for r in cv]
         mean = round(float(np.mean(list(by_fold.values()))), 3)
-        led.freeze_entry(f"olympics.{m}.r2_mean", mean, fmt_r2(mean), "R²", src)
+        led.freeze_entry(f"olympics.{m}.r2_mean", mean, fmt_r2(mean), "R²", src, yardstick=WEEKLY)
         for f in FOLDS:
-            led.freeze_entry(f"olympics.{m}.r2_{f}", by_fold[f], fmt_r2(by_fold[f]), "R²", src)
+            led.freeze_entry(f"olympics.{m}.r2_{f}", by_fold[f], fmt_r2(by_fold[f]), "R²", src,
+                             yardstick=WEEKLY)
         mae_mean = round(float(np.mean(maes)), 3)
-        led.freeze_entry(f"olympics.{m}.mae_mean", mae_mean, f"{mae_mean:.2f}", "Mm³/day", src)
+        led.freeze_entry(f"olympics.{m}.mae_mean", mae_mean, f"{mae_mean:.2f}", "Mm³/day", src,
+                         yardstick=WEEKLY)
         led.freeze_entry(f"olympics.{m}.runtime_s", round(seconds, 1), fmt_runtime(seconds), "s",
                          f"{THIS} (wall-clock time of the 4-fold CV on this machine)")
         print(f"  -> {m}: R² {mean}  runtime {seconds:.0f} s", flush=True)
-        if m == "baseline_gbr":
-            champion_cv = cv
 
-    # The champion = baseline_gbr (the standing Olympics winner).
-    c_r2 = led.entries["olympics.baseline_gbr.r2_mean"]["value"]
-    c_mae = led.entries["olympics.baseline_gbr.mae_mean"]["value"]
-    csrc = f"{THIS} (champion = baseline_gbr, two-stage gradient boosting)"
-    led.freeze_entry("champion.r2", c_r2, fmt_r2(c_r2), "R²", csrc)
-    led.freeze_entry("champion.mae", c_mae, f"{c_mae:.2f}", "Mm³/day", csrc)
-    for r in champion_cv:
-        led.freeze_entry(f"champion.n_{r['fold']}", r["n_test"], str(r["n_test"]), "days", csrc)
+    # The champion = the best weekly mean, whichever model it is (spec R10, A3).
+    champ = max(MODELS, key=lambda m: led.entries[f"olympics.{m}.r2_mean"]["value"])
+    csrc = f"{THIS} (champion = the highest weekly mean of the 8 Olympics runners: {champ})"
+    led.freeze_entry("champion.model", champ, MODEL_NAMES[champ], "model", csrc)
+    for ckey, okey, unit in (("r2", "r2_mean", "R²"), ("mae", "mae_mean", "Mm³/day")):
+        e = led.entries[f"olympics.{champ}.{okey}"]
+        led.freeze_entry(f"champion.{ckey}", e["value"], e["display"], unit, csrc, yardstick=WEEKLY)
+    e = led.entries[f"olympics.{champ}.runtime_s"]
+    led.freeze_entry("champion.runtime_s", e["value"], e["display"], "s", csrc)
+    for r in cvs[champ]:
+        led.freeze_entry(f"champion.n_{r['fold']}", r["n_test"], str(r["n_test"]), "forecast days", csrc)
+    print(f"  -> champion {champ}", flush=True)
 
-    measure_baselines(led, tf, df)
+    # The old champion's one-day-at-a-time score on the freeze: the timeline's last point only.
+    one_day, _ = _cached_cv(led.freeze, key, "baseline_gbr_one_day", lambda: tf.run_cv(df)[0])
+    od = round(float(np.mean([r["s2_r2"] for r in one_day])), 3)
+    led.freeze_entry("history.freeze_day_ahead.r2", od, f"{od:.3f}", "R²",
+                     f"{THIS} (baseline_gbr run_cv on the freeze, folds 2021-2024)",
+                     yardstick=ONE_DAY,
+                     note="one day at a time: the old champion (two-stage gradient boosting) "
+                          "predicts each day with the real lake changes up to the day before, the "
+                          "yardstick of the whole history; never compared with weekly scores")
+
+    measure_baselines(led, tf, df, champ)
 
 
-def champion_fold_rows(tf, df: pd.DataFrame, test_yr: int) -> pd.DataFrame:
-    """The exact test rows run_cv scores Stage 2 on (same dropna chain, no fitting)."""
-    te = df[df["date"].dt.year == test_yr].copy()
-    s1_te = te.dropna(subset=tf.S1_FEATURES + [tf.S1_TARGET])
-    te["predicted_inflow_m3"] = np.nan
-    te.loc[s1_te.index, "predicted_inflow_m3"] = 1.0   # present where Stage 1 predicts
-    return te.dropna(subset=tf.S2_FEATURES + [tf.S2_TARGET])
+def weekly_rows(tf, df: pd.DataFrame, model: str, test_yr: int) -> pd.DataFrame:
+    """The champion's own weekly test rows for one fold: start day, horizon h (1-7), target.
+    Direct runners: build_direct_s2_data's rows, as run_cv_s1_direct_s2_anchor scores them.
+    Chained runners: every start day with all seven next days in the table, as run_cv_max_chain."""
+    te = df[df["date"].dt.year == test_yr]
+    if model in DIRECT:
+        rows = tf.build_direct_s2_data(te)
+        rows["predicted_inflow_m3"] = 0.0                # Stage 1 predicts every row
+        rows = rows.dropna(subset=tf.S2_DIRECT_FEATURES + [tf.S2_DIRECT_TARGET])
+        return pd.DataFrame({"date": rows["date"].values, "h": rows["horizon_h"].astype(int).values,
+                             "y": rows[tf.S2_DIRECT_TARGET].values})
+    if model in CHAINED:
+        y = df.set_index("date")[tf.S2_TARGET]
+        out = []
+        for t in sorted(te["date"].unique()):
+            days = [pd.Timestamp(t) + pd.Timedelta(days=h) for h in range(1, 8)]
+            if all(d in y.index for d in days):
+                out += [(pd.Timestamp(t), h, float(y[d])) for h, d in enumerate(days, 1)
+                        if not np.isnan(y[d])]
+        return pd.DataFrame(out, columns=["date", "h", "y"])
+    raise SystemExit(f"no weekly baseline rows defined for champion {model!r}")
 
 
-def measure_baselines(led: Ledger, tf, df: pd.DataFrame):
-    """Zero change ("the lake stays the same") and the seasonal average, on the champion's
-    fold rows (plan D5). Seasonal = each day-of-year's mean volume change over the fold's
-    training years only."""
+def measure_baselines(led: Ledger, tf, df: pd.DataFrame, champ: str):
+    """Zero change ("the lake stays the same", predicts 0) and the seasonal average (the target
+    day's day-of-year mean volume change over the fold's training years only), on the champion's
+    own weekly rows (plan D5, D19)."""
     target = tf.S2_TARGET
     scores = {"zero_change": [], "seasonal": []}
     for fold_name, train_yrs, test_yr in tf.CV_FOLDS:
-        rows = champion_fold_rows(tf, df, test_yr)
-        y = rows[target].values
+        rows = weekly_rows(tf, df, champ, test_yr)
+        n_champ = led.entries[f"champion.n_{fold_name}"]["value"]
+        if len(rows) != n_champ:
+            raise SystemExit(f"fold {fold_name}: {len(rows)} baseline rows, champion scored {n_champ}")
+        y = rows["y"].values
 
         train = df[df["date"].dt.year.isin(train_yrs)].dropna(subset=[target])
         doy_mean = train.groupby(train["date"].dt.dayofyear)[target].mean()
         doy_mean = doy_mean.reindex(range(1, 367)).interpolate(limit_direction="both")
-        seasonal = doy_mean.loc[rows["date"].dt.dayofyear].values
+        target_day = pd.to_datetime(rows["date"]) + pd.to_timedelta(rows["h"], unit="D")
+        seasonal = doy_mean.loc[target_day.dt.dayofyear].values
 
         for name, pred in (("zero_change", np.zeros_like(y)), ("seasonal", seasonal)):
             scores[name].append((fold_name, len(rows), tf.r2(y, pred), tf.mae(y, pred)))
 
-    src = {"zero_change": f"{THIS} (zero change: predicts no volume change, champion's CV rows)",
-           "seasonal": f"{THIS} (seasonal average by day of year from each fold's training years, champion's CV rows)"}
+    where = f"the champion's weekly rows ({champ}, days 1-7 from each start day)"
+    src = {"zero_change": f"{THIS} (zero change: predicts no volume change, {where})",
+           "seasonal": f"{THIS} (seasonal average of the target day by day of year, from each "
+                       f"fold's training years, {where})"}
     for name, folds in scores.items():
         r2_mean = round(float(np.mean([round(f[2], 3) for f in folds])), 3)
         mae_mean = round(float(np.mean([round(f[3], 3) for f in folds])), 3)
-        led.freeze_entry(f"baseline.{name}.r2", r2_mean, fmt_r2(r2_mean), "R²", src[name])
-        led.freeze_entry(f"baseline.{name}.mae", mae_mean, f"{mae_mean:.2f}", "Mm³/day", src[name])
+        led.freeze_entry(f"baseline.{name}.r2", r2_mean, fmt_r2(r2_mean), "R²", src[name],
+                         yardstick=WEEKLY)
+        led.freeze_entry(f"baseline.{name}.mae", mae_mean, f"{mae_mean:.2f}", "Mm³/day", src[name],
+                         yardstick=WEEKLY)
         for fold_name, n, r2v, _ in folds:
-            led.freeze_entry(f"baseline.{name}.n_{fold_name}", n, str(n), "days", src[name])
+            led.freeze_entry(f"baseline.{name}.n_{fold_name}", n, str(n), "forecast days", src[name])
             led.freeze_entry(f"baseline.{name}.r2_{fold_name}", round(r2v, 3), fmt_r2(r2v), "R²",
-                             src[name])
+                             src[name], yardstick=WEEKLY)
         print(f"  -> {name}: R² {r2_mean}  MAE {mae_mean}", flush=True)
 
     margin = round(led.entries["champion.r2"]["value"] - led.entries["baseline.zero_change.r2"]["value"], 3)
     led.freeze_entry("margin.zero_change.r2", margin, fmt_r2(margin), "R²",
-                     f"{THIS} (champion R² minus zero-change R²)")
+                     f"{THIS} (champion R² minus zero-change R², same weekly rows)", yardstick=WEEKLY)
     margin_s = round(led.entries["champion.r2"]["value"] - led.entries["baseline.seasonal.r2"]["value"], 3)
     led.freeze_entry("margin.seasonal.r2", margin_s, fmt_r2(margin_s), "R²",
-                     f"{THIS} (champion R² minus seasonal-average R²)")
+                     f"{THIS} (champion R² minus seasonal-average R², same weekly rows)",
+                     yardstick=WEEKLY)
 
 
 # ─── 2. the hook: the lake level ────────────────────────────────────────────
@@ -404,7 +521,7 @@ def measure_history(led: Ledger):
         led.historical(f"history.{sha}.r2", r2v, f"{r2v:.3f}", "R²",
                        f"git:{sha}:{OLYMPICS_FILE}#models.baseline_gbr.cv_vol_r2_mean",
                        commit_date(sha), sha=sha, seq=seq, cause=cause, cause_type=ctype)
-    led.entries["champion.r2"].update(cause=FREEZE_CAUSE[1], cause_type=FREEZE_CAUSE[0])
+    led.entries["history.freeze_day_ahead.r2"].update(cause=FREEZE_CAUSE[1], cause_type=FREEZE_CAUSE[0])
 
 
 # ─── 4. the frontier ────────────────────────────────────────────────────────
@@ -539,7 +656,8 @@ def main():
         if old["freeze_date"]["value"] != args.freeze:
             raise SystemExit("--keep-models needs a ledger on the same freeze date")
         for k, e in old.items():
-            if k.split(".")[0] in ("olympics", "champion", "baseline", "margin"):
+            if k.split(".")[0] in ("olympics", "champion", "baseline", "margin") or \
+                    k == "history.freeze_day_ahead.r2":
                 led.entries[k] = {f: v for f, v in e.items() if f not in ("cause", "cause_type")}
     else:
         tf = load_training_module()

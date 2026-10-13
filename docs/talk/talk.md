@@ -28,7 +28,7 @@ accepted:
 object: picture:images/centaur.png
 text:
 notes:
-Before I answer, a picture. This is a centaur, half human and half horse. The picture is AI-made.
+Before I answer, a picture. This is a centaur, half human and half horse. This picture, like the others in this talk, is AI-made.
 After Garry Kasparov lost to a chess computer, he started asking a different question: what happens when a human and a computer play as one team? Chess players call those teams centaurs.
 In 2005 there was an open freestyle chess tournament on the internet. Anyone could enter, with any computer help they liked. The winners were not grandmasters, and not the strongest machine. They were two amateur players from the United States, running three ordinary computers, with a very good way of working together with them. The process beat the raw strength.
 And today Terence Tao, one of the great mathematicians alive, works on real research problems with AI tools at his side. AI tools suggest and explore, proof-checking software verifies, and he decides what matters.
@@ -41,7 +41,44 @@ text: Yonatan Most · Adnan Agbaria
 notes:
 So who am I? Let me start with what I'm not. I'm not a meteorologist. I'm not a data analyst. I'm not a software engineer.
 I'm a process engineer. I work with water treatment, pumps and pipes. This work is joint with my co-author, Adnan Agbaria, from Kinneret Academic College.
-This code opens the app we built. It shows today's level and this week's forecast, so you can see today's level and this week's forecast for yourself.
+This code opens the app we built, so you can see today's level and this week's forecast for yourself.
+accepted:
+
+## slide week
+object: picture:images/week.png
+text:
+notes:
+So, the question I can actually answer: what will the lake do over the next week?
+Why a week? Because the model has to be told the weather, and a weather forecast is good for about a week. Further out, it's not much better than the usual weather for the season.
+One honest note before any score. When I test the models, I give them the weather that actually happened, as if the forecast were perfect. So every score you'll see today is a best case. A real forecast would do worse.
+accepted:
+
+## slide sources
+object: picture:images/sources.png
+text:
+notes:
+Where does the data come from? Three national authorities.
+The Water Authority measures the lake's level, every day. The Hydrological Service measures the rivers, above all the Jordan, flowing in. And the Meteorological Service measures the rain, the heat, the wind and the sun.
+Three agencies, three formats, three ways of arriving late or not at all. None of it was made to be used together.
+accepted:
+
+## slide pipeline
+object: picture:images/pipeline.png
+text:
+notes:
+You all know this picture better than I do. Raw water comes in, you treat it in stages, and clean water comes out.
+Data works the same way. The raw files come in dirty: gaps, broken sensors, odd codes.
+I built a treatment train for them. The first stage keeps the raw data exactly as it came. The second cleans it and lines every source up on the same day. The last stage blends it into one table the model can drink.
+And I built it with an AI at my side. I described what I needed in plain words, and it wrote the code with me, step by step. I checked every step.
+accepted:
+
+## slide model
+object: picture:images/model.png
+text:
+notes:
+And the model, in plain words. It works in two steps, the way the water does.
+First, rain and river: from the weather, it estimates how much water the Jordan will carry into the lake.
+Then the lake: from that inflow, the weather and the lake's own state, it estimates how much the lake gains or loses each day, for each of the next seven days.
 accepted:
 
 ## slide olympics
@@ -50,10 +87,10 @@ text: Eight models, one race
 notes:
 From here on, every number I show you was measured on one data freeze, {freeze_date}, so they all agree with each other. Only today's level comes from the app.
 So I did what everyone does. I held a Model Olympics.
-Eight models, each one trained to forecast the lake's daily volume change: how many cubic metres the lake gains or loses each day, over the next week.
+Eight models, each one forecasting the lake's daily volume change, how many cubic metres it gains or loses each day, for the whole next week. Every forecast starts from one real day and never peeks at the lake inside that week. And, as I said, with the real weather: a best case.
 To score them I use R squared. It's a score where one is a perfect forecast and zero means you did no better than guessing the average.
-On the right of this chart are the slow models, and higher is better.
-The winner, in red, is the champion: classic machine learning, called gradient boosting. Think of many small decision trees, each one fixing the mistakes of the one before. It scored {champion.r2}, and was trained and tested in {olympics.baseline_gbr.runtime_s}.
+Longer bars are better, and the column on the right is how long each one took.
+The winner, in teal, is the champion: classic machine learning, the two-stage gradient boosting I just described. Think of many small decision trees, each one fixing the mistakes of the one before. It scored {champion.r2}, and was trained and tested in {champion.runtime_s}.
 And the neural network? The one you'd expect to win in an AI session? It scored {olympics.gru.r2_mean}. About zero. Training and testing it took {olympics.gru.runtime_s}, to learn nothing.
 This is the soft drop. The fancy model didn't save me.
 accepted:
@@ -66,16 +103,6 @@ Here is a picture I keep in my head. A brilliant chef, and a basket of spoiled v
 It doesn't matter how good the chef is. The dish is only as good as what goes into the pot.
 After the Olympics I stopped asking "which model?" and started asking "what am I feeding it?"
 That is the pivot of this talk. The bottleneck was never the model. It was the data.
-accepted:
-
-## slide pipeline
-object: picture:images/pipeline.png
-text:
-notes:
-You all know this picture better than I do. Raw water comes in, you treat it in stages, and clean water comes out.
-Data works the same way. Raw files from the Water Authority, the Hydrological Service and the weather service come in dirty: gaps, broken sensors, odd codes.
-I built a treatment train for them. The first stage keeps the raw data exactly as it came. The second cleans it and lines every source up on the same day. The last stage blends it into one table the model can drink.
-And I built it with an AI at my side. I described what I needed in plain words, and it wrote the code with me, step by step. I checked every step.
 accepted:
 
 ## slide persona
@@ -103,10 +130,11 @@ object: chart:timeline
 text: What moved the score
 notes:
 This chart is the honest history of my champion's score, and every step is labelled with what caused it.
+It's scored one day ahead at a time, the way I measured it from the start. That's a different ruler from the weekly race, so I never mix the two.
 In May the champion scored {history.c3a72b3.r2}. We fixed the missing rain, and then made six simple fixes Wade Storm suggested. One example: tell the model not just how much it rained, but how hard. A downpour runs off into the river; a drizzle soaks into the ground.
 Together, the rain fix and the six fixes took the score to {history.ac2ede5.r2}. I credit both, and every fix earned its place by measurement, not by the persona's authority.
-Notice the blue steps. Most of the movement here came from data, not from the model. Even a skipped quality filter shows up in the score, and so does putting it back.
-On our data freeze the champion scores {champion.r2}.
+Notice the teal steps. Most of the movement here came from data, not from the model. Even a skipped quality filter shows up in the score, and so does putting it back.
+On our data freeze, on this same ruler, it scores {history.freeze_day_ahead.r2}.
 accepted:
 
 ## slide one_week
@@ -115,7 +143,7 @@ text: One week ahead
 notes:
 So how good is it, really, one week ahead?
 The honest test is to compare it with the simplest forecast there is: the lake stays the same. No change tomorrow, no change next week.
-That simple forecast scores {baseline.zero_change.r2}. The champion scores {champion.r2}. The margin is {margin.zero_change.r2}.
+That simple forecast scores {baseline.zero_change.r2}. The champion scores {champion.r2}, with the real weather, so a best case. The margin is {margin.zero_change.r2}.
 One plain caveat for the technical people: this score is on daily volume change, not on the level itself. The level changes slowly, so a score on level would look flattering. Volume change is the hard part, and it is the part that matters.
 accepted:
 
@@ -133,8 +161,8 @@ object: chart:frontier
 text: How far ahead can we see?
 notes:
 This is the frontier, on one slide. Each panel is measured its own way, so read them side by side, not as one scale.
-On the left, one week: the champion is skilful.
-In the middle, two to four weeks. In winter we keep some skill, because the ground remembers recent rain. In summer, none. And these bars are a best case: they were measured as if we knew the weather ahead. A real forecast would do worse.
+On the left, one week: the champion is skilful. In the middle, two to four weeks. In winter we keep some skill, because the ground remembers recent rain. In summer, none.
+Both of those panels are a best case: measured as if we knew the weather ahead. A real forecast would do worse.
 On the right, the summer red line. This one is not machine learning. It's a seasonal method: the usual summer decline, scaled to the last few weeks.
 We replayed it for every crossing of the red line since {crossing.first_year}, issuing a forecast every day from the last rain. With two weeks' to a month's warning, it misses the crossing date by, on average, about {crossing.paired.scaled.mae_14_30} days. With two to three months' warning it's off by, on average, about {crossing.paired.scaled.mae_60_90} days, and there the plain seasonal average does better, at about {crossing.paired.unscaled.mae_60_90}. And {crossing.never_crossed} of its {crossing.issued} forecasts never reached the line at all, every one of them issued two months or more ahead.
 The frontier is where the data runs out.

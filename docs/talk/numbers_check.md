@@ -5,8 +5,9 @@ Measured numbers come from one re-run on the freeze. Historical numbers keep the
 
 | Number | Shown as | Unit | Where | Kind | Date | Source |
 |---|---|---|---|---|---|---|
-| `baseline.zero_change.r2` | -0.02 | R² | slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (zero change: predicts no volume change, champion's CV rows) |
-| `champion.r2` | 0.76 | R² | slide olympics, slide timeline, slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (champion = baseline_gbr, two-stage gradient boosting) |
+| `baseline.zero_change.r2` | -0.02 | R² | slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (zero change: predicts no volume change, the champion's weekly rows (baseline_gbr, days 1-7 from each start day)) |
+| `champion.r2` | 0.73 | R² | slide olympics, slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr) |
+| `champion.runtime_s` | 4 min | s | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (champion = the highest weekly mean of the 8 Olympics runners: baseline_gbr) |
 | `crossing.first_year` | 2008 | year | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) |
 | `crossing.issued` | 753 | forecasts | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) |
 | `crossing.never_crossed` | 91 | forecasts | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) |
@@ -16,9 +17,9 @@ Measured numbers come from one re-run on the freeze. Historical numbers keep the
 | `freeze_date` | 11 October 2026 | date | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (the one data freeze every measured number shares) |
 | `history.ac2ede5.r2` | 0.758 (May 2026) | R² | slide timeline | historical | 2026-05-31 | git:ac2ede5:docs/olympics_results.json#models.baseline_gbr.cv_vol_r2_mean |
 | `history.c3a72b3.r2` | 0.694 (May 2026) | R² | slide timeline | historical | 2026-05-30 | git:c3a72b3:docs/olympics_results.json#models.baseline_gbr.cv_vol_r2_mean |
-| `margin.zero_change.r2` | 0.79 | R² | slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (champion R² minus zero-change R²) |
-| `olympics.baseline_gbr.runtime_s` | 14 s | s | slide olympics | freeze | 2026-10-11 | Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine) |
-| `olympics.gru.r2_mean` | -0.03 | R² | slide olympics, Q&A sheet | freeze | 2026-10-11 | Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze) |
+| `history.freeze_day_ahead.r2` | 0.762 | R² | slide timeline | freeze | 2026-10-11 | Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024) |
+| `margin.zero_change.r2` | 0.75 | R² | slide one_week | freeze | 2026-10-11 | Automation/talk_freeze_run.py (champion R² minus zero-change R², same weekly rows) |
+| `olympics.gru.r2_mean` | -0.03 | R² | slide olympics, Q&A sheet | freeze | 2026-10-11 | Automation/talk_freeze_run.py (walk-forward CV, folds 2021-2024, gold table cut at the freeze; weekly: each forecast starts from one day's real state and predicts days 1-7, scored on all seven, with the weather that actually happened) |
 | `olympics.gru.runtime_s` | 71 min | s | slide olympics, Q&A sheet | freeze | 2026-10-11 | Automation/talk_freeze_run.py (wall-clock time of the 4-fold CV on this machine) |
 | `scenario.dry.change_m` | -0.77 m (winter 2024–2025) | m | slide hook | historical | 2025-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (smallest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |
 | `scenario.dry.season` | 2024–2025 | winter | slide hook | historical | 2025-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (smallest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |

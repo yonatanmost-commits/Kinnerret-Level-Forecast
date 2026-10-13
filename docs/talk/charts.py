@@ -24,7 +24,7 @@ OUT_DIR = HERE / "charts"
 MODELS = ["baseline_gbr", "xgboost", "lgbm", "gru", "gbr_max_chain",
           "gbr_s1_direct_s2_anchor", "gbr_single_stage", "gbr_s1_chain_s2_roll1"]
 MODEL_LABELS = {
-    "baseline_gbr": "Champion: two-stage boosting",
+    "baseline_gbr": "Two-stage boosting",
     "xgboost": "XGBoost",
     "lgbm": "LightGBM",
     "gru": "Neural network (GRU)",
@@ -83,10 +83,12 @@ def chart_data(name: str, ledger: dict) -> dict:
             "lowest_since_year": _v(ledger, "level.lowest_since_year"),
         }
     if name == "olympics":
-        return {"points": [{"model": m, "label": MODEL_LABELS[m],
+        champ = _v(ledger, "champion.model")       # the best weekly mean (plan D19)
+        return {"champion": champ,
+                "points": [{"model": m, "label": MODEL_LABELS[m],
                             "r2": _v(ledger, f"olympics.{m}.r2_mean"),
                             "runtime_s": _v(ledger, f"olympics.{m}.runtime_s"),
-                            "champion": m == "baseline_gbr"} for m in MODELS]}
+                            "champion": m == champ} for m in MODELS]}
     if name == "timeline":
         hist = sorted(((e["date"], e["seq"]), k) for k, e in ledger.items()
                       if k.startswith("history.") and e["kind"] == "historical")
@@ -96,17 +98,19 @@ def chart_data(name: str, ledger: dict) -> dict:
                 "cause_type": ledger[k]["cause_type"],
                 "short": TIMELINE_SHORT.get(ledger[k]["sha"], ledger[k]["cause"])}
                for d, k in hist]
-        c = ledger["champion.r2"]
-        pts.append({"key": "champion.r2", "sha": None, "date": c["date"], "r2": c["value"],
-                    "kind": "freeze", "cause": c["cause"], "cause_type": c["cause_type"],
-                    "short": TIMELINE_SHORT["freeze"]})
-        return {"points": pts}
+        # One yardstick throughout (plan D19): the history is the old champion scored one day at a
+        # time, so it ends on that same score on the freeze, never on the weekly champion.
+        c = ledger["history.freeze_day_ahead.r2"]
+        pts.append({"key": "history.freeze_day_ahead.r2", "sha": None, "date": c["date"],
+                    "r2": c["value"], "kind": "freeze", "cause": c["cause"],
+                    "cause_type": c["cause_type"], "short": TIMELINE_SHORT["freeze"]})
+        return {"points": pts, "note": c["note"]}
     if name == "one_week":
         return {"champion_r2": _v(ledger, "champion.r2"),
                 "zero_change_r2": _v(ledger, "baseline.zero_change.r2")}
     if name == "frontier":
         pts = [{"group": "7d", "key": "champion.r2", "value": _v(ledger, "champion.r2"),
-                "label": "1 week ahead: the champion"}]
+                "label": "1 week ahead: the champion, best case - if we knew the weather ahead"}]
         for season, word in (("wet", "winter"), ("dry", "summer")):
             k = f"frontier.{season}.temp_bucket_ss"
             pts.append({"group": "14_30d", "key": k, "value": _v(ledger, k), "season": season,
@@ -232,7 +236,7 @@ def draw_hook(d, plt):
 def draw_olympics(d, plt):
     pts = sorted(d["points"], key=lambda p: p["r2"], reverse=True)
     fig, ax = _fig(plt, "Simple won. The neural network learned nothing.",
-                   "Score on next-week forecasts (1 = perfect, 0 = no better than the average)")
+                   "Next-week forecasts, best case (the real weather) · 1 = perfect, 0 = average")
     fig.subplots_adjust(left=0.30, right=0.86)
     ys = range(len(pts))[::-1]
     for y, p in zip(ys, pts):
@@ -240,7 +244,7 @@ def draw_olympics(d, plt):
         ax.barh(y, p["r2"], color=col, height=0.62)
         txt_col = INK if (p["champion"] or p["model"] == "gru") else INK_2
         weight = "bold" if p["champion"] else "normal"
-        ax.text(-0.02, y, p["label"].replace("Champion: two", "Two"), ha="right", va="center",
+        ax.text(-0.02, y, p["label"], ha="right", va="center",
                 color=txt_col, fontweight=weight)
         ax.text(max(p["r2"], 0) + 0.015, y, f"{p['r2']:.2f}", va="center", color=txt_col,
                 fontweight=weight)
@@ -259,7 +263,7 @@ def draw_olympics(d, plt):
 def draw_timeline(d, plt):
     pts = d["points"]
     fig, ax = _fig(plt, "Most of the gain came from fixing data",
-                   "The champion's score, step by step")
+                   "The old champion's score, step by step, scored one day ahead")
     xs = list(range(len(pts)))
     ys = [p["r2"] for p in pts]
     ax.step(xs, ys, where="post", color=MUTED, linewidth=2.5, zorder=2)
@@ -297,7 +301,7 @@ def draw_timeline(d, plt):
 
 def draw_one_week(d, plt):
     fig, ax = _fig(plt, "One week ahead, the model clearly beats “no change”",
-                   "Score on next-week forecasts (1 = perfect, 0 = no better than the average)",
+                   "Next-week forecasts, best case (the real weather) · 1 = perfect, 0 = average",
                    h=6.2)
     fig.subplots_adjust(left=0.30, right=0.92, bottom=0.08)
     rows = [("the champion", d["champion_r2"], TEAL, INK),
@@ -324,7 +328,7 @@ def draw_frontier(d, plt):
     for p in d["points"]:
         by.setdefault(p["group"], []).append(p)
     titles = ["1 week", "2 to 4 weeks", "Summer red-line date"]
-    notes = ["machine learning", "best case", "seasonal method, not machine learning"]
+    notes = ["best case", "best case", "seasonal method, not machine learning"]
     for ax, t, n in zip(axes, titles, notes):
         ax.set_title(t, loc="left", fontsize=24, fontweight="bold", color=INK, pad=38)
         ax.text(0, 1.02, n, transform=ax.transAxes, color=INK_2, fontsize=20, va="bottom")
