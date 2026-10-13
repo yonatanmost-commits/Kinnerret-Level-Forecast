@@ -1,4 +1,4 @@
-"""Truth tests for the Kinneret Conference talk deck (intent/kinneret-talk-deck A2-A6, A19).
+"""Truth tests for the Kinneret Conference talk deck (intent/kinneret-talk-deck A2-A6, A19, A21).
 
 These run only when the facts change (plan D8): Automation/talk_freeze_run.py runs them after
 writing docs/talk/numbers_ledger.json and, when they pass, stamps the ledger's hash. They check
@@ -15,7 +15,8 @@ Contract fixed here:
   - weekly: each forecast starts from one day's real state and predicts days 1-7; all eight
     Olympics runners carry yardstick "weekly", and the champion is the highest weekly mean.
   - one day: the old champion (baseline_gbr) scored one day at a time with the real lags. The
-    git history and its freeze point, history.freeze_day_ahead.r2, carry yardstick "one_day",
+    git history and its freeze point, day_ahead.model.r2 (the one-day slide's value), carry
+    yardstick "one_day",
     and the timeline uses only those.
 - Baselines (zero change, seasonal average) are scored on the champion's own weekly test rows:
   for a direct runner the rows of build_direct_s2_data, for a chained runner every anchor day
@@ -27,6 +28,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -275,13 +277,16 @@ def test_a5_timeline_points_match_git_and_the_freeze(ledger, charts):
     last = pts[-1]
     assert last["kind"] == "freeze"
     assert last["date"] == freeze_date(ledger)
-    assert last["key"] == "history.freeze_day_ahead.r2", f"timeline ends on {last.get('key')!r}"
-    assert last["r2"] == v(ledger, "history.freeze_day_ahead.r2")
-    end = ledger["history.freeze_day_ahead.r2"]
+    assert last["key"] == "day_ahead.model.r2", f"timeline ends on {last.get('key')!r}"
+    assert last["r2"] == v(ledger, "day_ahead.model.r2")
+    end = ledger["day_ahead.model.r2"]
     assert end["kind"] == "freeze" and end.get("yardstick") == "one_day", end
-    assert "one day" in end.get("note", "").lower(), f"no yardstick note: {end.get('note')!r}"
+    assert "history.freeze_day_ahead.r2" not in ledger, "retired key still in the ledger (one fact, one key)"
     assert all(p.get("key") != "champion.r2" for p in pts), "timeline joins the weekly champion"
-    assert "one day" in data.get("note", "").lower(), "the timeline does not say its yardstick"
+    assert "scored one day ahead" in data.get("note", "").lower(), \
+        f"the timeline does not say it is scored one day ahead: {data.get('note')!r}"
+    assert last["r2"] == charts.chart_data("one_day", ledger)["model_r2"], \
+        "the timeline's last point is not the value the one-day slide shows"
 
     for p in pts[1:]:
         assert p.get("cause"), f"step to {p['date']} has no cause label"
@@ -298,6 +303,58 @@ def test_a5_wade_storm_step_credits_rain_fix_and_six_fixes(ledger, charts):
     assert "rain" in cause, f"Wade Storm step does not credit the rain fix: {cause!r}"
     assert "six" in cause or "signal harvest" in cause, \
         f"Wade Storm step does not credit the six fixes: {cause!r}"
+
+
+# ─── A21: the one-day slide, model and both baselines on the same day-ahead rows
+
+def day_ahead_rows(tf, df, test_yr):
+    """The rows run_cv scores Stage 2 on: test-year days with Stage 1's inputs and Stage 2's."""
+    te = df[df["date"].dt.year == test_yr].copy()
+    s1 = te.dropna(subset=tf.S1_FEATURES + [tf.S1_TARGET])
+    te["predicted_inflow_m3"] = np.nan
+    te.loc[s1.index, "predicted_inflow_m3"] = 0.0
+    return te.dropna(subset=tf.S2_FEATURES + [tf.S2_TARGET])
+
+
+def test_a21_day_ahead_entries_carry_the_one_day_yardstick(ledger):
+    keys = ["day_ahead.model.r2", "day_ahead.model.mae", "day_ahead.margin.zero_change.r2"] + \
+           [f"day_ahead.{b}.{m}" for b in ("zero_change", "seasonal") for m in ["r2"] +
+            [f"r2_{f}" for f in FOLDS]]
+    for k in keys:
+        assert ledger[k]["kind"] == "freeze", f"{k} is not a freeze measurement"
+        assert ledger[k].get("yardstick") == "one_day", f"{k} yardstick {ledger[k].get('yardstick')!r}"
+    for f in FOLDS:
+        assert ledger[f"day_ahead.model.n_{f}"]["kind"] == "freeze"
+    margin = v(ledger, "day_ahead.margin.zero_change.r2")
+    expect = v(ledger, "day_ahead.model.r2") - v(ledger, "day_ahead.zero_change.r2")
+    assert abs(margin - expect) <= 0.0015, f"day-ahead margin {margin} != model - zero change {expect}"
+
+
+def test_a21_baselines_recomputed_on_the_day_ahead_rows(ledger, train_mod):
+    """Zero change predicts 0; the seasonal average predicts the day's day-of-year mean over the
+    fold's training years only. Both on the rows the day-ahead model is scored on."""
+    tf = train_mod
+    df = tf.load_data()
+    df = df[df["date"] <= pd.Timestamp(freeze_date(ledger))].reset_index(drop=True)
+    for fold, train_yrs, test_yr in tf.CV_FOLDS:
+        rows = day_ahead_rows(tf, df, test_yr)
+        assert len(rows) == v(ledger, f"day_ahead.model.n_{fold}"), \
+            f"fold {fold}: {len(rows)} day-ahead rows, model scored {v(ledger, f'day_ahead.model.n_{fold}')}"
+        train = df[df["date"].dt.year.isin(train_yrs)].dropna(subset=[tf.S2_TARGET])
+        doy = train.groupby(train["date"].dt.dayofyear)[tf.S2_TARGET].mean()
+        doy = doy.reindex(range(1, 367)).interpolate(limit_direction="both")
+        y = rows[tf.S2_TARGET].values
+        for name, pred in (("zero_change", 0.0 * y), ("seasonal", doy.loc[rows["date"].dt.dayofyear].values)):
+            got = v(ledger, f"day_ahead.{name}.r2_{fold}")
+            assert abs(got - tf.r2(y, pred)) <= 0.0015, \
+                f"day-ahead {name} fold {fold}: ledger {got}, recomputed {tf.r2(y, pred):.3f}"
+
+
+def test_a21_one_day_chart_plots_exactly_the_ledger(ledger, charts):
+    data = charts.chart_data("one_day", ledger)
+    assert data["model_r2"] == v(ledger, "day_ahead.model.r2")
+    assert data["zero_change_r2"] == v(ledger, "day_ahead.zero_change.r2")
+    assert data["seasonal_r2"] == v(ledger, "day_ahead.seasonal.r2")
 
 
 # ─── A6: the hook — red line, freeze-date level, "lowest since" ─────────────
