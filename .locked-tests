@@ -1,3 +1,5 @@
 # Test files Claude may not edit. Claude can add lines; only the user removes them.
 # One path or glob per line, relative to this file. Text after # is a note.
 tests/test_jordan_flow.py  # 2026-10-10
+tests/test_talk_truth.py  # intent/kinneret-talk-deck A1-A7,A19, 2026-10-13
+tests/test_talk_gates.py  # intent/kinneret-talk-deck A1-A7,A19, 2026-10-13
