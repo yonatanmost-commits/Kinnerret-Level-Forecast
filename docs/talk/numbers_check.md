@@ -14,9 +14,12 @@ Measured numbers come from one re-run on the freeze. Historical numbers keep the
 | `crossing.paired.scaled.mae_14_30` | 2 | days | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line) |
 | `crossing.paired.scaled.mae_60_90` | 22 | days | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line) |
 | `crossing.paired.unscaled.mae_60_90` | 18 | days | slide frontier | freeze | 2026-10-11 | Automation/talk_freeze_run.py (crossing hindcast: Silver Data/Kinneret Level/kinneret_level.csv + Silver Data/Meteorological/era5_kinneret_daily.csv; leave-one-year-out recession from redline_backtest.py, issued daily from the last rain >= 5 mm) (paired: forecasts both methods brought to the line) |
-| `data.flow.sede_nehemya.end` | 2022 | date | slide sensors, Q&A sheet | historical | 2022-09-16 | Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (last daily reading, JORDAN - SEDE NEHEMYA) |
-| `data.flow.yarmuk.end` | 2000 | date | slide sensors, Q&A sheet | historical | 2000-05-13 | Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (last daily reading, YARMUQ - NAHARAYIM) |
-| `data.gold.start` | September 2012 | date | slide sensors, Q&A sheet | historical | 2012-09-01 | Gold Data/kinneret_gold_features.csv (first row of the model table) |
+| `data.flow.obstacle_bridge.start` | October 1970 | date | slide coverage | historical | 1970-10-01 | Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (JORDAN - OBSTACLE BRIDGE): first reading |
+| `data.flow.sede_nehemya.end` | September 2022 | date | slide sensors, Q&A sheet | historical | 2022-09-16 | Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (JORDAN - SEDE NEHEMYA): last reading |
+| `data.flow.yarmuk.end` | May 2000 | date | slide sensors, Q&A sheet | historical | 2000-05-13 | Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv (YARMUQ - NAHARAYIM): last reading |
+| `data.gold.start` | September 2012 | date | slide coverage, slide sensors, Q&A sheet | historical | 2012-09-01 | Gold Data/kinneret_gold_features.csv (first row of the model table) |
+| `data.level.start` | September 1966 | date | slide coverage | historical | 1966-09-01 | Silver Data/Kinneret Level/kinneret_level.csv (kinneret_level): first reading |
+| `data.weather.start` | June 2012 | date | slide coverage | historical | 2012-06-01 | Silver Data/Meteorological/met_data_daily_clean.csv (any reading): first reading |
 | `day_ahead.model.r2` | 0.76 | R² | slide one_day, slide timeline | freeze | 2026-10-11 | Automation/talk_freeze_run.py (baseline_gbr run_cv on the freeze, folds 2021-2024, scored one day ahead) |
 | `day_ahead.seasonal.r2` | 0.31 | R² | slide one_day | freeze | 2026-10-11 | Automation/talk_freeze_run.py (seasonal average by day of year from each fold's training years, on the day-ahead rows) |
 | `day_ahead.zero_change.r2` | -0.02 | R² | slide one_day | freeze | 2026-10-11 | Automation/talk_freeze_run.py (zero change: predicts no volume change, on the day-ahead rows) |
@@ -33,7 +36,7 @@ Measured numbers come from one re-run on the freeze. Historical numbers keep the
 | `scenario.wet.season` | 2018–2019 | winter | slide hook | historical | 2019-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (largest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct) |
 | `scenario.wet.spring_m` | -210.36 m (winter 2018–2019) | m | slide hook | historical | 2019-05-31 | Silver Data/Kinneret Level/kinneret_level.csv (largest winter change of the 20 winters 2006-2026: level on 31 May minus the level on 11 Oct); freeze level plus that rise |
 
-Charts draw only from the ledger (charts.py chart_data); charts used: close, frontier, hook, olympics, one_day, one_week, timeline.
+Charts draw only from the ledger (charts.py chart_data); charts used: close, coverage, frontier, hook, olympics, one_day, one_week, timeline.
 
 ## Typed phrases allowed in the script
 

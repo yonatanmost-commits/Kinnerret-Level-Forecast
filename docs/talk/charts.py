@@ -37,6 +37,18 @@ BANDS = ["0_7", "7_14", "14_30", "30_60", "60_90", "90_120", "120_plus"]
 BAND_LABELS = ["1-7", "8-14", "15-30", "31-60", "61-90", "91-120", ">120"]
 BAND_SHORT = ["1 wk", "2 wk", "1 mo", "2 mo", "3 mo", "4 mo", "more"]   # the frontier's x-axis
 
+# The coverage slide's records, top to bottom (plan D21), and their row labels.
+COVERAGE = {
+    "level": "Lake level",
+    "flow.obstacle_bridge": "Jordan, Obstacle Bridge",
+    "flow.sede_nehemya": "Jordan, Sede Nehemya",
+    "flow.yarmuk": "Yarmuk, Naharayim",
+    "flow.old_bridge": "Jordan, near Old Bridge",
+    "flow.baptism_site": "Jordan, Baptism Site",
+    "weather": "Weather",
+    "radiation": "Sun's radiation",
+}
+
 # Short on-chart cause labels for the R² timeline, keyed by snapshot commit (the full cause
 # stays in the ledger). The freeze point is keyed "freeze".
 TIMELINE_SHORT = {
@@ -132,6 +144,28 @@ def chart_data(name: str, ledger: dict) -> dict:
                 "never_crossed": _v(ledger, "crossing.never_crossed"),
                 "issued": _v(ledger, "crossing.issued"),
                 "longrange_date": ledger["frontier.wet.temp_bucket_ss"]["date"]}
+    if name == "coverage":
+        def numbered(sid, part):
+            out, n = [], 1
+            while f"data.{sid}.{part}{n}" + (".start" if part == "gap" else "") in ledger:
+                out.append(n)
+                n += 1
+            return out
+        series = []
+        for sid, label in COVERAGE.items():
+            end = ledger.get(f"data.{sid}.end")
+            series.append({
+                "id": sid, "label": label, "start": _v(ledger, f"data.{sid}.start"),
+                "end": end and end["value"],
+                "gaps": [[_v(ledger, f"data.{sid}.gap{n}.start"), _v(ledger, f"data.{sid}.gap{n}.end")]
+                         for n in numbered(sid, "gap")],
+                "switches": [{"date": _v(ledger, f"data.{sid}.switch{n}"),
+                              "note": ledger[f"data.{sid}.switch{n}"]["note"]}
+                             for n in numbered(sid, "switch")]})
+        return {"series": series,
+                "line": {"date": _v(ledger, "data.gold.start"), "label": "all sources line up"},
+                "line_display": ledger["data.gold.start"]["display"],
+                "end": _v(ledger, "freeze_date")}
     raise KeyError(f"unknown chart {name!r}")
 
 
@@ -416,9 +450,62 @@ def draw_frontier(d, plt):
     return fig
 
 
+def draw_coverage(d, plt):
+    """One bar per record against time; breaks for gaps, a bar's end where a record stopped, a
+    marker where its source changed, and the line where they all line up. Short events get a
+    minimum drawn width so a three-week gap is still seen on sixty years."""
+    import matplotlib.dates as mdates
+    import pandas as pd
+    t = lambda x: mdates.date2num(pd.Timestamp(x))
+    min_w = 160                                        # days: the narrowest gap that is drawn
+    fig, ax = _fig(plt, f"Why the model starts in {d['line_display']}",
+                   "Each source's daily record, as it stood on the data freeze", top=0.78)
+    fig.subplots_adjust(left=0.25)
+    rows = d["series"][::-1]
+    for y, s in enumerate(rows):
+        a, b = t(s["start"]), t(s["end"] or d["end"])
+        cuts = [(t(g0), t(g1)) for g0, g1 in s["gaps"]]
+        segs, x0 = [], a
+        for g0, g1 in cuts:
+            mid, half = (g0 + g1) / 2, max(g1 - g0, min_w) / 2
+            segs.append((x0, mid - half))
+            x0 = mid + half
+        segs.append((x0, b))
+        for x0, x1 in segs:
+            ax.barh(y, x1 - x0, left=x0, height=0.5, color=TEAL, edgecolor="none")
+        if s["end"]:
+            ax.text(b + 200, y, f"until {pd.Timestamp(s['end']).year}", va="center",
+                    color=INK_2, fontsize=20)
+        for g0, g1 in s["gaps"]:
+            ax.plot([(t(g0) + t(g1)) / 2], [y + 0.42], "v", color=INK_2, markersize=9)
+        for w in s["switches"]:
+            ax.plot([t(w["date"])], [y], "D", color=OCHRE, markersize=13,
+                    markeredgecolor=SURFACE, markeredgewidth=2, zorder=5)
+    line = t(d["line"]["date"])
+    ax.axvline(line, color=INK, lw=2, ls=(0, (4, 3)), zorder=4)
+    ax.text(line - 200, len(rows) - 0.45, d["line"]["label"], ha="right", va="bottom",
+            color=INK, fontsize=22, fontweight=STRONG_WEIGHT)
+    ax.set_ylim(-0.6, len(rows) + 0.1)
+    ax.set_yticks(range(len(rows)), [s["label"] for s in rows], color=INK)
+    ax.xaxis_date()
+    ax.xaxis.set_major_locator(mdates.YearLocator(10))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    ax.set_xlim(t("1965-01-01"), t("2032-06-01"))
+    ax.spines["bottom"].set_color(GRID)
+    fig.text(0.62, 0.875, "▼", color=INK_2, va="top", fontsize=16)
+    fig.text(0.638, 0.875, "a gap", color=INK_2, va="top")
+    fig.text(0.735, 0.872, "◆", color=OCHRE, va="top", fontsize=20)
+    fig.text(0.757, 0.875, "source changed", color=INK_2, va="top")
+    return fig
+
+
 DRAWERS = {"hook": draw_hook,
            "close": lambda d, plt: draw_hook(d, plt, "Better data, not bigger models"), "olympics": draw_olympics, "timeline": draw_timeline,
-           "one_day": draw_one_day, "one_week": draw_one_week, "frontier": draw_frontier}
+           "one_day": draw_one_day, "one_week": draw_one_week, "frontier": draw_frontier,
+           "coverage": draw_coverage}
+# Charts that talk-helper restyles (plan D21): besides the plain chart, the drawn layer alone on a
+# transparent background, to composite over a Gemini-painted background.
+LAYERED = {"coverage"}
 
 
 def draw(name: str, ledger: dict, path: Path) -> Path:
@@ -426,6 +513,8 @@ def draw(name: str, ledger: dict, path: Path) -> Path:
     fig = DRAWERS[name](chart_data(name, ledger), plt)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150)
+    if name in LAYERED:
+        fig.savefig(path.with_name(f"{path.stem}_layer.png"), dpi=150, transparent=True)
     plt.close(fig)
     return path
 

@@ -59,7 +59,8 @@ ERA5_FILE = "Silver Data/Meteorological/era5_kinneret_daily.csv"
 OLYMPICS_FILE = "docs/olympics_results.json"
 LONGRANGE_FILE = "docs/longrange_phaseb_results.json"
 THIS = "Automation/talk_freeze_run.py"
-TRUTH_TESTS = ["tests/test_talk_truth.py", "tests/test_talk_opening.py"]
+TRUTH_TESTS = ["tests/test_talk_truth.py", "tests/test_talk_opening.py",
+               "tests/test_talk_coverage.py"]
 
 DEFAULT_FREEZE = "2026-10-11"
 HOOK_FIRST_YEAR = 2020        # the year-over-year overlay starts here, as on the app's front page
@@ -570,35 +571,86 @@ def measure_scenarios(led: Ledger):
         print(f"  -> {name} winter {season}: change {change:+} m, spring {spring} m", flush=True)
 
 
-# ─── 2b. the data's spans (plan D20, spec R14) ──────────────────────────────
+# ─── 2b. the data's spans (plan D20/D21, spec R14/R39) ─────────────────────
+# Each record against time for the coverage slide, read as it stood at the freeze: where it
+# starts, where it stopped (more than STOPPED_DAYS before the freeze), its gaps of more than
+# GAP_DAYS inside the model's years (from the gold table's first row; earlier gaps don't touch the
+# model), and where its source changed. A gap runs from the last reading before it to the first
+# reading after it.
 
-FLOW_FILE = "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv"
 GOLD_FILE = "Gold Data/kinneret_gold_features.csv"
-FLOW_SPANS = {                      # ledger name -> (column, which end the talk speaks)
-    "obstacle_bridge": ("JORDAN - OBSTACLE BRIDGE", "start"),
-    "sede_nehemya": ("JORDAN - SEDE NEHEMYA", "end"),
-    "yarmuk": ("YARMUQ - NAHARAYIM", "end"),
-    "baptism_site": ("JORDAN - BAPTISM SITE", "start"),
+FLOW_FILE = "Silver Data/Jordan River Silver/jordan_river_daily_flow_clean.csv"
+MET_FILE = "Silver Data/Meteorological/met_data_daily_clean.csv"
+MET_COVERAGE_FILE = "Silver Data/Meteorological/met_coverage_daily.csv"
+GAP_DAYS, STOPPED_DAYS = 20, 30
+COVERAGE = {                        # series -> (file, date column, reading column; None = any)
+    "level": (LEVEL_FILE, "date", "kinneret_level"),
+    "flow.obstacle_bridge": (FLOW_FILE, "Date", "JORDAN - OBSTACLE BRIDGE"),
+    "flow.sede_nehemya": (FLOW_FILE, "Date", "JORDAN - SEDE NEHEMYA"),
+    "flow.yarmuk": (FLOW_FILE, "Date", "YARMUQ - NAHARAYIM"),
+    "flow.old_bridge": (FLOW_FILE, "Date", "JORDAN - NEAR OLD BRIDGE"),
+    "flow.baptism_site": (FLOW_FILE, "Date", "JORDAN - BAPTISM SITE"),
+    "weather": (MET_FILE, "date", None),
+    "radiation": (MET_FILE, "date", "tzamach_global_radiation_MJm2"),
 }
+GAP_NOTES = {"flow.baptism_site": "station 46105 retired; the new station 316 resumes the record"}
 LONG_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
                "September", "October", "November", "December"]
 
 
+def _reading_days(path: str, date_col: str, col: str | None) -> pd.DatetimeIndex:
+    df = pd.read_csv(ROOT / path, parse_dates=[date_col]).set_index(date_col)
+    seen = df.notna().any(axis=1) if col is None else df[col].notna()
+    return pd.DatetimeIndex(sorted(df.index[seen]))
+
+
+def _switches(freeze: pd.Timestamp) -> dict[str, list[tuple[pd.Timestamp, str, str]]]:
+    """Where a record's source changed: (first day of the new source, note, evidence)."""
+    cov = pd.read_csv(ROOT / MET_COVERAGE_FILE, parse_dates=["date"])
+    ims_end = cov.loc[cov.drop(columns="date").fillna(0).sum(axis=1) > 0, "date"].max()
+    sensor_end = _reading_days(MET_FILE, "date", "tzamach_global_radiation_Wm2_mean").max()
+    day = pd.Timedelta(days=1)
+    return {
+        "weather": [(ims_end + day, "from the IMS records to Open-Meteo, the reanalysis that keeps "
+                     "the record current (fetcher switched on 2026-05-29, commit 70198aa)",
+                     f"{MET_COVERAGE_FILE} (last day of IMS hourly coverage, plus one)")],
+        "radiation": [(sensor_end + day, "the Tzemach radiation sensor died; the record continues "
+                       "from Open-Meteo's backfill",
+                       f"{MET_FILE} (last tzamach_global_radiation_Wm2_mean reading, plus one)")],
+    }
+
+
 def measure_data_spans(led: Ledger):
-    """Where the records start and stop, as dated historical facts (the display names the year)."""
+    """Where the records start, stop, pause and change source, as dated historical facts."""
+    iso = lambda d: d.strftime("%Y-%m-%d")
+    month = lambda d: f"{LONG_MONTHS[d.month - 1]} {d.year}"
     gold = pd.read_csv(ROOT / GOLD_FILE, usecols=["date"], parse_dates=["date"])["date"]
-    g0 = gold.min()
-    led.historical("data.gold.start", g0.strftime("%Y-%m-%d"),
-                   f"{LONG_MONTHS[g0.month - 1]} {g0.year}", "date",
-                   f"{GOLD_FILE} (first row of the model table)", g0.strftime("%Y-%m-%d"))
-    flow = pd.read_csv(ROOT / FLOW_FILE, parse_dates=["Date"]).set_index("Date")
-    for name, (col, end) in FLOW_SPANS.items():
-        seen = flow[col].dropna().index
-        d = seen.min() if end == "start" else seen.max()
-        led.historical(f"data.flow.{name}.{end}", d.strftime("%Y-%m-%d"), str(d.year), "date",
-                       f"{FLOW_FILE} ({'first' if end == 'start' else 'last'} daily reading, {col})",
-                       d.strftime("%Y-%m-%d"))
-    print(f"  -> data spans: gold from {g0.date()}", flush=True)
+    g0, freeze = gold.min(), pd.Timestamp(led.freeze)
+    led.historical("data.gold.start", iso(g0), month(g0), "date",
+                   f"{GOLD_FILE} (first row of the model table)", iso(g0))
+    switches = _switches(freeze)
+    for sid, (path, date_col, col) in COVERAGE.items():
+        days = _reading_days(path, date_col, col)
+        days = days[days <= freeze]
+        what = f"{path} ({col or 'any reading'})"
+        led.historical(f"data.{sid}.start", iso(days[0]), month(days[0]), "date",
+                       f"{what}: first reading", iso(days[0]))
+        if (freeze - days[-1]).days > STOPPED_DAYS:
+            led.historical(f"data.{sid}.end", iso(days[-1]), month(days[-1]), "date",
+                           f"{what}: last reading", iso(days[-1]))
+        n = 0
+        for a, b in zip(days[:-1], days[1:]):
+            if b >= g0 and (b - a).days > GAP_DAYS:
+                n += 1
+                note = {"note": GAP_NOTES[sid]} if sid in GAP_NOTES else {}
+                led.historical(f"data.{sid}.gap{n}.start", iso(a), month(a), "date",
+                               f"{what}: last reading before a {(b - a).days}-day gap", iso(a), **note)
+                led.historical(f"data.{sid}.gap{n}.end", iso(b), month(b), "date",
+                               f"{what}: first reading after the gap", iso(b), **note)
+        for n, (d, note, evidence) in enumerate(switches.get(sid, []), 1):
+            led.historical(f"data.{sid}.switch{n}", iso(d), month(d), "date", evidence, iso(d),
+                           note=note)
+    print(f"  -> data spans: gold from {g0.date()}, {len(COVERAGE)} records", flush=True)
 
 
 # ─── 3. the champion's R² history ───────────────────────────────────────────
