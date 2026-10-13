@@ -19,8 +19,8 @@ text: Which winter is coming?
 notes:
 Here is every year since twenty twenty, laid on top of each other. The red one is this year. It's the lowest line on the chart, and it's still going down.
 What happens next depends on one thing: the winter.
-If this winter is like {scenario.dry.season}, the driest of the last twenty, the lake keeps falling. It ends the spring {scenario.dry.change_m} lower, at {scenario.dry.spring_m}, deeper under the red line. That means leaning even harder on desalination, a lake under stress, with worse water quality and more risk of algae, and pressure that spreads out in wider circles, to farming and to everyone who depends on this water.
-If it's like {scenario.wet.season}, the wettest, the lake climbs {scenario.wet.change_m}, to {scenario.wet.spring_m}, back above the red line. Then the whole conversation changes.
+If this winter is like {scenario.dry.season}, the worst of the last twenty, the lake keeps falling. It ends the spring {scenario.dry.change_m} lower, at {scenario.dry.spring_m}, deeper under the red line. That means leaning even harder on desalination, a lake under stress, with worse water quality and more risk of algae, and pressure that spreads out in wider circles, to farming and to everyone who depends on this water.
+If it's like {scenario.wet.season}, the best, the lake climbs {scenario.wet.change_m}, to {scenario.wet.spring_m}, back above the red line. Then the whole conversation changes.
 Both of those are real winters, not forecasts. So which one is coming? And wouldn't it help every decision in this room to know a little earlier?
 accepted:
 
@@ -31,7 +31,7 @@ notes:
 Before I answer, a picture. This is a centaur, half human and half horse. The picture is AI-made.
 After Garry Kasparov lost to a chess computer, he started asking a different question: what happens when a human and a computer play as one team? Chess players call those teams centaurs.
 In 2005 there was an open freestyle chess tournament on the internet. Anyone could enter, with any computer help they liked. The winners were not grandmasters, and not the strongest machine. They were two amateur players from the United States, running three ordinary computers, with a very good way of working together with them. The process beat the raw strength.
-And today Terence Tao, one of the great mathematicians alive, works on real research problems with AI tools at his side. The AI explores and checks; he decides what matters.
+And today Terence Tao, one of the great mathematicians alive, works on real research problems with AI tools at his side. AI tools suggest and explore, proof-checking software verifies, and he decides what matters.
 Keep the centaur in mind. We'll come back to it.
 accepted:
 
@@ -41,7 +41,7 @@ text: Yonatan Most · Adnan Agbaria
 notes:
 So who am I? Let me start with what I'm not. I'm not a meteorologist. I'm not a data analyst. I'm not a software engineer.
 I'm a process engineer. I work with water treatment, pumps and pipes. This work is joint with my co-author, Adnan Agbaria, from Kinneret Academic College.
-This code opens the app we built. It shows today's level and this week's forecast, so you can check everything I say against today's numbers.
+This code opens the app we built. It shows today's level and this week's forecast, so you can see today's level and this week's forecast for yourself.
 accepted:
 
 ## slide olympics

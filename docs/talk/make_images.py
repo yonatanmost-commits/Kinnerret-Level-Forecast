@@ -32,7 +32,7 @@ ROOT = HERE.parent.parent
 IMAGES = HERE / "images"
 LEDGER_PATH = HERE / "numbers_ledger.json"
 
-APP_URL: str | None = None        # the originator gives it at the walk-through (plan D18)
+APP_URL: str | None = "https://kinnerret-level-forecast-oxgcqpgurba4iyfxkwhkol.streamlit.app/"
 GEMINI_MODEL = "gemini-3-pro-image"
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 WIDTH_PX = 2000
