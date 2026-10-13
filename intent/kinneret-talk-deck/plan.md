@@ -53,8 +53,8 @@ From: intent/kinneret-talk-deck/spec.md v5 (v4 accepted in chat 2026-10-13; R27/
     - the champion's features exclude `outflow_baptism_m3`; the direct runners use it as `outflow_lag1_m3`;
     - the Baptism Site series starts 2012-07-27, Obstacle Bridge 1970, Sede Nehemya stops 2022-09, Yarmuk Naharayim stops 2000-05;
     - the gold table starts 2012-09-01;
-    - the recorded long-range attempts are the temperature forecast, CORDEX, the DTR cloud proxy (commit 07f8805) and ERA5 from 1960 (commit ea3a1af);
-    - there is no record of cosmic-radiation work.
+    - the recorded long-range attempts are: the IMS extended forecast (down, `docs/superpowers/specs/2026-06-01-longrange-temp-forecast-design.md`); the temperature-only forecast; 12 CORDEX models under RCP4.5 and RCP8.5 (`Raw Data/CORDEX/`, app page 9); FAO-56 extraterrestrial radiation with Hargreaves ET0 and the DTR cloud index (`Automation/longrange_meteo.py`, commits ec852a4 and 07f8805); and ERA5 from 1960 (commit ea3a1af);
+    - the originator's "cosmic radiation" is this extraterrestrial radiation, and the slides call it the sun's radiation above the atmosphere.
   - These dates go into the ledger as `historical` entries (`data.<series>.start` / `.end`) if they are spoken.
   - **New picture prompts:** `lesson` and `brain`, in the centaur style.
   - Chosen over keeping the spine order with the new beats inserted (the originator chose the journey).
