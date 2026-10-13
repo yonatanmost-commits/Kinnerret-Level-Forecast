@@ -58,6 +58,19 @@ From: intent/kinneret-talk-deck/spec.md v5 (v4 accepted in chat 2026-10-13; R27/
   - These dates go into the ledger as `historical` entries (`data.<series>.start` / `.end`) if they are spoken.
   - **New picture prompts:** `lesson` and `brain`, in the centaur style.
   - Chosen over keeping the spine order with the new beats inserted (the originator chose the journey).
+- D21. The coverage slide (R39), placed after `sources`:
+  - **Data:** `chart_data("coverage")` draws one bar per series, read from the ledger only, as `historical` `data.<series>.{start,end}` entries with gap entries `data.<series>.gap<n>.{start,end}`. The series:
+    - the lake level (kineret.org.il, from 1966-09);
+    - the Jordan at Obstacle Bridge (from 1970; the April 2026 gap);
+    - Sede Nehemya (1969 to 2022-09);
+    - Yarmuk at Naharayim (1985 to 2000-05);
+    - Near Old Bridge (2013-02 to 2017-09);
+    - the Baptism Site (from 2012-07; 2025-06-23 to 2026-05-21, station 46105 to 316);
+    - the weather downloads (IMS from 2012-06, Open-Meteo daily from 2026-05-29);
+    - the radiation sensor (dead from 2026-04-25, backfilled).
+  - **The 2012 line:** one vertical line at `data.gold.start`, labelled "all sources line up".
+  - **Restyling:** the builder draws it first. Then talk-helper restyles it with Gemini, through the originator's Edge, in the centaur and sources look. Gemini paints only the background and frame. The bars, dates and labels are the builder's drawn layer, composited on top the way `compose_sources.py` adds the logos, so every plotted value stays a ledger value (D9).
+  - Chosen over letting Gemini redraw the bars, which can move a date and no test would catch it.
 - D16. The talk files live in `docs/talk/`, with the builder beside its content. Follows `docs/paper/md_to_docx.py` beside `Kinneret_Forecast_Methods_Results.md`.
 
 ## Files that change
