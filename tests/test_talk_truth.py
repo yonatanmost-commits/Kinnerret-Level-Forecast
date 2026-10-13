@@ -11,6 +11,15 @@ Contract fixed here:
 - Placeholders in talk.md / qa_prep.md are written {key}.
 - docs/talk/charts.py exposes chart_data(name, ledger) -> dict for "hook", "olympics",
   "timeline", "one_week" and "frontier"; the plotted values are exactly what it returns.
+- Two yardsticks, never mixed (plan D19, spec R10-R12):
+  - weekly: each forecast starts from one day's real state and predicts days 1-7; all eight
+    Olympics runners carry yardstick "weekly", and the champion is the highest weekly mean.
+  - one day: the old champion (baseline_gbr) scored one day at a time with the real lags. The
+    git history and its freeze point, history.freeze_day_ahead.r2, carry yardstick "one_day",
+    and the timeline uses only those.
+- Baselines (zero change, seasonal average) are scored on the champion's own weekly test rows:
+  for a direct runner the rows of build_direct_s2_data, for a chained runner every anchor day
+  with all seven next days in the table. Both are recomputed here from the gold table.
 """
 import json
 import re
@@ -30,6 +39,8 @@ LONGRANGE_FILE = "docs/longrange_phaseb_results.json"
 
 MODELS = ["baseline_gbr", "xgboost", "lgbm", "gru", "gbr_max_chain",
           "gbr_s1_direct_s2_anchor", "gbr_single_stage", "gbr_s1_chain_s2_roll1"]
+DIRECT = {"xgboost", "lgbm", "gbr_s1_direct_s2_anchor", "gbr_single_stage"}
+CHAINED = {"baseline_gbr", "gbr_max_chain", "gbr_s1_chain_s2_roll1"}
 FOLDS = ["2021", "2022", "2023", "2024"]
 BANDS = ["0_7", "7_14", "14_30", "30_60", "60_90", "90_120", "120_plus"]
 RED_LINE = -213.0
@@ -89,6 +100,38 @@ def level_daily():
     return redline_backtest.load_daily()
 
 
+@pytest.fixture(scope="module")
+def train_mod():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "_talk_truth_train", ROOT / "Automation" / "08_train_forecast_model.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def weekly_rows(tf, df, model, test_yr):
+    """The champion's weekly test rows for one fold: date (the start day), horizon, target."""
+    te = df[df["date"].dt.year == test_yr]
+    if model in DIRECT:
+        rows = tf.build_direct_s2_data(te)
+        rows["predicted_inflow_m3"] = 0.0          # Stage 1 predicts every row
+        rows = rows.dropna(subset=tf.S2_DIRECT_FEATURES + [tf.S2_DIRECT_TARGET])
+        return pd.DataFrame({"date": rows["date"].values, "h": rows["horizon_h"].astype(int).values,
+                             "y": rows[tf.S2_DIRECT_TARGET].values})
+    if model in CHAINED:
+        y = df.set_index("date")[tf.S2_TARGET]
+        out = []
+        for t in sorted(te["date"].unique()):
+            days = [pd.Timestamp(t) + pd.Timedelta(days=h) for h in range(1, 8)]
+            if not all(d in y.index for d in days):
+                continue
+            out += [(pd.Timestamp(t), h, float(y[d])) for h, d in enumerate(days, 1)
+                    if not pd.isna(y[d])]
+        return pd.DataFrame(out, columns=["date", "h", "y"])
+    pytest.fail(f"no weekly test rows defined for champion {model!r}")
+
+
 def texts():
     return {p.name: p.read_text(encoding="utf-8") for p in TEXT_FILES if p.exists()}
 
@@ -137,14 +180,31 @@ def test_a3_all_eight_models_measured_on_the_freeze(ledger):
         for k in [f"olympics.{m}.r2_mean", f"olympics.{m}.runtime_s"] + \
                  [f"olympics.{m}.r2_{f}" for f in FOLDS]:
             assert ledger[k]["kind"] == "freeze", f"{k} is not a freeze measurement"
+        for k in [f"olympics.{m}.r2_mean"] + [f"olympics.{m}.r2_{f}" for f in FOLDS]:
+            assert ledger[k].get("yardstick") == "weekly", f"{k} is not on the weekly yardstick"
+
+
+def test_a3_champion_is_the_best_weekly_model(ledger):
+    means = {m: v(ledger, f"olympics.{m}.r2_mean") for m in MODELS}
+    best = max(means, key=means.get)
+    champ = v(ledger, "champion.model")
+    assert champ == best, f"champion is {champ!r}, the best weekly mean is {best!r} ({means[best]})"
+    assert v(ledger, "champion.r2") == means[best]
+    assert v(ledger, "champion.mae") == v(ledger, f"olympics.{best}.mae_mean")
+    assert v(ledger, "champion.runtime_s") == v(ledger, f"olympics.{best}.runtime_s")
+    for k in ("champion.model", "champion.r2", "champion.mae", "champion.runtime_s"):
+        assert ledger[k]["kind"] == "freeze", k
+    assert ledger["champion.r2"].get("yardstick") == "weekly"
 
 
 def test_a3_olympics_chart_plots_exactly_the_ledger(ledger, charts):
-    pts = charts.chart_data("olympics", ledger)["points"]
+    data = charts.chart_data("olympics", ledger)
+    pts = data["points"]
     assert sorted(p["model"] for p in pts) == sorted(MODELS)
     for p in pts:
         assert p["r2"] == v(ledger, f"olympics.{p['model']}.r2_mean"), p
         assert p["runtime_s"] == v(ledger, f"olympics.{p['model']}.runtime_s"), p
+    assert data["champion"] == v(ledger, "champion.model")
 
 
 # ─── A4: persistence (zero change) and seasonal baselines, and the margin ───
@@ -158,10 +218,33 @@ def test_a4_baselines_scored_on_the_champions_folds(ledger):
         for f in FOLDS:
             assert v(ledger, f"baseline.{b}.n_{f}") == v(ledger, f"champion.n_{f}"), \
                 f"{b} fold {f} scored on different rows from the champion"
-    assert v(ledger, "champion.r2") == v(ledger, "olympics.baseline_gbr.r2_mean")
+    champ = v(ledger, "champion.model")
+    assert v(ledger, "champion.r2") == v(ledger, f"olympics.{champ}.r2_mean")
     margin = v(ledger, "margin.zero_change.r2")
     expect = v(ledger, "champion.r2") - v(ledger, "baseline.zero_change.r2")
     assert abs(margin - expect) <= 0.0015, f"margin {margin} != champion - zero change {expect}"
+
+
+def test_a4_baselines_recomputed_on_the_champions_weekly_rows(ledger, train_mod):
+    """Zero change predicts 0; the seasonal average predicts the target day's day-of-year mean
+    over the fold's training years only. Both on the champion's weekly rows, recomputed here."""
+    tf = train_mod
+    champ = v(ledger, "champion.model")
+    df = tf.load_data()
+    df = df[df["date"] <= pd.Timestamp(freeze_date(ledger))].reset_index(drop=True)
+    for fold, train_yrs, test_yr in tf.CV_FOLDS:
+        rows = weekly_rows(tf, df, champ, test_yr)
+        assert len(rows) == v(ledger, f"champion.n_{fold}"), \
+            f"fold {fold}: {len(rows)} weekly rows, champion.n_{fold} = {v(ledger, f'champion.n_{fold}')}"
+        train = df[df["date"].dt.year.isin(train_yrs)].dropna(subset=[tf.S2_TARGET])
+        doy = train.groupby(train["date"].dt.dayofyear)[tf.S2_TARGET].mean()
+        doy = doy.reindex(range(1, 367)).interpolate(limit_direction="both")
+        target_day = pd.to_datetime(rows["date"]) + pd.to_timedelta(rows["h"], unit="D")
+        y = rows["y"].values
+        for name, pred in (("zero_change", 0.0 * y), ("seasonal", doy.loc[target_day.dt.dayofyear].values)):
+            got = v(ledger, f"baseline.{name}.r2_{fold}")
+            assert abs(got - tf.r2(y, pred)) <= 0.0015, \
+                f"{name} fold {fold}: ledger {got}, recomputed {tf.r2(y, pred):.3f}"
 
 
 def test_a4_one_week_chart_and_script_state_the_margin(ledger, charts):
@@ -192,7 +275,13 @@ def test_a5_timeline_points_match_git_and_the_freeze(ledger, charts):
     last = pts[-1]
     assert last["kind"] == "freeze"
     assert last["date"] == freeze_date(ledger)
-    assert last["r2"] == v(ledger, "champion.r2")
+    assert last["key"] == "history.freeze_day_ahead.r2", f"timeline ends on {last.get('key')!r}"
+    assert last["r2"] == v(ledger, "history.freeze_day_ahead.r2")
+    end = ledger["history.freeze_day_ahead.r2"]
+    assert end["kind"] == "freeze" and end.get("yardstick") == "one_day", end
+    assert "one day" in end.get("note", "").lower(), f"no yardstick note: {end.get('note')!r}"
+    assert all(p.get("key") != "champion.r2" for p in pts), "timeline joins the weekly champion"
+    assert "one day" in data.get("note", "").lower(), "the timeline does not say its yardstick"
 
     for p in pts[1:]:
         assert p.get("cause"), f"step to {p['date']} has no cause label"
@@ -279,6 +368,7 @@ def test_a19_frontier_values_trace_to_stored_results(ledger, charts):
         assert p["value"] == e["value"], f"frontier {p['key']}: plotted {p['value']} != ledger"
         if p["group"] == "7d":
             assert p["key"] == "champion.r2"
+            assert "best case" in p["label"].lower(), f"7-day label {p['label']!r}"
         elif p["group"] == "14_30d":
             assert e["kind"] == "historical" and e["date"] == lr_date, p["key"]
             src_file, _, src_path = e["source"].partition("#")
