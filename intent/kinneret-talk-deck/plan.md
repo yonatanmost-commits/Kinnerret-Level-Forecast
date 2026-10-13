@@ -21,10 +21,11 @@ From: intent/kinneret-talk-deck/spec.md v5 (v4 accepted in chat 2026-10-13; R27/
 - D18. The opening (R13, R28–R31, originator 2026-10-13):
   - **Title slide picture:** the app's own lake picture, `build_lake_svg(level)` from `kinneret_app/app_utils.py`, called with the freeze level and turned into a picture for the slide. The builder chooses how to rasterize it. No number on it.
   - **Hook chart:** redrawn as the app front page's year-over-year overlay (`kinneret_app/app.py`, "Year-over-Year Comparison"), restyled to the light deck look (D10). It shows each year from 2020 by day of year, the freeze year in the accent colour ending on the freeze date, and the red line. There is no level label. `chart_data("hook")` keeps its locked contract (dated series ending on the freeze date, red line, freeze level), so A6 holds unchanged.
-  - **Winter scenarios:** computed by the freeze script as `historical` ledger entries `scenario.{dry,wet}.{season,rise_m,spring_m}`, dated by the winter's end.
+  - **Winter scenarios:** computed by the freeze script as `historical` ledger entries `scenario.{dry,wet}.{season,change_m,spring_m}`, dated by the winter's end.
     - Window: the last 20 winters, 2006–07 to 2025–26, matching the crossing hindcast.
-    - A winter's rise is the highest level from the freeze calendar date to 31 May of the next year, minus the level on that calendar date.
-    - Dry is the smallest rise, wet the largest. `spring_m` is the freeze level plus that rise.
+    - A winter's change is the level on 31 May of the next year minus the level on the freeze calendar date. It can be negative.
+    - Dry is the smallest change, wet the largest. `spring_m` is the freeze level plus that change.
+    - The first definition (the spring peak minus the start level, reviewing ee42df4 on 2026-10-13) was wrong for dry winters. A peak can't fall below the start, so 2024–25 scored a rise of 0.00 and "the lake stays where it is". In fact it fell 0.77 m by 31 May.
     - Chosen over percentiles (harder to say aloud) and over a model forecast (the talk's own message is that a season can't be forecast).
   - **The consequences** for desalination, water quality, algae and the wider circles are spoken qualitatively with no numbers (originator: "no facts to get wrong").
   - **The centaur slide** is a Gemini metaphor picture (D11). Kasparov's 2005 freestyle tournament and Tao's AI-assisted mathematics are told without quotes on the slide. The years go in the allow-list with a source in `numbers_check.md`, so Adnan can check them.
