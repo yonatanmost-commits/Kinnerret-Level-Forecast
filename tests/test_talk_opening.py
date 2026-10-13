@@ -6,11 +6,12 @@ ledger and the slide's notes against that.
 
 Contract fixed here (plan D18):
 - Window: the last 20 complete winters before the freeze (2006-07 to 2025-26 at 2026-10-11).
-- A winter's rise = the highest level from the freeze calendar date to 31 May of the next year,
-  minus the level on that calendar date. Dry = the smallest rise, wet = the largest.
-- Ledger: scenario.{dry,wet}.{season,rise_m,spring_m}, kind "historical", dated 31 May of the
-  winter's end year. season's value starts with the winter's first year ("2017-18" style);
-  spring_m = the freeze level + rise_m.
+- A winter's change = the level on 31 May of the next year minus the level on the freeze calendar
+  date; it can be negative. Dry = the smallest change, wet = the largest. (Not peak minus start:
+  a peak can't fall below the start, so a falling winter would read as "stays where it is".)
+- Ledger: scenario.{dry,wet}.{season,change_m,spring_m}, kind "historical", dated 31 May of the
+  winter's end year. season's value starts with the winter's first year;
+  spring_m = the freeze level + change_m.
 - talk.md: the notes of the slide drawing chart:hook name both seasons, and every placeholder on
   that slide is a scenario.* entry.
 """
@@ -42,40 +43,41 @@ def entry(ledger, key):
     return ledger[key]
 
 
-def winter_rises(fd: pd.Timestamp) -> dict[int, float]:
-    """First year of each winter -> its rise in metres, recomputed from the level record."""
+def winter_changes(fd: pd.Timestamp) -> dict[int, float]:
+    """First year of each winter -> its change in metres to 31 May, recomputed from the record."""
     import redline_backtest
     daily = redline_backtest.load_daily()
     last = fd.year - 1 if fd >= pd.Timestamp(fd.year, 5, 31) else fd.year - 2
-    rises = {}
+    changes = {}
     for y in range(last - N_WINTERS + 1, last + 1):
         start, end = pd.Timestamp(y, fd.month, fd.day), pd.Timestamp(y + 1, 5, 31)
         assert start in daily.index and end in daily.index, f"level record misses winter {y}"
-        rises[y] = float(daily[start:end].max() - daily[start])
-    return rises
+        changes[y] = float(daily[end] - daily[start])
+    return changes
 
 
 def test_a20_scenarios_are_the_driest_and_wettest_past_winters(ledger):
     fd = pd.Timestamp(entry(ledger, "freeze_date")["value"])
-    rises = winter_rises(fd)
+    changes = winter_changes(fd)
     if fd == pd.Timestamp("2026-10-11"):
-        assert min(rises) == 2006 and max(rises) == 2025
-    truth = {"dry": min(rises, key=rises.get), "wet": max(rises, key=rises.get)}
+        assert min(changes) == 2006 and max(changes) == 2025
+    truth = {"dry": min(changes, key=changes.get), "wet": max(changes, key=changes.get)}
     freeze_m = entry(ledger, "level.freeze_m")["value"]
 
     for name, year in truth.items():
-        for field in ("season", "rise_m", "spring_m"):
+        for field in ("season", "change_m", "spring_m"):
             e = entry(ledger, f"scenario.{name}.{field}")
             assert e["kind"] == "historical", f"scenario.{name}.{field} is not historical"
             assert e["date"] == f"{year + 1}-05-31", f"scenario.{name}.{field} dated {e['date']}"
             assert e["source"], f"scenario.{name}.{field}: empty source"
         season = str(entry(ledger, f"scenario.{name}.season")["value"])
         assert season.startswith(str(year)), f"{name} winter is {year}, ledger says {season!r}"
-        rise = entry(ledger, f"scenario.{name}.rise_m")["value"]
-        assert abs(rise - rises[year]) <= 0.0015, f"{name} rise {rise} != record {rises[year]:.3f}"
+        change = entry(ledger, f"scenario.{name}.change_m")["value"]
+        assert abs(change - changes[year]) <= 0.0015, \
+            f"{name} change {change} != record {changes[year]:.3f}"
         spring = entry(ledger, f"scenario.{name}.spring_m")["value"]
-        assert abs(spring - (freeze_m + rise)) <= 0.0015, f"{name} spring {spring} != freeze + rise"
-    assert rises[truth["dry"]] < rises[truth["wet"]]
+        assert abs(spring - (freeze_m + change)) <= 0.0015, f"{name} spring {spring} != freeze + change"
+    assert changes[truth["dry"]] < changes[truth["wet"]]
 
 
 def test_a20_notes_speak_only_the_scenarios():
