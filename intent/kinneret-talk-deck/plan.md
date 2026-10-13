@@ -1,5 +1,5 @@
 # Plan: Kinneret Conference talk deck
-From: intent/kinneret-talk-deck/spec.md v4 (accepted in chat, 2026-10-13).
+From: intent/kinneret-talk-deck/spec.md v5 (v4 accepted in chat 2026-10-13; R27/A19 frontier slide added the same day by the originator's choice).
 
 ## Design
 - D1. Deck build: a single markdown source, `talk.md`, holds every slide (its one object, its on-slide text, its speaker notes). A python-pptx builder turns it into the PPTX. Chosen over a Claude Slides artifact (notes, audio and timings are hard to control) and over hand-building in PowerPoint (every edit would be manual), because the slide-by-slide walk-through (R23) then costs one source edit and a rebuild per change.
@@ -17,16 +17,17 @@ From: intent/kinneret-talk-deck/spec.md v4 (accepted in chat, 2026-10-13).
 - D13. Claude's two review passes — the style checklist (A8) and the claims-against-evidence read (A18) — are written after each full build to `docs/talk/review_notes.md`, one line per finding, each marked open, fixed or overruled by the originator. Review notes, not tests: they never block a build.
 - D14. The build warnings (A9, A10) are printed at the end of every build: PPTX/PDF slide count and order, missing fonts or blank charts in the PDF, and for a rehearsal build the total timing and per-slide audio match. Warnings, never failures.
 - D15. The narrated rehearsal uses the /TTL skill's `tts.py` on each slide's notes separately, so each slide's audio length sets its timing. Audio is cached per slide by content hash, so a rebuild only re-narrates changed slides. The rehearsal PPTX and its audio stay out of git and out of the submission.
+- D17. The frontier slide (R27) reuses stored results, not new runs: the freeze script copies the 14–30-day wet/dry skill numbers from `docs/longrange_phaseb_results.json` and the summer 30/60/90-day numbers from `docs/redline_backtest_results.json` into the ledger as `historical`, each dated by the git commit that last changed its source file. The 7-day point is the freeze champion. Chosen over re-running the long-range evaluation on the freeze (new heavy runs on a low-memory machine, and out of scope as modelling work) and over a words-only wall (the originator chose the slide, 2026-10-13).
 - D16. The talk files live in `docs/talk/`, with the builder beside its content. Follows `docs/paper/md_to_docx.py` beside `Kinneret_Forecast_Methods_Results.md`.
 
 ## Files that change
-- `tests/test_talk_truth.py` (new, locked): the truth tests A2–A6, run against the ledger, the charts' data and the level file.
+- `tests/test_talk_truth.py` (new, locked): the truth tests A2–A6 and A19, run against the ledger, the charts' data and the level file.
 - `tests/test_talk_gates.py` (new, locked): A1 (the build stops when the ledger's hash doesn't match the truth stamp, and does not re-run the truth tests when it does) and A7 (the build stops on a typed-in number), using small fixture decks.
-- `Automation/talk_freeze_run.py` (new): the freeze re-run of all 8 models with runtimes, both baselines, the hook's level facts, and the R² history (7 git snapshots as `historical`, plus the freeze point). Writes the ledger, runs the truth tests, writes the stamp.
+- `Automation/talk_freeze_run.py` (new): the freeze re-run of all 8 models with runtimes, both baselines, the hook's level facts, and the R² history (7 git snapshots as `historical`, plus the freeze point), and the frontier's stored long-range and summer numbers as `historical`. Writes the ledger, runs the truth tests, writes the stamp.
 - `docs/talk/numbers_ledger.json` (new, generated): every number the talk may use.
 - `docs/talk/truth_stamp.json` (new, generated): the ledger hash the truth tests last passed on.
 - `docs/talk/talk.md` (new): the source of truth for slides, on-slide text, the picture or chart per slide, speaker notes with placeholders, the allow-list, and each slide's `accepted:` line.
-- `docs/talk/charts.py` (new): the hook level chart, the Olympics R²-vs-runtime chart, the annotated R² timeline, and the 1-week-vs-zero-change chart, all from the ledger.
+- `docs/talk/charts.py` (new): the hook level chart, the Olympics R²-vs-runtime chart, the annotated R² timeline, the 1-week-vs-zero-change chart, and the frontier chart, all from the ledger.
 - `docs/talk/make_images.py` (new): generates the metaphor pictures from stored prompts.
 - `docs/talk/images/` (new): the generated pictures and their prompts.
 - `docs/talk/build_deck.py` (new): talk.md + ledger + charts + pictures → `talk.pptx` and `talk.pdf`; `--slide N` renders one slide picture; `--rehearsal` builds `talk_rehearsal.pptx`.
@@ -36,9 +37,9 @@ From: intent/kinneret-talk-deck/spec.md v4 (accepted in chat, 2026-10-13).
 - `.gitignore` (changed): ignore `docs/talk/talk_rehearsal.pptx`, `docs/talk/audio/` and `docs/talk/slide_*.png`.
 
 ## Order of work
-1. Write `tests/test_talk_truth.py` (A2–A6) and `tests/test_talk_gates.py` (A1, A7). Run them, confirm each fails because its artefact is missing, lock them, and commit them failing.
+1. Write `tests/test_talk_truth.py` (A2–A6, A19) and `tests/test_talk_gates.py` (A1, A7). Run them, confirm each fails because its artefact is missing, lock them, and commit them failing.
 2. Build `talk_freeze_run.py` and run it on the default freeze (2026-10-11): 8 models with timed CV (GRU revived), both baselines, level facts, and the R² history. It writes the ledger, runs the truth tests green and writes the stamp.
-3. Draw the four charts from the ledger.
+3. Draw the five charts from the ledger.
 4. Draft `talk.md`: the story slide by slide, in common spoken language, in the spine's order, budgeted to 15 minutes. **Checkpoint: the originator reads the script and the slide list before any picture or design work.**
 5. Generate the metaphor pictures.
 6. First full build: `talk.pptx` and `talk.pdf`, the build warnings, and Claude's review notes (A8, A18). **Target: by 20 Oct 2026 (A17).**
@@ -52,6 +53,7 @@ From: intent/kinneret-talk-deck/spec.md v4 (accepted in chat, 2026-10-13).
 - **Riskiest step: the story itself (step 4).** Fluency, interest and the hook can't be machine-tested. The guards: the script checkpoint before any visual work, the walk-through, the rehearsal listen, and the outside-listener retell.
 - The schedule is tight: steps 1–6 in a week, to leave five walk-through days before 25 Oct. The guard: pictures wait for the script checkpoint, so none are made for slides that get cut. Everything runs one step at a time, never in parallel, because the machine is constantly low on memory (originator, 2026-10-13); the freeze run, with the ~15-min GRU, runs alone with nothing else heavy open.
 - The GRU port may not run as it did in June, after code drift. The guard: port the CV function from `4f9e553^` as is; if it still fails, stop and ask rather than quietly using the June constant.
+- The frontier slide mixes freeze and historical numbers on one chart, which can read as like-for-like. The guard: each historical point carries its date on the chart, the horizons are measured differently (R² on volume change vs. skill vs. MAE in mm), so the chart shows skill-or-not per horizon, not one shared axis of raw scores, and the script says so.
 - Zero-change persistence on volume change will likely score R² near or below zero. That's correct but needs one plain sentence on stage; the seasonal baseline in the Q&A sheet is the honest backup.
 - The typed-number guard (D6) may catch harmless words like "one" or ordinal dates. The guard: it scans digits only, and the allow-list is visible and short; every addition to it is named in the review notes.
 - Gemini image generation may not be available on this key. The guard: the stock-photo fallback in D11.
@@ -61,7 +63,7 @@ From: intent/kinneret-talk-deck/spec.md v4 (accepted in chat, 2026-10-13).
 - R² on volume change can be misheard as level R². The guard: the script says "daily volume change" the first time, and the Q&A sheet covers it.
 
 ## Proof
-- `pytest tests/test_talk_truth.py` covers A2 (every number traces to a ledger entry with source and date, freeze or historical), A3 (8 models with R² mean, per fold and runtime; the Olympics chart's data equals those values), A4 (both baselines' R² and MAE in the ledger; the zero-change margin placeholder used in the script), A5 (timeline points at their dates and values, every step labelled, the Wade Storm step labelled as the rain fix plus the six fixes and dated 2026-05-31) and A6 (red line at −213.0, freeze-date level, and any "lowest since" claim checked against the level file).
+- `pytest tests/test_talk_truth.py` covers A2 (every number traces to a ledger entry with source and date, freeze or historical), A3 (8 models with R² mean, per fold and runtime; the Olympics chart's data equals those values), A4 (both baselines' R² and MAE in the ledger; the zero-change margin placeholder used in the script), A5 (timeline points at their dates and values, every step labelled, the Wade Storm step labelled as the rain fix plus the six fixes and dated 2026-05-31) A6 (red line at −213.0, freeze-date level, and any "lowest since" claim checked against the level file) and A19 (frontier chart values equal the ledger's historical entries, each with source and date; summer point labelled not-ML).
 - `pytest tests/test_talk_gates.py` covers A1 (stale stamp stops the build; matching stamp builds without re-running the truth tests) and A7 (a typed-in number stops the build and is named).
 - `docs/talk/review_notes.md` holds A8 (style checklist) and A18 (claims against evidence) per build.
 - The build output shows A9 (PPTX/PDF match, fonts and charts rendered) and A10 (rehearsal timing and per-slide audio match).
