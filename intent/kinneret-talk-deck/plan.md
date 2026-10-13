@@ -50,7 +50,7 @@ From: intent/kinneret-talk-deck/spec.md v4 (accepted in chat, 2026-10-13).
 
 ## Risks
 - **Riskiest step: the story itself (step 4).** Fluency, interest and the hook can't be machine-tested. The guards: the script checkpoint before any visual work, the walk-through, the rehearsal listen, and the outside-listener retell.
-- The schedule is tight: steps 1–6 in a week, to leave five walk-through days before 25 Oct. The guard: the freeze run (with the ~15-min GRU) runs in the background while the script is drafted, and pictures wait for the script checkpoint so none are made for slides that get cut.
+- The schedule is tight: steps 1–6 in a week, to leave five walk-through days before 25 Oct. The guard: pictures wait for the script checkpoint, so none are made for slides that get cut. Everything runs one step at a time, never in parallel, because the machine is constantly low on memory (originator, 2026-10-13); the freeze run, with the ~15-min GRU, runs alone with nothing else heavy open.
 - The GRU port may not run as it did in June, after code drift. The guard: port the CV function from `4f9e553^` as is; if it still fails, stop and ask rather than quietly using the June constant.
 - Zero-change persistence on volume change will likely score R² near or below zero. That's correct but needs one plain sentence on stage; the seasonal baseline in the Q&A sheet is the honest backup.
 - The typed-number guard (D6) may catch harmless words like "one" or ordinal dates. The guard: it scans digits only, and the allow-list is visible and short; every addition to it is named in the review notes.
