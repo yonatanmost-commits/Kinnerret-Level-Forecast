@@ -159,10 +159,9 @@ def chart_data(name: str, ledger: dict) -> dict:
                 "used": ledger[f"data.{sid}.start"]["model_input"],
                 "end": end and end["value"],
                 "gaps": [[_v(ledger, f"data.{sid}.gap{n}.start"), _v(ledger, f"data.{sid}.gap{n}.end")]
-                         for n in numbered(sid, "gap")],
-                "switches": [{"date": _v(ledger, f"data.{sid}.switch{n}"),
-                              "note": ledger[f"data.{sid}.switch{n}"]["note"]}
-                             for n in numbered(sid, "switch")]})
+                         for n in numbered(sid, "gap")]})
+        # data.<sid>.switch<n> stay ledger facts but are not drawn: a mark months before the tip
+        # of a sixty-year bar reads as a break (designer, Q3)
         return {"series": series,
                 "line": {"date": _v(ledger, "data.gold.start"), "label": "all sources line up"},
                 "line_display": ledger["data.gold.start"]["display"],
@@ -452,9 +451,9 @@ def draw_frontier(d, plt):
 
 
 def draw_coverage(d, plt):
-    """One bar per record against time; breaks for gaps, a bar's end where a record stopped, a
-    marker where its source changed, and the line where they all line up. Short events get a
-    minimum drawn width so a three-week gap is still seen on sixty years."""
+    """One bar per record against time; breaks for gaps, a bar's end where a record stopped, and
+    the line where they all line up. Short events get a minimum drawn width so a three-week gap
+    is still seen on sixty years."""
     import matplotlib.dates as mdates
     import pandas as pd
     t = lambda x: mdates.date2num(pd.Timestamp(x))
@@ -479,9 +478,6 @@ def draw_coverage(d, plt):
                     color=INK_2, fontsize=20)
         for g0, g1 in s["gaps"]:
             ax.plot([(t(g0) + t(g1)) / 2], [y + 0.42], "v", color=INK_2, markersize=9)
-        for w in s["switches"]:
-            ax.plot([t(w["date"])], [y], "D", color=OCHRE, markersize=13,
-                    markeredgecolor=SURFACE, markeredgewidth=2, zorder=5)
     line = t(d["line"]["date"])
     ax.axvline(line, color=INK, lw=2, ls=(0, (4, 3)), zorder=4)
     ax.text(line - 200, len(rows) - 0.45, d["line"]["label"], ha="right", va="bottom",
@@ -496,9 +492,8 @@ def draw_coverage(d, plt):
     ax.set_xlim(t("1965-01-01"), t("2032-06-01"))
     ax.spines["bottom"].set_color(GRID)
     fig.text(0.035, 0.875, "Each record at the data freeze", color=INK_2, va="top")
-    for x0, mark, col, size, name in ((0.40, "■", MUTED, 22, "not used by the model"),
-                                      (0.665, "▼", INK_2, 16, "a gap"),
-                                      (0.78, "◆", OCHRE, 20, "source changed")):
+    for x0, mark, col, size, name in ((0.50, "■", MUTED, 22, "not used by the model"),
+                                      (0.78, "▼", INK_2, 16, "a gap")):
         fig.text(x0, 0.872, mark, color=col, va="top", fontsize=size)
         fig.text(x0 + 0.022, 0.875, name, color=INK_2, va="top")
     return fig
