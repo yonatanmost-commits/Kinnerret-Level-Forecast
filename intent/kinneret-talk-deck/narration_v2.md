@@ -79,12 +79,13 @@ Once the method was right, training was the easy part. You let the model forecas
 [6: 0.763 grey, 30-day calendar] Thirty days of rain, to remember wet soil. Almost nothing.
 [7: 0.77 green, dead sensor] A sunlight sensor died. I swapped in another source, and the model got better: 0.77.
 [8: 0.76 grey, bucket] A soil-moisture bucket, great for long range. For one week, worse. Out.
-[end: the whole line] From 0.69 to 0.77. Not a bigger model. Better data.
+[end: the whole line, plus today's point at 0.76] From 0.69 to 0.77, in June. Today, on cleaner data: 0.76. Not a bigger model. Better data.
+(All scoreboard numbers are ONE-DAY-AHEAD CV scores (run_cv). June 0.771 not reproducible: re-run 2026-10-14 on today's gold cut at 2026-06-01 = 0.762 (folds .676/.875/.673/.823), same as freeze day_ahead 0.76; gap = Aug QC fix (3796 nulls) + data corrections; June gold never committed.)
 (Measured 2026-10-14 from git history of docs/olympics_results.json and commit messages: first two-stage GBR 0.689 (spec, by 23 May; first model a numpy-only random forest, model_lib RFRegressor); race 30 May baseline 0.694, full chain 0.670, XGBoost 0.646, LightGBM 0.641, GRU -0.025; 2023 rain 0 -> ~505 mm, '-' sentinel coerced to 0 (9d7c25f, 4cb15d2); rain fix + six findings measured TOGETHER 0.694 -> 0.758 (ac2ede5, 30-31 May; flood days 2.4% = 58% of variance) - one point, not two; 30/45-day rain 0.763 (56d0555); radiation via Open-Meteo 0.771 (2da9bd7); bucket back-port 0.760 rejected; GRU 71 min / champion 4 min: ledger, freeze. Cloud QC accident (Aug) left out by the originator.)
 
-## 10. one week (v3; chart: one real week, forecast against the lake)
+## 10. one week (agreed 2026-10-14; chart: one real week, forecast against the lake)
 So, one week. This is a real one: what the model said on the first day, and what the lake did.
-A week ahead, it scores 0.73. "The lake stays the same" scores zero. I set out for one week, and the week holds.
+That 0.76 is one day ahead. Across the whole week: 0.73. "The lake stays the same" scores zero. I set out for one week, and the week holds.
 
 ## 11. beyond the week (v3; chart: skill fading with lead time)
 Adnan wanted more. A season. I told him I didn't have the data. I tried anyway: the long-range forecast, temperature alone, climate models. Shots in the dark, and mostly misses. Past a few weeks, everything waits for the rain, and rain here is one of the hardest forecasts there is.
