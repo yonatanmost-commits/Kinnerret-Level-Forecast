@@ -14,8 +14,9 @@ Contract fixed here:
 - Switches: the weather moves from the IMS records to Open-Meteo the day after the IMS hourly
   coverage file ends; the radiation sensor dies the day after its own W/m2 readings end, and the
   record continues from the backfill.
-- docs/talk/charts.py chart_data("coverage", ledger) returns {"series": [{id, start, end, gaps,
-  switches}], "line": {date, label}, "end": freeze date}; the drawn values are exactly these.
+- docs/talk/charts.py chart_data("coverage", ledger) returns {"series": [{id, start, end, gaps}],
+  "line": {date, label}, "end": freeze date}; the drawn values are exactly these. Switches are
+  ledger facts only, not drawn.
 """
 import json
 import sys
@@ -137,6 +138,8 @@ def test_coverage_chart_draws_the_ledger(ledger):
     for s in d["series"]:
         want = from_ledger(ledger, s["id"])
         assert (s["start"], s["end"], [tuple(g) for g in s["gaps"]]) == (want["start"], want["end"], want["gaps"])
-        assert [w["date"] for w in s["switches"]] == [x["value"] for x in switches(ledger, s["id"])]
+        # Source changes stay in the ledger but are not drawn: a mark months before the tip of a
+        # sixty-year bar reads as a break (designer ruling on Q3, 2026-10-14).
+        assert "switches" not in s, s["id"]
     assert d["line"] == {"date": ledger["data.gold.start"]["value"], "label": "all sources line up"}
     assert d["end"] == ledger["freeze_date"]["value"]
