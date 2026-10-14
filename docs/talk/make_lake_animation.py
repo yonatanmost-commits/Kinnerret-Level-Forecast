@@ -362,7 +362,7 @@ def frame_chrome(d, F, a: float) -> None:
     """Title and source: the same on every frame."""
     text(d, (90, 60), "Lake Kinneret", F["title"], _rgba(INK, a))
     text(d, (90, 112), "Level on 11 November, each year", F["sub"], _rgba(INK_2, a))
-    text(d, (90, H - 56), "Level: Kinneret Drainage Authority, kineret.org.il",
+    text(d, (90, H - 56), "Level: Kinneret Authority, kineret.org.il",
          F["foot"], _rgba(INK_2, a))
 
 
