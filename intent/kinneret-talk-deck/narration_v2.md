@@ -40,13 +40,11 @@ Every morning it pulls three sources: the lake's level, the Jordan River's flow,
 It cleans them, lines them up in one table, one row per day, and calculates a few extra features to help the model learn.
 Then the model works in two steps, the way the water does. First the river: how much water flows in, day by day. Then the lake: how much its volume changes. And finally the lake's own shape, its bathymetric curve, turns volume into level.
 
-## 5. gather (agreed)
-The lake's level comes from the Kinneret Authority's website. No API, so I scraped it: ask the page for a date, read one number off it. Works perfectly from my laptop. From a cloud server, the site slams the door. So to this day, the daily update runs on my own computer.
-The rivers were the real hunt. The Hydrological Service's live site only answers you if you look like a web browser. And it only remembers the last two days. Anything older, you ask for by email.
-Is anyone here from the Hydrological Service? (wait) Thank you. You answered all my emails.
-I was sure the Baptism Site was Yardenit, where the Jordan leaves the lake. Then I asked Claude to draft one more email to them, and there it was, in the draft: near Jericho. There are two baptism sites on the Jordan. I had the one by the Dead Sea.
-(pause) My champion model never used it. Some of the others did.
-Line it all up, and the table where every source is full starts in September 2012.
+## 5. gather (agreed 2026-10-14 v2; speaker's point of view, no apology; Baptism Site -> Q&A)
+Step one: gather the data. And the data doesn't come in one place. Weather stations change names over the years, and sometimes their numbers. Every source has its own format, its own gaps, its own story. It's a dark forest. I settled on one station: Lev Kinneret, the heart of the Kinneret.
+AI is the flashlight. I pointed Claude at a website and said: find the API key. Minutes later, I had any weather station I wanted. The rivers were harder: two months of emails, always "you can't get that data." Then Claude found a Facebook post with a link to a beta site, wrote a scraper for it, and the river data has come in every day since.
+The rivers go back fifty years. My weather goes back to 2012. So that's where my table starts. The weakest link in this system isn't the model. It's the data. And that's exactly where the biggest potential is.
+(Measured 2026-10-14: Obstacle Bridge from 1970-10, Sede Nehemya 1969-10; weather downloads from 2012-06 (Tzemach, Beit Tzaida, Kfar Nachum); Baptism Site 2012-07; Lev Kinneret 2012-11 (multi-station mean before); gold table 2012-09. Never say the history could not go further back: Tzemach exists from 1994.)
 
 ## 6. the race (v3; chart: the race)
 Now the model. The web said: use XGBoost. Claude quietly built something plainer: gradient boosting. Many small decision trees, each one fixing the mistakes of the one before.
