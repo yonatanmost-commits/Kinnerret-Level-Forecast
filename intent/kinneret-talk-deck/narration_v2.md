@@ -68,12 +68,19 @@ I did both, where each one fits. The river I forecast one day at a time: each da
 Once the method was right, training was the easy part. You let the model forecast the past, and learn from its own mistakes.
 (Sources: British BN/223 nail, early 1920s, re-established 1985 as F-55, restored 2016 and named for Aviel Ron (mytelaviv.co.il; he.wikipedia Jaffa port). MSL 0.082 m above the 1995 Israeli datum, 1956-2016 data: J. Geodesy 2020, doi 10.1007/s00190-020-01430-3. Dates vary 1920/1922: say "early 1920s". Q&A: Aviel Ron dedication; sea rose 1920s, fell 1960s-90s, rose fast from the 1990s.)
 
-## 9. the scoreboard (agreed 2026-10-14; replaces race, neural network, dash, better data; chart: the scoreboard)
-Then I started improving. Some ideas worked. Many didn't.
-XGBoost, the famous one: lost to the plain model. A neural network: seventy-one minutes, and worse than guessing. Thirty days of rain, to remember wet soil: almost nothing.
-What worked? Remember the dashes in the data? A rain gauge was offline for a whole year, and my pipeline turned every dash into a zero. Fixed, and five hundred millimetres of rain came back. And one finding I loved: two percent of the days, the floods, caused more than half the error.
-From 0.69 to 0.77. Not a bigger model. Better data.
-(Measured 2026-10-14 from git history of docs/olympics_results.json and commit messages: first two-stage GBR 0.689 (spec, by 23 May); race 30 May baseline 0.694, full chain 0.670, XGBoost 0.646, LightGBM 0.641, GRU -0.025; 2023 rain 0 -> ~505 mm (4cb15d2); six findings + rain fix 0.694 -> 0.758 (ac2ede5; flood days 2.4% = 58% of variance); 30/45-day rain +0.005 (56d0555); radiation via Open-Meteo 0.771 (2da9bd7); bucket back-port 0.760 rejected; CI QC skip 0.751, restored 0.764 (Aug 15); freeze 0.762. GRU runtime 71 min / champion 4 min: ledger, freeze.)
+## 9. the scoreboard (agreed 2026-10-14 v2; ONE chart built click by click, an object appears/disappears per attempt; replaces race, neural network, dash, better data)
+[0: empty chart, 0 to 1] Here's how I scored every attempt. Zero: no better than guessing the average. One: perfect.
+[1: 0.69, first model] My first model was a random forest. Claude wrote it from scratch. Then gradient boosting, in two steps, the way the water flows. 0.69.
+[2: 0.67 grey, chain icon] Remember the benchmark? I tested it. Forecast the lake day by day, each day off the last guess: 0.67. The benchmark wins.
+[3: 0.65 grey, XGBoost] XGBoost, the one Google told me to use. 0.65. It lost.
+[4: below zero grey, stopwatch 71 min] A neural network. Seventy-one minutes of training, and worse than guessing. The plain model took four.
+[5a: a dash turning into 0 — FOCUS, the biggest step] Then the biggest step of all, and it wasn't a model. Remember when I let Claude clean the data, and said there was a catch? Here it is. A rain gauge on the lake was offline for a whole year. Every missing reading was a dash. And the cleaning turned every dash into a zero. A whole winter of rain, gone. No error. No crash. I didn't know exactly what the cleaning did, so I didn't see it.
+[5b: flood photo, line jumps to 0.76 green] Fixed, and five hundred millimetres of rain came back. Together with a few more ideas, like this one: two percent of the days, the floods, caused more than half the error. 0.69 to 0.76, in two days.
+[6: 0.763 grey, 30-day calendar] Thirty days of rain, to remember wet soil. Almost nothing.
+[7: 0.77 green, dead sensor] A sunlight sensor died. I swapped in another source, and the model got better: 0.77.
+[8: 0.76 grey, bucket] A soil-moisture bucket, great for long range. For one week, worse. Out.
+[end: the whole line] From 0.69 to 0.77. Not a bigger model. Better data.
+(Measured 2026-10-14 from git history of docs/olympics_results.json and commit messages: first two-stage GBR 0.689 (spec, by 23 May; first model a numpy-only random forest, model_lib RFRegressor); race 30 May baseline 0.694, full chain 0.670, XGBoost 0.646, LightGBM 0.641, GRU -0.025; 2023 rain 0 -> ~505 mm, '-' sentinel coerced to 0 (9d7c25f, 4cb15d2); rain fix + six findings measured TOGETHER 0.694 -> 0.758 (ac2ede5, 30-31 May; flood days 2.4% = 58% of variance) - one point, not two; 30/45-day rain 0.763 (56d0555); radiation via Open-Meteo 0.771 (2da9bd7); bucket back-port 0.760 rejected; GRU 71 min / champion 4 min: ledger, freeze. Cloud QC accident (Aug) left out by the originator.)
 
 ## 10. one week (v3; chart: one real week, forecast against the lake)
 So, one week. This is a real one: what the model said on the first day, and what the lake did.
