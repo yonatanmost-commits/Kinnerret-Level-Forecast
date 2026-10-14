@@ -34,12 +34,11 @@ He gave us an open data analysis task: pick a subject, gather the data, analyse 
 I know what you're thinking. That's a big task. It is. I said so myself, two slides ago. But I decided to play with it. If the weather tells me the rain, how hard can it be to guess one week ahead? So I took it on.
 This is what came out of it. An app. The lake's history and statistics, the model, and the best part: you can play. Pull this week's forecast from the Meteorological Service, and see where the lake is going. Or go back to any week since 2012, and see how the model would have done. You'll get the link at the end. Please don't open it now.
 
-## 4. the pipeline (agreed)
-I'm a process engineer, so let me draw this like a treatment plant. Three stages.
-One: gather. Most sources have an API: you ask, and the data comes back. That was much easier than I expected. Most. One had no API at all, and one refused to talk to me.
-Two: treat. Each source gets its own treatment, for its own format and its own noise. Then it all goes into one table, one row per day, cut to the dates where every source is full.
-Three: enrich. Add what the data doesn't say on its own. How thirsty the air is. How much water the lake loses to evaporation. What happened yesterday, and the day before.
-Data people call these stages bronze, silver and gold. Then run a model, look at the score, and go back to one, two and three. Again and again.
+## 4. the pipeline (agreed 2026-10-14 v2; the whole system in one picture, sources stay general)
+Here's the whole system, in one picture. A daily loop, running on my own computer.
+Every morning it pulls three sources: the lake's level, the Jordan River's flow, and the weather, both the weather that was and the forecast for the week ahead.
+It cleans them, lines them up in one table, one row per day, and calculates a few extra features to help the model learn.
+Then the model works in two steps, the way the water does. First the river: how much water flows in, day by day. Then the lake: how much its volume changes. And finally the lake's own shape, its bathymetric curve, turns volume into level.
 
 ## 5. gather (agreed)
 The lake's level comes from the Kinneret Authority's website. No API, so I scraped it: ask the page for a date, read one number off it. Works perfectly from my laptop. From a cloud server, the site slams the door. So to this day, the daily update runs on my own computer.
