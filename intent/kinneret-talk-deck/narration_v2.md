@@ -68,35 +68,24 @@ I did both, where each one fits. The river I forecast one day at a time: each da
 Once the method was right, training was the easy part. You let the model forecast the past, and learn from its own mistakes.
 (Sources: British BN/223 nail, early 1920s, re-established 1985 as F-55, restored 2016 and named for Aviel Ron (mytelaviv.co.il; he.wikipedia Jaffa port). MSL 0.082 m above the 1995 Israeli datum, 1956-2016 data: J. Geodesy 2020, doi 10.1007/s00190-020-01430-3. Dates vary 1920/1922: say "early 1920s". Q&A: Aviel Ron dedication; sea rose 1920s, fell 1960s-90s, rose fast from the 1990s.)
 
-## 9. the race (v3; chart: the race)
-Now the model. The web said: use XGBoost. Claude quietly built something plainer: gradient boosting. Many small decision trees, each one fixing the mistakes of the one before.
-It forecasts the way water flows: the river first, then the lake, one day at a time. And every morning it restarts from the last real measurement, so the errors don't snowball.
-So I raced them. Eight models, scored from zero, no better than guessing the average, to one, perfect. And always a best case: the models get the weather that really happened.
-The plain one won. Every time.
+## 9. the scoreboard (agreed 2026-10-14; replaces race, neural network, dash, better data; chart: the scoreboard)
+Then I started improving. Some ideas worked. Many didn't.
+XGBoost, the famous one: lost to the plain model. A neural network: seventy-one minutes, and worse than guessing. Thirty days of rain, to remember wet soil: almost nothing.
+What worked? Remember the dashes in the data? A rain gauge was offline for a whole year, and my pipeline turned every dash into a zero. Fixed, and five hundred millimetres of rain came back. And one finding I loved: two percent of the days, the floods, caused more than half the error.
+From 0.69 to 0.77. Not a bigger model. Better data.
+(Measured 2026-10-14 from git history of docs/olympics_results.json and commit messages: first two-stage GBR 0.689 (spec, by 23 May); race 30 May baseline 0.694, full chain 0.670, XGBoost 0.646, LightGBM 0.641, GRU -0.025; 2023 rain 0 -> ~505 mm (4cb15d2); six findings + rain fix 0.694 -> 0.758 (ac2ede5; flood days 2.4% = 58% of variance); 30/45-day rain +0.005 (56d0555); radiation via Open-Meteo 0.771 (2da9bd7); bucket back-port 0.760 rejected; CI QC skip 0.751, restored 0.764 (Aug 15); freeze 0.762. GRU runtime 71 min / champion 4 min: ledger, freeze.)
 
-## 10. the neural network (v3; chart: two stopwatches)
-Then I tried to beat it with the AI everyone talks about: a neural network. Seventy-one minutes of training. Its score: zero. The plain model took four minutes.
-That's when I understood. The answer wasn't a bigger model.
-
-## 11. the dash (v3; picture)
-Because something else was on that race chart. Every model that worked stumbled in the same year: twenty twenty-three. I didn't see it. My AI hydrologist did, a persona I called Doctor Wade Storm. If every model fails the same way, he wrote, it's the data, not the model.
-He was right. That year, the lake's rain gauge was offline. It wrote a dash for every missing reading, and my pipeline quietly turned each dash into a zero. A whole winter of rain, gone. No error. No crash.
-
-## 12. better data (v3; chart: score before and after)
-I fixed it, and added a few of his simple ideas, like telling the model how hard it rained, not just how much. The score went from 0.69 to 0.76, in two days. Not a new model. Better data.
-I didn't check every idea he had. I rode the flow. But I kept one hand on the wheel: nothing stayed unless the score said so. That's the centaur. The machine explores; the person decides.
-
-## 13. one week (v3; chart: one real week, forecast against the lake)
+## 10. one week (v3; chart: one real week, forecast against the lake)
 So, one week. This is a real one: what the model said on the first day, and what the lake did.
 A week ahead, it scores 0.73. "The lake stays the same" scores zero. I set out for one week, and the week holds.
 
-## 14. beyond the week (v3; chart: skill fading with lead time)
+## 11. beyond the week (v3; chart: skill fading with lead time)
 Adnan wanted more. A season. I told him I didn't have the data. I tried anyway: the long-range forecast, temperature alone, climate models. Shots in the dark, and mostly misses. Past a few weeks, everything waits for the rain, and rain here is one of the hardest forecasts there is.
 
-## 15. the red line (v3; chart: one summer replayed)
+## 12. the red line (v3; chart: one summer replayed)
 But one shot hit. In summer there's no rain to guess, only a lake drying in the sun. So: when will it cross the red line? A month ahead, a simple drying curve named the day within about two days. On every crossing since twenty oh eight.
 
-## 16. close (v3; the lake video's last frame)
+## 13. close (v3; the lake video's last frame)
 So what stopped me from seeing further? Not the model. A river station that went silent. A dash in a file. And the water pumped out of the lake, which my model never sees.
 Each of those is a link in one chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
 So, which winter is coming? I promised to tell you honestly how far ahead I got. One week. A month, in summer. Next winter, I can't see. Not today, and not alone.
@@ -104,9 +93,8 @@ But an amateur with a laptop got this far. Imagine what all of us could see, tog
 Thank you.
 
 ## Data calls (for the builder; every one measured on the freeze or dated)
-- the race: eight models, score per test year, at the first Olympics (30 May 2026, before the fix), dated; 2023 must visibly dip.
-- two stopwatches: gradient boosting 4 min / 0.73 against the neural network 71 min / about zero (freeze).
-- score before and after: 0.694 -> 0.758 (May 2026), dated.
+- the scoreboard: one line from 0.689 to 0.771 over time (May-Jun 2026, dated), each attempt a dot: green helped (2023 rain fix + six findings, radiation restore), grey didn't (XGBoost 0.646, neural network -0.025 / 71 min, 30-45 day rain +0.005, soil bucket 0.760). Source: git history of docs/olympics_results.json.
+- FACT CORRECTION (2026-10-14, measured in code): the champion DOES use the Baptism Site. outflow_lag1_m3 = outflow_baptism_m3.shift(1) is in S2_DIRECT_FEATURES (model_lib.py:136, 08_train:133), added by Finding 2 (ac2ede5), which misdescribed it as National Water Carrier pumping. Spec R14/line 114 and the Q&A answer "the champion never uses it" are wrong.
 - one real week: forecast issued on day one against the lake, the week picked by a stated rule (not cherry-picked).
 - skill fading with lead time: one line, from the long-range evaluation.
 - one summer replayed: a month ahead, predicted crossing date against the real one (most recent crossing).
