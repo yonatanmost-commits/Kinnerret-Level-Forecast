@@ -11,7 +11,8 @@ talk.md format:
   allow: 2023 | 15 minutes            exempt phrases, " | "-separated (one line, near the top)
 
   ## slide <id>
-  object: chart:<name> | picture:<path> | table:<name>
+  object: chart:<name> | picture:<path> | photo:<path> | table:<name>
+  credit: <words>                     a photo's credit line, set small in its corner
   qr: app                             optional: the app's QR code in the corner (plan D18)
   text: <on-slide words>
   notes:
@@ -121,6 +122,8 @@ def parse_talk(text: str) -> list[Slide]:
             cur.notes += line + "\n"
         elif line.startswith("notes:"):
             in_notes = True
+        elif line.startswith("credit:"):
+            cur.extra["credit"] = line[len("credit:"):].strip()
         elif line.startswith("qr:"):
             cur.extra["qr"] = line[len("qr:"):].strip()
         elif line.startswith("object:"):
@@ -243,7 +246,7 @@ def _text(slide, text, left, top, width, height, size, font=HEAD_FONT, bold=Fals
     tf.vertical_anchor = {"top": MSO_ANCHOR.TOP, "middle": MSO_ANCHOR.MIDDLE}[anchor]
     for i, line in enumerate(text.split("\n")):
         para = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
-        para.alignment = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER}[align]
+        para.alignment = {"left": PP_ALIGN.LEFT, "center": PP_ALIGN.CENTER, "right": PP_ALIGN.RIGHT}[align]
         run = para.add_run()
         run.text = line
         run.font.size, run.font.name, run.font.bold = Pt(size), font, bold
@@ -277,6 +280,51 @@ def _picture_cover(slide, path):
     return pic
 
 
+# A photo slide (Claude Design "Kinneret Deck", 2026-10-14): the photograph in black and white,
+# full-bleed, its left side faded to a dark slate so the white title and subtitle read there.
+FADE_RGB, FADE_ALPHA, FADE_SHARE = (10, 20, 24), 0.88, 1000 / 1920
+ACCENT = "009c8f"                              # the deck's teal (charts.py TEAL)
+PHOTO_SUB = "FFFFFF"
+
+
+def _photo_image(path) -> "BytesIO":
+    """The picture cropped to the slide's shape, black and white, faded on the left; as JPEG."""
+    from io import BytesIO
+    from PIL import Image, ImageOps
+    img = ImageOps.fit(Image.open(path).convert("L"), (1920, 1080), Image.LANCZOS).convert("RGB")
+    fade_w = round(1920 * FADE_SHARE)
+    ramp = ImageOps.mirror(Image.linear_gradient("L").rotate(90, expand=True)).resize(
+        (fade_w, 1080))                                  # 255 at the left edge -> 0
+    mask = Image.new("L", img.size, 0)
+    mask.paste(ramp.point(lambda v: round(v * FADE_ALPHA)), (0, 0))
+    img.paste(Image.new("RGB", img.size, FADE_RGB), (0, 0), mask)
+    buf = BytesIO()
+    img.save(buf, "JPEG", quality=90)
+    buf.seek(0)
+    return buf
+
+
+def _photo_slide(slide, path, text, credit):
+    from pptx.enum.shapes import MSO_SHAPE
+    from pptx.util import Inches
+    slide.shapes.add_picture(_photo_image(path), 0, 0, Inches(SLIDE_W), Inches(SLIDE_H))
+    title, _, sub = (t.strip() for t in text.partition("|"))
+    px = SLIDE_W / 1920                                      # the design's pixels, in inches
+    bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(120 * px), Inches(690 * px),
+                                 Inches(96 * px), Inches(6 * px))
+    bar.fill.solid()
+    bar.fill.fore_color.rgb = _rgb(ACCENT)
+    bar.line.fill.background()
+    for box in (_text(slide, title, 120 * px, 716 * px, 1500 * px, 140 * px, 54, color="FFFFFF",
+                      anchor="top"),
+                _text(slide, sub, 120 * px, 872 * px, 1500 * px, 70 * px, 28, font=BODY_FONT,
+                      color=PHOTO_SUB, anchor="top") if sub else None,
+                _text(slide, credit, 120 * px, 1020 * px, 900 * px, 36 * px, 10, font=BODY_FONT,
+                      color="b8c0c2") if credit else None):
+        if box is not None:
+            box.text_frame.margin_left = box.text_frame.margin_right = 0
+
+
 def _placeholder(slide, name):
     from pptx.enum.shapes import MSO_SHAPE
     from pptx.util import Inches
@@ -306,6 +354,8 @@ def _lay_out(slide, s: Slide, text: str, warnings: list[str]):
     elif target == "images/qr.png":
         _picture_fit(slide, HERE / target, 7.9, 1.25, 5.0, 5.0)
         _text(slide, text.replace(" · ", "\n"), 0.8, 1.25, 6.6, 5.0, 40)
+    elif kind == "photo":
+        _photo_slide(slide, HERE / target, text, s.extra.get("credit", ""))
     elif kind == "picture":
         path = HERE / target
         if path.exists():

@@ -26,10 +26,11 @@ Both of those are real winters, not forecasts. So which one is coming? And would
 accepted:
 
 ## slide centaur
-object: picture:images/centaur.png
-text:
+object: photo:images/centaur_photo.jpg
+text: The Centaur Model | Expert judgement and AI, working together
+credit: Photo: James Frid / Pexels
 notes:
-Before I answer, a picture. This is a centaur, half human and half horse. This picture, like the others in this talk, is AI-made.
+Before I answer, a picture. This is a centaur, half human and half horse.
 After Garry Kasparov lost to a chess computer, he started asking a different question: what happens when a human and a computer play as one team? Chess players call those teams centaurs.
 In 2005 there was an open freestyle chess tournament on the internet. Anyone could enter, with any computer help they liked. The winners were not grandmasters, and not the strongest machine. They were two amateur players from the United States, running three ordinary computers, with a very good way of working together with them. The process beat the raw strength.
 And today Terence Tao, one of the great mathematicians alive, works on real research problems with AI tools at his side. AI tools suggest and explore, proof-checking software verifies, and he decides what matters.
@@ -56,17 +57,11 @@ One honest note before any score. When I test the models, I give them the weathe
 accepted:
 
 ## slide sources
-object: picture:images/sources.png
-text: Data Sources
+object: chart:coverage_slide
+text:
 notes:
 Then the hunt for data. Three sources: the Kinneret Drainage and Streams Authority's site for the lake's level, the Hydrological Service for the rivers, above all the Jordan, and the Meteorological Service's records for the rain, the heat, the wind and the sun, kept current through Open-Meteo.
 Finding them took a while; the river data was the hardest to find. Three agencies, three formats, and none of it made to be used together.
-accepted:
-
-## slide coverage
-object: chart:coverage_painted
-text:
-notes:
 Here is every record against time. The lake level goes back to {data.level.start}, the Jordan at Obstacle Bridge to {data.flow.obstacle_bridge.start}. Some records stopped, some paused, some changed source. The weather downloads start in {data.weather.start}. Only from {data.gold.start} do all the sources line up, so that is where my model's table starts.
 accepted:
 
