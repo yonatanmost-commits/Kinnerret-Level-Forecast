@@ -16,7 +16,7 @@ Parked: slide-6 order (the record: race -> Wade Storm -> 2023 fix), on-screen te
 (centaur = "Centaur"), length (target about 1,800 words).
 
 ## 1. lake-years video (agreed)
-In my first year here at Kinneret, around twenty eighteen, the lake was so low that I walked all the way out to the island in front of the campus.
+In my first year here at Kinneret, the lake was so low that I walked all the way out to the island in front of the campus.
 By the time I graduated, the waves were flooding the Tiberias promenade, taking their toll on the wooden market stands. Today, those stands stand high above the water once again.
 The lake's ups and downs aren't new. But today it sits below the red line, and it is our national backup. A low lake means leaning harder on desalination, water quality and algae at risk, and pressure that spreads out in wider circles.
 So which winter is coming? One like twenty eighteen to nineteen, the best of the last twenty, that lifted the lake back up? Or one like twenty twenty-four to twenty-five, the worst, that kept it falling?
