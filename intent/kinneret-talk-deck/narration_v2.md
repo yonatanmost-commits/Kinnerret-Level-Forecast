@@ -26,7 +26,6 @@ Imagine knowing that a year ahead. Hold on to that thought: by the end of this t
 First, a picture. This is a centaur: half human, half horse.
 After Garry Kasparov lost to a chess computer, he started asking a different question: what happens when a human and a computer play as one team? Chess players call those teams centaurs.
 In two thousand and five there was an open freestyle chess tournament on the internet. Anyone could enter, with any computer help they liked. The winners were not grandmasters, and not the strongest machine. They were two amateur players from the United States, running three ordinary computers, with a very good way of working together with them. The process beat the raw strength.
-And today Terence Tao, one of the great mathematicians alive, works on real research problems with AI at his side. The AI suggests and explores, software checks the proofs, and he decides what matters.
 Keep those two amateurs in mind. Because the person standing in front of you is one too.
 
 ## 3. app front (agreed)
