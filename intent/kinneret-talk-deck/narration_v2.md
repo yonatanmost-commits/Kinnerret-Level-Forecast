@@ -46,35 +46,41 @@ AI is the flashlight. I pointed Claude at a website and said: find the API key. 
 The rivers go back fifty years. My weather goes back to 2012. So that's where my table starts. The weakest link in this system isn't the model. It's the data. And that's exactly where the biggest potential is.
 (Measured 2026-10-14: Obstacle Bridge from 1970-10, Sede Nehemya 1969-10; weather downloads from 2012-06 (Tzemach, Beit Tzaida, Kfar Nachum); Baptism Site 2012-07; Lev Kinneret 2012-11 (multi-station mean before); gold table 2012-09. Never say the history could not go further back: Tzemach exists from 1994.)
 
-## 6. the race (v3; chart: the race)
+## 6. organise (agreed 2026-10-14 for now; bronze/silver; plants the dash)
+Step two: organise. Every source arrives in its own shape. The weather comes every ten minutes, all the stations stacked one under the other in a long table. The rivers come once a day, a column per station, in a wide one. The lake level, back in 1970, was read about once a week. And all of it is dirty: gaps, dashes, sensors that die.
+Here's the trick: don't worry about the shape of the data you have. Decide the shape you need. Mine is simple: one row per day, from 2012, and one column per parameter.
+Data people have names for this. Bronze is the raw files, as they arrive. Silver is that clean table. I asked Claude to take a hard look at the data and suggest how to clean it. It came back with tactics I would never have thought of. (beat) But there's a catch hiding in there. We'll find it soon.
+(Measured 2026-10-14: weather 10-minute readings, long format before pivot; level ~50 readings in 1970, daily by 2012; river flow daily, one column per station.)
+
+## 7. the race (v3; chart: the race)
 Now the model. The web said: use XGBoost. Claude quietly built something plainer: gradient boosting. Many small decision trees, each one fixing the mistakes of the one before.
 It forecasts the way water flows: the river first, then the lake, one day at a time. And every morning it restarts from the last real measurement, so the errors don't snowball.
 So I raced them. Eight models, scored from zero, no better than guessing the average, to one, perfect. And always a best case: the models get the weather that really happened.
 The plain one won. Every time.
 
-## 7. the neural network (v3; chart: two stopwatches)
+## 8. the neural network (v3; chart: two stopwatches)
 Then I tried to beat it with the AI everyone talks about: a neural network. Seventy-one minutes of training. Its score: zero. The plain model took four minutes.
 That's when I understood. The answer wasn't a bigger model.
 
-## 8. the dash (v3; picture)
+## 9. the dash (v3; picture)
 Because something else was on that race chart. Every model that worked stumbled in the same year: twenty twenty-three. I didn't see it. My AI hydrologist did, a persona I called Doctor Wade Storm. If every model fails the same way, he wrote, it's the data, not the model.
 He was right. That year, the lake's rain gauge was offline. It wrote a dash for every missing reading, and my pipeline quietly turned each dash into a zero. A whole winter of rain, gone. No error. No crash.
 
-## 9. better data (v3; chart: score before and after)
+## 10. better data (v3; chart: score before and after)
 I fixed it, and added a few of his simple ideas, like telling the model how hard it rained, not just how much. The score went from 0.69 to 0.76, in two days. Not a new model. Better data.
 I didn't check every idea he had. I rode the flow. But I kept one hand on the wheel: nothing stayed unless the score said so. That's the centaur. The machine explores; the person decides.
 
-## 10. one week (v3; chart: one real week, forecast against the lake)
+## 11. one week (v3; chart: one real week, forecast against the lake)
 So, one week. This is a real one: what the model said on the first day, and what the lake did.
 A week ahead, it scores 0.73. "The lake stays the same" scores zero. I set out for one week, and the week holds.
 
-## 11. beyond the week (v3; chart: skill fading with lead time)
+## 12. beyond the week (v3; chart: skill fading with lead time)
 Adnan wanted more. A season. I told him I didn't have the data. I tried anyway: the long-range forecast, temperature alone, climate models. Shots in the dark, and mostly misses. Past a few weeks, everything waits for the rain, and rain here is one of the hardest forecasts there is.
 
-## 12. the red line (v3; chart: one summer replayed)
+## 13. the red line (v3; chart: one summer replayed)
 But one shot hit. In summer there's no rain to guess, only a lake drying in the sun. So: when will it cross the red line? A month ahead, a simple drying curve named the day within about two days. On every crossing since twenty oh eight.
 
-## 13. close (v3; the lake video's last frame)
+## 14. close (v3; the lake video's last frame)
 So what stopped me from seeing further? Not the model. A river station that went silent. A dash in a file. And the water pumped out of the lake, which my model never sees.
 Each of those is a link in one chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
 So, which winter is coming? I promised to tell you honestly how far ahead I got. One week. A month, in summer. Next winter, I can't see. Not today, and not alone.
