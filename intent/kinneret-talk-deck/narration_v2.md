@@ -28,12 +28,11 @@ After Garry Kasparov lost to a chess computer, he started asking a different que
 In two thousand and five there was an open freestyle chess tournament on the internet. Anyone could enter, with any computer help they liked. The winners were not grandmasters, and not the strongest machine. They were two amateur players from the United States, running three ordinary computers, with a very good way of working together with them. The process beat the raw strength.
 Keep those two amateurs in mind. Because the person standing in front of you is one too.
 
-## 3. app front (agreed)
-So who is this amateur? I'm a process engineer in water treatment, and a master's student in data science. I'm not a meteorologist. I'm not a hydrologist. And I can't write Python. Not alone, anyway.
-This is the front page of the app we built. The lake, below the red line, and still falling.
-It started in a data science course with Adnan Agbaria, now my co-author. I picked up a challenge: could I forecast the Kinneret?
-I set the goal at one week, on purpose. Weather drives this lake, and a weather forecast sees about a week ahead. So a week was an honest place to start. Not next winter, not next year. Just one week, done well.
-Adnan, as you'll see, kept pushing me further. But first, how I got that week. Because that's the real story, and it's one any of you could repeat.
+## 3. app front (agreed 2026-10-14 v4; QR code moves to the close)
+I'm a process engineer: I design wastewater treatment plants for TTT, of the WFI Group. And I owe this talk to my co-author, Adnan Agbaria, my lecturer in a data science course during my master's in water engineering, here at Kinneret.
+He gave us an open data analysis task: pick a subject, gather the data, analyse it. I said: I want to build a machine learning model that forecasts the Kinneret's level, from weather data I pull off the internet.
+I know what you're thinking. That's a big task. It is. I said so myself, two slides ago. But I decided to play with it. If the weather tells me the rain, how hard can it be to guess one week ahead? So I took it on.
+This is what came out of it. An app. The lake's history and statistics, the model, and the best part: you can play. Pull this week's forecast from the Meteorological Service, and see where the lake is going. Or go back to any week since 2012, and see how the model would have done. You'll get the link at the end. Please don't open it now.
 
 ## 4. the pipeline (agreed)
 I'm a process engineer, so let me draw this like a treatment plant. Three stages.
