@@ -16,12 +16,26 @@ until grep -q "QUEUE DONE" "$T/night.log" 2>/dev/null; do
   sleep 300
 done
 echo "##### memory check $(date)" >> "$LOG"
+# The tournament's winner keeps the fixed rule (mean over all six horizons). The memory
+# check studies the LONG-range best instead (mean of 130/260/365 d, clim weather),
+# because the goal is long-term forecasts; when the two agree nothing differs.
+long_best() {   # long_best <summary tag> -> label with the lowest long-range MAE
+  python - "$T/summary_$1.json" <<'EOF'
+import json, sys
+mae = json.load(open(sys.argv[1]))["mae_m"]
+long = {k.split("/")[0]: sum(v[h] for h in ("130", "260", "365")) / 3
+        for k, v in mae.items() if k.endswith("/clim")}
+print(min(long, key=long.get))
+EOF
+}
+tag() { python -c "import sys;print('_'.join(sorted(set(sys.argv[1:]))))" "$@"; }
 python -X utf8 cfc_tournament.py --summary --only A,A1,B14,B60 >> "$LOG" 2>&1
 W1=$(python -c "import json;print(json.load(open('$T/summary_A_A1_B14_B60.json'))['winner_clim'].split('/')[0])")
-TAG=$(python -c "print('_'.join(sorted({'$W1','C60'})))")
-python -X utf8 cfc_tournament.py --summary --only "$W1,C60" >> "$LOG" 2>&1
-W=$(python -c "import json;print(json.load(open('$T/summary_$TAG.json'))['winner_clim'].split('/')[0])")
-echo "=== round-1 winner $W1, overall winner $W" >> "$LOG"
+WL1=$(long_best A_A1_B14_B60)
+python -X utf8 cfc_tournament.py --summary --only "$W1,C60" >> "$LOG" 2>&1          # round 2, fixed rule
+[ "$WL1" != "$W1" ] && python -X utf8 cfc_tournament.py --summary --only "$WL1,C60" >> "$LOG" 2>&1
+W=$(long_best "$(tag "$WL1" C60)")
+echo "=== round-1 winner (all horizons) $W1, round-1 long-range best $WL1, memory check on $W" >> "$LOG"
 case "$W" in                                        # method and its history length
   A|A1) M=$W; L0=14 ;;
   *)    M=${W:0:1}; L0=${W:1} ;;
