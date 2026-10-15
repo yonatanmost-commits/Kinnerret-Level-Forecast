@@ -11,6 +11,11 @@ Peak 1-hour intensity: maximum of any rolling 6-slot (60-minute) window of
 10-minute readings.  Uses lev_kinneret_rainfall_mm; falls back to the mean
 of all available station rainfall columns where lev_kinneret is NaN.
 
+After that (whether or not the wide file is present), the days after the
+cache's last value are filled from the IMS 10-minute feed through yesterday
+(precip_intensity.update_cache). The wide file stopped growing on 2026-04-25,
+when the manual exports ended.
+
 Output
 ------
 Silver Data/Meteorological/precip_intensity_daily.csv
@@ -24,6 +29,8 @@ Usage
 import pathlib
 import pandas as pd
 
+from precip_intensity import update_cache
+
 BASE_DIR   = pathlib.Path(__file__).resolve().parent.parent
 SILVER_MET = BASE_DIR / "Silver Data" / "Meteorological"
 IN_WIDE    = SILVER_MET / "met_data_wide.csv"
@@ -31,6 +38,13 @@ OUT_FILE   = SILVER_MET / "precip_intensity_daily.csv"
 
 
 def main():
+    rebuild_from_wide()
+    out = update_cache(OUT_FILE)
+    print("Extended from IMS feed: last day %s  |  Rows: %d  |  Non-null: %d"
+          % (out["date"].max(), len(out), out["precip_intensity_mm_hr"].notna().sum()))
+
+
+def rebuild_from_wide():
     if not IN_WIDE.exists():
         # met_data_wide.csv is 207 MB and is excluded from the repository, so it
         # is absent in CI and in any fresh clone.  The daily agent never extends
@@ -40,8 +54,6 @@ def main():
         if OUT_FILE.exists():
             print("SKIP: " + IN_WIDE.name + " not present; keeping cached "
                   + OUT_FILE.name + " as-is.")
-            print("      Precip intensity is frozen at that file's last date.")
-            print("      Re-run 02_pivot_wide_met_data.py locally to extend it.")
             return
         raise FileNotFoundError(
             str(IN_WIDE) + " not found and no cached " + OUT_FILE.name
@@ -76,7 +88,6 @@ def main():
     result.to_csv(OUT_FILE, index=False, encoding="utf-8")
     print("Saved " + str(OUT_FILE))
     print("Rows: %d  |  Non-null: %d" % (len(result), result["precip_intensity_mm_hr"].notna().sum()))
-    print("Done.")
 
 
 if __name__ == "__main__":
