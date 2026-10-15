@@ -177,7 +177,7 @@ def long_bars(c, methods, label, w=720, h=250):
             x = x0 + j * bw
             g.append(f'<rect x="{x + 2:.1f}" y="{Y(v):.1f}" width="{bw - 4:.1f}" height="{Y(0) - Y(v):.1f}" '
                      f'rx="2" style="fill:var(--m-{m})" class="{"" if m == best else "dim"}"/>'
-                     f'<text class="num small" x="{x + bw / 2:.1f}" y="{Y(v) - 5:.1f}" text-anchor="middle">{v:.2f}</text>')
+                     f'<text class="num small inbar" x="{x + bw / 2:.1f}" y="{Y(v) + 13:.1f}" text-anchor="middle">{v:.2f}</text>')
         for r, cls in zip(refs, ("ref1", "ref2")):
             v = refs[r].get(hh)
             if v is not None:
@@ -198,7 +198,8 @@ def forest(rows, label, w=720):
     g = [f'<line class="zero" x1="{X(0):.1f}" x2="{X(0):.1f}" y1="{mt - 10}" y2="{h - 26}"/>']
     _, step = nice_max(ext)
     for v in np.arange(-np.floor(ext / step) * step, ext, step):
-        g.append(f'<text class="tick" x="{X(v):.1f}" y="{h - 8}" text-anchor="middle">{v:+.2f}</text>')
+        g.append(f'<text class="tick" x="{X(v):.1f}" y="{h - 8}" text-anchor="middle">'
+                 f'{"0" if abs(v) < 1e-9 else f"{v:+.2f}"}</text>')
     g.append(f'<text class="axis" x="{X(-ext / 2):.1f}" y="{mt - 14}" text-anchor="middle">◀ left better</text>'
              f'<text class="axis" x="{X(ext / 2):.1f}" y="{mt - 14}" text-anchor="middle">right better ▶</text>')
     for i, (a, b, allh, lng) in enumerate(rows):
@@ -479,7 +480,7 @@ svg text {{ fill:var(--fg); font-family:var(--sans) }}
 .ci {{ stroke-width:2.2 }} .ci.all, .pt.all {{ stroke:var(--muted) }} .ci.long {{ stroke:var(--fg) }}
 .pt.all {{ fill:var(--panel); stroke-width:2 }} .pt.long {{ fill:var(--fg) }}
 .heat {{ fill:var(--heat) }} .best {{ fill:none; stroke:var(--fg); stroke-width:2 }}
-.hot {{ fill:var(--panel) }}
+.hot, .inbar {{ fill:var(--panel) }}
 .arc {{ fill:none; stroke-width:1.8 }} .today {{ fill:var(--fg) }}
 .train {{ fill:var(--m-B14); opacity:.55 }} .test {{ fill:var(--m-A) }} .unused {{ fill:var(--grid) }}
 i.key {{ display:inline-block; width:18px; height:0; border-top:2px dashed; vertical-align:middle; margin:0 4px 0 10px }}
