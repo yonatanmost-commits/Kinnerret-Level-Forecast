@@ -81,7 +81,7 @@ def _write_report(results: dict, health_issues: list, today: str) -> Path:
             lines.append(f"  {key:<16} : FAILED    {detail}")
 
     lines += ["", "PIPELINE"]
-    for key in ["05_clean_flow", "04_clean_met", "build_gold", "07b_precip", "train_winner"]:
+    for key in ["05_clean_flow", "04_clean_met", "07b_precip", "build_gold", "train_winner"]:
         r = results.get(key)
         if r is None:
             continue
@@ -133,14 +133,12 @@ def run() -> dict:
         results["met"] = {"status": "failed", "rows_added": 0, "detail": str(e)}
         results["04_clean_met"] = {"status": "skipped", "detail": "met failed"}
 
-    # Step 4: Build gold (always attempt)
-    results["build_gold"] = _run_script("07_build_gold_features.py")
+    # Step 4: Precipitation intensity (extends its cache from the IMS 10-minute
+    # feed). Runs before gold, because 07 reads this cache.
+    results["07b_precip"] = _run_script("07b_precalc_precip_intensity.py")
 
-    # Step 4b: Precipitation intensity feature (runs after 07, updates gold in place)
-    if results["build_gold"]["status"] == "ok":
-        results["07b_precip"] = _run_script("07b_precalc_precip_intensity.py")
-    else:
-        results["07b_precip"] = {"status": "skipped", "detail": "build_gold failed"}
+    # Step 4b: Build gold (always attempt)
+    results["build_gold"] = _run_script("07_build_gold_features.py")
 
     # Step 5: Train winner (only if gold + 07b succeeded)
     if results["build_gold"]["status"] == "ok" and results["07b_precip"]["status"] == "ok":
