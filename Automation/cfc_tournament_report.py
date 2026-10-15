@@ -140,15 +140,15 @@ def horizon_chart(c, keys, label, w=720, h=360):
         pts = by_h(c, k)
         xs = [hh for hh in H if hh in pts]
         path = " ".join(f"{'M' if i == 0 else 'L'}{X(x):.1f},{Y(pts[x]):.1f}" for i, x in enumerate(xs))
-        ref = m in REFS
-        g.append(f'<path class="ln {"ref" if ref else ""}" style="stroke:var(--m-{m})" d="{path}"/>')
-        if not ref:
+        ref, obs = m in REFS, k.endswith("/obs")
+        g.append(f'<path class="ln {"ref" if ref else ""} {"obs" if obs else ""}" style="stroke:var(--m-{m})" d="{path}"/>')
+        if not (ref or obs):
             g += [f'<circle cx="{X(x):.1f}" cy="{Y(pts[x]):.1f}" r="3.2" style="fill:var(--m-{m})"/>' for x in xs]
-        ends.append((Y(pts[xs[-1]]), m, pts[xs[-1]]))
+        ends.append((Y(pts[xs[-1]]), m, pts[xs[-1]], " · weather known" if obs else ""))
     ys = spread([e[0] for e in ends])
-    for (y0, m, v), y in zip(ends, ys):
+    for (y0, m, v, extra), y in zip(ends, ys):
         g.append(f'<text class="lab" x="{w - mr + 10}" y="{y + 4:.1f}" style="fill:var(--m-{m})">'
-                 f'{esc(NAMES.get(m, m))} <tspan class="num">{v:.2f}</tspan></text>')
+                 f'{esc(NAMES.get(m, m) if not extra else m + extra)} <tspan class="num">{v:.2f}</tspan></text>')
     return svg(w, h, "".join(g), label)
 
 
@@ -214,10 +214,10 @@ def forest(rows, label, w=720):
 def year_heat(c, methods, hh, label, w=720):
     """Test year x method, cell = MAE at horizon hh; ring on each year's best."""
     ml, mt, rh = 54, 34, 22
-    years = sorted(c["year"].unique())
+    t = c[c["H"] == hh].groupby(["year", "key"])["ae"].mean().unstack()
+    years = sorted(t.index)                      # the last test year has no 365-day outcome yet
     h = mt + rh * len(years) + 8
     cw = (w - ml - 10) / len(methods)
-    t = c[c["H"] == hh].groupby(["year", "key"])["ae"].mean().unstack()
     vmax = float(np.nanmax(t[[f"{m}/clim" for m in methods]].to_numpy()))
     g = []
     for j, m in enumerate(methods):
@@ -350,7 +350,8 @@ def build():
                          note="Horizons 7 · 13 · 26 · 130 · 260 · 365 days. A start every 7 days. "
                               "Weather ahead = average for that day of year. 3 seeds each."))
     parts.append(section("Round 1 · error by horizon",
-                         horizon_chart(c1, [f"{m}/clim" for m in r1] + [f"{r}/-" for r in REFS],
+                         horizon_chart(common(d, [f"{m}/clim" for m in r1] + [f"{w1}/obs"] + [f"{r}/-" for r in REFS]),
+                                       [f"{m}/clim" for m in r1] + [f"{w1}/obs"] + [f"{r}/-" for r in REFS],
                                        "round 1 level error by horizon")))
     parts.append(section("Round 1 · long range", long_bars(c1, r1, "long-range error per method"),
                          note='<i class="key ref1"></i>no change <i class="key ref2"></i>average change'))
@@ -471,7 +472,7 @@ svg text {{ fill:var(--fg); font-family:var(--sans) }}
 .num {{ font-family:var(--mono); font-variant-numeric:tabular-nums }} .small {{ font-size:10px }} .big {{ font-size:20px; font-weight:600 }}
 .lab .num {{ fill:var(--muted); font-weight:400 }}
 .grid {{ stroke:var(--grid); stroke-width:1 }} .faint {{ stroke-dasharray:2 4 }}
-.ln {{ fill:none; stroke-width:2.4; stroke-linejoin:round }} .ln.ref {{ stroke-dasharray:5 4; stroke-width:1.8 }}
+.ln {{ fill:none; stroke-width:2.4; stroke-linejoin:round }} .ln.obs {{ stroke-dasharray:0.1 5; stroke-linecap:round; stroke-width:3 }} .ln.ref {{ stroke-dasharray:5 4; stroke-width:1.8 }}
 .dim {{ opacity:.55 }}
 .refline {{ stroke-width:1.6; stroke-dasharray:5 3 }} .ref1 {{ stroke:var(--m-persistence) }} .ref2 {{ stroke:var(--m-clim_change) }}
 .zero {{ stroke:var(--muted); stroke-width:1 }}
