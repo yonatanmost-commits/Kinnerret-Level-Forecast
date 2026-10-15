@@ -216,8 +216,11 @@ def main():
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--seq-len", type=int, default=14)
     ap.add_argument("--cell", choices=sorted(CELLS) + ["mix"], default="cfc")
+    ap.add_argument("--last-test-year", type=int, default=2024,
+                    help="extend the walk-forward folds past 2024 (this run only; 08 is untouched)")
     a = ap.parse_args()
 
+    t08.CV_FOLDS = [(str(y), list(range(2012, y)), y) for y in range(2021, a.last_test_year + 1)]
     df = t08.load_data()
     official, _ = t08.run_cv(df)        # the champion's CV as-is (same-day level_m)
     # S2's target is vol(level_t) - vol(level_t-1). A 14-day window holding same-day
@@ -240,7 +243,8 @@ def main():
     print(f"  (champion GBR as-is, same-day level_m: S2 R² {_mean(official,'s2_r2'):.3f}  "
           f"MAE {_mean(official,'s2_mae_Mm3'):.3f})")
 
-    out_file = OUT_DIR / f"liquid_nn_cv_{a.cell}_s{a.seeds}.json"
+    to = "" if a.last_test_year == 2024 else f"_to{a.last_test_year}"
+    out_file = OUT_DIR / f"liquid_nn_cv_{a.cell}_s{a.seeds}{to}.json"
     out_file.parent.mkdir(parents=True, exist_ok=True)
     out_file.write_text(json.dumps({
         "generated_at": pd.Timestamp.now().isoformat(timespec="seconds"),
