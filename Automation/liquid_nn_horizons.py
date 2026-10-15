@@ -185,7 +185,7 @@ def rollout(model: TwoStage, df: pd.DataFrame, anchors: np.ndarray, H: int,
         vol[k] = f["volume_Mm3"].to_numpy(float)
         lvl_now[k] = df["level_m"].iat[a + 1]     # level_m is lagged: row a+1 holds level(a)
     i1 = {c: S1_FEATURES.index(c) for c in S1_STATE}
-    i2 = {c: S2_FEATURES.index(c) for c in S2_STATE}
+    i2 = {c: S2_FEATURES.index(c) for c in S2_STATE if c in S2_FEATURES}
     vol0 = vol[:, BACK].copy()
     cur = vol0.copy()
     out = np.empty((A, H))
@@ -195,7 +195,8 @@ def rollout(model: TwoStage, df: pd.DataFrame, anchors: np.ndarray, H: int,
         s1_raw[:, r, i1["inflow_lag1_m3"]] = inflow[:, r - 1]
         s1_raw[:, r, i1["inflow_lag2_m3"]] = inflow[:, r - 2]
         inflow[:, r] = model.s1_out(model.s1.predict_last(s1_raw[:, r - L + 1:r + 1]))
-        s2_raw[:, r, i2["predicted_inflow_m3"]] = inflow[:, r]
+        if "predicted_inflow_m3" in i2:                     # absent in a one-step variant
+            s2_raw[:, r, i2["predicted_inflow_m3"]] = inflow[:, r]
         s2_raw[:, r, i2["volume_change_lag1_Mm3"]] = dvol[:, r - 1]
         s2_raw[:, r, i2["volume_change_lag2_Mm3"]] = dvol[:, r - 2]
         s2_raw[:, r, i2["level_m"]] = lvl_now + (np.polyval(bathy, cur) - np.polyval(bathy, vol0)) \
