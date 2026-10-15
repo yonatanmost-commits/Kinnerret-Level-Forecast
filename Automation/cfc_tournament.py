@@ -28,6 +28,12 @@ horizons with clim weather.
 Run:  python Automation/cfc_tournament.py --method A|B|C [--seeds 3]
       python Automation/cfc_tournament.py --summary
 Each finished test year is saved; a rerun skips it.
+
+Memory check (how many past days the winner uses), outputs under CFC_OUT=.../memory:
+  --enc-len L     history length; for A/A1 too (default 14 there, label A30 etc.)
+  --occlude 7,14  test-time only: blank (zero) the standardised inputs older than k
+                  days in the trained B/C nets' history window; no retraining.
+                  Stored as weather "clim|k" / "obs|k" next to the full-window forecast.
 """
 import argparse
 import json
@@ -116,7 +122,7 @@ def references(base, anchors, year, train_mask) -> list:
 # Method A - relay
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_A(base, lagged, year, anchors, seeds, one_step=False):
+def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14):
     Hz.S1_FEATURES = lnc.S1_FEATURES                                     # set by L.set_features
     # A1 (one-step relay) drops the inflow step: volume change straight from weather
     # and lake state, so A1 vs B isolates relay vs direct, and A vs A1 the inflow step
@@ -127,7 +133,7 @@ def run_A(base, lagged, year, anchors, seeds, one_step=False):
     clim = Hz.doy_climatology(lagged, trm)
     dfx = Hz.extend(lagged, HMAX + 1, clim)
     bathy = t08.fit_vol2level_poly()
-    m = Hz.TwoStage("lnn", "cfc", seeds, 14).fit(lagged, trm)
+    m = Hz.TwoStage("lnn", "cfc", seeds, seq_len).fit(lagged, trm)
     return {w: Hz.rollout(m, dfx, anchors, HMAX, w, clim, bathy) for w in ("obs", "clim")}
 
 
@@ -156,6 +162,20 @@ class Scaler:
 
 def windows(Z: np.ndarray, anchors: np.ndarray, L_: int) -> np.ndarray:
     return np.stack([Z[a - L_ + 1:a + 1] for a in anchors])
+
+
+def blanked(X: torch.Tensor, k) -> torch.Tensor:
+    """History window with every day older than the last k set to 0 (the training
+    mean, after scaling). k=None leaves it whole."""
+    if k is None or k >= X.shape[1]:
+        return X
+    X = X.clone()
+    X[:, :X.shape[1] - k] = 0.0
+    return X
+
+
+def tag(w, k):
+    return w if k is None else f"{w}|{k}"
 
 
 def future_weather(base, anchors, weather, clim, n_days):
@@ -262,7 +282,7 @@ class DirectNet(nn.Module):
         return self.head(torch.cat([h, s], dim=1))
 
 
-def run_B(base, year, anchors, seeds):
+def run_B(base, year, anchors, seeds, occlude=()):
     bathy = t08.fit_vol2level_poly()
     E = encoder_matrix(base)
     tr = train_anchors(base, year)
@@ -288,18 +308,18 @@ def run_B(base, year, anchors, seeds):
     Xa = torch.tensor(windows(Ze, anchors, ENC_L))
     S_test = {w: torch.tensor(sc_s(window_summaries(future_weather(base, anchors, w, clim, HMAX))))
               for w in ("obs", "clim")}
-    preds = {w: [] for w in S_test}
+    preds = {(w, k): [] for k in (None, *occlude) for w in S_test}
     for s in range(seeds):
         net = fit_loop(DirectNet(Ze.shape[1], Xs.shape[1]), loss, len(tr), seed=s)
         net.eval()
         with torch.no_grad():
-            for w, S in S_test.items():
-                preds[w].append(net(Xa, S).numpy() * y_sd + y_mu)
+            for w, k in preds:
+                preds[w, k].append(net(blanked(Xa, k), S_test[w]).numpy() * y_sd + y_mu)
     out = {}
-    for w, p in preds.items():
+    for (w, k), p in preds.items():
         dv = np.full((len(anchors), HMAX), np.nan)
         dv[:, [h - 1 for h in HORIZONS]] = np.mean(p, axis=0)
-        out[w] = to_level(base, anchors, dv, bathy)
+        out[tag(w, k)] = to_level(base, anchors, dv, bathy)
     return out
 
 
@@ -335,7 +355,7 @@ class OdeNet(nn.Module):
         return self.head(y).squeeze(-1)            # (A, steps): volume change since the anchor
 
 
-def run_C(base, year, anchors, seeds):
+def run_C(base, year, anchors, seeds, occlude=()):
     bathy = t08.fit_vol2level_poly()
     E = encoder_matrix(base)
     tr = train_anchors(base, year)[::2]                    # every other day keeps the night affordable
@@ -364,18 +384,18 @@ def run_C(base, year, anchors, seeds):
     for w in ("obs", "clim"):
         D = step_weather(future_weather(base, anchors, w, clim, HMAX))
         D_test[w] = torch.tensor(sc_d(D.reshape(-1, D.shape[2])).reshape(D.shape))
-    preds = {w: [] for w in D_test}
+    preds = {(w, k): [] for k in (None, *occlude) for w in D_test}
     for s in range(seeds):
         net = fit_loop(OdeNet(Ze.shape[1], Xd.shape[2]), loss, len(tr), seed=s, epochs=60, patience=8)
         net.eval()
         with torch.no_grad():
-            for w, D in D_test.items():
-                preds[w].append(net(Xa, D, spans).numpy() * y_sd)
+            for w, k in preds:
+                preds[w, k].append(net(blanked(Xa, k), D_test[w], spans).numpy() * y_sd)
     out = {}
-    for w, p in preds.items():
+    for (w, k), p in preds.items():
         dv = np.full((len(anchors), HMAX), np.nan)
         dv[:, GRID - 1] = np.mean(p, axis=0)
-        out[w] = to_level(base, anchors, dv, bathy)
+        out[tag(w, k)] = to_level(base, anchors, dv, bathy)
     return out
 
 
@@ -387,12 +407,15 @@ def ckpt(name):
     return OUT / f"{name}.json"
 
 
-def run_method(method, seeds):
+def run_method(method, seeds, a_seq=14, occlude=()):
     OUT.mkdir(parents=True, exist_ok=True)
     L.set_features(L.NO_INTENSITY)
     base, lagged = tables()
-    label = method if method in ("A", "A1") else f"{method}{ENC_L}"   # A, A1 read 14 days
-    name = f"{label}_s{seeds}"
+    if method in ("A", "A1"):                                         # A, A1 read 14 days
+        label = method if a_seq == 14 else f"{method}_{a_seq}"
+    else:
+        label = f"{method}{ENC_L}"
+    name = f"{label}_s{seeds}" + ("_occ" if occlude else "")
     done = json.loads(ckpt(name).read_text(encoding="utf-8")) if ckpt(name).exists() else {}
     refs = json.loads(ckpt("references").read_text(encoding="utf-8")) if ckpt("references").exists() else {}
     for year in TEST_YEARS:
@@ -404,11 +427,11 @@ def run_method(method, seeds):
             continue
         t0 = time.time()
         if method in ("A", "A1"):
-            preds = run_A(base, lagged, year, anchors, seeds, one_step=method == "A1")
+            preds = run_A(base, lagged, year, anchors, seeds, one_step=method == "A1", seq_len=a_seq)
         elif method == "B":
-            preds = run_B(base, year, anchors, seeds)
+            preds = run_B(base, year, anchors, seeds, occlude)
         else:
-            preds = run_C(base, year, anchors, seeds)
+            preds = run_C(base, year, anchors, seeds, occlude)
         done[str(year)] = records(label, year, base, anchors, preds)
         ckpt(name).write_text(json.dumps(done), encoding="utf-8")
         e = pd.DataFrame(done[str(year)]).assign(err=lambda d: (d.pred - d.obs).abs())
@@ -476,16 +499,20 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--method", choices=["A", "A1", "B", "C"])
     ap.add_argument("--seeds", type=int, default=3)
-    ap.add_argument("--enc-len", type=int, default=60)
+    ap.add_argument("--enc-len", type=int, default=None, help="history days (B/C default 60, A/A1 14)")
+    ap.add_argument("--occlude", default="", help="B/C only: comma list of k, see the header")
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--only", default="", help="comma list of methods to include in --summary")
     a = ap.parse_args()
     global ENC_L
-    ENC_L = a.enc_len
+    ENC_L = a.enc_len or 60
+    occ = tuple(int(k) for k in a.occlude.split(",") if k)
+    if occ and a.method not in ("B", "C"):
+        ap.error("--occlude needs --method B or C")
     if a.summary:
         summary(a.only)
     else:
-        run_method(a.method, a.seeds)
+        run_method(a.method, a.seeds, a_seq=a.enc_len or 14, occlude=occ)
 
 
 if __name__ == "__main__":
