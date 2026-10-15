@@ -84,6 +84,27 @@ def _mean(rows, k):
     return round(float(np.mean([r[k] for r in rows])), 3)
 
 
+CKPT = t08.BASE_DIR / "docs" / "experiments" / "liquid_nn_era5_long.partial.json"
+
+
+def per_fold(name: str, folds: list, run) -> tuple[list, dict]:
+    """Run `run` one fold at a time; each finished fold is saved to CKPT, and a
+    rerun skips folds already there (the long race was once killed for memory)."""
+    done = json.loads(CKPT.read_text(encoding="utf-8")) if CKPT.exists() else {}
+    rows, extra = [], {}
+    for fold in folds:
+        key = f"{name}/{fold[0]}"
+        if key not in done:
+            t08.CV_FOLDS = [fold]
+            res, ex = run()
+            done[key] = {"row": res[0], "extra": ex.get(fold[0]) if isinstance(ex, dict) else None}
+            CKPT.write_text(json.dumps(done, indent=1), encoding="utf-8")
+        rows.append(done[key]["row"])
+        if done[key]["extra"] is not None:
+            extra[fold[0]] = done[key]["extra"]
+    return rows, extra
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seeds", type=int, default=7)
@@ -93,21 +114,22 @@ def main():
     t_start = time.time()
 
     # ── side result: what dropping intensity costs, on the real station table ──
-    t08.CV_FOLDS = [(str(y), list(range(2012, y)), y) for y in range(2021, 2026)]
+    station_folds = [(str(y), list(range(2012, y)), y) for y in range(2021, 2026)]
     station = lnc.lag_level(t08.load_data())
     set_features(None)
-    with_pi, _ = t08.run_cv(station)
+    with_pi, _ = per_fold("station_gbr_with_pi", station_folds, lambda: t08.run_cv(station))
     set_features(NO_INTENSITY)
-    without_pi, _ = t08.run_cv(station)
+    without_pi, _ = per_fold("station_gbr_without_pi", station_folds, lambda: t08.run_cv(station))
 
     # ── the long race ──
     df = lnc.lag_level(build_long_table())
-    t08.CV_FOLDS = [(str(y), list(range(2001, y)), y) for y in range(a.first_test, 2026)]
+    folds = [(str(y), list(range(2001, y)), y) for y in range(a.first_test, 2026)]
     set_features(NO_INTENSITY)
     cov = df.dropna(subset=lnc.S2_FEATURES[1:] + [model_lib.S2_TARGET]).groupby(df["date"].dt.year).size()
     print("\nStage-2 usable rows per year:\n" + cov.to_string())
-    gbr, _ = t08.run_cv(df)
-    liq, seed_r2 = lnc.run_cv_liquid(df, a.seeds, a.seq_len, "cfc")
+    gbr, _ = per_fold("era5_gbr", folds, lambda: t08.run_cv(df))
+    liq, seed_r2 = per_fold(f"era5_cfc_s{a.seeds}", folds,
+                            lambda: lnc.run_cv_liquid(df, a.seeds, a.seq_len, "cfc"))
 
     print("\n=== ERA5 long race: S2 R² (MAE Mm³/d) ===")
     for b, l in zip(gbr, liq):
