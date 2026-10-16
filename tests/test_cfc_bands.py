@@ -63,3 +63,28 @@ def test_coverage_matches_level_for_steady_errors():
     for p in (0.5, 0.8):
         inside = ((out.obs >= out[f"lo_{int(p * 100)}"]) & (out.obs <= out[f"hi_{int(p * 100)}"])).mean()
         assert abs(inside - p) < 0.06, (p, inside)
+
+
+def test_scenario_members_set_the_band_when_errors_are_zero():
+    # three past-winter scenarios per forecast, a model with no error: the 90% band is
+    # the members' 5-95% range
+    base = recs(range(2010, 2015))
+    members = pd.concat([base.assign(pred=base.pred + d) for d in (-1.0, 0.0, 1.0)])
+    errors = base.assign(obs=base.pred)                       # known-weather error 0
+    out = cb.bands(members, levels=(0.9,), doy_window=30, min_years=3, errors=errors)
+    row = out[out.year == 2014].iloc[0]
+    # each scenario repeats once per pooled (zero) error, so a third of the draws sit at
+    # -1 and a third at +1: the 5..95% band is the scenarios' full range around the median
+    assert abs(row.lo_90 - (row.pred - 1.0)) < 1e-9 and abs(row.hi_90 - (row.pred + 1.0)) < 1e-9
+    assert len(out) == len(base)                              # one row per forecast
+
+
+def test_self_correction_restores_coverage_when_errors_grow():
+    # errors widen year by year, so the past understates the future; the self-correcting
+    # band (gamma > 0) must cover closer to 80% than the plain one
+    rng = np.random.default_rng(1)
+    df = recs(range(2000, 2016), resid=lambda y, d: float(rng.normal(scale=1 + 0.3 * (y - 2000))))
+    def cov(g):
+        o = cb.bands(df, levels=(0.8,), doy_window=45, min_years=3, gamma=g).dropna(subset=["lo_80"])
+        return ((o.obs >= o.lo_80) & (o.obs <= o.hi_80)).mean()
+    assert abs(cov(0.01) - 0.8) < abs(cov(0.0) - 0.8)
