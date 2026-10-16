@@ -73,3 +73,33 @@ Two web searches, not a full literature review. Verify before quoting on a slide
 4. What looks new for the Kinneret: daily data-driven forecasts at 7-365 days, scored honestly
    over 16 years; skill limited by the coming winter; calibrated uncertainty; a liquid
    network in the role.
+
+## 4. GBR champion on the IMS table, with rain intensity (sha 4e8c214)
+The fair fight: the GBR gets all its inputs. IMS test years 2021-2024 (2025 has no 365 d outcome yet).
+
+| model | 7 d | 13 d | 26 d | 130 d | 260 d | 365 d | 130-365 d |
+|---|---|---|---|---|---|---|---|
+| GBR (G) | 0.028 | 0.046 | 0.089 | 0.404 | 0.726 | 0.866 | 0.667 |
+| CfC direct (B14) | 0.028 | 0.047 | 0.086 | 0.387 | 0.609 | 0.759 | 0.587 |
+| average change | 0.033 | 0.055 | 0.101 | 0.433 | 0.745 | 0.885 | 0.689 |
+
+Short range: a tie. Long range: B14 is 0.08 m better on 2021-24 (90% interval -0.01..+0.16).
+Including the 2025 starts, 0.13 m better with an interval clear of zero (+0.03..+0.34).
+Only 4-5 test years, so "the liquid network is ahead at long range on IMS" is fair; "proven" is not.
+Given the actual weather, the GBR chain gets WORSE at long range (365 d 1.13 vs 0.87 with
+average weather) while B14 improves (0.75): the GBR relay drifts when fed real extremes.
+
+## 5. Forecast ranges (fan) and how honest they are (sha 20807ff module, 0696cb4 report)
+Method: run the past winters' weather through B14 (one scenario per earlier year), widen by
+B14's own error when the weather is known, self-correcting as outcomes arrive. 16 test years.
+
+| range | 7 d | 13 d | 26 d | 130 d | 260 d | 365 d |
+|---|---|---|---|---|---|---|
+| 50% range: outcomes inside | 49% | 50% | 48% | 47% | 46% | 48% |
+| 80% range: outcomes inside | 81% | 81% | 79% | 78% | 75% | 72% |
+| 80% range: typical width | 0.05 m | 0.09 m | 0.18 m | 1.2 m | 2.4 m | 3.4 m |
+
+Talk lines: "a week ahead we know the level to within about 5 cm; six months ahead the honest
+range is over a metre, because it depends on a winter nobody can forecast yet." At 260-365 d
+the 80% range still misses the record winters (2018-19 wet, 2024-25 dry) more often than
+promised. The report has three example fans (autumn 2018, 2020, 2024).
