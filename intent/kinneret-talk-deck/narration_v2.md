@@ -338,14 +338,16 @@ Not from me. From Daniela Rus's lab at MIT, with researchers in Austria, and fro
 ### 10. So which model is best? [one chart, a year ahead: three pairs of bars (champion, plain network, liquid network); light = winter unknown, dark = winter handed to it]
 My first liquid result looked brilliant. Then I saw why: it had quietly been handed the real winter.
 So I set the rules first: same years, same test, for everyone. And I gave the neural network that came last a second chance. I'd been asking it to forecast the lake without telling it the weather. Given the same information, it caught up.
-A week ahead, all three land together. A year ahead, with no idea which winter is coming, the networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.
-(X: the year-ahead split holds on the 15-year station record, not on the older test; the peer to confirm which is final.)
+A week ahead, all three land together. A year ahead, on the station record, with no idea which winter is coming, the networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.
+(CONFIRMED 2026-10-17: the IMS station record, 15 test years, is the final bench; CfC 0.72, GRU 0.73, GBR 0.89 m, GBR interval clear of zero. Say "on the station record": on the ERA5 bench all three tie. The CfC is the chosen 6-month product with raw SEAS5; it ties the GRU, so slides 8-9 stay or go by the originator's call.)
 
 ### 11. So which winter is coming? [the fan from the morning of the talk: one thin line per past winter, 2018-19 and 2024-25 highlighted, the red line dashed; a late-October still as fallback]
 I can't tell you. But I can show you what each one would do.
-This is the lake, from this morning. Every line is one past winter, run through the model. A winter like twenty eighteen to nineteen lifts it to about X. One like twenty twenty-four to twenty-five keeps it falling, to about X. The chance it's still below the red line next autumn: about X in ten.
-Can anyone forecast the winter? The European seasonal forecast helps a little: in autumn it trims about five centimetres off my error (X calibrated). This year, it leans X.
+This is the lake, from this morning. Every line is one past winter, run through the model. A winter like twenty eighteen to nineteen lifts it two and a half metres by spring. One like twenty twenty-four to twenty-five barely moves it, and by next autumn it's lower than today.
+Can anyone forecast the winter? The European seasonal forecast helps a little. This year it leans slightly wet, mostly early on. A weak lean. So the chance the lake is still below the red line next autumn: about three in ten.
+And I don't just tell you where the lake will be. I tell you how sure I am. When I say eighty percent, it happens about eighty percent of the time.
 The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.
+(DRY RUN 2026-10-17, peer section 12, refresh before 1 Nov and again on the day: start 8 Oct -213.65; wet scenario -211.0 at 6 mo / -210.5 at 12; dry -213.5 / -214.5; median -212.5 / -212.7; 80% range at 12 mo -214.2..-209.9; P(below -213 in a year) 28% with SEAS5 weighting (34% equal weights), 21% at 6 mo; SEAS5 Oct-Mar ratio 1.06, Oct +57%, Nov +19%. 80% range held 78-82% to 8 months, 73% at a year. Scenario lines are single runs without the error band.)
 
 ### 12. What do I take home? [three icons, no words: a sealed envelope, a balance scale, a magnifying glass]
 Not a model. Three rules, and anyone here can use them, with an AI at their side.
@@ -355,7 +357,8 @@ When you're wrong, find out why, and say so. I was, more than once: a rain gauge
 Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.
 
 ### 13. So how far did you get? [the lake video's last frame; the QR code; a small live fan]
-I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, updated every morning. Here it is.
+I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it. Here it is.
+(The long-range fan is NOT in the live app yet, bench only; "updated every morning" returns only if the originator ships it before the talk.)
 What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
 An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.
 Thank you.
