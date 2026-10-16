@@ -4,9 +4,10 @@ precip_intensity.py  -  Daily peak 1-hour rain intensity at the lake
 
 Owns the precip_intensity_mm_hr feature end to end:
 
-  * daily_intensity(rain10)  - the definition: per 10-minute slot, Lev Kinneret's
+  * daily_intensity(rain10)  - the definition: per 10-minute slot, Tzemach's
     gauge, or the mean of the other lake gauges where it is missing; then the
-    largest 6-slot (60-minute) sum ending on each day.
+    largest 6-slot (60-minute) sum ending on each day. Tzemach first since
+    2026-10-16, the station gold takes first (docs/experiments/ims_station_bias.md).
   * fetch_rain_10min(start, end) - the same 10-minute gauges from the IMS
     station-data service (no key needed). Tzemach, Lev Kinneret, Kfar Nahum and
     Tiberias publish 10-minute rain; Beit Tzaida publishes 1-minute rain, summed
@@ -29,11 +30,11 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-LEV = "lev_kinneret"
+PRIORITY = "tzamach"
 URL = ("https://ims.gov.il/he/envista_station_data_time_range/"
        "{sid}/{channel}/{a:%Y%m%d%H%M}/{b:%Y%m%d%H%M}/1/S/C/M/W")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36"
-TEN_MIN = {8: "tzamach", 115: LEV, 233: "kfar_nachum", 502: "tiberias"}
+TEN_MIN = {8: "tzamach", 115: "lev_kinneret", 233: "kfar_nachum", 502: "tiberias"}
 ONE_MIN = {301: "beit_tzaida"}
 TRIES = 6
 
@@ -44,7 +45,8 @@ def daily_intensity(rain10: pd.DataFrame) -> pd.Series:
     """Peak 60-minute rain (mm/hr) per day, from 10-minute gauge columns."""
     rain10 = rain10.sort_index()
     rain10 = rain10.reindex(pd.date_range(rain10.index.min(), rain10.index.max(), freq="10min"))
-    rain = rain10[LEV].fillna(rain10.mean(axis=1)) if LEV in rain10 else rain10.mean(axis=1)
+    fallback = rain10.mean(axis=1)
+    rain = rain10[PRIORITY].fillna(fallback) if PRIORITY in rain10 else fallback
     peak = rain.rolling(6, min_periods=6).sum()
     return peak.groupby(peak.index.strftime("%Y-%m-%d")).max().rename("precip_intensity_mm_hr")
 
