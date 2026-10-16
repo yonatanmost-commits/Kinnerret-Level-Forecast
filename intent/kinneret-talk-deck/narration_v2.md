@@ -11,6 +11,24 @@ Loops: L1 "how far ahead did I get?" (1 -> close) · L2 the amateurs / "not alon
 · L3 Adnan pushes (3 -> 13) · L4 the 2023 dip (6 -> 7 -> 8 -> 9) · L5 the bucket thrown out
 (11 -> 13). Running phrase: "one week".
 
+SPINE v3 (originator, 2026-10-16): slides 1-8 stay; the old 10-13 below (one week, beyond the
+week, red line, close) are QUEUED, not deleted; the close may survive. New deep chunk:
+- 9 iterating on the data (the click-by-click slide becomes the entry point): first model ->
+  the "expert" trick catches the 2023 rain sensor read as zero (the price of not seeing all the
+  data with your own eyes; credit to the machine for noticing) -> Open-Meteo vs IMS: quality
+  beats quantity.
+- 10 the model olympics (running alongside the data work): let's use AI; the GRU fails, CfC wins.
+- 11 the lake becomes a neuron: the dripping bucket; the maths "the way you'd explain it to your mother".
+- 12 credit: MIT (Rus lab, Hasani, Lechner; Grosu TU Wien), the worm, Liquid AI, "worth
+  following" (NO "going public" tip). Credits from memory: VERIFY before slides.
+- 13 testing it now: a streak of results, marked as early (runs continue through the weekend).
+- 14 takeaways: non-programmers + AI build datasets and compare methods -> a shared collection
+  of data -> better forecasts, so decision makers have more room to decide well (calm; echoes
+  slide 1's "room"; not "lead us to safety").
+- 15 close: maybe stays.
+Held for the results: what answers slide 1's "how far ahead I could see" now that "one week"
+no longer carries the spine. Held: length (15 slides; 6-8 likely tighten).
+
 Status: slides 1-5 agreed in chat; 6 to the close is draft v2 (storytelling pass).
 Parked: slide-6 order (the record: race -> Wade Storm -> 2023 fix), on-screen text
 (centaur = "Centaur"), length (target about 1,800 words).
