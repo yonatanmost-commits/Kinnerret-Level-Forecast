@@ -7,3 +7,6 @@ tests/test_talk_truth.py  # 2026-10-13
 tests/test_talk_coverage_inputs.py  # 2026-10-13
 tests/test_talk_redesign.py  # deck redesign acceptance (Claude Design import), 2026-10-14, 2026-10-14
 tests/test_talk_coverage.py  # 2026-10-14
+tests/test_talk_lake_animation.py  # opening animation refinement: narration sync, smooth motion, gauge, 2026-10-14
+tests/test_precip_intensity.py  # 2026-10-15
+tests/test_cfc_relay_weather.py  # 2026-10-16
