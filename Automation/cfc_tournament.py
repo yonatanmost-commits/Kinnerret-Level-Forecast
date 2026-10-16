@@ -34,6 +34,8 @@ Memory check (how many past days the winner uses), outputs under CFC_OUT=.../mem
   --occlude 7,14  test-time only: blank (zero) the standardised inputs older than k
                   days in the trained B/C nets' history window; no retraining.
                   Stored as weather "clim|k" / "obs|k" next to the full-window forecast.
+  --c-full        C trained like B (every training day, 80 epochs, patience 10) instead
+                  of the night-saving every-other-day / 60 / 8; label C60f.
 """
 import argparse
 import json
@@ -355,10 +357,11 @@ class OdeNet(nn.Module):
         return self.head(y).squeeze(-1)            # (A, steps): volume change since the anchor
 
 
-def run_C(base, year, anchors, seeds, occlude=()):
+def run_C(base, year, anchors, seeds, occlude=(), full=False):
     bathy = t08.fit_vol2level_poly()
     E = encoder_matrix(base)
-    tr = train_anchors(base, year)[::2]                    # every other day keeps the night affordable
+    tr = train_anchors(base, year)
+    tr = tr if full else tr[::2]                           # every other day keeps the night affordable
     yrs = base["date"].dt.year.to_numpy()
     cutoff = int(np.where(yrs == year)[0][0])
     sc_e = Scaler(E[yrs < year])
@@ -386,7 +389,8 @@ def run_C(base, year, anchors, seeds, occlude=()):
         D_test[w] = torch.tensor(sc_d(D.reshape(-1, D.shape[2])).reshape(D.shape))
     preds = {(w, k): [] for k in (None, *occlude) for w in D_test}
     for s in range(seeds):
-        net = fit_loop(OdeNet(Ze.shape[1], Xd.shape[2]), loss, len(tr), seed=s, epochs=60, patience=8)
+        net = fit_loop(OdeNet(Ze.shape[1], Xd.shape[2]), loss, len(tr), seed=s,
+                       **({} if full else {"epochs": 60, "patience": 8}))
         net.eval()
         with torch.no_grad():
             for w, k in preds:
@@ -407,14 +411,14 @@ def ckpt(name):
     return OUT / f"{name}.json"
 
 
-def run_method(method, seeds, a_seq=14, occlude=()):
+def run_method(method, seeds, a_seq=14, occlude=(), c_full=False):
     OUT.mkdir(parents=True, exist_ok=True)
     L.set_features(L.NO_INTENSITY)
     base, lagged = tables()
     if method in ("A", "A1"):                                         # A, A1 read 14 days
         label = method if a_seq == 14 else f"{method}_{a_seq}"
     else:
-        label = f"{method}{ENC_L}"
+        label = f"{method}{ENC_L}" + ("f" if c_full else "")
     name = f"{label}_s{seeds}" + ("_occ" if occlude else "")
     done = json.loads(ckpt(name).read_text(encoding="utf-8")) if ckpt(name).exists() else {}
     refs = json.loads(ckpt("references").read_text(encoding="utf-8")) if ckpt("references").exists() else {}
@@ -431,7 +435,7 @@ def run_method(method, seeds, a_seq=14, occlude=()):
         elif method == "B":
             preds = run_B(base, year, anchors, seeds, occlude)
         else:
-            preds = run_C(base, year, anchors, seeds, occlude)
+            preds = run_C(base, year, anchors, seeds, occlude, full=c_full)
         done[str(year)] = records(label, year, base, anchors, preds)
         ckpt(name).write_text(json.dumps(done), encoding="utf-8")
         e = pd.DataFrame(done[str(year)]).assign(err=lambda d: (d.pred - d.obs).abs())
@@ -501,6 +505,7 @@ def main():
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--enc-len", type=int, default=None, help="history days (B/C default 60, A/A1 14)")
     ap.add_argument("--occlude", default="", help="B/C only: comma list of k, see the header")
+    ap.add_argument("--c-full", action="store_true", help="C only: train like B, see the header")
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--only", default="", help="comma list of methods to include in --summary")
     a = ap.parse_args()
@@ -512,7 +517,7 @@ def main():
     if a.summary:
         summary(a.only)
     else:
-        run_method(a.method, a.seeds, a_seq=a.enc_len or 14, occlude=occ)
+        run_method(a.method, a.seeds, a_seq=a.enc_len or 14, occlude=occ, c_full=a.c_full)
 
 
 if __name__ == "__main__":
