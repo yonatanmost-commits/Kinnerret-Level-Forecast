@@ -406,6 +406,65 @@ def ims_section():
                                   for m in methods))]
 
 
+# How the CfC computes, as ncps 1.0.1 runs it (ncps/torch/cfc_cell.py, mode "default"),
+# with this bench's sizes. Static text: equations typeset by MathJax (SVG, no web fonts).
+ALGEBRA = r"""
+<section class="algebra"><h2>How a CfC step works</h2>
+<div class="fig math">
+<pre class="mermaid">
+flowchart LR
+  U["day t inputs u_t"] --> Z["stack z = [u_t ; h_t-1]"]
+  H0["previous state h_t-1"] --> Z
+  Z --> B["backbone b: 128 units, LeCun tanh"]
+  B --> F1["f1 = tanh(W1 b)"]
+  B --> F2["f2 = tanh(W2 b)"]
+  B --> G["gate = sigmoid(a(b) * dt + beta(b))"]
+  DT["elapsed time dt"] --> G
+  F1 --> M["h_t = (1 - gate) * f1 + gate * f2"]
+  F2 --> M
+  G --> M
+  M --> H1["new state h_t (32 units)"]
+</pre>
+<div class="eq">
+\[
+\begin{aligned}
+z_t &= [\,u_t \,;\, h_{t-1}\,] && \text{15 inputs} + \text{32 state} = 47\\
+b &= \varphi(W_b z_t + c_b), \quad \varphi(x) = 1.7159\,\tanh(0.666\,x) && \text{128 units}\\
+f_1 &= \tanh(W_1 b + c_1), \qquad f_2 = \tanh(W_2 b + c_2) && \text{two candidate states}\\
+\sigma_t &= \operatorname{sigmoid}\!\big(a(b)\,\Delta t + \beta(b)\big), \quad a = W_a b + c_a,\ \beta = W_\beta b + c_\beta && \text{time gate}\\
+h_t &= (1-\sigma_t)\odot f_1 + \sigma_t \odot f_2 && \text{new state}
+\end{aligned}
+\]
+</div>
+<p class="cap">The closed-form solution of a liquid-time-constant ODE,
+\( h(t) = \sigma(-f\,t)\odot g + \big(1-\sigma(-f\,t)\big)\odot \tilde h \): no solver. Each unit slides from
+\(f_1\) toward \(f_2\) as time passes, at a rate \(a\) that depends on the input, so the time constant changes
+with conditions. \(\Delta t = 1\) day in A and B; C's decoder steps with real lengths (1 day to day 14, then about 7).</p>
+</div>
+<div class="fig math">
+<div class="eq">
+\[
+\begin{aligned}
+h_{1..14} &= \text{CfC steps over the 14 days to the start day}, \quad h_0 = 0\\
+s &= \text{weather of each horizon window (3 totals, 4 means)} && 6\times 7 = 42\\
+\hat y &= W_4\,\operatorname{GELU}\!\big(W_3\,[\,h_{14} \,;\, s\,] + c_3\big) + c_4 && \text{6 horizons}\\
+\Delta V_H &= \hat y_H\,\mathrm{sd}_H + \mathrm{mean}_H\\
+\text{level}_H &= \text{level}_0 + P(V_0 + \Delta V_H) - P(V_0) && P = \text{bathymetry, volume}\to\text{level}
+\end{aligned}
+\]
+</div>
+<p class="cap">Model B, the winner. Window weather: rain, ET\(_0\), radiation totals; temperature, humidity, wind, VPD means. Inputs per day: 9 weather variables, season sine and cosine, log Jordan inflow,
+level, volume change, a level-read flag (IMS table: + rain intensity; bucket: + storage, 30-day overflow).
+Huber loss on standardised \(\Delta V\), AdamW, 3 seeds averaged. About 28k weights per seed
+(cell 22.7k, head 5.2k).</p>
+<p class="cap"><b>Why it remembers about a week:</b> \(h_t\) is a fresh blend of two functions of
+\((u_t, h_{t-1})\). There is no additive carry path like an LSTM's \(c_t = f\,c_{t-1} + \dots\), so holding months
+of history needs the backbone to copy the state step after step. Slow catchment memory has to come in as an input.</p>
+</div>
+</section>
+"""
+
+
 # ── page ─────────────────────────────────────────────────────────────────────
 
 def section(title, *figs, note=""):
@@ -439,6 +498,7 @@ def build():
     parts.append(section("Tested", f'<div class="glyphs">{method_glyphs()}</div>', bench_strip(years),
                          note="Horizons 7 · 13 · 26 · 130 · 260 · 365 days. A start every 7 days. "
                               "Weather ahead = average for that day of year. 3 seeds each."))
+    parts.append(ALGEBRA)
     parts.append(section("Round 1 · error by horizon",
                          horizon_chart(common(d, [f"{m}/clim" for m in r1] + [f"{w1}/obs"] + [f"{r}/-" for r in REFS]),
                                        [f"{m}/clim" for m in r1] + [f"{w1}/obs"] + [f"{r}/-" for r in REFS],
@@ -536,6 +596,8 @@ def build():
 
 PAGE = """<title>CfC Horizon Tournament</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<script>window.MathJax = {{ svg: {{ fontCache: "global" }} }};</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -605,6 +667,9 @@ i.key.dot {{ width:9px; height:9px; border:2px solid var(--muted); border-radius
 i.key.dot.long {{ background:var(--fg); border-color:var(--fg) }}
 i.key.sw {{ width:10px; height:10px; border:0; border-radius:2px }}
 footer {{ color:var(--muted); font-size:.72rem; font-family:var(--mono) }}
+.math {{ display:grid; gap:10px }} .math .eq {{ overflow-x:auto; color:var(--fg) }}
+.fig mjx-container svg {{ width:auto; min-width:0; display:inline }} .math pre.mermaid {{ margin:0; background:none }}
+.cap {{ margin:0; color:var(--muted); font-size:.82rem; max-width:68ch }} .cap b {{ color:var(--fg) }}
 @media (max-width: 560px) {{ h1 {{ font-size:1.35rem }} }}
 </style>
 <main>
