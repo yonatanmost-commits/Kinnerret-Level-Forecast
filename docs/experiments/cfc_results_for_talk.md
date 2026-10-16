@@ -103,3 +103,27 @@ Talk lines: "a week ahead we know the level to within about 5 cm; six months ahe
 range is over a metre, because it depends on a winter nobody can forecast yet." At 260-365 d
 the 80% range still misses the record winters (2018-19 wet, 2024-25 dry) more often than
 promised. The report has three example fans (autumn 2018, 2020, 2024).
+
+## 6. T1 - weather source alone: ERA5 vs IMS, same model, same span, same test years (sha below)
+B14 trained on ERA5 cut to the IMS period (from 2012-09-01) vs B14 on IMS. Test years 2021-2024.
+
+| B14 trained on | weather ahead | 7 d | 26 d | 130 d | 260 d | 365 d | 130-365 d |
+|---|---|---|---|---|---|---|---|
+| IMS stations | average | 0.028 | 0.086 | 0.387 | 0.609 | 0.759 | **0.587** |
+| ERA5, same span | average | 0.028 | 0.089 | 0.427 | 0.760 | 0.955 | 0.716 |
+| ERA5, from 2001 | average | 0.026 | 0.081 | 0.385 | 0.696 | 0.962 | 0.683 |
+| IMS stations | actual | 0.021 | 0.073 | 0.300 | 0.575 | 0.753 | 0.544 |
+| ERA5, same span | actual | 0.027 | 0.085 | 0.291 | 0.624 | 0.649 | 0.523 |
+
+- Short range: a tie.
+- Long range, average weather ahead: IMS ahead by 0.13 m, but the 90% interval crosses zero
+  (-0.08..+0.36). With only 4 test years, not significant.
+- Given the actual weather, ERA5 is as good or slightly better (0.52 vs 0.54). The station
+  data's edge does not come from describing the weather better.
+- More ERA5 years (2001+ vs 2012+) help a little (0.68 vs 0.72), also not significant.
+
+Talk: **"quality beats quantity" is NOT supported by this test.** A safe line: "on the same
+years, the station-trained model forecast the next year better with average weather (0.59 vs
+0.72 m), but four years can't settle it, and given the actual weather the satellite-era
+reanalysis does as well." The earlier "0.10 m" figure mixed several differences (see section Q6
+of the message history); prefer this test.
