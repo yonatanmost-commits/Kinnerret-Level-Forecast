@@ -55,6 +55,12 @@ Why does a week of history suffice? (B only)
                   only (no weather, season or inflow). Label suffix s.
   --cell lstm     B's encoder is an LSTM (64 units, ~20k weights, the CfC cell ~23k)
                   instead of the CfC. Label suffix lstm.
+  --cell gru      the same with a GRU (75 units, ~21k weights). Label suffix gru.
+
+Weather-source fight
+  --table-from D  drop every row before date D (YYYY-MM-DD) from the table, so training,
+                  scaling and climatology see the same span as another table (e.g. the
+                  IMS table's 2012-09-01). Label unchanged: use a separate CFC_OUT.
 """
 import argparse
 import json
@@ -88,6 +94,7 @@ TABLE = "era5"                 # --table
 EXTRA_ENC = []                 # history-only inputs added by --table ims / --bucket
 HISTORY = "all"                # "all" | "weather" (--no-state) | "state" (--state-only)
 CELL = "cfc"                   # --cell
+TABLE_FROM = None              # --table-from
 BUCKET_S_MAX = 150.0           # mm, as longrange_phaseb_eval / bucket_backport_eval
 torch.set_num_threads(8)
 
@@ -98,6 +105,8 @@ torch.set_num_threads(8)
 
 def tables():
     base = ims_table() if TABLE == "ims" else L.build_long_table()   # level_m = level(date)
+    if TABLE_FROM:
+        base = base[base["date"] >= pd.Timestamp(TABLE_FROM)].reset_index(drop=True)
     if "bucket_S" in EXTRA_ENC:
         base = add_bucket(base)
     lagged = lnc.lag_level(base)                     # level_m = level(date-1), method A's input
@@ -355,6 +364,9 @@ class DirectNet(nn.Module):
         if CELL == "lstm":
             units = 64                                    # about the CfC cell's weight count
             self.enc = nn.LSTM(n_enc, units, batch_first=True)
+        elif CELL == "gru":
+            units = 75                                    # about the LSTM's weight count
+            self.enc = nn.GRU(n_enc, units, batch_first=True)
         else:
             self.enc = CfC(n_enc, units, batch_first=True, return_sequences=False)
         self.head = nn.Sequential(nn.Linear(units + n_sum, 64), nn.GELU(), nn.Linear(64, len(HORIZONS)))
@@ -362,6 +374,9 @@ class DirectNet(nn.Module):
     def forward(self, x, s):
         if CELL == "lstm":
             _, (h, _) = self.enc(x)
+            h = h[-1]
+        elif CELL == "gru":
+            _, h = self.enc(x)
             h = h[-1]
         else:
             h, _ = self.enc(x)
@@ -509,7 +524,7 @@ def run_method(method, seeds, a_seq=14, occlude=(), c_full=False, ensemble=False
         label = method if a_seq == 14 else f"{method}_{a_seq}"
     else:
         label = (f"{method}{ENC_L}" + ("f" if c_full else "") + ("b" if "bucket_S" in EXTRA_ENC else "")
-                 + {"all": "", "weather": "n", "state": "s"}[HISTORY] + ("lstm" if CELL == "lstm" else ""))
+                 + {"all": "", "weather": "n", "state": "s"}[HISTORY] + (CELL if CELL != "cfc" else ""))
     name = f"{label}_s{seeds}" + ("_occ" if occlude else "") + ("_ens" if ensemble else "")
     done = json.loads(ckpt(name).read_text(encoding="utf-8")) if ckpt(name).exists() else {}
     refs = json.loads(ckpt("references").read_text(encoding="utf-8")) if ckpt("references").exists() else {}
@@ -607,11 +622,12 @@ def main():
     hist = ap.add_mutually_exclusive_group()
     hist.add_argument("--no-state", action="store_true", help="B only: history without level/volume")
     hist.add_argument("--state-only", action="store_true", help="B only: history is level/volume only")
-    ap.add_argument("--cell", choices=["cfc", "lstm"], default="cfc", help="B only: encoder cell")
+    ap.add_argument("--cell", choices=["cfc", "lstm", "gru"], default="cfc", help="B only: encoder cell")
+    ap.add_argument("--table-from", default=None, help="drop table rows before this date")
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--only", default="", help="comma list of methods to include in --summary")
     a = ap.parse_args()
-    global ENC_L, TABLE, TEST_YEARS, HISTORY, CELL
+    global ENC_L, TABLE, TEST_YEARS, HISTORY, CELL, TABLE_FROM
     ENC_L = a.enc_len or 60
     TABLE = a.table
     if TABLE == "ims":
@@ -624,6 +640,7 @@ def main():
         ap.error("--ensemble, --no-state, --state-only and --cell need --method B")
     HISTORY = "weather" if a.no_state else "state" if a.state_only else "all"
     CELL = a.cell
+    TABLE_FROM = a.table_from
     occ = tuple(int(k) for k in a.occlude.split(",") if k)
     if occ and a.method not in ("B", "C"):
         ap.error("--occlude needs --method B or C")
