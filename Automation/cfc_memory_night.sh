@@ -5,7 +5,7 @@
 #   sweep      - retrain W with history L = 14, 30, 60, 120, 180 days
 #   occlusion  - (B/C only) the same trained nets, with history older than k days blanked
 # Outputs go to docs/experiments/cfc_tournament/memory/; every test year is saved, so a
-# retry resumes. Most informative runs first: W's own L, then 120, 30, 180, the rest.
+# retry resumes. Most informative runs first: W's own L, then 120, 30, 60; 180 (the slowest) last.
 cd "$(dirname "$0")"
 export PYTHONIOENCODING=utf-8
 T="../docs/experiments/cfc_tournament"
@@ -45,7 +45,7 @@ mkdir -p "$CFC_OUT"
 for attempt in 1 2 3 4 5 6; do
   echo "##### attempt $attempt  $(date)" >> "$LOG"
   ok=1
-  for L in $L0 120 30 180 60 14; do
+  for L in $L0 120 30 60 180 14; do
     if [ "$M" = "B" ] || [ "$M" = "C" ]; then
       KS=$(python -c "print(','.join(str(k) for k in (7,14,30,60,120) if k < $L))")
       ARGS="--method $M --enc-len $L --occlude $KS"
