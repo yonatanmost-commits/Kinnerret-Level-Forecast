@@ -33,6 +33,10 @@ The push is what triggers the redeploy. There is no other refresh mechanism.
 Both halves are safe to run concurrently: each rebases onto whatever the other has
 already pushed before committing.
 
+If the local rebase hits a conflict in `Gold Data/` or `Models/` (derived files the agent
+rebuilds every run), it takes CI's copy and carries on. Any other conflict aborts the
+rebase cleanly, leaving the tree as it was, and the task exits 1 for a look.
+
 ---
 
 ## First-time setup
