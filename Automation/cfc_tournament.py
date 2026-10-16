@@ -36,6 +36,15 @@ Memory check (how many past days the winner uses), outputs under CFC_OUT=.../mem
                   Stored as weather "clim|k" / "obs|k" next to the full-window forecast.
   --c-full        C trained like B (every training day, 80 epochs, patience 10) instead
                   of the night-saving every-other-day / 60 / 8; label C60f.
+
+IMS bench and calibration (B only):
+  --table ims     the real gold table (IMS station weather, rain intensity in the history
+                  and in A's features), test years 2021-2025; gaps <= 3 days interpolated.
+  --bucket        history also carries the soil-moisture bucket (bucket_S, bucket_Q30,
+                  longrange_state.soil_moisture_bucket, S_max 150 mm); label suffix b.
+  --ensemble      past-winters ensemble: one extra forecast per earlier year Y, fed Y's
+                  weather from the same day of year (past weather only), stored as weather
+                  "ens|Y". No retraining; the report scores the median and the band.
 """
 import argparse
 import json
@@ -65,6 +74,9 @@ DM = ["temp_mean_C", "temp_max_C", "temp_min_C", "humidity_pct", "wind_speed_ms"
       "rainfall_mm", "radiation_MJm2", "vpd_kPa", "et0_mm"]
 SUM_COLS = ["rainfall_mm", "et0_mm", "radiation_MJm2"]           # window totals
 MEAN_COLS = ["temp_mean_C", "humidity_pct", "wind_speed_ms", "vpd_kPa"]   # window means
+TABLE = "era5"                 # --table
+EXTRA_ENC = []                 # history-only inputs added by --table ims / --bucket
+BUCKET_S_MAX = 150.0           # mm, as longrange_phaseb_eval / bucket_backport_eval
 torch.set_num_threads(8)
 
 
@@ -73,9 +85,28 @@ torch.set_num_threads(8)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def tables():
-    base = L.build_long_table()                      # level_m = level(date)
+    base = ims_table() if TABLE == "ims" else L.build_long_table()   # level_m = level(date)
+    if "bucket_S" in EXTRA_ENC:
+        base = add_bucket(base)
     lagged = lnc.lag_level(base)                     # level_m = level(date-1), method A's input
     return base, lagged
+
+
+def ims_table() -> pd.DataFrame:
+    """The gold table 08 trains on. Short weather gaps (<= 3 days) are interpolated so
+    a horizon window is not dropped for one missing radiation reading."""
+    df = t08.load_data().sort_values("date").reset_index(drop=True)
+    cols = DM + [L.NO_INTENSITY]
+    df[cols] = df[cols].interpolate(limit=3, limit_area="inside")
+    return df
+
+
+def add_bucket(df: pd.DataFrame) -> pd.DataFrame:
+    from longrange_state import soil_moisture_bucket
+    rain = df["rainfall_mm"].fillna(0.0).to_numpy()
+    et = df["et0_mm"].fillna(df["et0_mm"].median()).to_numpy()
+    S, Q = soil_moisture_bucket(rain, et, S_max=BUCKET_S_MAX, S0=0.5 * BUCKET_S_MAX)
+    return df.assign(bucket_S=S, bucket_Q30=pd.Series(Q).rolling(30, min_periods=1).sum().to_numpy())
 
 
 def anchors_for(base: pd.DataFrame, year: int) -> np.ndarray:
@@ -95,7 +126,7 @@ def records(method, year, base, anchors, preds: dict) -> list:
     for w, P in preds.items():
         for k, a in enumerate(anchors):
             for H in HORIZONS:
-                if a + H >= len(base) or np.isnan(lvl[a + H]):
+                if a + H >= len(base) or np.isnan(lvl[a + H]) or np.isnan(P[k, H - 1]):
                     continue
                 out.append({"method": method, "weather": w, "year": year,
                             "start": str(base["date"].iat[a].date()), "H": H,
@@ -151,6 +182,8 @@ def encoder_matrix(base: pd.DataFrame) -> np.ndarray:
     f["level_m"] = base["level_m"]
     f["dvol"] = base["volume_change_Mm3"]
     f["level_seen"] = base["level_m"].notna().astype(float)
+    for c in EXTRA_ENC:
+        f[c] = base[c]
     return f.to_numpy(float)
 
 
@@ -193,6 +226,24 @@ def future_weather(base, anchors, weather, clim, n_days):
             doy = pd.DatetimeIndex(d0[k] + np.arange(1, n_days + 1) * np.timedelta64(1, "D")).dayofyear
             W[k] = clim.loc[doy, DM].to_numpy(float)
     return W
+
+
+def member_weather(base, anchors, year, n_days) -> dict:
+    """{Y: (A, n_days, DM)}: for every earlier year Y, the weather that followed the
+    anchor's day of year in Y. Only the past is used: the window ends on or before the
+    anchor's own date. A window with any day outside the table stays NaN."""
+    X = base[DM].to_numpy(float)
+    pos = pd.Series(np.arange(len(base)), index=base["date"])
+    out = {}
+    for Y in range(int(base["date"].dt.year.min()), year):
+        W = np.full((len(anchors), n_days, len(DM)), np.nan)
+        for k, a in enumerate(anchors):
+            p = pos.get(base["date"].iat[a] - pd.DateOffset(years=year - Y))
+            if p is not None and p + n_days < len(X):
+                assert p + n_days <= a, "a member window reached past the forecast start"
+                W[k] = X[p + 1:p + 1 + n_days]
+        out[Y] = W
+    return out
 
 
 def vol_targets(base, anchors, cutoff_pos):
@@ -284,7 +335,7 @@ class DirectNet(nn.Module):
         return self.head(torch.cat([h, s], dim=1))
 
 
-def run_B(base, year, anchors, seeds, occlude=()):
+def run_B(base, year, anchors, seeds, occlude=(), ensemble=False):
     bathy = t08.fit_vol2level_poly()
     E = encoder_matrix(base)
     tr = train_anchors(base, year)
@@ -308,8 +359,12 @@ def run_B(base, year, anchors, seeds, occlude=()):
 
     clim = climatology(base, yrs < year)
     Xa = torch.tensor(windows(Ze, anchors, ENC_L))
-    S_test = {w: torch.tensor(sc_s(window_summaries(future_weather(base, anchors, w, clim, HMAX))))
-              for w in ("obs", "clim")}
+    S_raw = {w: window_summaries(future_weather(base, anchors, w, clim, HMAX)) for w in ("obs", "clim")}
+    if ensemble:
+        S_raw.update({f"ens|{Y}": window_summaries(W)
+                      for Y, W in member_weather(base, anchors, year, HMAX).items()})
+    S_test = {w: torch.tensor(sc_s(S)) for w, S in S_raw.items()}
+    gone = {w: np.isnan(S[:, ::7]) for w, S in S_raw.items()}      # horizon windows with missing weather
     preds = {(w, k): [] for k in (None, *occlude) for w in S_test}
     for s in range(seeds):
         net = fit_loop(DirectNet(Ze.shape[1], Xs.shape[1]), loss, len(tr), seed=s)
@@ -320,7 +375,7 @@ def run_B(base, year, anchors, seeds, occlude=()):
     out = {}
     for (w, k), p in preds.items():
         dv = np.full((len(anchors), HMAX), np.nan)
-        dv[:, [h - 1 for h in HORIZONS]] = np.mean(p, axis=0)
+        dv[:, [h - 1 for h in HORIZONS]] = np.where(gone[w], np.nan, np.mean(p, axis=0))
         out[tag(w, k)] = to_level(base, anchors, dv, bathy)
     return out
 
@@ -411,15 +466,15 @@ def ckpt(name):
     return OUT / f"{name}.json"
 
 
-def run_method(method, seeds, a_seq=14, occlude=(), c_full=False):
+def run_method(method, seeds, a_seq=14, occlude=(), c_full=False, ensemble=False):
     OUT.mkdir(parents=True, exist_ok=True)
-    L.set_features(L.NO_INTENSITY)
+    L.set_features(None if TABLE == "ims" else L.NO_INTENSITY)
     base, lagged = tables()
     if method in ("A", "A1"):                                         # A, A1 read 14 days
         label = method if a_seq == 14 else f"{method}_{a_seq}"
     else:
-        label = f"{method}{ENC_L}" + ("f" if c_full else "")
-    name = f"{label}_s{seeds}" + ("_occ" if occlude else "")
+        label = f"{method}{ENC_L}" + ("f" if c_full else "") + ("b" if "bucket_S" in EXTRA_ENC else "")
+    name = f"{label}_s{seeds}" + ("_occ" if occlude else "") + ("_ens" if ensemble else "")
     done = json.loads(ckpt(name).read_text(encoding="utf-8")) if ckpt(name).exists() else {}
     refs = json.loads(ckpt("references").read_text(encoding="utf-8")) if ckpt("references").exists() else {}
     for year in TEST_YEARS:
@@ -433,12 +488,13 @@ def run_method(method, seeds, a_seq=14, occlude=(), c_full=False):
         if method in ("A", "A1"):
             preds = run_A(base, lagged, year, anchors, seeds, one_step=method == "A1", seq_len=a_seq)
         elif method == "B":
-            preds = run_B(base, year, anchors, seeds, occlude)
+            preds = run_B(base, year, anchors, seeds, occlude, ensemble)
         else:
             preds = run_C(base, year, anchors, seeds, occlude, full=c_full)
         done[str(year)] = records(label, year, base, anchors, preds)
         ckpt(name).write_text(json.dumps(done), encoding="utf-8")
         e = pd.DataFrame(done[str(year)]).assign(err=lambda d: (d.pred - d.obs).abs())
+        e = e[~e.weather.str.startswith("ens|")]
         print(f"  {label} {year}: {len(anchors)} starts, mean level MAE clim "
               f"{e[e.weather == 'clim'].groupby('H').err.mean().round(3).to_dict()}  "
               f"({time.time() - t0:.0f}s)", flush=True)
@@ -459,6 +515,7 @@ def load_all():
 
 def summary(only="", n_boot=2000):
     d = load_all()
+    d = d[~d["weather"].str.startswith("ens|")]          # members are scored by the report
     if only:
         keep = set(only.split(",")) | {"persistence", "clim_change"}
         d = d[d["method"].isin(keep)]
@@ -506,18 +563,31 @@ def main():
     ap.add_argument("--enc-len", type=int, default=None, help="history days (B/C default 60, A/A1 14)")
     ap.add_argument("--occlude", default="", help="B/C only: comma list of k, see the header")
     ap.add_argument("--c-full", action="store_true", help="C only: train like B, see the header")
+    ap.add_argument("--table", choices=["era5", "ims"], default="era5")
+    ap.add_argument("--bucket", action="store_true", help="history carries the soil bucket")
+    ap.add_argument("--ensemble", action="store_true", help="B only: past-winters ensemble")
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--only", default="", help="comma list of methods to include in --summary")
     a = ap.parse_args()
-    global ENC_L
+    global ENC_L, TABLE, TEST_YEARS
     ENC_L = a.enc_len or 60
+    TABLE = a.table
+    if TABLE == "ims":
+        EXTRA_ENC.append(L.NO_INTENSITY)
+        if "CFC_YEARS" not in os.environ:
+            TEST_YEARS = list(range(2021, 2026))
+    if a.bucket:
+        EXTRA_ENC.extend(["bucket_S", "bucket_Q30"])
+    if a.ensemble and a.method != "B":
+        ap.error("--ensemble needs --method B")
     occ = tuple(int(k) for k in a.occlude.split(",") if k)
     if occ and a.method not in ("B", "C"):
         ap.error("--occlude needs --method B or C")
     if a.summary:
         summary(a.only)
     else:
-        run_method(a.method, a.seeds, a_seq=a.enc_len or 14, occlude=occ, c_full=a.c_full)
+        run_method(a.method, a.seeds, a_seq=a.enc_len or 14, occlude=occ, c_full=a.c_full,
+                   ensemble=a.ensemble)
 
 
 if __name__ == "__main__":
