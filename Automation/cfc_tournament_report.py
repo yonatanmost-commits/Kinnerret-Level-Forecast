@@ -30,6 +30,7 @@ NAMES = {"A": "A · relay, 2 steps", "A1": "A1 · relay, 1 step", "B14": "B · d
          "relay7": "relay · 7 seeds", "relay3": "relay · 3 seeds",
          "B7": "B · direct, 7 d", "B7n": "B no level · 7 d", "B60n": "B no level · 60 d",
          "B7lstm": "B LSTM · 7 d", "B60lstm": "B LSTM · 60 d",
+         "B7s": "B level only · 7 d", "B60s": "B level only · 60 d", "G": "GBR champion",
          "persistence": "no change", "clim_change": "average change"}
 
 
@@ -462,8 +463,9 @@ Huber loss on standardised \(\Delta V\), AdamW, 3 seeds averaged. About 28k weig
 (cell 22.7k, head 5.2k).</p>
 <p class="cap"><b>Why about a week is enough: two candidate reasons, both tested (chart "Why a week is enough").</b>
 (1) The inputs carry the lake's level and volume, which sum up earlier rain and inflow, so older days
-repeat what the level already says. Confirmed: hiding the level/volume history costs about 0.065 m at 130–365 d,
-at 7 and at 60 days alike, and longer weather history does not make up for it.
+repeat what the level already says. Half right: hiding the level/volume history costs about 0.065 m at 130–365 d,
+but a history of level/volume alone costs as much. The model needs both the lake's recent trend and the latest
+rain and inflow; a few days of each is enough.
 (2) \(h_t\) is a fresh blend of two functions of \((u_t, h_{t-1})\), with no
 additive carry path like an LSTM's \(c_t = f\,c_{t-1} + \dots\), so long memory is hard to learn.
 Partly: an LSTM does gain from 60 days over 7, which the CfC does not, but it only reaches the 7-day CfC.</p>
@@ -480,21 +482,23 @@ def why_section(d, mem):
         return []
     e = pd.concat([why, mem, d]).drop_duplicates(["method", "weather", "start", "H"])
     trio = {"B": ("B7", "B60", "--m-B60"), "B, no level": ("B7n", "B60n", "--m-A"),
-            "B, LSTM": ("B7lstm", "B60lstm", "--m-C60")}
+            "B, level only": ("B7s", "B60s", "--m-B14b"), "B, LSTM": ("B7lstm", "B60lstm", "--m-C60")}
     keys = [f"{m}/clim" for a, b, _ in trio.values() for m in (a, b)]
     if not set(keys) <= set(e["key"]):
         return []
     c = common(e, keys)
     series = [(name, col, {7: mae(c, f"{a}/clim", LONG), 60: mae(c, f"{b}/clim", LONG)}, False)
               for name, (a, b, col) in trio.items()]
-    pairs = [("B7", "B7n"), ("B60", "B60n"), ("B60lstm", "B7lstm"), ("B60lstm", "B60"), ("B7", "B7lstm")]
+    pairs = [("B7", "B7n"), ("B7", "B7s"), ("B60", "B60n"), ("B60", "B60s"),
+             ("B60lstm", "B7lstm"), ("B60lstm", "B60"), ("B7", "B7lstm")]
     rows = [(a, b, boot(c, f"{a}/clim", f"{b}/clim", H), boot(c, f"{a}/clim", f"{b}/clim", LONG)) for a, b in pairs]
     return [section("Why a week is enough",
                     xy_chart(series, [7, 60], "days of history the model reads", "why test", ymin=0.6),
                     forest(rows, "why test paired differences"),
                     note=f"130–365 d error · {c['year'].nunique()} test years. "
-                         "No level/volume: the history keeps weather, season and inflow; the forecast still starts "
-                         "from today's level. LSTM: same model, an LSTM in place of the CfC.")]
+                         "No level: the history keeps weather, season and inflow. Level only: the history is level, "
+                         "volume change and the level-read flag. Both still start from today's level. "
+                         "LSTM: same model, an LSTM in place of the CfC.")]
 
 
 # ── page ─────────────────────────────────────────────────────────────────────
@@ -638,7 +642,7 @@ PAGE = """<title>CfC Horizon Tournament</title>
 :root {{
   --bg:#f3f6f7; --panel:#ffffff; --fg:#122229; --muted:#5d717a; --grid:#d8e1e5;
   --m-A:#c26d1c; --m-A1:#d9a04b; --m-B14:#5fb0a8; --m-B60:#17716b; --m-C60:#6a56b8; --m-C60f:#a33d8f; --m-B14b:#2f5fa8;
-  --m-relay7:#7a6a58; --m-relay3:#a8977f; --m-B7:#5fb0a8; --m-B7n:#d9a04b; --m-B60n:#c26d1c; --m-B7lstm:#a594ea; --m-B60lstm:#6a56b8;
+  --m-relay7:#7a6a58; --m-relay3:#a8977f; --m-B7s:#5b86c9; --m-B60s:#2f5fa8; --m-B7:#5fb0a8; --m-B7n:#d9a04b; --m-B60n:#c26d1c; --m-B7lstm:#a594ea; --m-B60lstm:#6a56b8;
   --m-persistence:#8e9ca3; --m-clim_change:#b3bec3; --heat:#17716b;
   --L0:#a8d8d2; --L1:#5fb0a8; --L2:#17716b; --L3:#0d4c48; --L4:#6a56b8; --L5:#c26d1c;
   --sans:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
@@ -647,13 +651,13 @@ PAGE = """<title>CfC Horizon Tournament</title>
 @media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
   --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
-  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7s:#a9c3ee; --m-B60s:#7fa7e8; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }} }}
 :root[data-theme="dark"] {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
   --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
-  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7s:#a9c3ee; --m-B60s:#7fa7e8; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }}
 body {{ background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:15px; line-height:1.5 }}
