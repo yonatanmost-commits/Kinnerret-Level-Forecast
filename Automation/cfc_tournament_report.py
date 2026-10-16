@@ -26,7 +26,8 @@ LONG = [130, 260, 365]
 ROUND1 = ["A", "A1", "B14", "B60"]
 REFS = ["persistence", "clim_change"]
 NAMES = {"A": "A · relay, 2 steps", "A1": "A1 · relay, 1 step", "B14": "B · direct, 14 d",
-         "B60": "B · direct, 60 d", "C60": "C · continuous time, 60 d", "C60f": "C · trained like B",
+         "B60": "B · direct, 60 d", "C60": "C · continuous time, 60 d", "C60f": "C · trained like B", "B14b": "B · + soil bucket",
+         "relay7": "relay · 7 seeds", "relay3": "relay · 3 seeds",
          "persistence": "no change", "clim_change": "average change"}
 
 
@@ -118,7 +119,7 @@ def svg(w, h, body, label):
             f'preserveAspectRatio="xMidYMid meet">{body}</svg>')
 
 
-def horizon_chart(c, keys, label, w=720, h=360):
+def horizon_chart(c, keys, label, w=720, h=360, names=None):
     """MAE (m) against horizon, log days; one line per key, references dashed."""
     ml, mr, mt, mb = 52, 215, 18, 40
     X = logx(ml, w - mr, 6, 400)
@@ -141,15 +142,18 @@ def horizon_chart(c, keys, label, w=720, h=360):
         pts = by_h(c, k)
         xs = [hh for hh in H if hh in pts]
         path = " ".join(f"{'M' if i == 0 else 'L'}{X(x):.1f},{Y(pts[x]):.1f}" for i, x in enumerate(xs))
-        ref, obs = m in REFS, k.endswith("/obs")
-        g.append(f'<path class="ln {"ref" if ref else ""} {"obs" if obs else ""}" style="stroke:var(--m-{m})" d="{path}"/>')
+        ref, obs = m in REFS or m.startswith("relay"), k.endswith("/obs")
+        ens = k.endswith("/ens")
+        g.append(f'<path class="ln {"ref" if ref and not obs else ""} {"obs" if obs else ""} {"ens" if ens else ""}" '
+                 f'style="stroke:var(--m-{m})" d="{path}"/>')
         if not (ref or obs):
             g += [f'<circle cx="{X(x):.1f}" cy="{Y(pts[x]):.1f}" r="3.2" style="fill:var(--m-{m})"/>' for x in xs]
-        ends.append((Y(pts[xs[-1]]), m, pts[xs[-1]], " · weather known" if obs else ""))
+        name = (names or {}).get(k) or (m + " · weather known" if obs else NAMES.get(m, m))
+        ends.append((Y(pts[xs[-1]]), m, pts[xs[-1]], name))
     ys = spread([e[0] for e in ends])
-    for (y0, m, v, extra), y in zip(ends, ys):
+    for (y0, m, v, name), y in zip(ends, ys):
         g.append(f'<text class="lab" x="{w - mr + 10}" y="{y + 4:.1f}" style="fill:var(--m-{m})">'
-                 f'{esc(NAMES.get(m, m) if not extra else m + extra)} <tspan class="num">{v:.2f}</tspan></text>')
+                 f'{esc(name)} <tspan class="num">{v:.2f}</tspan></text>')
     return svg(w, h, "".join(g), label)
 
 
@@ -318,6 +322,90 @@ def bench_strip(years):
     return svg(w, h, "".join(g), "walk-forward: each test year trained on all years before it")
 
 
+def ensemble_rows(e: pd.DataFrame) -> pd.DataFrame:
+    """Per (method, start, H): median and 10/90% of the past-winters members, as rows
+    with weather "ens" (pred = median) plus q10/q90 columns."""
+    m = e[e["weather"].str.startswith("ens|")]
+    g = m.groupby(["method", "year", "start", "H"])
+    q = g["pred"].quantile([0.1, 0.5, 0.9]).unstack()
+    q.columns = ["q10", "pred", "q90"]
+    out = q.join(g["obs"].first()).join(g.size().rename("members")).reset_index()
+    out["weather"] = "ens"
+    out["key"] = out["method"] + "/ens"
+    out["ae"] = (out["pred"] - out["obs"]).abs()
+    return out
+
+
+def relay_rows(seeds: int) -> pd.DataFrame:
+    """The original IMS relay horizon test (liquid_nn_horizons.py, 2021-2024) as
+    one row per horizon carrying its MAE, so it draws as a reference line."""
+    p = ROOT / "docs" / "experiments" / f"liquid_nn_horizons_cfc_s{seeds}.json"
+    if not p.exists():
+        return pd.DataFrame()
+    h = pd.DataFrame(json.loads(p.read_text(encoding="utf-8"))["horizons"])
+    h = h[h["method"] == f"liquid_cfc_s{seeds}"]
+    return pd.DataFrame({"method": f"relay{seeds}", "weather": h["weather"], "H": h["H"],
+                         "ae": h["mae_m"], "key": f"relay{seeds}/" + h["weather"],
+                         "start": "-", "year": 0})
+
+
+def coverage_bars(cov: dict, label, w=720, h=230, target=0.8):
+    """cov[method][H] = share of outcomes inside the 10-90% band; target line at 80%."""
+    ml, mr, mt, mb = 52, 10, 20, 40
+    methods = list(cov)
+    Y = lin(0, 1, h - mb, mt)
+    gw = (w - ml - mr) / len(H)
+    bw = min(30, (gw - 16) / len(methods))
+    g = []
+    for v in (0, 0.2, 0.4, 0.6, 0.8, 1.0):
+        g.append(f'<line class="grid" x1="{ml}" x2="{w - mr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
+                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">{v:.0%}</text>')
+    g.append(f'<line class="refline ref1" x1="{ml}" x2="{w - mr}" y1="{Y(target):.1f}" y2="{Y(target):.1f}"/>')
+    for i, hh in enumerate(H):
+        x0 = ml + i * gw + (gw - bw * len(methods)) / 2
+        for j, m in enumerate(methods):
+            v = cov[m].get(hh)
+            if v is None:
+                continue
+            x = x0 + j * bw
+            g.append(f'<rect x="{x + 2:.1f}" y="{Y(v):.1f}" width="{bw - 4:.1f}" height="{Y(0) - Y(v):.1f}" '
+                     f'rx="2" style="fill:var(--m-{m})"/>')
+        g.append(f'<text class="tick strong" x="{ml + i * gw + gw / 2:.1f}" y="{h - mb + 20}" '
+                 f'text-anchor="middle">{hh} d</text>')
+    return svg(w, h, "".join(g), label)
+
+
+def ims_section():
+    """B14 on the IMS table with the past-winters ensemble, against the original relay."""
+    folder = T.parent / "cfc_ims"
+    e = load(folder) if folder.exists() else pd.DataFrame()
+    if not len(e):
+        return []
+    e = e[e["year"] <= 2024]                         # the relay test's years
+    ens = ensemble_rows(e)
+    methods = [m for m in ("B14", "B14b") if m in set(e["method"])]
+    rows = pd.concat([e[~e["weather"].str.startswith("ens|")], ens, relay_rows(7), relay_rows(3)])
+    keys = ([f"{m}/{w}" for m in methods for w in ("clim", "ens")] + [f"{methods[0]}/obs"] +
+            [k for k in ("relay7/clim", "relay7/obs", "relay3/obs") if k in set(rows["key"])])
+    chart = horizon_chart(rows, keys, "IMS table: error by horizon",
+                          names={f"{m}/ens": f"{m} · past winters" for m in methods} |
+                                {f"{m}/clim": f"{m} · average weather" for m in methods} |
+                                {f"{methods[0]}/obs": f"{methods[0]} · weather known",
+                                 "relay7/clim": "relay 7 seeds · average", "relay7/obs": "relay 7 seeds · known",
+                                 "relay3/obs": "relay 3 seeds · known"})
+    cov = {m: ens[ens["method"] == m].assign(inside=lambda x: (x.obs >= x.q10) & (x.obs <= x.q90))
+           .groupby("H")["inside"].mean().to_dict() for m in methods}
+    n_mem = int(ens["members"].median())
+    return [section("IMS table · past-winters ensemble", chart,
+                    note=f"Test years 2021–2024. Past winters: one forecast per earlier year's weather "
+                         f"(median of ~{n_mem}). Relay = the original day-by-day CfC on the same table."),
+            section("IMS table · how often the outcome fell inside the 10–90% band",
+                    coverage_bars(cov, "band coverage by horizon"),
+                    note='<i class="key ref1"></i>80% = a calibrated band. ' +
+                         " ".join(f'<i class="key sw" style="background:var(--m-{m})"></i>{esc(NAMES[m])}'
+                                  for m in methods))]
+
+
 # ── page ─────────────────────────────────────────────────────────────────────
 
 def section(title, *figs, note=""):
@@ -395,6 +483,8 @@ def build():
                              note=f"Test years {', '.join(map(str, ys))}. C60: every other training day, 60 epochs. "
                                   "C60f: every day, 80 epochs, like B."))
 
+    parts += ims_section()
+
     # memory
     if len(mem):
         # the tournament's own runs of the same method are sweep points too (same nets, same seeds)
@@ -452,7 +542,8 @@ PAGE = """<title>CfC Horizon Tournament</title>
 /* layout: one column of charts, each a self-explaining figure; kpis up top */
 :root {{
   --bg:#f3f6f7; --panel:#ffffff; --fg:#122229; --muted:#5d717a; --grid:#d8e1e5;
-  --m-A:#c26d1c; --m-A1:#d9a04b; --m-B14:#5fb0a8; --m-B60:#17716b; --m-C60:#6a56b8; --m-C60f:#a33d8f;
+  --m-A:#c26d1c; --m-A1:#d9a04b; --m-B14:#5fb0a8; --m-B60:#17716b; --m-C60:#6a56b8; --m-C60f:#a33d8f; --m-B14b:#2f5fa8;
+  --m-relay7:#7a6a58; --m-relay3:#a8977f;
   --m-persistence:#8e9ca3; --m-clim_change:#b3bec3; --heat:#17716b;
   --L0:#a8d8d2; --L1:#5fb0a8; --L2:#17716b; --L3:#0d4c48; --L4:#6a56b8; --L5:#c26d1c;
   --sans:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
@@ -460,12 +551,14 @@ PAGE = """<title>CfC Horizon Tournament</title>
 }}
 @media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
-  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6;
+  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }} }}
 :root[data-theme="dark"] {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
-  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6;
+  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }}
 body {{ background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:15px; line-height:1.5 }}
@@ -495,7 +588,8 @@ svg text {{ fill:var(--fg); font-family:var(--sans) }}
 .num {{ font-family:var(--mono); font-variant-numeric:tabular-nums }} .small {{ font-size:10px }} .big {{ font-size:20px; font-weight:600 }}
 .lab .num {{ fill:var(--muted); font-weight:400 }}
 .grid {{ stroke:var(--grid); stroke-width:1 }} .faint {{ stroke-dasharray:2 4 }}
-.ln {{ fill:none; stroke-width:2.4; stroke-linejoin:round }} .ln.obs {{ stroke-dasharray:0.1 5; stroke-linecap:round; stroke-width:3 }} .ln.ref {{ stroke-dasharray:5 4; stroke-width:1.8 }}
+.ln {{ fill:none; stroke-width:2.4; stroke-linejoin:round }} .ln.obs {{ stroke-dasharray:0.1 5; stroke-linecap:round; stroke-width:3 }}
+.ln.ens {{ stroke-width:3.2 }} .ln.ens + circle {{ r:4 }} .ln.ref {{ stroke-dasharray:5 4; stroke-width:1.8 }}
 .dim {{ opacity:.55 }}
 .refline {{ stroke-width:1.6; stroke-dasharray:5 3 }} .ref1 {{ stroke:var(--m-persistence) }} .ref2 {{ stroke:var(--m-clim_change) }}
 .zero {{ stroke:var(--muted); stroke-width:1 }}
@@ -509,6 +603,7 @@ i.key {{ display:inline-block; width:18px; height:0; border-top:2px dashed; vert
 i.key.ref1 {{ border-color:var(--m-persistence) }} i.key.ref2 {{ border-color:var(--m-clim_change) }}
 i.key.dot {{ width:9px; height:9px; border:2px solid var(--muted); border-radius:50% }}
 i.key.dot.long {{ background:var(--fg); border-color:var(--fg) }}
+i.key.sw {{ width:10px; height:10px; border:0; border-radius:2px }}
 footer {{ color:var(--muted); font-size:.72rem; font-family:var(--mono) }}
 @media (max-width: 560px) {{ h1 {{ font-size:1.35rem }} }}
 </style>
