@@ -93,6 +93,31 @@ def calibrate(anom: pd.DataFrame, slopes: dict) -> pd.DataFrame:
     return anom.assign(rain_ratio=(1 + s * (anom["rain_ratio"] - 1)).clip(*RATIO_CLIP))
 
 
+def season_calibrate(anom: pd.DataFrame, daily_rain: pd.Series, test_year: int) -> pd.DataFrame:
+    """Calibrate on the SEASON, not the month: the lake answers a season's total rain.
+
+    Per forecast (init), the season ratio is the rain-weighted mean of its monthly
+    ratios (wet months count most; weights = normal monthly rain, earlier years). The
+    slope of the observed season ratio on SEAS5's, through (1, 1), is fitted on seasons
+    fully observed before test_year, and each forecast gets ONE calibrated ratio,
+    1 + slope x (season ratio - 1), for all its months. Slope clipped to [0, 4]."""
+    m = daily_rain.resample("MS").sum(min_count=20)
+    early = m[m.index.year < test_year]
+    normal = early.groupby(early.index.month).mean()
+    a = anom.assign(w=normal.reindex(pd.DatetimeIndex(anom["target"]).month).to_numpy())
+    a["obs"] = (m / normal.reindex(m.index.month).to_numpy()).reindex(pd.DatetimeIndex(a["target"])).to_numpy()
+    wmean = lambda g, c: (g[c] * g["w"]).sum() / g["w"].sum()
+    seasons = a.groupby("init").apply(lambda g: pd.Series({
+        "fc": wmean(g, "rain_ratio"),
+        "obs": wmean(g, "obs") if g["obs"].notna().all() else np.nan,
+        "end": g["target"].max()}), include_groups=False)
+    fit = seasons[(seasons["end"] < pd.Timestamp(test_year, 1, 1)) & seasons["obs"].notna()]
+    x, y = fit["fc"] - 1, fit["obs"] - 1
+    slope = float(np.clip((x * y).sum() / max((x * x).sum(), 1e-12), 0.0, 4.0))
+    ratio = (1 + slope * (seasons["fc"] - 1)).clip(*RATIO_CLIP)
+    return anom.assign(rain_ratio=anom["init"].map(ratio).to_numpy())
+
+
 def adjust_clim(clim: pd.DataFrame, start: pd.Timestamp, anom: pd.DataFrame) -> pd.DataFrame:
     init = init_for(start)
     f = anom[anom["init"] == init]
