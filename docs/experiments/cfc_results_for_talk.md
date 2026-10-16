@@ -316,3 +316,25 @@ The report page (https://claude.ai/artifact/1WcstqPzV3bmoJHrhGwmnZ, v9) now open
 got here", a 14-step timeline, and ends with these charts: the three models on the station record,
 what a seasonal forecast is worth, the fan calibration, the red-line reliability and skill, and
 three autumn fans with the red line drawn.
+
+## 12. A forecast from today - DRY RUN for the closing slide (2026-10-17)
+Product 2 as chosen: the CfC on the IMS station record (Tzemach gold @ 81a2082), trained on
+2002-2025, past winters' weather weighted by the October 2026 SEAS5 forecast. The latest weekly
+start is **8 Oct 2026, level -213.65 m**, already below the lower red line (-213 m). "6 months" is
+interpolated between the 130- and 260-day horizons. Refresh before 1 Nov.
+
+| from 8 Oct 2026 | median | 80% range | chance still below -213 m |
+|---|---|---|---|
+| in 6 months (early April 2027) | -212.5 | -213.3 .. -210.6 | 21% |
+| in 12 months (October 2027) | -212.7 | -214.2 .. -209.9 | **28%** (34% if every past winter counted equally) |
+
+If the coming winter is like:
+- **2018-19 (record wet):** about -211.0 m in 6 months, -210.5 m in 12 months
+- **2024-25 (record dry):** about -213.5 m in 6 months, -214.5 m in 12 months
+
+These two are single scenarios through the model, without its own error band.
+
+SEAS5 leans **slightly wet**: an Oct-Mar season rain ratio of 1.06, 25th of 34 Octobers since
+1993. Mostly early: October +57%, November +19%, December-February normal, March +14%. A weak
+lean, so it tilts the odds only a little: 28% instead of 34%.
+Plain phrase: "the seasonal forecast leans a little wetter than normal, mostly early in the winter."
