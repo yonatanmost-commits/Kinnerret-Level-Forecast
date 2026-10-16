@@ -457,9 +457,11 @@ s &= \text{weather of each horizon window (3 totals, 4 means)} && 6\times 7 = 42
 level, volume change, a level-read flag (IMS table: + rain intensity; bucket: + storage, 30-day overflow).
 Huber loss on standardised \(\Delta V\), AdamW, 3 seeds averaged. About 28k weights per seed
 (cell 22.7k, head 5.2k).</p>
-<p class="cap"><b>Why it remembers about a week:</b> \(h_t\) is a fresh blend of two functions of
-\((u_t, h_{t-1})\). There is no additive carry path like an LSTM's \(c_t = f\,c_{t-1} + \dots\), so holding months
-of history needs the backbone to copy the state step after step. Slow catchment memory has to come in as an input.</p>
+<p class="cap"><b>Why about a week is enough: two candidate reasons, not yet tested.</b>
+(1) The inputs already carry today's level and volume, which sum up all earlier rain and inflow, so older days
+repeat what the level already says. (2) \(h_t\) is a fresh blend of two functions of \((u_t, h_{t-1})\), with no
+additive carry path like an LSTM's \(c_t = f\,c_{t-1} + \dots\), so long memory is hard to learn.
+The start day alone scoring within 0.013 m, and the soil bucket adding nothing on IMS, lean toward (1).</p>
 </div>
 </section>
 """
