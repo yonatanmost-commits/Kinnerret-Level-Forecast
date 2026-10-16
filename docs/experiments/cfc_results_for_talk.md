@@ -272,3 +272,47 @@ on 2026-10-16 (two bugs, each pinned by a locked test), and live data is current
 4. Use only what was knowable on the start day.
 5. Test the "why", don't assert it, and publish the corrections.
 6. Compare every idea against the champion and the GRU, not just against itself.
+
+## 10. The seasonal forecast on the station record, and the decision for the 6-month product (sha b944504)
+CfC, GRU and GBR on IMS 2011-2025 (15 test years), each with no forecast, raw Copernicus SEAS5,
+and a perfect forecast. Year ahead = mean error at 130/260/365 days.
+
+| model | no forecast | SEAS5 | perfect | autumn starts, SEAS5 |
+|---|---|---|---|---|
+| CfC | 0.718 | **0.701** | 0.688 | **0.854** |
+| GRU | 0.726 | 0.706 | 0.703 | 0.892 |
+| GBR | 0.891 | 0.860 | 0.545 | 0.956 |
+
+- SEAS5 helps all three. The GBR gains most (-3.2 cm, because it leans hardest on the weather),
+  but it still trails the CfC by 0.18 m (interval clear of zero). The CfC and GRU tie.
+- **Decision: the 6-month product is the CfC with the raw SEAS5 forecast.**
+- Calibrating SEAS5 did not beat raw. Month by month it lost half the gain; on the season total
+  it equals raw (SEAS5's season signal is already the right size). Calibration is parked.
+
+## 11. The fan and the red-line odds, tested (sha 1b95245, report v9)
+- The fan: run the past winters' weather through the CfC, widen by the model's own error, and
+  WEIGHT each past winter by how well it matches the SEAS5 forecast.
+- The 80% range holds 82/81/79/78/78% at 7/13/26/130/260 days and 73% at a year; 50% holds
+  about 50% everywhere.
+- Red line -213 m, "chance the lake is below it in N days", scored against what happened.
+  Skill against quoting the average odds (0 = no better, 1 = perfect):
+
+| | 7 d | 26 d | 130 d | 260 d | 365 d |
+|---|---|---|---|---|---|
+| past winters equally likely | 0.98 | 0.93 | 0.68 | 0.40 | 0.27 |
+| weighted by SEAS5 | 0.98 | 0.93 | **0.69** | **0.44** | **0.32** |
+
+- Weighting by SEAS5 improves the red-line odds with an interval clear of zero (CfC Brier -0.006
+  [-0.012, -0.001]; GRU the same). Honest at the ends: when it said under 10%, it happened 3% of
+  the time; over 90%, 100%. Weighting fixed the 70-90% bin (said 78%, happened 79%, vs 68%
+  unweighted). In the 30-50% bin it is too cautious (said 38%, happened 61%).
+- The upper red line (-208.8 m) was never crossed in 2011-2025, so it can't be scored.
+- Talk line: "we don't just say where the lake will be; we say how sure we are, and when we say
+  80%, it happens about 80% of the time. A week ahead we know the level to within 5 cm; at six
+  months the honest range is over a metre wide, and the seasonal forecast sharpens the odds of
+  crossing the red line."
+
+The report page (https://claude.ai/artifact/1WcstqPzV3bmoJHrhGwmnZ, v9) now opens with "How we
+got here", a 14-step timeline, and ends with these charts: the three models on the station record,
+what a seasonal forecast is worth, the fan calibration, the red-line reliability and skill, and
+three autumn fans with the red line drawn.
