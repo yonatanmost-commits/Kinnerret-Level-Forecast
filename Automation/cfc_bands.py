@@ -5,6 +5,8 @@ cfc_bands.py  -  forecast ranges from scenarios and from the errors of earlier f
 
 forecasts: one row per forecast (start, H, pred, obs, year), or SEVERAL rows per
 (start, H) when the forecast is a set of scenarios (e.g. one per past winter's weather).
+An optional `weight` column weights the scenarios (e.g. by a seasonal forecast); the
+band and the median then use weighted quantiles. Missing = equal weights.
 For each (start, H) the band is the spread of
 
     scenario + model error
@@ -34,13 +36,19 @@ import numpy as np
 import pandas as pd
 
 
-def _quantiles(draws: np.ndarray, a: float):
+def _wquantile(draws: np.ndarray, cw: np.ndarray, q):
+    """Weighted quantiles of sorted draws, cw = their cumulative weights scaled to 0..1
+    at the draw midpoints (equal weights reproduce np.quantile's 'hazen' rule)."""
+    return np.interp(q, cw, draws)
+
+
+def _quantiles(draws: np.ndarray, cw: np.ndarray, a: float):
     """Central band leaving a total share a outside; a <= 0 widens past the extremes."""
     if a <= 0:
         span = draws[-1] - draws[0]
         return draws[0] - span * (-a), draws[-1] + span * (-a)
     a = min(a, 0.9999)
-    return tuple(np.quantile(draws, [a / 2, 1 - a / 2]))
+    return tuple(_wquantile(draws, cw, [a / 2, 1 - a / 2]))
 
 
 def bands(forecasts: pd.DataFrame, levels=(0.5, 0.8, 0.9), doy_window: int = 45,
@@ -67,16 +75,26 @@ def bands(forecasts: pd.DataFrame, levels=(0.5, 0.8, 0.9), doy_window: int = 45,
                     else:
                         still.append((known, p, inside))
                 pending = still
-            members = g["pred"].dropna().to_numpy(float)
-            obs = g["obs"].iloc[0]
+            g = g.dropna(subset=["pred"])
+            members = g["pred"].to_numpy(float)
+            mw = g["weight"].to_numpy(float) if "weight" in g else np.ones(len(members))
+            obs = g["obs"].iloc[0] if len(g) else np.nan
+            if not len(members):
+                continue
+            o = np.argsort(members)
+            mcw = (np.cumsum(mw[o]) - mw[o] / 2) / mw.sum()
             row = {"year": g["year"].iloc[0], "start": g["start"].iloc[0], "H": H, "obs": obs,
-                   "pred": float(np.median(members)) if len(members) else np.nan, "members": len(members)}
+                   "pred": float(_wquantile(members[o], mcw, 0.5)), "members": len(members)}
             gap = np.abs(edoy - t.dayofyear)
             pool = (np.minimum(gap, 365 - gap) <= doy_window) & (end <= np.datetime64(t))
             if len(members) and len(np.unique(eyr[pool])) >= min_years:
-                draws = np.sort((members[:, None] + res[pool][None, :]).ravel())
+                d = (members[:, None] + res[pool][None, :]).ravel()
+                dw = np.repeat(mw, pool.sum())
+                o = np.argsort(d)
+                draws, dw = d[o], dw[o]
+                cw = (np.cumsum(dw) - dw / 2) / dw.sum()
                 for p in levels:
-                    lo, hi = _quantiles(draws, alpha[p])
+                    lo, hi = _quantiles(draws, cw, alpha[p])
                     k = int(round(p * 100))
                     row[f"lo_{k}"], row[f"hi_{k}"] = lo, hi
                     if gamma and np.isfinite(obs):

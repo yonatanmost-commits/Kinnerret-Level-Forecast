@@ -118,6 +118,33 @@ def season_calibrate(anom: pd.DataFrame, daily_rain: pd.Series, test_year: int) 
     return anom.assign(rain_ratio=anom["init"].map(ratio).to_numpy())
 
 
+def member_weights(forecast: float, member_ratio: pd.Series, seasons: pd.DataFrame,
+                   test_year: int) -> pd.Series:
+    """Weights for past-winter scenarios given SEAS5's season forecast (importance weights).
+
+    seasons: one row per past forecast season (year, fc = SEAS5's season rain ratio, obs =
+    the season ratio that fell). On seasons before test_year, fit obs ~ 1 + b (fc - 1) with
+    residual spread s, and take the climatological spread c of obs. A scenario whose season
+    ratio is r gets N(r; 1 + b (forecast - 1), s) / N(r; 1, c): how much likelier its
+    wetness is under the forecast than under plain climatology. A useless forecast (b ~ 0,
+    s ~ c) leaves the weights near 1; a skilful one tilts them. Returned mean-1."""
+    past = seasons[seasons["year"] < test_year].dropna(subset=["fc", "obs"])
+    x, y = past["fc"] - 1, past["obs"] - 1
+    b = float((x * y).sum() / max((x * x).sum(), 1e-12))
+    c = float(np.sqrt((y ** 2).mean()))
+    s = max(float(np.sqrt(((y - b * x) ** 2).mean())), 0.1 * c)
+    # a slope fitted on a handful of seasons can be chance: shrink it by its own
+    # certainty, b t^2 / (1 + t^2) with t = b / se, so noise barely tilts the weights
+    t2 = b ** 2 * max((x * x).sum(), 1e-12) / s ** 2
+    b *= t2 / (1 + t2) if len(past) > 2 else 0.0
+    s = float(np.sqrt(max(c ** 2 - b ** 2 * float((x * x).mean()), (0.1 * c) ** 2)))
+    mu = 1 + b * (forecast - 1)
+    r = member_ratio.astype(float)
+    logw = -0.5 * ((r - mu) / s) ** 2 + 0.5 * ((r - 1) / c) ** 2 + np.log(c / s)
+    w = np.exp(logw - logw.max())
+    return w / w.mean()
+
+
 def adjust_clim(clim: pd.DataFrame, start: pd.Timestamp, anom: pd.DataFrame) -> pd.DataFrame:
     init = init_for(start)
     f = anom[anom["init"] == init]

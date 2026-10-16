@@ -108,3 +108,21 @@ def test_season_calibration_uses_earlier_years_and_gives_one_ratio_per_forecast(
     raw = seas5.anomalies(t, 2010)
     fc = raw[raw["init"] == pd.Timestamp("2010-10-01")]["rain_ratio"].mean()
     assert abs((f["rain_ratio"].iat[0] - 1) - 3.0 * (fc - 1)) < 0.6 * abs(fc - 1) + 0.01   # slope ~3, not -3
+
+
+def test_member_weights_follow_a_skilful_forecast_and_stay_flat_for_a_useless_one():
+    # seasons: the true season ratio equals the forecast (perfect skill) before 2010
+    rng = np.random.default_rng(5)
+    years = range(1995, 2011)
+    fc = {y: 1 + rng.normal(scale=0.2) for y in years}
+    seasons = pd.DataFrame({"year": list(years), "fc": [fc[y] for y in years], "obs": [fc[y] for y in years]})
+    members = pd.Series({1999: 0.6, 2003: 1.0, 2007: 1.4})          # member years' season ratios
+    w = seas5.member_weights(forecast=1.4, member_ratio=members, seasons=seasons, test_year=2010)
+    assert w.idxmax() == 2007 and w[2007] > 5 * w[1999]
+    # no relation, over enough seasons that a chance correlation is small (with 15 seasons a
+    # chance r of 0.35 - SEAS5's real skill - is common, and is rightly given some weight)
+    many = range(1950, 2011)
+    useless = pd.DataFrame({"year": list(many), "fc": 1 + rng.normal(scale=0.2, size=len(many)),
+                            "obs": 1 + rng.normal(scale=0.2, size=len(many))})
+    w2 = seas5.member_weights(forecast=1.4, member_ratio=members, seasons=useless, test_year=2010)
+    assert w2.max() / w2.min() < 3
