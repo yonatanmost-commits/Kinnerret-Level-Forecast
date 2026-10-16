@@ -1,4 +1,1681 @@
 ﻿date,column,original_value,reason,layer
+2010-04-13,lev_kinneret_temperature_C_max,-174.8,"physical_bounds [-15, 45]",physical
+2010-04-13,lev_kinneret_temperature_C_mean,-174.8,"physical_bounds [-15, 45]",physical
+2010-04-13,lev_kinneret_temperature_C_min,-174.8,"physical_bounds [-15, 45]",physical
+2010-04-13,lev_kinneret_temperature_max_C_max,-173.7,"physical_bounds [-15, 45]",physical
+2010-04-13,lev_kinneret_temperature_min_C_min,-175.0,"physical_bounds [-15, 45]",physical
+2002-07-01,tzamach_wind_speed_ms_mean,29.74027777777778,"physical_bounds [0, 25]",physical
+2002-07-02,tzamach_wind_speed_ms_mean,29.342361111111117,"physical_bounds [0, 25]",physical
+2004-03-23,lev_kinneret_relative_humidity_pct_mean,29.354166666666668,"monthly_IQR month=3 [31.94, 102.62]",monthly
+2006-09-18,lev_kinneret_relative_humidity_pct_mean,43.020833333333336,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-19,lev_kinneret_relative_humidity_pct_mean,41.52777777777778,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2009-07-01,lev_kinneret_relative_humidity_pct_mean,45.951388888888886,"monthly_IQR month=7 [41.76, 83.96]",monthly
+2010-08-06,lev_kinneret_relative_humidity_pct_mean,43.09027777777778,"monthly_IQR month=8 [50.34, 79.14]",monthly
+2010-08-07,lev_kinneret_relative_humidity_pct_mean,48.55555555555556,"monthly_IQR month=8 [42.60, 87.17]",monthly
+2011-05-17,lev_kinneret_relative_humidity_pct_mean,27.02777777777778,"monthly_IQR month=5 [35.46, 86.02]",monthly
+2010-08-19,lev_kinneret_temperature_C_max,41.1,"monthly_IQR month=8 [28.40, 41.00]",monthly
+2003-12-11,lev_kinneret_temperature_min_C_min,-11.8,"monthly_IQR month=12 [4.35, 24.30]",monthly
+2007-06-03,lev_kinneret_wind_speed_ms_max,0.0,"monthly_IQR month=6 [2.72, 17.60]",monthly
+2004-01-23,lev_kinneret_wind_speed_ms_mean,9.53472222222222,"monthly_IQR month=1 [-1.19, 5.00]",monthly
+2004-11-26,lev_kinneret_wind_speed_ms_mean,8.419444444444444,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2006-03-09,lev_kinneret_wind_speed_ms_mean,7.613868613138686,"monthly_IQR month=3 [-0.39, 4.60]",monthly
+2008-01-29,lev_kinneret_wind_speed_ms_mean,10.557638888888889,"monthly_IQR month=1 [-1.19, 5.00]",monthly
+2009-11-02,lev_kinneret_wind_speed_ms_mean,8.134027777777778,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2009-11-03,lev_kinneret_wind_speed_ms_mean,7.844444444444444,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2009-12-02,lev_kinneret_wind_speed_ms_mean,9.051388888888887,"monthly_IQR month=12 [-3.35, 8.88]",monthly
+2010-12-12,lev_kinneret_wind_speed_ms_mean,11.081944444444444,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2011-03-10,lev_kinneret_wind_speed_ms_mean,7.734722222222222,"monthly_IQR month=3 [-1.81, 7.35]",monthly
+1994-11-11,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [21.41, 261.74]",monthly
+1995-05-01,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-06,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-07,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-08,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-09,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-10,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-11,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-12,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-13,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-14,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-15,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-16,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-17,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-18,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-19,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-20,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-21,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-22,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-23,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-24,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-25,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-26,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-27,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-28,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-29,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-30,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-05-31,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1995-07-15,tzamach_global_radiation_MJm2,2.757,"monthly_IQR month=7 [226.02, 400.81]",monthly
+1996-06-05,tzamach_global_radiation_MJm2,18.836,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1996-07-15,tzamach_global_radiation_MJm2,13.327,"monthly_IQR month=7 [226.02, 400.81]",monthly
+1996-08-22,tzamach_global_radiation_MJm2,15.371,"monthly_IQR month=8 [15.95, 32.87]",monthly
+1996-12-07,tzamach_global_radiation_MJm2,26.494,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+1997-05-01,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1997-05-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1997-05-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1997-05-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1997-05-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1997-05-06,tzamach_global_radiation_MJm2,9.599,"monthly_IQR month=5 [12.13, 39.21]",monthly
+1997-09-10,tzamach_global_radiation_MJm2,0.143,"monthly_IQR month=9 [136.44, 355.02]",monthly
+1997-09-28,tzamach_global_radiation_MJm2,9.274,"monthly_IQR month=9 [136.44, 355.02]",monthly
+1997-10-18,tzamach_global_radiation_MJm2,2.988,"monthly_IQR month=10 [45.81, 327.83]",monthly
+1998-05-07,tzamach_global_radiation_MJm2,6.775,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-05-09,tzamach_global_radiation_MJm2,10.36,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-05-15,tzamach_global_radiation_MJm2,7.636,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-06-01,tzamach_global_radiation_MJm2,18.524,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1998-06-02,tzamach_global_radiation_MJm2,19.609,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1999-06-24,tzamach_global_radiation_MJm2,19.288,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2000-09-29,tzamach_global_radiation_MJm2,7.048,"monthly_IQR month=9 [136.44, 355.02]",monthly
+2000-10-25,tzamach_global_radiation_MJm2,3.068,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2001-06-18,tzamach_global_radiation_MJm2,20.694,"monthly_IQR month=6 [20.88, 34.99]",monthly
+2002-07-15,tzamach_global_radiation_MJm2,13.778,"monthly_IQR month=7 [226.02, 400.81]",monthly
+2002-11-29,tzamach_global_radiation_MJm2,0.623,"monthly_IQR month=11 [21.41, 261.74]",monthly
+2004-10-29,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2004-11-26,tzamach_global_radiation_MJm2,0.961,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2005-07-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [226.02, 400.81]",monthly
+2005-07-06,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2005-07-07,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2005-07-08,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2005-07-09,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2005-07-10,tzamach_global_radiation_MJm2,13.141,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-06-14,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2006-06-15,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=6 [20.88, 34.99]",monthly
+2006-06-16,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=6 [20.88, 34.99]",monthly
+2006-06-17,tzamach_global_radiation_MJm2,20.329,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2006-07-01,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [226.02, 400.81]",monthly
+2006-07-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-06,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-07,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-08,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-09,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-10,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-11,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-12,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-13,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-14,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-15,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-16,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-17,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-18,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-19,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-20,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-21,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-22,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-23,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-24,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-25,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-26,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-27,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-28,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-29,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-30,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-07-31,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=7 [18.42, 35.15]",monthly
+2006-08-01,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-06,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-07,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-08,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-09,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-10,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-11,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-12,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-19,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-20,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-21,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-26,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [193.64, 375.76]",monthly
+2006-08-27,tzamach_global_radiation_MJm2,0.527,"monthly_IQR month=8 [193.64, 375.76]",monthly
+2006-08-28,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-29,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-30,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-08-31,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=8 [15.95, 32.87]",monthly
+2006-09-01,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-06,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-07,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-08,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-09,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-10,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-11,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-12,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-13,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-14,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-15,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-16,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-17,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-18,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-19,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-20,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-21,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-22,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-23,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-24,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-25,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-26,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-27,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-28,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-09-29,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [41.70, 87.76]",monthly
+2006-09-30,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=9 [10.53, 31.27]",monthly
+2006-10-01,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-06,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-07,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-08,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-09,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-10,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-11,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-12,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-13,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-14,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-15,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-16,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-17,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=10 [3.24, 28.58]",monthly
+2006-10-28,tzamach_global_radiation_MJm2,2.381,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2007-05-03,tzamach_global_radiation_MJm2,10.004,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-05-10,tzamach_global_radiation_MJm2,9.513,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-05-17,tzamach_global_radiation_MJm2,9.38,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2008-08-24,tzamach_global_radiation_MJm2,14.868,"monthly_IQR month=8 [193.64, 375.76]",monthly
+2009-05-03,tzamach_global_radiation_MJm2,9.593,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2009-10-30,tzamach_global_radiation_MJm2,1.816,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2009-11-01,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [21.41, 261.74]",monthly
+2009-11-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2009-11-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2009-11-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [1.08, 23.05]",monthly
+2009-11-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [1.08, 23.05]",monthly
+2009-11-06,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [1.08, 23.05]",monthly
+2009-11-07,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [1.08, 23.05]",monthly
+2009-11-08,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [1.08, 23.05]",monthly
+2009-11-09,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=11 [1.08, 23.05]",monthly
+2010-05-18,tzamach_global_radiation_MJm2,10.918,"monthly_IQR month=5 [12.13, 39.21]",monthly
+2011-06-02,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2011-06-03,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=6 [20.88, 34.99]",monthly
+2011-06-04,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=6 [20.88, 34.99]",monthly
+2011-06-05,tzamach_global_radiation_MJm2,0.0,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2012-05-01,tzamach_global_radiation_MJm2,11.233,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1994-06-03,tzamach_global_radiation_Wm2_mean,241.95138888888889,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1994-06-24,tzamach_global_radiation_Wm2_mean,242.77777777777777,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1994-11-11,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=11 [21.41, 261.74]",monthly
+1995-07-12,tzamach_global_radiation_Wm2_mean,213.70138888888889,"monthly_IQR month=7 [226.02, 400.81]",monthly
+1995-07-15,tzamach_global_radiation_Wm2_mean,74.11290322580645,"monthly_IQR month=7 [226.02, 400.81]",monthly
+1996-05-03,tzamach_global_radiation_Wm2_mean,166.30555555555554,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1996-06-05,tzamach_global_radiation_Wm2_mean,245.2578125,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1996-06-19,tzamach_global_radiation_Wm2_mean,243.77777777777777,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1996-07-15,tzamach_global_radiation_Wm2_mean,154.24305555555554,"monthly_IQR month=7 [226.02, 400.81]",monthly
+1996-07-16,tzamach_global_radiation_Wm2_mean,214.24305555555557,"monthly_IQR month=7 [226.02, 400.81]",monthly
+1996-08-23,tzamach_global_radiation_Wm2_mean,414.6941176470588,"monthly_IQR month=8 [193.64, 375.76]",monthly
+1996-12-07,tzamach_global_radiation_Wm2_mean,306.6388888888889,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+1996-12-13,tzamach_global_radiation_Wm2_mean,266.74305555555554,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+1997-08-10,tzamach_global_radiation_Wm2_mean,386.6759259259259,"monthly_IQR month=8 [193.64, 375.76]",monthly
+1997-09-10,tzamach_global_radiation_Wm2_mean,5.311111111111111,"monthly_IQR month=9 [136.44, 355.02]",monthly
+1997-09-28,tzamach_global_radiation_Wm2_mean,107.33333333333331,"monthly_IQR month=9 [136.44, 355.02]",monthly
+1997-10-18,tzamach_global_radiation_Wm2_mean,34.583333333333336,"monthly_IQR month=10 [45.81, 327.83]",monthly
+1997-12-31,tzamach_global_radiation_Wm2_mean,269.8888888888889,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+1998-05-07,tzamach_global_radiation_Wm2_mean,78.41666666666667,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-05-09,tzamach_global_radiation_Wm2_mean,119.90277777777776,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-05-10,tzamach_global_radiation_Wm2_mean,140.625,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-05-13,tzamach_global_radiation_Wm2_mean,152.02083333333334,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-05-15,tzamach_global_radiation_Wm2_mean,88.375,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1998-06-01,tzamach_global_radiation_Wm2_mean,223.7246376811594,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1998-06-02,tzamach_global_radiation_Wm2_mean,236.82608695652172,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1999-06-03,tzamach_global_radiation_Wm2_mean,422.1559633027523,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1999-06-24,tzamach_global_radiation_Wm2_mean,223.24305555555557,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1999-06-25,tzamach_global_radiation_Wm2_mean,242.90972222222223,"monthly_IQR month=6 [247.18, 402.77]",monthly
+1999-07-01,tzamach_global_radiation_Wm2_mean,417.1923076923077,"monthly_IQR month=7 [226.02, 400.81]",monthly
+1999-07-30,tzamach_global_radiation_Wm2_mean,220.13888888888889,"monthly_IQR month=7 [226.02, 400.81]",monthly
+2000-09-29,tzamach_global_radiation_Wm2_mean,81.56944444444444,"monthly_IQR month=9 [136.44, 355.02]",monthly
+2000-10-25,tzamach_global_radiation_Wm2_mean,35.50694444444444,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2001-05-13,tzamach_global_radiation_Wm2_mean,174.11805555555554,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2001-12-12,tzamach_global_radiation_Wm2_mean,267.4788732394366,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+2002-01-23,tzamach_global_radiation_Wm2_mean,321.9577464788732,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2002-01-30,tzamach_global_radiation_Wm2_mean,357.67605633802816,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2002-01-31,tzamach_global_radiation_Wm2_mean,347.9154929577465,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2002-03-16,tzamach_global_radiation_Wm2_mean,486.7464788732394,"monthly_IQR month=3 [-77.39, 486.38]",monthly
+2002-03-28,tzamach_global_radiation_Wm2_mean,540.2253521126761,"monthly_IQR month=3 [-77.39, 486.38]",monthly
+2002-04-05,tzamach_global_radiation_Wm2_mean,565.4647887323944,"monthly_IQR month=4 [-27.05, 524.91]",monthly
+2002-07-15,tzamach_global_radiation_Wm2_mean,188.22131147540983,"monthly_IQR month=7 [226.02, 400.81]",monthly
+2002-11-29,tzamach_global_radiation_Wm2_mean,7.208333333333333,"monthly_IQR month=11 [21.41, 261.74]",monthly
+2003-12-21,tzamach_global_radiation_Wm2_mean,283.3333333333333,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+2003-12-28,tzamach_global_radiation_Wm2_mean,264.625,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+2003-12-29,tzamach_global_radiation_Wm2_mean,267.18055555555554,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+2004-01-18,tzamach_global_radiation_Wm2_mean,334.92957746478874,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2004-10-29,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2004-11-26,tzamach_global_radiation_Wm2_mean,15.86138613861386,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2005-05-04,tzamach_global_radiation_Wm2_mean,170.18055555555554,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2005-07-05,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=7 [226.02, 400.81]",monthly
+2006-06-14,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2006-06-17,tzamach_global_radiation_Wm2_mean,440.012987012987,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2006-07-01,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=7 [226.02, 400.81]",monthly
+2006-08-26,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=8 [193.64, 375.76]",monthly
+2006-08-27,tzamach_global_radiation_Wm2_mean,879.0,"monthly_IQR month=8 [193.64, 375.76]",monthly
+2006-10-28,tzamach_global_radiation_Wm2_mean,27.55555555555556,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2007-05-03,tzamach_global_radiation_Wm2_mean,115.78472222222224,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-05-09,tzamach_global_radiation_Wm2_mean,147.96527777777777,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-05-10,tzamach_global_radiation_Wm2_mean,110.10416666666669,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-05-13,tzamach_global_radiation_Wm2_mean,159.08333333333334,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-05-16,tzamach_global_radiation_Wm2_mean,154.18055555555554,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-05-17,tzamach_global_radiation_Wm2_mean,108.56944444444444,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2007-11-24,tzamach_global_radiation_Wm2_mean,288.05194805194805,"monthly_IQR month=11 [21.41, 261.74]",monthly
+2007-11-25,tzamach_global_radiation_Wm2_mean,282.42857142857144,"monthly_IQR month=11 [21.41, 261.74]",monthly
+2008-01-14,tzamach_global_radiation_Wm2_mean,347.57142857142856,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2008-01-15,tzamach_global_radiation_Wm2_mean,348.74603174603175,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2008-01-16,tzamach_global_radiation_Wm2_mean,356.7619047619048,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2008-01-17,tzamach_global_radiation_Wm2_mean,346.61538461538464,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2008-01-18,tzamach_global_radiation_Wm2_mean,360.203125,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2008-01-19,tzamach_global_radiation_Wm2_mean,352.0,"monthly_IQR month=1 [-83.97, 318.97]",monthly
+2008-08-24,tzamach_global_radiation_Wm2_mean,172.08333333333334,"monthly_IQR month=8 [193.64, 375.76]",monthly
+2008-10-30,tzamach_global_radiation_Wm2_mean,328.1428571428572,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2008-10-31,tzamach_global_radiation_Wm2_mean,330.83116883116884,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2008-11-01,tzamach_global_radiation_Wm2_mean,321.3246753246753,"monthly_IQR month=11 [21.41, 261.74]",monthly
+2008-12-26,tzamach_global_radiation_Wm2_mean,325.91525423728814,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+2008-12-28,tzamach_global_radiation_Wm2_mean,300.0769230769231,"monthly_IQR month=12 [-30.99, 264.08]",monthly
+2009-05-03,tzamach_global_radiation_Wm2_mean,111.03472222222224,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2009-05-04,tzamach_global_radiation_Wm2_mean,147.82638888888889,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2009-10-30,tzamach_global_radiation_Wm2_mean,21.02083333333333,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2009-10-31,tzamach_global_radiation_Wm2_mean,41.71527777777778,"monthly_IQR month=10 [45.81, 327.83]",monthly
+2009-11-01,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=11 [21.41, 261.74]",monthly
+2010-05-04,tzamach_global_radiation_Wm2_mean,450.7641509433962,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-05,tzamach_global_radiation_Wm2_mean,497.3684210526316,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-06,tzamach_global_radiation_Wm2_mean,511.9347826086956,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-07,tzamach_global_radiation_Wm2_mean,442.1456310679612,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-08,tzamach_global_radiation_Wm2_mean,495.89772727272725,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-09,tzamach_global_radiation_Wm2_mean,474.9425287356322,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-11,tzamach_global_radiation_Wm2_mean,453.9183673469388,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-12,tzamach_global_radiation_Wm2_mean,494.69473684210527,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-14,tzamach_global_radiation_Wm2_mean,441.5754716981132,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-15,tzamach_global_radiation_Wm2_mean,530.6976744186046,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-19,tzamach_global_radiation_Wm2_mean,438.0618556701031,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-20,tzamach_global_radiation_Wm2_mean,497.89690721649487,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-21,tzamach_global_radiation_Wm2_mean,503.234693877551,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-22,tzamach_global_radiation_Wm2_mean,448.36633663366337,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-05-31,tzamach_global_radiation_Wm2_mean,446.69444444444446,"monthly_IQR month=5 [175.06, 433.14]",monthly
+2010-06-02,tzamach_global_radiation_Wm2_mean,484.34736842105264,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2010-06-07,tzamach_global_radiation_Wm2_mean,440.0982142857143,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2010-09-22,tzamach_global_radiation_Wm2_mean,132.19444444444446,"monthly_IQR month=9 [136.44, 355.02]",monthly
+2010-09-26,tzamach_global_radiation_Wm2_mean,128.52083333333334,"monthly_IQR month=9 [136.44, 355.02]",monthly
+2011-06-02,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2011-06-05,tzamach_global_radiation_Wm2_mean,0.0,"monthly_IQR month=6 [247.18, 402.77]",monthly
+2011-09-28,tzamach_global_radiation_Wm2_mean,135.53472222222223,"monthly_IQR month=9 [136.44, 355.02]",monthly
+2012-05-01,tzamach_global_radiation_Wm2_mean,130.01388888888889,"monthly_IQR month=5 [175.06, 433.14]",monthly
+1994-09-06,tzamach_relative_humidity_pct_mean,98.2116788321168,"monthly_IQR month=9 [41.70, 87.76]",monthly
+1994-09-13,tzamach_relative_humidity_pct_mean,35.72222222222222,"monthly_IQR month=9 [41.70, 87.76]",monthly
+1999-09-29,tzamach_relative_humidity_pct_mean,38.24305555555556,"monthly_IQR month=9 [41.70, 87.76]",monthly
+1999-09-30,tzamach_relative_humidity_pct_mean,36.78472222222222,"monthly_IQR month=9 [41.70, 87.76]",monthly
+2002-06-08,tzamach_relative_humidity_pct_mean,36.46527777777778,"monthly_IQR month=6 [19.97, 35.40]",monthly
+2002-09-30,tzamach_relative_humidity_pct_mean,41.625,"monthly_IQR month=9 [41.70, 87.76]",monthly
+2006-09-29,tzamach_relative_humidity_pct_mean,40.43055555555556,"monthly_IQR month=9 [41.70, 87.76]",monthly
+2009-07-01,tzamach_relative_humidity_pct_mean,27.70138888888889,"monthly_IQR month=7 [41.76, 83.96]",monthly
+2010-06-21,tzamach_relative_humidity_pct_mean,34.736111111111114,"monthly_IQR month=6 [37.66, 86.93]",monthly
+2010-08-07,tzamach_relative_humidity_pct_mean,41.59027777777778,"monthly_IQR month=8 [42.60, 87.17]",monthly
+2012-02-06,tzamach_relative_humidity_pct_mean,32.013888888888886,"monthly_IQR month=2 [32.62, 123.26]",monthly
+1995-06-01,tzamach_temperature_C_max,23.1,"monthly_IQR month=6 [23.90, 47.35]",monthly
+1998-08-09,tzamach_temperature_C_max,45.5,"monthly_IQR month=8 [31.00, 44.30]",monthly
+2002-08-01,tzamach_temperature_C_max,45.3,"monthly_IQR month=8 [31.20, 44.50]",monthly
+2008-06-15,tzamach_temperature_C_max,23.5,"monthly_IQR month=6 [23.90, 47.35]",monthly
+2010-08-20,tzamach_temperature_C_max,44.6,"monthly_IQR month=8 [31.20, 44.50]",monthly
+2002-06-08,tzamach_temperature_C_mean,35.5,"monthly_IQR month=6 [19.97, 35.40]",monthly
+2002-06-09,tzamach_temperature_C_mean,35.75,"monthly_IQR month=6 [19.97, 35.40]",monthly
+2002-08-01,tzamach_temperature_max_C_max,45.7,"monthly_IQR month=8 [31.20, 44.50]",monthly
+2010-08-20,tzamach_temperature_max_C_max,44.7,"monthly_IQR month=8 [31.20, 44.50]",monthly
+1997-06-01,tzamach_wind_speed_ms_max,20.1,"monthly_IQR month=6 [0.88, 4.82]",monthly
+1997-08-01,tzamach_wind_speed_ms_max,24.4,"monthly_IQR month=8 [1.09, 4.48]",monthly
+1997-09-01,tzamach_wind_speed_ms_max,24.0,"monthly_IQR month=9 [0.45, 4.41]",monthly
+1997-10-01,tzamach_wind_speed_ms_max,20.8,"monthly_IQR month=10 [0.39, 3.62]",monthly
+1997-10-17,tzamach_wind_speed_ms_max,12.4,"monthly_IQR month=10 [-1.40, 11.20]",monthly
+1997-11-01,tzamach_wind_speed_ms_max,20.3,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2002-07-01,tzamach_wind_speed_ms_max,37.6,"monthly_IQR month=7 [2.40, 11.50]",monthly
+2002-07-02,tzamach_wind_speed_ms_max,39.3,"monthly_IQR month=7 [2.40, 11.50]",monthly
+2002-07-03,tzamach_wind_speed_ms_max,33.0,"monthly_IQR month=7 [0.94, 4.99]",monthly
+2010-12-12,tzamach_wind_speed_ms_max,14.7,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+1997-06-01,tzamach_wind_speed_ms_mean,6.308333333333334,"monthly_IQR month=6 [0.88, 4.82]",monthly
+1997-08-01,tzamach_wind_speed_ms_mean,7.882638888888888,"monthly_IQR month=8 [1.09, 4.48]",monthly
+1997-09-01,tzamach_wind_speed_ms_mean,6.113194444444444,"monthly_IQR month=9 [0.45, 4.41]",monthly
+1997-09-11,tzamach_wind_speed_ms_mean,4.702083333333333,"monthly_IQR month=9 [0.45, 4.41]",monthly
+1997-10-01,tzamach_wind_speed_ms_mean,4.977777777777778,"monthly_IQR month=10 [0.39, 3.62]",monthly
+1997-11-01,tzamach_wind_speed_ms_mean,4.892857142857143,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2002-07-03,tzamach_wind_speed_ms_mean,14.611594202898551,"monthly_IQR month=7 [0.94, 4.99]",monthly
+2002-11-24,tzamach_wind_speed_ms_mean,3.835416666666666,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2002-12-10,tzamach_wind_speed_ms_mean,4.746527777777778,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2002-12-20,tzamach_wind_speed_ms_mean,5.904861111111111,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2003-03-18,tzamach_wind_speed_ms_mean,4.605555555555556,"monthly_IQR month=3 [-0.39, 4.60]",monthly
+2003-03-26,tzamach_wind_speed_ms_mean,5.722916666666666,"monthly_IQR month=3 [-0.39, 4.60]",monthly
+2003-10-28,tzamach_wind_speed_ms_mean,4.256944444444445,"monthly_IQR month=10 [0.39, 3.62]",monthly
+2003-10-29,tzamach_wind_speed_ms_mean,3.8520833333333337,"monthly_IQR month=10 [0.39, 3.62]",monthly
+2003-11-24,tzamach_wind_speed_ms_mean,3.889583333333333,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2003-12-18,tzamach_wind_speed_ms_mean,5.504166666666666,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2004-01-23,tzamach_wind_speed_ms_mean,7.225694444444445,"monthly_IQR month=1 [-1.19, 5.00]",monthly
+2004-11-26,tzamach_wind_speed_ms_mean,4.724305555555556,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2005-08-09,tzamach_wind_speed_ms_mean,4.500694444444445,"monthly_IQR month=8 [1.09, 4.48]",monthly
+2006-03-09,tzamach_wind_speed_ms_mean,4.84375,"monthly_IQR month=3 [-0.39, 4.60]",monthly
+2008-01-29,tzamach_wind_speed_ms_mean,6.944444444444445,"monthly_IQR month=1 [-1.19, 5.00]",monthly
+2008-12-24,tzamach_wind_speed_ms_mean,5.411111111111111,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2009-11-02,tzamach_wind_speed_ms_mean,4.467105263157895,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2009-11-03,tzamach_wind_speed_ms_mean,4.1425,"monthly_IQR month=11 [0.00, 3.68]",monthly
+2009-12-18,tzamach_wind_speed_ms_mean,5.238888888888889,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2010-01-19,tzamach_wind_speed_ms_mean,5.391666666666667,"monthly_IQR month=1 [-1.19, 5.00]",monthly
+2010-12-12,tzamach_wind_speed_ms_mean,7.003472222222222,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2010-12-13,tzamach_wind_speed_ms_mean,5.052083333333333,"monthly_IQR month=12 [-0.95, 4.74]",monthly
+2012-03-05,lev_kinneret_rainfall_mm_sum,0.0,coverage 44% < 70%,coverage 44% < 70%
+2006-07-03,lev_kinneret_relative_humidity_pct_mean,68.09722222222223,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_relative_humidity_pct_mean,65.97857142857143,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_relative_humidity_pct_mean,77.0,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_relative_humidity_pct_mean,76.07692307692308,coverage 9% < 70%,coverage 9% < 70%
+2007-06-24,lev_kinneret_relative_humidity_pct_mean,44.42857142857143,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_relative_humidity_pct_mean,75.35135135135135,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_relative_humidity_pct_mean,50.04918032786885,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_relative_humidity_pct_mean,60.36619718309859,coverage 49% < 70%,coverage 49% < 70%
+2009-04-20,lev_kinneret_relative_humidity_pct_mean,54.328947368421055,coverage 0% < 70%,coverage 0% < 70%
+2009-05-12,lev_kinneret_relative_humidity_pct_mean,46.20454545454545,coverage 31% < 70%,coverage 31% < 70%
+2010-02-25,lev_kinneret_relative_humidity_pct_mean,75.76470588235294,coverage 12% < 70%,coverage 12% < 70%
+2010-07-15,lev_kinneret_relative_humidity_pct_mean,61.388888888888886,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_relative_humidity_pct_mean,70.71428571428571,coverage 5% < 70%,coverage 5% < 70%
+2012-03-05,lev_kinneret_relative_humidity_pct_mean,75.73015873015873,coverage 44% < 70%,coverage 44% < 70%
+2003-11-26,lev_kinneret_temperature_C_max,24.3,coverage 23% < 70%,coverage 23% < 70%
+2006-07-03,lev_kinneret_temperature_C_max,28.0,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_temperature_C_max,34.4,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_temperature_C_max,14.1,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_temperature_C_max,18.5,coverage 9% < 70%,coverage 9% < 70%
+2007-06-24,lev_kinneret_temperature_C_max,37.1,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_temperature_C_max,19.6,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_temperature_C_max,30.8,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_temperature_C_max,24.6,coverage 49% < 70%,coverage 49% < 70%
+2009-04-20,lev_kinneret_temperature_C_max,26.1,coverage 0% < 70%,coverage 0% < 70%
+2009-05-12,lev_kinneret_temperature_C_max,27.5,coverage 31% < 70%,coverage 31% < 70%
+2010-02-25,lev_kinneret_temperature_C_max,16.7,coverage 12% < 70%,coverage 12% < 70%
+2010-07-15,lev_kinneret_temperature_C_max,34.4,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_temperature_C_max,12.7,coverage 5% < 70%,coverage 5% < 70%
+2012-03-05,lev_kinneret_temperature_C_max,13.4,coverage 44% < 70%,coverage 44% < 70%
+2003-11-26,lev_kinneret_temperature_C_mean,21.25151515151515,coverage 23% < 70%,coverage 23% < 70%
+2006-07-03,lev_kinneret_temperature_C_mean,27.09830508474576,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_temperature_C_mean,30.790410958904108,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_temperature_C_mean,13.529166666666669,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_temperature_C_mean,18.02307692307692,coverage 9% < 70%,coverage 9% < 70%
+2007-06-24,lev_kinneret_temperature_C_mean,32.993506493506494,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_temperature_C_mean,17.42972972972973,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_temperature_C_mean,25.63770491803279,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_temperature_C_mean,21.82957746478873,coverage 49% < 70%,coverage 49% < 70%
+2009-04-20,lev_kinneret_temperature_C_mean,21.389473684210525,coverage 0% < 70%,coverage 0% < 70%
+2009-05-12,lev_kinneret_temperature_C_mean,24.925,coverage 31% < 70%,coverage 31% < 70%
+2010-02-25,lev_kinneret_temperature_C_mean,16.147058823529413,coverage 12% < 70%,coverage 12% < 70%
+2010-07-15,lev_kinneret_temperature_C_mean,30.690277777777776,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_temperature_C_mean,12.485714285714286,coverage 5% < 70%,coverage 5% < 70%
+2012-03-05,lev_kinneret_temperature_C_mean,10.188888888888888,coverage 44% < 70%,coverage 44% < 70%
+2003-11-26,lev_kinneret_temperature_C_min,19.4,coverage 23% < 70%,coverage 23% < 70%
+2006-07-03,lev_kinneret_temperature_C_min,26.4,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_temperature_C_min,27.5,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_temperature_C_min,13.2,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_temperature_C_min,17.3,coverage 9% < 70%,coverage 9% < 70%
+2007-06-24,lev_kinneret_temperature_C_min,28.7,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_temperature_C_min,16.3,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_temperature_C_min,22.6,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_temperature_C_min,19.0,coverage 49% < 70%,coverage 49% < 70%
+2009-04-20,lev_kinneret_temperature_C_min,19.1,coverage 0% < 70%,coverage 0% < 70%
+2009-05-12,lev_kinneret_temperature_C_min,22.1,coverage 31% < 70%,coverage 31% < 70%
+2010-02-25,lev_kinneret_temperature_C_min,13.0,coverage 12% < 70%,coverage 12% < 70%
+2010-07-15,lev_kinneret_temperature_C_min,27.9,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_temperature_C_min,12.3,coverage 5% < 70%,coverage 5% < 70%
+2012-03-05,lev_kinneret_temperature_C_min,9.0,coverage 44% < 70%,coverage 44% < 70%
+2003-11-26,lev_kinneret_temperature_max_C_max,24.7,coverage 23% < 70%,coverage 23% < 70%
+2006-07-03,lev_kinneret_temperature_max_C_max,28.1,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_temperature_max_C_max,34.7,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_temperature_max_C_max,14.3,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_temperature_max_C_max,18.6,coverage 9% < 70%,coverage 9% < 70%
+2007-06-24,lev_kinneret_temperature_max_C_max,37.3,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_temperature_max_C_max,19.9,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_temperature_max_C_max,31.4,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_temperature_max_C_max,24.7,coverage 49% < 70%,coverage 49% < 70%
+2009-04-20,lev_kinneret_temperature_max_C_max,26.3,coverage 0% < 70%,coverage 0% < 70%
+2009-05-12,lev_kinneret_temperature_max_C_max,27.6,coverage 31% < 70%,coverage 31% < 70%
+2010-02-25,lev_kinneret_temperature_max_C_max,16.7,coverage 12% < 70%,coverage 12% < 70%
+2010-07-15,lev_kinneret_temperature_max_C_max,34.6,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_temperature_max_C_max,12.7,coverage 5% < 70%,coverage 5% < 70%
+2011-02-05,lev_kinneret_temperature_max_C_max,20.6,coverage 0% < 70%,coverage 0% < 70%
+2011-02-06,lev_kinneret_temperature_max_C_max,18.4,coverage 0% < 70%,coverage 0% < 70%
+2011-02-08,lev_kinneret_temperature_max_C_max,18.3,coverage 0% < 70%,coverage 0% < 70%
+2011-02-09,lev_kinneret_temperature_max_C_max,18.8,coverage 0% < 70%,coverage 0% < 70%
+2011-02-10,lev_kinneret_temperature_max_C_max,17.4,coverage 0% < 70%,coverage 0% < 70%
+2011-02-11,lev_kinneret_temperature_max_C_max,19.5,coverage 0% < 70%,coverage 0% < 70%
+2011-02-12,lev_kinneret_temperature_max_C_max,17.2,coverage 0% < 70%,coverage 0% < 70%
+2011-02-13,lev_kinneret_temperature_max_C_max,17.0,coverage 0% < 70%,coverage 0% < 70%
+2011-02-14,lev_kinneret_temperature_max_C_max,16.2,coverage 0% < 70%,coverage 0% < 70%
+2011-02-15,lev_kinneret_temperature_max_C_max,19.4,coverage 0% < 70%,coverage 0% < 70%
+2011-02-16,lev_kinneret_temperature_max_C_max,18.3,coverage 0% < 70%,coverage 0% < 70%
+2011-02-17,lev_kinneret_temperature_max_C_max,19.6,coverage 0% < 70%,coverage 0% < 70%
+2011-02-18,lev_kinneret_temperature_max_C_max,20.1,coverage 0% < 70%,coverage 0% < 70%
+2011-02-19,lev_kinneret_temperature_max_C_max,22.4,coverage 0% < 70%,coverage 0% < 70%
+2011-02-20,lev_kinneret_temperature_max_C_max,17.8,coverage 0% < 70%,coverage 0% < 70%
+2011-02-21,lev_kinneret_temperature_max_C_max,19.7,coverage 0% < 70%,coverage 0% < 70%
+2011-02-22,lev_kinneret_temperature_max_C_max,21.6,coverage 0% < 70%,coverage 0% < 70%
+2011-02-23,lev_kinneret_temperature_max_C_max,21.1,coverage 0% < 70%,coverage 0% < 70%
+2011-02-24,lev_kinneret_temperature_max_C_max,22.1,coverage 0% < 70%,coverage 0% < 70%
+2012-03-05,lev_kinneret_temperature_max_C_max,13.6,coverage 44% < 70%,coverage 44% < 70%
+2003-11-26,lev_kinneret_temperature_min_C_min,19.4,coverage 23% < 70%,coverage 23% < 70%
+2006-07-03,lev_kinneret_temperature_min_C_min,26.3,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_temperature_min_C_min,27.5,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_temperature_min_C_min,13.2,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_temperature_min_C_min,17.2,coverage 9% < 70%,coverage 9% < 70%
+2007-06-24,lev_kinneret_temperature_min_C_min,28.7,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_temperature_min_C_min,16.3,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_temperature_min_C_min,22.5,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_temperature_min_C_min,18.9,coverage 49% < 70%,coverage 49% < 70%
+2009-04-20,lev_kinneret_temperature_min_C_min,19.1,coverage 0% < 70%,coverage 0% < 70%
+2009-05-12,lev_kinneret_temperature_min_C_min,22.0,coverage 31% < 70%,coverage 31% < 70%
+2010-02-25,lev_kinneret_temperature_min_C_min,12.5,coverage 12% < 70%,coverage 12% < 70%
+2010-07-15,lev_kinneret_temperature_min_C_min,27.9,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_temperature_min_C_min,11.9,coverage 5% < 70%,coverage 5% < 70%
+2011-02-05,lev_kinneret_temperature_min_C_min,15.1,coverage 0% < 70%,coverage 0% < 70%
+2011-02-06,lev_kinneret_temperature_min_C_min,14.4,coverage 0% < 70%,coverage 0% < 70%
+2011-02-08,lev_kinneret_temperature_min_C_min,15.9,coverage 0% < 70%,coverage 0% < 70%
+2011-02-09,lev_kinneret_temperature_min_C_min,14.3,coverage 0% < 70%,coverage 0% < 70%
+2011-02-10,lev_kinneret_temperature_min_C_min,14.7,coverage 0% < 70%,coverage 0% < 70%
+2011-02-11,lev_kinneret_temperature_min_C_min,13.9,coverage 0% < 70%,coverage 0% < 70%
+2011-02-12,lev_kinneret_temperature_min_C_min,12.3,coverage 0% < 70%,coverage 0% < 70%
+2011-02-13,lev_kinneret_temperature_min_C_min,14.6,coverage 0% < 70%,coverage 0% < 70%
+2011-02-14,lev_kinneret_temperature_min_C_min,13.4,coverage 0% < 70%,coverage 0% < 70%
+2011-02-15,lev_kinneret_temperature_min_C_min,15.4,coverage 0% < 70%,coverage 0% < 70%
+2011-02-16,lev_kinneret_temperature_min_C_min,17.8,coverage 0% < 70%,coverage 0% < 70%
+2011-02-17,lev_kinneret_temperature_min_C_min,14.8,coverage 0% < 70%,coverage 0% < 70%
+2011-02-18,lev_kinneret_temperature_min_C_min,14.2,coverage 0% < 70%,coverage 0% < 70%
+2011-02-19,lev_kinneret_temperature_min_C_min,18.2,coverage 0% < 70%,coverage 0% < 70%
+2011-02-20,lev_kinneret_temperature_min_C_min,17.1,coverage 0% < 70%,coverage 0% < 70%
+2011-02-21,lev_kinneret_temperature_min_C_min,15.9,coverage 0% < 70%,coverage 0% < 70%
+2011-02-22,lev_kinneret_temperature_min_C_min,16.0,coverage 0% < 70%,coverage 0% < 70%
+2011-02-23,lev_kinneret_temperature_min_C_min,16.3,coverage 0% < 70%,coverage 0% < 70%
+2011-02-24,lev_kinneret_temperature_min_C_min,15.1,coverage 0% < 70%,coverage 0% < 70%
+2012-03-05,lev_kinneret_temperature_min_C_min,8.9,coverage 44% < 70%,coverage 44% < 70%
+2003-11-26,lev_kinneret_wind_speed_ms_max,6.3,coverage 23% < 70%,coverage 23% < 70%
+2006-07-03,lev_kinneret_wind_speed_ms_max,11.1,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_wind_speed_ms_max,8.6,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_wind_speed_ms_max,2.6,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_wind_speed_ms_max,2.5,coverage 9% < 70%,coverage 9% < 70%
+2007-06-24,lev_kinneret_wind_speed_ms_max,9.1,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_wind_speed_ms_max,7.3,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_wind_speed_ms_max,7.3,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_wind_speed_ms_max,10.1,coverage 49% < 70%,coverage 49% < 70%
+2010-02-25,lev_kinneret_wind_speed_ms_max,8.1,coverage 12% < 70%,coverage 12% < 70%
+2010-02-26,lev_kinneret_wind_speed_ms_max,12.1,coverage 0% < 70%,coverage 0% < 70%
+2010-02-27,lev_kinneret_wind_speed_ms_max,11.9,coverage 0% < 70%,coverage 0% < 70%
+2010-02-28,lev_kinneret_wind_speed_ms_max,12.3,coverage 0% < 70%,coverage 0% < 70%
+2010-03-01,lev_kinneret_wind_speed_ms_max,8.2,coverage 0% < 70%,coverage 0% < 70%
+2010-03-02,lev_kinneret_wind_speed_ms_max,4.1,coverage 0% < 70%,coverage 0% < 70%
+2010-03-03,lev_kinneret_wind_speed_ms_max,9.7,coverage 0% < 70%,coverage 0% < 70%
+2010-03-04,lev_kinneret_wind_speed_ms_max,8.5,coverage 0% < 70%,coverage 0% < 70%
+2010-03-05,lev_kinneret_wind_speed_ms_max,4.1,coverage 0% < 70%,coverage 0% < 70%
+2010-03-06,lev_kinneret_wind_speed_ms_max,6.7,coverage 0% < 70%,coverage 0% < 70%
+2010-03-07,lev_kinneret_wind_speed_ms_max,3.5,coverage 0% < 70%,coverage 0% < 70%
+2010-03-08,lev_kinneret_wind_speed_ms_max,8.9,coverage 0% < 70%,coverage 0% < 70%
+2010-03-09,lev_kinneret_wind_speed_ms_max,6.0,coverage 0% < 70%,coverage 0% < 70%
+2010-03-10,lev_kinneret_wind_speed_ms_max,3.6,coverage 0% < 70%,coverage 0% < 70%
+2010-03-11,lev_kinneret_wind_speed_ms_max,2.6,coverage 0% < 70%,coverage 0% < 70%
+2010-03-12,lev_kinneret_wind_speed_ms_max,6.5,coverage 0% < 70%,coverage 0% < 70%
+2010-03-13,lev_kinneret_wind_speed_ms_max,6.5,coverage 0% < 70%,coverage 0% < 70%
+2010-03-14,lev_kinneret_wind_speed_ms_max,3.4,coverage 0% < 70%,coverage 0% < 70%
+2010-03-15,lev_kinneret_wind_speed_ms_max,11.7,coverage 0% < 70%,coverage 0% < 70%
+2010-03-16,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-03-17,lev_kinneret_wind_speed_ms_max,9.0,coverage 0% < 70%,coverage 0% < 70%
+2010-03-18,lev_kinneret_wind_speed_ms_max,13.0,coverage 0% < 70%,coverage 0% < 70%
+2010-03-19,lev_kinneret_wind_speed_ms_max,6.2,coverage 0% < 70%,coverage 0% < 70%
+2010-03-20,lev_kinneret_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+2010-03-21,lev_kinneret_wind_speed_ms_max,4.8,coverage 0% < 70%,coverage 0% < 70%
+2010-03-22,lev_kinneret_wind_speed_ms_max,7.5,coverage 0% < 70%,coverage 0% < 70%
+2010-03-23,lev_kinneret_wind_speed_ms_max,6.1,coverage 0% < 70%,coverage 0% < 70%
+2010-03-24,lev_kinneret_wind_speed_ms_max,9.0,coverage 0% < 70%,coverage 0% < 70%
+2010-03-25,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-03-26,lev_kinneret_wind_speed_ms_max,10.2,coverage 0% < 70%,coverage 0% < 70%
+2010-03-27,lev_kinneret_wind_speed_ms_max,6.5,coverage 0% < 70%,coverage 0% < 70%
+2010-03-28,lev_kinneret_wind_speed_ms_max,5.8,coverage 0% < 70%,coverage 0% < 70%
+2010-03-29,lev_kinneret_wind_speed_ms_max,8.6,coverage 0% < 70%,coverage 0% < 70%
+2010-03-30,lev_kinneret_wind_speed_ms_max,9.2,coverage 0% < 70%,coverage 0% < 70%
+2010-03-31,lev_kinneret_wind_speed_ms_max,8.4,coverage 0% < 70%,coverage 0% < 70%
+2010-04-01,lev_kinneret_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+2010-04-02,lev_kinneret_wind_speed_ms_max,5.2,coverage 0% < 70%,coverage 0% < 70%
+2010-04-03,lev_kinneret_wind_speed_ms_max,7.4,coverage 0% < 70%,coverage 0% < 70%
+2010-04-04,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-04-05,lev_kinneret_wind_speed_ms_max,6.6,coverage 0% < 70%,coverage 0% < 70%
+2010-04-06,lev_kinneret_wind_speed_ms_max,8.9,coverage 0% < 70%,coverage 0% < 70%
+2010-04-07,lev_kinneret_wind_speed_ms_max,9.1,coverage 0% < 70%,coverage 0% < 70%
+2010-04-08,lev_kinneret_wind_speed_ms_max,8.9,coverage 0% < 70%,coverage 0% < 70%
+2010-04-09,lev_kinneret_wind_speed_ms_max,9.4,coverage 0% < 70%,coverage 0% < 70%
+2010-04-10,lev_kinneret_wind_speed_ms_max,4.7,coverage 0% < 70%,coverage 0% < 70%
+2010-04-11,lev_kinneret_wind_speed_ms_max,8.8,coverage 0% < 70%,coverage 0% < 70%
+2010-04-12,lev_kinneret_wind_speed_ms_max,11.1,coverage 0% < 70%,coverage 0% < 70%
+2010-04-13,lev_kinneret_wind_speed_ms_max,9.1,coverage 1% < 70%,coverage 1% < 70%
+2010-04-14,lev_kinneret_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+2010-04-15,lev_kinneret_wind_speed_ms_max,6.6,coverage 0% < 70%,coverage 0% < 70%
+2010-04-16,lev_kinneret_wind_speed_ms_max,14.5,coverage 0% < 70%,coverage 0% < 70%
+2010-04-17,lev_kinneret_wind_speed_ms_max,9.7,coverage 0% < 70%,coverage 0% < 70%
+2010-04-18,lev_kinneret_wind_speed_ms_max,7.0,coverage 0% < 70%,coverage 0% < 70%
+2010-04-19,lev_kinneret_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+2010-04-20,lev_kinneret_wind_speed_ms_max,9.0,coverage 0% < 70%,coverage 0% < 70%
+2010-04-21,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-04-22,lev_kinneret_wind_speed_ms_max,11.1,coverage 0% < 70%,coverage 0% < 70%
+2010-04-23,lev_kinneret_wind_speed_ms_max,10.2,coverage 0% < 70%,coverage 0% < 70%
+2010-04-24,lev_kinneret_wind_speed_ms_max,7.7,coverage 0% < 70%,coverage 0% < 70%
+2010-04-25,lev_kinneret_wind_speed_ms_max,6.5,coverage 0% < 70%,coverage 0% < 70%
+2010-04-26,lev_kinneret_wind_speed_ms_max,9.3,coverage 0% < 70%,coverage 0% < 70%
+2010-04-27,lev_kinneret_wind_speed_ms_max,3.6,coverage 0% < 70%,coverage 0% < 70%
+2010-04-28,lev_kinneret_wind_speed_ms_max,12.4,coverage 0% < 70%,coverage 0% < 70%
+2010-04-29,lev_kinneret_wind_speed_ms_max,8.8,coverage 0% < 70%,coverage 0% < 70%
+2010-04-30,lev_kinneret_wind_speed_ms_max,8.0,coverage 0% < 70%,coverage 0% < 70%
+2010-05-01,lev_kinneret_wind_speed_ms_max,9.0,coverage 0% < 70%,coverage 0% < 70%
+2010-05-02,lev_kinneret_wind_speed_ms_max,9.4,coverage 0% < 70%,coverage 0% < 70%
+2010-05-03,lev_kinneret_wind_speed_ms_max,11.4,coverage 0% < 70%,coverage 0% < 70%
+2010-05-04,lev_kinneret_wind_speed_ms_max,9.1,coverage 0% < 70%,coverage 0% < 70%
+2010-05-05,lev_kinneret_wind_speed_ms_max,9.1,coverage 0% < 70%,coverage 0% < 70%
+2010-05-06,lev_kinneret_wind_speed_ms_max,9.0,coverage 0% < 70%,coverage 0% < 70%
+2010-05-07,lev_kinneret_wind_speed_ms_max,7.8,coverage 0% < 70%,coverage 0% < 70%
+2010-05-08,lev_kinneret_wind_speed_ms_max,11.2,coverage 0% < 70%,coverage 0% < 70%
+2010-05-09,lev_kinneret_wind_speed_ms_max,4.7,coverage 0% < 70%,coverage 0% < 70%
+2010-05-10,lev_kinneret_wind_speed_ms_max,10.9,coverage 0% < 70%,coverage 0% < 70%
+2010-05-11,lev_kinneret_wind_speed_ms_max,11.4,coverage 0% < 70%,coverage 0% < 70%
+2010-05-12,lev_kinneret_wind_speed_ms_max,10.8,coverage 0% < 70%,coverage 0% < 70%
+2010-05-13,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-05-14,lev_kinneret_wind_speed_ms_max,11.2,coverage 0% < 70%,coverage 0% < 70%
+2010-05-15,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-05-16,lev_kinneret_wind_speed_ms_max,4.7,coverage 0% < 70%,coverage 0% < 70%
+2010-05-17,lev_kinneret_wind_speed_ms_max,13.1,coverage 0% < 70%,coverage 0% < 70%
+2010-05-18,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-05-19,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-05-20,lev_kinneret_wind_speed_ms_max,10.5,coverage 0% < 70%,coverage 0% < 70%
+2010-05-21,lev_kinneret_wind_speed_ms_max,8.2,coverage 0% < 70%,coverage 0% < 70%
+2010-05-22,lev_kinneret_wind_speed_ms_max,11.4,coverage 0% < 70%,coverage 0% < 70%
+2010-05-23,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-05-24,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-05-25,lev_kinneret_wind_speed_ms_max,8.3,coverage 0% < 70%,coverage 0% < 70%
+2010-05-26,lev_kinneret_wind_speed_ms_max,5.7,coverage 0% < 70%,coverage 0% < 70%
+2010-05-27,lev_kinneret_wind_speed_ms_max,10.8,coverage 0% < 70%,coverage 0% < 70%
+2010-05-28,lev_kinneret_wind_speed_ms_max,9.2,coverage 0% < 70%,coverage 0% < 70%
+2010-05-29,lev_kinneret_wind_speed_ms_max,11.5,coverage 0% < 70%,coverage 0% < 70%
+2010-05-30,lev_kinneret_wind_speed_ms_max,9.9,coverage 0% < 70%,coverage 0% < 70%
+2010-05-31,lev_kinneret_wind_speed_ms_max,7.9,coverage 0% < 70%,coverage 0% < 70%
+2010-06-01,lev_kinneret_wind_speed_ms_max,7.6,coverage 0% < 70%,coverage 0% < 70%
+2010-06-02,lev_kinneret_wind_speed_ms_max,7.9,coverage 0% < 70%,coverage 0% < 70%
+2010-06-03,lev_kinneret_wind_speed_ms_max,8.7,coverage 0% < 70%,coverage 0% < 70%
+2010-06-04,lev_kinneret_wind_speed_ms_max,9.1,coverage 0% < 70%,coverage 0% < 70%
+2010-06-05,lev_kinneret_wind_speed_ms_max,11.9,coverage 0% < 70%,coverage 0% < 70%
+2010-06-06,lev_kinneret_wind_speed_ms_max,12.5,coverage 0% < 70%,coverage 0% < 70%
+2010-06-07,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-06-08,lev_kinneret_wind_speed_ms_max,10.8,coverage 0% < 70%,coverage 0% < 70%
+2010-06-09,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-06-10,lev_kinneret_wind_speed_ms_max,9.7,coverage 0% < 70%,coverage 0% < 70%
+2010-06-11,lev_kinneret_wind_speed_ms_max,5.4,coverage 0% < 70%,coverage 0% < 70%
+2010-06-12,lev_kinneret_wind_speed_ms_max,8.0,coverage 0% < 70%,coverage 0% < 70%
+2010-06-13,lev_kinneret_wind_speed_ms_max,11.3,coverage 0% < 70%,coverage 0% < 70%
+2010-06-14,lev_kinneret_wind_speed_ms_max,9.8,coverage 0% < 70%,coverage 0% < 70%
+2010-06-15,lev_kinneret_wind_speed_ms_max,12.1,coverage 0% < 70%,coverage 0% < 70%
+2010-06-16,lev_kinneret_wind_speed_ms_max,12.4,coverage 0% < 70%,coverage 0% < 70%
+2010-06-17,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-06-18,lev_kinneret_wind_speed_ms_max,8.1,coverage 0% < 70%,coverage 0% < 70%
+2010-06-19,lev_kinneret_wind_speed_ms_max,10.9,coverage 0% < 70%,coverage 0% < 70%
+2010-06-20,lev_kinneret_wind_speed_ms_max,10.7,coverage 0% < 70%,coverage 0% < 70%
+2010-06-21,lev_kinneret_wind_speed_ms_max,8.4,coverage 0% < 70%,coverage 0% < 70%
+2010-06-22,lev_kinneret_wind_speed_ms_max,13.0,coverage 0% < 70%,coverage 0% < 70%
+2010-06-23,lev_kinneret_wind_speed_ms_max,9.2,coverage 0% < 70%,coverage 0% < 70%
+2010-06-24,lev_kinneret_wind_speed_ms_max,9.1,coverage 0% < 70%,coverage 0% < 70%
+2010-06-25,lev_kinneret_wind_speed_ms_max,9.5,coverage 0% < 70%,coverage 0% < 70%
+2010-06-26,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-06-27,lev_kinneret_wind_speed_ms_max,9.6,coverage 0% < 70%,coverage 0% < 70%
+2010-06-28,lev_kinneret_wind_speed_ms_max,7.3,coverage 0% < 70%,coverage 0% < 70%
+2010-06-29,lev_kinneret_wind_speed_ms_max,8.2,coverage 0% < 70%,coverage 0% < 70%
+2010-06-30,lev_kinneret_wind_speed_ms_max,10.8,coverage 0% < 70%,coverage 0% < 70%
+2010-07-01,lev_kinneret_wind_speed_ms_max,10.0,coverage 0% < 70%,coverage 0% < 70%
+2010-07-02,lev_kinneret_wind_speed_ms_max,10.1,coverage 0% < 70%,coverage 0% < 70%
+2010-07-03,lev_kinneret_wind_speed_ms_max,9.3,coverage 0% < 70%,coverage 0% < 70%
+2010-07-04,lev_kinneret_wind_speed_ms_max,10.3,coverage 0% < 70%,coverage 0% < 70%
+2010-07-05,lev_kinneret_wind_speed_ms_max,11.5,coverage 0% < 70%,coverage 0% < 70%
+2010-07-06,lev_kinneret_wind_speed_ms_max,8.5,coverage 0% < 70%,coverage 0% < 70%
+2010-07-07,lev_kinneret_wind_speed_ms_max,9.1,coverage 0% < 70%,coverage 0% < 70%
+2010-07-08,lev_kinneret_wind_speed_ms_max,10.9,coverage 0% < 70%,coverage 0% < 70%
+2010-07-09,lev_kinneret_wind_speed_ms_max,8.1,coverage 0% < 70%,coverage 0% < 70%
+2010-07-10,lev_kinneret_wind_speed_ms_max,8.1,coverage 0% < 70%,coverage 0% < 70%
+2010-07-11,lev_kinneret_wind_speed_ms_max,6.5,coverage 0% < 70%,coverage 0% < 70%
+2010-07-12,lev_kinneret_wind_speed_ms_max,6.9,coverage 0% < 70%,coverage 0% < 70%
+2010-07-13,lev_kinneret_wind_speed_ms_max,11.1,coverage 0% < 70%,coverage 0% < 70%
+2010-07-14,lev_kinneret_wind_speed_ms_max,11.6,coverage 0% < 70%,coverage 0% < 70%
+2010-07-15,lev_kinneret_wind_speed_ms_max,11.1,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_wind_speed_ms_max,5.7,coverage 5% < 70%,coverage 5% < 70%
+2012-03-05,lev_kinneret_wind_speed_ms_max,3.9,coverage 44% < 70%,coverage 44% < 70%
+2003-11-26,lev_kinneret_wind_speed_ms_mean,2.4545454545454546,coverage 23% < 70%,coverage 23% < 70%
+2006-07-03,lev_kinneret_wind_speed_ms_mean,4.051388888888889,coverage 41% < 70%,coverage 41% < 70%
+2006-07-04,lev_kinneret_wind_speed_ms_mean,3.7215277777777778,coverage 51% < 70%,coverage 51% < 70%
+2007-03-19,lev_kinneret_wind_speed_ms_mean,1.7208333333333332,coverage 17% < 70%,coverage 17% < 70%
+2007-03-21,lev_kinneret_wind_speed_ms_mean,1.6846153846153848,coverage 9% < 70%,coverage 9% < 70%
+2007-06-03,lev_kinneret_wind_speed_ms_mean,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-06-24,lev_kinneret_wind_speed_ms_mean,4.64935064935065,coverage 53% < 70%,coverage 53% < 70%
+2008-02-29,lev_kinneret_wind_speed_ms_mean,2.7864864864864862,coverage 26% < 70%,coverage 26% < 70%
+2008-04-15,lev_kinneret_wind_speed_ms_mean,2.919672131147541,coverage 42% < 70%,coverage 42% < 70%
+2008-04-17,lev_kinneret_wind_speed_ms_mean,6.840845070422535,coverage 49% < 70%,coverage 49% < 70%
+2010-02-25,lev_kinneret_wind_speed_ms_mean,2.796527777777777,coverage 12% < 70%,coverage 12% < 70%
+2010-02-26,lev_kinneret_wind_speed_ms_mean,6.288194444444445,coverage 0% < 70%,coverage 0% < 70%
+2010-02-27,lev_kinneret_wind_speed_ms_mean,6.703472222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-02-28,lev_kinneret_wind_speed_ms_mean,5.792361111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-03-01,lev_kinneret_wind_speed_ms_mean,3.5506944444444444,coverage 0% < 70%,coverage 0% < 70%
+2010-03-02,lev_kinneret_wind_speed_ms_mean,1.7013888888888888,coverage 0% < 70%,coverage 0% < 70%
+2010-03-03,lev_kinneret_wind_speed_ms_mean,4.1875,coverage 0% < 70%,coverage 0% < 70%
+2010-03-04,lev_kinneret_wind_speed_ms_mean,4.045138888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-03-05,lev_kinneret_wind_speed_ms_mean,1.6520833333333331,coverage 0% < 70%,coverage 0% < 70%
+2010-03-06,lev_kinneret_wind_speed_ms_mean,2.2826388888888887,coverage 0% < 70%,coverage 0% < 70%
+2010-03-07,lev_kinneret_wind_speed_ms_mean,1.5756944444444445,coverage 0% < 70%,coverage 0% < 70%
+2010-03-08,lev_kinneret_wind_speed_ms_mean,2.7180555555555554,coverage 0% < 70%,coverage 0% < 70%
+2010-03-09,lev_kinneret_wind_speed_ms_mean,3.120833333333333,coverage 0% < 70%,coverage 0% < 70%
+2010-03-10,lev_kinneret_wind_speed_ms_mean,1.25625,coverage 0% < 70%,coverage 0% < 70%
+2010-03-11,lev_kinneret_wind_speed_ms_mean,1.1,coverage 0% < 70%,coverage 0% < 70%
+2010-03-12,lev_kinneret_wind_speed_ms_mean,1.8520833333333333,coverage 0% < 70%,coverage 0% < 70%
+2010-03-13,lev_kinneret_wind_speed_ms_mean,2.3319444444444444,coverage 0% < 70%,coverage 0% < 70%
+2010-03-14,lev_kinneret_wind_speed_ms_mean,1.3805555555555555,coverage 0% < 70%,coverage 0% < 70%
+2010-03-15,lev_kinneret_wind_speed_ms_mean,4.115972222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-03-16,lev_kinneret_wind_speed_ms_mean,5.735416666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-03-17,lev_kinneret_wind_speed_ms_mean,3.654166666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-03-18,lev_kinneret_wind_speed_ms_mean,4.743055555555555,coverage 0% < 70%,coverage 0% < 70%
+2010-03-19,lev_kinneret_wind_speed_ms_mean,2.226388888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-03-20,lev_kinneret_wind_speed_ms_mean,3.188194444444445,coverage 0% < 70%,coverage 0% < 70%
+2010-03-21,lev_kinneret_wind_speed_ms_mean,2.698611111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-03-22,lev_kinneret_wind_speed_ms_mean,2.629166666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-03-23,lev_kinneret_wind_speed_ms_mean,2.5694444444444446,coverage 0% < 70%,coverage 0% < 70%
+2010-03-24,lev_kinneret_wind_speed_ms_mean,2.7180555555555554,coverage 0% < 70%,coverage 0% < 70%
+2010-03-25,lev_kinneret_wind_speed_ms_mean,3.271527777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-03-26,lev_kinneret_wind_speed_ms_mean,4.188888888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-03-27,lev_kinneret_wind_speed_ms_mean,4.174305555555556,coverage 0% < 70%,coverage 0% < 70%
+2010-03-28,lev_kinneret_wind_speed_ms_mean,2.8625,coverage 0% < 70%,coverage 0% < 70%
+2010-03-29,lev_kinneret_wind_speed_ms_mean,3.906944444444445,coverage 0% < 70%,coverage 0% < 70%
+2010-03-30,lev_kinneret_wind_speed_ms_mean,3.4229166666666666,coverage 0% < 70%,coverage 0% < 70%
+2010-03-31,lev_kinneret_wind_speed_ms_mean,2.524305555555556,coverage 0% < 70%,coverage 0% < 70%
+2010-04-01,lev_kinneret_wind_speed_ms_mean,2.2916666666666665,coverage 0% < 70%,coverage 0% < 70%
+2010-04-02,lev_kinneret_wind_speed_ms_mean,1.867361111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-04-03,lev_kinneret_wind_speed_ms_mean,1.8263888888888888,coverage 0% < 70%,coverage 0% < 70%
+2010-04-04,lev_kinneret_wind_speed_ms_mean,3.146527777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-04-05,lev_kinneret_wind_speed_ms_mean,2.59375,coverage 0% < 70%,coverage 0% < 70%
+2010-04-06,lev_kinneret_wind_speed_ms_mean,2.78125,coverage 0% < 70%,coverage 0% < 70%
+2010-04-07,lev_kinneret_wind_speed_ms_mean,4.645833333333333,coverage 0% < 70%,coverage 0% < 70%
+2010-04-08,lev_kinneret_wind_speed_ms_mean,4.491666666666666,coverage 0% < 70%,coverage 0% < 70%
+2010-04-09,lev_kinneret_wind_speed_ms_mean,3.5305555555555554,coverage 0% < 70%,coverage 0% < 70%
+2010-04-10,lev_kinneret_wind_speed_ms_mean,2.077777777777777,coverage 0% < 70%,coverage 0% < 70%
+2010-04-11,lev_kinneret_wind_speed_ms_mean,3.457638888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-04-12,lev_kinneret_wind_speed_ms_mean,6.340277777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-04-13,lev_kinneret_wind_speed_ms_mean,3.3743055555555554,coverage 1% < 70%,coverage 1% < 70%
+2010-04-14,lev_kinneret_wind_speed_ms_mean,2.263888888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-04-15,lev_kinneret_wind_speed_ms_mean,2.274305555555556,coverage 0% < 70%,coverage 0% < 70%
+2010-04-16,lev_kinneret_wind_speed_ms_mean,4.318055555555556,coverage 0% < 70%,coverage 0% < 70%
+2010-04-17,lev_kinneret_wind_speed_ms_mean,3.4847222222222225,coverage 0% < 70%,coverage 0% < 70%
+2010-04-18,lev_kinneret_wind_speed_ms_mean,2.379166666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-04-19,lev_kinneret_wind_speed_ms_mean,2.0770833333333334,coverage 0% < 70%,coverage 0% < 70%
+2010-04-20,lev_kinneret_wind_speed_ms_mean,1.940277777777777,coverage 0% < 70%,coverage 0% < 70%
+2010-04-21,lev_kinneret_wind_speed_ms_mean,4.624305555555555,coverage 0% < 70%,coverage 0% < 70%
+2010-04-22,lev_kinneret_wind_speed_ms_mean,5.536805555555556,coverage 0% < 70%,coverage 0% < 70%
+2010-04-23,lev_kinneret_wind_speed_ms_mean,4.404166666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-04-24,lev_kinneret_wind_speed_ms_mean,2.7034722222222225,coverage 0% < 70%,coverage 0% < 70%
+2010-04-25,lev_kinneret_wind_speed_ms_mean,2.0618055555555554,coverage 0% < 70%,coverage 0% < 70%
+2010-04-26,lev_kinneret_wind_speed_ms_mean,3.009027777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-04-27,lev_kinneret_wind_speed_ms_mean,1.7222222222222223,coverage 0% < 70%,coverage 0% < 70%
+2010-04-28,lev_kinneret_wind_speed_ms_mean,7.058333333333334,coverage 0% < 70%,coverage 0% < 70%
+2010-04-29,lev_kinneret_wind_speed_ms_mean,4.539583333333334,coverage 0% < 70%,coverage 0% < 70%
+2010-04-30,lev_kinneret_wind_speed_ms_mean,3.156944444444445,coverage 0% < 70%,coverage 0% < 70%
+2010-05-01,lev_kinneret_wind_speed_ms_mean,3.458333333333333,coverage 0% < 70%,coverage 0% < 70%
+2010-05-02,lev_kinneret_wind_speed_ms_mean,4.375,coverage 0% < 70%,coverage 0% < 70%
+2010-05-03,lev_kinneret_wind_speed_ms_mean,4.129861111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-05-04,lev_kinneret_wind_speed_ms_mean,2.852777777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-05-05,lev_kinneret_wind_speed_ms_mean,2.582638888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-05-06,lev_kinneret_wind_speed_ms_mean,3.3180555555555555,coverage 0% < 70%,coverage 0% < 70%
+2010-05-07,lev_kinneret_wind_speed_ms_mean,2.327777777777777,coverage 0% < 70%,coverage 0% < 70%
+2010-05-08,lev_kinneret_wind_speed_ms_mean,2.8777777777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-05-09,lev_kinneret_wind_speed_ms_mean,1.9368055555555557,coverage 0% < 70%,coverage 0% < 70%
+2010-05-10,lev_kinneret_wind_speed_ms_mean,3.9125,coverage 0% < 70%,coverage 0% < 70%
+2010-05-11,lev_kinneret_wind_speed_ms_mean,5.596527777777777,coverage 0% < 70%,coverage 0% < 70%
+2010-05-12,lev_kinneret_wind_speed_ms_mean,3.6729166666666666,coverage 0% < 70%,coverage 0% < 70%
+2010-05-13,lev_kinneret_wind_speed_ms_mean,3.3743055555555554,coverage 0% < 70%,coverage 0% < 70%
+2010-05-14,lev_kinneret_wind_speed_ms_mean,3.38125,coverage 0% < 70%,coverage 0% < 70%
+2010-05-15,lev_kinneret_wind_speed_ms_mean,3.216666666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-05-16,lev_kinneret_wind_speed_ms_mean,2.0256944444444445,coverage 0% < 70%,coverage 0% < 70%
+2010-05-17,lev_kinneret_wind_speed_ms_mean,3.270138888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-05-18,lev_kinneret_wind_speed_ms_mean,4.686111111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-05-19,lev_kinneret_wind_speed_ms_mean,4.704166666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-05-20,lev_kinneret_wind_speed_ms_mean,5.053472222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-05-21,lev_kinneret_wind_speed_ms_mean,3.573611111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-05-22,lev_kinneret_wind_speed_ms_mean,3.370833333333333,coverage 0% < 70%,coverage 0% < 70%
+2010-05-23,lev_kinneret_wind_speed_ms_mean,6.084027777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-05-24,lev_kinneret_wind_speed_ms_mean,4.676388888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-05-25,lev_kinneret_wind_speed_ms_mean,2.4625000000000004,coverage 0% < 70%,coverage 0% < 70%
+2010-05-26,lev_kinneret_wind_speed_ms_mean,2.0395833333333333,coverage 0% < 70%,coverage 0% < 70%
+2010-05-27,lev_kinneret_wind_speed_ms_mean,4.210416666666666,coverage 0% < 70%,coverage 0% < 70%
+2010-05-28,lev_kinneret_wind_speed_ms_mean,5.060416666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-05-29,lev_kinneret_wind_speed_ms_mean,5.082638888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-05-30,lev_kinneret_wind_speed_ms_mean,2.9541666666666666,coverage 0% < 70%,coverage 0% < 70%
+2010-05-31,lev_kinneret_wind_speed_ms_mean,3.086111111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-06-01,lev_kinneret_wind_speed_ms_mean,2.594444444444445,coverage 0% < 70%,coverage 0% < 70%
+2010-06-02,lev_kinneret_wind_speed_ms_mean,3.10625,coverage 0% < 70%,coverage 0% < 70%
+2010-06-03,lev_kinneret_wind_speed_ms_mean,2.8180555555555555,coverage 0% < 70%,coverage 0% < 70%
+2010-06-04,lev_kinneret_wind_speed_ms_mean,3.702777777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-06-05,lev_kinneret_wind_speed_ms_mean,5.540972222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-06-06,lev_kinneret_wind_speed_ms_mean,5.429166666666666,coverage 0% < 70%,coverage 0% < 70%
+2010-06-07,lev_kinneret_wind_speed_ms_mean,3.6597222222222223,coverage 0% < 70%,coverage 0% < 70%
+2010-06-08,lev_kinneret_wind_speed_ms_mean,5.584027777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-06-09,lev_kinneret_wind_speed_ms_mean,5.320833333333334,coverage 0% < 70%,coverage 0% < 70%
+2010-06-10,lev_kinneret_wind_speed_ms_mean,4.926388888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-06-11,lev_kinneret_wind_speed_ms_mean,2.3805555555555555,coverage 0% < 70%,coverage 0% < 70%
+2010-06-12,lev_kinneret_wind_speed_ms_mean,3.161111111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-06-13,lev_kinneret_wind_speed_ms_mean,4.436805555555555,coverage 0% < 70%,coverage 0% < 70%
+2010-06-14,lev_kinneret_wind_speed_ms_mean,4.578472222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-06-15,lev_kinneret_wind_speed_ms_mean,5.497916666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-06-16,lev_kinneret_wind_speed_ms_mean,4.695833333333334,coverage 0% < 70%,coverage 0% < 70%
+2010-06-17,lev_kinneret_wind_speed_ms_mean,3.513888888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-06-18,lev_kinneret_wind_speed_ms_mean,3.3006944444444444,coverage 0% < 70%,coverage 0% < 70%
+2010-06-19,lev_kinneret_wind_speed_ms_mean,3.29375,coverage 0% < 70%,coverage 0% < 70%
+2010-06-20,lev_kinneret_wind_speed_ms_mean,3.004861111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-06-21,lev_kinneret_wind_speed_ms_mean,2.864583333333333,coverage 0% < 70%,coverage 0% < 70%
+2010-06-22,lev_kinneret_wind_speed_ms_mean,4.910416666666666,coverage 0% < 70%,coverage 0% < 70%
+2010-06-23,lev_kinneret_wind_speed_ms_mean,5.724305555555556,coverage 0% < 70%,coverage 0% < 70%
+2010-06-24,lev_kinneret_wind_speed_ms_mean,6.313888888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-06-25,lev_kinneret_wind_speed_ms_mean,4.927777777777778,coverage 0% < 70%,coverage 0% < 70%
+2010-06-26,lev_kinneret_wind_speed_ms_mean,5.273611111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-06-27,lev_kinneret_wind_speed_ms_mean,5.308333333333334,coverage 0% < 70%,coverage 0% < 70%
+2010-06-28,lev_kinneret_wind_speed_ms_mean,3.6597222222222223,coverage 0% < 70%,coverage 0% < 70%
+2010-06-29,lev_kinneret_wind_speed_ms_mean,2.542361111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-06-30,lev_kinneret_wind_speed_ms_mean,5.525,coverage 0% < 70%,coverage 0% < 70%
+2010-07-01,lev_kinneret_wind_speed_ms_mean,5.390972222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-07-02,lev_kinneret_wind_speed_ms_mean,4.13125,coverage 0% < 70%,coverage 0% < 70%
+2010-07-03,lev_kinneret_wind_speed_ms_mean,3.6354166666666665,coverage 0% < 70%,coverage 0% < 70%
+2010-07-04,lev_kinneret_wind_speed_ms_mean,3.904861111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-07-05,lev_kinneret_wind_speed_ms_mean,4.659722222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-07-06,lev_kinneret_wind_speed_ms_mean,3.557638888888889,coverage 0% < 70%,coverage 0% < 70%
+2010-07-07,lev_kinneret_wind_speed_ms_mean,3.222916666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-07-08,lev_kinneret_wind_speed_ms_mean,4.478472222222222,coverage 0% < 70%,coverage 0% < 70%
+2010-07-09,lev_kinneret_wind_speed_ms_mean,3.5659722222222223,coverage 0% < 70%,coverage 0% < 70%
+2010-07-10,lev_kinneret_wind_speed_ms_mean,2.567361111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-07-11,lev_kinneret_wind_speed_ms_mean,2.692361111111111,coverage 0% < 70%,coverage 0% < 70%
+2010-07-12,lev_kinneret_wind_speed_ms_mean,2.591666666666667,coverage 0% < 70%,coverage 0% < 70%
+2010-07-13,lev_kinneret_wind_speed_ms_mean,4.925000000000001,coverage 0% < 70%,coverage 0% < 70%
+2010-07-14,lev_kinneret_wind_speed_ms_mean,4.768750000000001,coverage 0% < 70%,coverage 0% < 70%
+2010-07-15,lev_kinneret_wind_speed_ms_mean,4.378472222222222,coverage 50% < 70%,coverage 50% < 70%
+2011-02-04,lev_kinneret_wind_speed_ms_mean,4.457142857142857,coverage 5% < 70%,coverage 5% < 70%
+2012-03-05,lev_kinneret_wind_speed_ms_mean,2.117460317460317,coverage 44% < 70%,coverage 44% < 70%
+1994-02-03,tzamach_global_radiation_Wm2_mean,0.0,coverage 9% < 70%,coverage 9% < 70%
+1994-02-04,tzamach_global_radiation_Wm2_mean,268.3855421686747,coverage 58% < 70%,coverage 58% < 70%
+1995-03-11,tzamach_global_radiation_Wm2_mean,0.0,coverage 19% < 70%,coverage 19% < 70%
+1995-06-01,tzamach_global_radiation_Wm2_mean,334.7956204379562,coverage 5% < 70%,coverage 5% < 70%
+1995-06-02,tzamach_global_radiation_Wm2_mean,311.5763888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-06-03,tzamach_global_radiation_Wm2_mean,310.7013888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-06-04,tzamach_global_radiation_Wm2_mean,319.875,coverage 0% < 70%,coverage 0% < 70%
+1995-06-05,tzamach_global_radiation_Wm2_mean,290.34027777777777,coverage 0% < 70%,coverage 0% < 70%
+1995-06-06,tzamach_global_radiation_Wm2_mean,288.59722222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-06-07,tzamach_global_radiation_Wm2_mean,303.25,coverage 0% < 70%,coverage 0% < 70%
+1995-06-08,tzamach_global_radiation_Wm2_mean,303.9583333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-06-09,tzamach_global_radiation_Wm2_mean,309.1458333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-06-10,tzamach_global_radiation_Wm2_mean,323.25694444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-06-11,tzamach_global_radiation_Wm2_mean,321.9583333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-06-12,tzamach_global_radiation_Wm2_mean,327.0208333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-06-13,tzamach_global_radiation_Wm2_mean,321.4375,coverage 0% < 70%,coverage 0% < 70%
+1995-06-14,tzamach_global_radiation_Wm2_mean,318.8263888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-06-15,tzamach_global_radiation_Wm2_mean,344.52272727272725,coverage 0% < 70%,coverage 0% < 70%
+1995-06-16,tzamach_global_radiation_Wm2_mean,323.13194444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-06-17,tzamach_global_radiation_Wm2_mean,314.2708333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-06-18,tzamach_global_radiation_Wm2_mean,290.93055555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-06-19,tzamach_global_radiation_Wm2_mean,306.9375,coverage 0% < 70%,coverage 0% < 70%
+1995-06-20,tzamach_global_radiation_Wm2_mean,320.1458333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-06-21,tzamach_global_radiation_Wm2_mean,304.5625,coverage 0% < 70%,coverage 0% < 70%
+1995-06-22,tzamach_global_radiation_Wm2_mean,314.7291666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-06-23,tzamach_global_radiation_Wm2_mean,323.22222222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-06-24,tzamach_global_radiation_Wm2_mean,326.40277777777777,coverage 0% < 70%,coverage 0% < 70%
+1995-06-25,tzamach_global_radiation_Wm2_mean,313.86805555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-06-26,tzamach_global_radiation_Wm2_mean,311.69444444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-06-27,tzamach_global_radiation_Wm2_mean,294.7916666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-06-28,tzamach_global_radiation_Wm2_mean,303.9166666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-06-29,tzamach_global_radiation_Wm2_mean,311.6666666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-06-30,tzamach_global_radiation_Wm2_mean,310.5833333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-07-01,tzamach_global_radiation_Wm2_mean,298.5,coverage 0% < 70%,coverage 0% < 70%
+1995-07-02,tzamach_global_radiation_Wm2_mean,302.03472222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-07-03,tzamach_global_radiation_Wm2_mean,237.77777777777777,coverage 0% < 70%,coverage 0% < 70%
+1995-07-04,tzamach_global_radiation_Wm2_mean,285.2916666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-07-05,tzamach_global_radiation_Wm2_mean,300.6666666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-07-06,tzamach_global_radiation_Wm2_mean,312.80555555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-07-07,tzamach_global_radiation_Wm2_mean,319.24305555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-07-08,tzamach_global_radiation_Wm2_mean,314.50694444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-07-09,tzamach_global_radiation_Wm2_mean,282.90972222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-07-10,tzamach_global_radiation_Wm2_mean,265.5625,coverage 0% < 70%,coverage 0% < 70%
+1995-07-11,tzamach_global_radiation_Wm2_mean,234.21527777777777,coverage 0% < 70%,coverage 0% < 70%
+1995-07-13,tzamach_global_radiation_Wm2_mean,304.125,coverage 0% < 70%,coverage 0% < 70%
+1995-07-14,tzamach_global_radiation_Wm2_mean,291.36805555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-07-24,tzamach_global_radiation_Wm2_mean,309.64179104477614,coverage 0% < 70%,coverage 0% < 70%
+1995-07-25,tzamach_global_radiation_Wm2_mean,306.875,coverage 0% < 70%,coverage 0% < 70%
+1995-07-26,tzamach_global_radiation_Wm2_mean,306.6388888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-07-27,tzamach_global_radiation_Wm2_mean,300.9375,coverage 0% < 70%,coverage 0% < 70%
+1995-07-28,tzamach_global_radiation_Wm2_mean,291.28472222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-07-29,tzamach_global_radiation_Wm2_mean,294.1388888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-07-30,tzamach_global_radiation_Wm2_mean,292.25,coverage 0% < 70%,coverage 0% < 70%
+1995-07-31,tzamach_global_radiation_Wm2_mean,303.5416666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-08-01,tzamach_global_radiation_Wm2_mean,301.8333333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-08-02,tzamach_global_radiation_Wm2_mean,297.36805555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-08-03,tzamach_global_radiation_Wm2_mean,297.375,coverage 0% < 70%,coverage 0% < 70%
+1995-08-04,tzamach_global_radiation_Wm2_mean,288.375,coverage 0% < 70%,coverage 0% < 70%
+1995-08-05,tzamach_global_radiation_Wm2_mean,297.75694444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-08-06,tzamach_global_radiation_Wm2_mean,241.18055555555557,coverage 0% < 70%,coverage 0% < 70%
+1995-08-07,tzamach_global_radiation_Wm2_mean,287.9791666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-08-08,tzamach_global_radiation_Wm2_mean,267.50694444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-08-09,tzamach_global_radiation_Wm2_mean,270.0763888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-08-10,tzamach_global_radiation_Wm2_mean,291.8333333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-08-11,tzamach_global_radiation_Wm2_mean,295.3263888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-08-12,tzamach_global_radiation_Wm2_mean,294.8888888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-08-13,tzamach_global_radiation_Wm2_mean,284.6111111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-14,tzamach_global_radiation_Wm2_mean,288.6666666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-08-15,tzamach_global_radiation_Wm2_mean,266.9236111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-16,tzamach_global_radiation_Wm2_mean,287.0833333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-08-17,tzamach_global_radiation_Wm2_mean,271.59027777777777,coverage 0% < 70%,coverage 0% < 70%
+1995-08-18,tzamach_global_radiation_Wm2_mean,287.56944444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-08-19,tzamach_global_radiation_Wm2_mean,280.61805555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-08-20,tzamach_global_radiation_Wm2_mean,273.9861111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-21,tzamach_global_radiation_Wm2_mean,247.77777777777777,coverage 0% < 70%,coverage 0% < 70%
+1995-08-22,tzamach_global_radiation_Wm2_mean,209.54861111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-23,tzamach_global_radiation_Wm2_mean,242.125,coverage 0% < 70%,coverage 0% < 70%
+1995-08-24,tzamach_global_radiation_Wm2_mean,253.36111111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-25,tzamach_global_radiation_Wm2_mean,261.6111111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-26,tzamach_global_radiation_Wm2_mean,261.99305555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-08-27,tzamach_global_radiation_Wm2_mean,268.36805555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-08-28,tzamach_global_radiation_Wm2_mean,269.4513888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-08-29,tzamach_global_radiation_Wm2_mean,268.53472222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-08-30,tzamach_global_radiation_Wm2_mean,257.5138888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-08-31,tzamach_global_radiation_Wm2_mean,297.24444444444447,coverage 0% < 70%,coverage 0% < 70%
+1995-11-23,tzamach_global_radiation_Wm2_mean,42.80263157894737,coverage 53% < 70%,coverage 53% < 70%
+1995-11-30,tzamach_global_radiation_Wm2_mean,150.30208333333334,coverage 67% < 70%,coverage 67% < 70%
+1995-12-05,tzamach_global_radiation_Wm2_mean,57.40972222222222,coverage 4% < 70%,coverage 4% < 70%
+1995-12-06,tzamach_global_radiation_Wm2_mean,136.00694444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-12-07,tzamach_global_radiation_Wm2_mean,138.55555555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-12-08,tzamach_global_radiation_Wm2_mean,128.04861111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-12-09,tzamach_global_radiation_Wm2_mean,111.69444444444444,coverage 0% < 70%,coverage 0% < 70%
+1995-12-10,tzamach_global_radiation_Wm2_mean,83.19444444444444,coverage 0% < 70%,coverage 0% < 70%
+1995-12-11,tzamach_global_radiation_Wm2_mean,63.94444444444444,coverage 0% < 70%,coverage 0% < 70%
+1995-12-12,tzamach_global_radiation_Wm2_mean,83.89583333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-12-13,tzamach_global_radiation_Wm2_mean,98.38194444444444,coverage 0% < 70%,coverage 0% < 70%
+1995-12-14,tzamach_global_radiation_Wm2_mean,126.95138888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-12-15,tzamach_global_radiation_Wm2_mean,133.29166666666666,coverage 54% < 70%,coverage 54% < 70%
+1996-01-01,tzamach_global_radiation_Wm2_mean,123.10416666666669,coverage 44% < 70%,coverage 44% < 70%
+1996-02-20,tzamach_global_radiation_Wm2_mean,61.62686567164179,coverage 60% < 70%,coverage 60% < 70%
+1996-08-13,tzamach_global_radiation_Wm2_mean,285.43055555555554,coverage 69% < 70%,coverage 69% < 70%
+1996-08-14,tzamach_global_radiation_Wm2_mean,263.6402877697841,coverage 57% < 70%,coverage 57% < 70%
+1996-08-18,tzamach_global_radiation_Wm2_mean,288.15277777777777,coverage 62% < 70%,coverage 62% < 70%
+1996-08-19,tzamach_global_radiation_Wm2_mean,278.84057971014494,coverage 61% < 70%,coverage 61% < 70%
+1996-08-22,tzamach_global_radiation_Wm2_mean,304.98809523809524,coverage 59% < 70%,coverage 59% < 70%
+1996-10-02,tzamach_global_radiation_Wm2_mean,218.23611111111111,coverage 37% < 70%,coverage 37% < 70%
+1996-10-03,tzamach_global_radiation_Wm2_mean,220.568345323741,coverage 53% < 70%,coverage 53% < 70%
+1996-10-07,tzamach_global_radiation_Wm2_mean,259.41007194244605,coverage 59% < 70%,coverage 59% < 70%
+1996-10-08,tzamach_global_radiation_Wm2_mean,190.6818181818182,coverage 49% < 70%,coverage 49% < 70%
+1996-10-27,tzamach_global_radiation_Wm2_mean,115.47101449275362,coverage 67% < 70%,coverage 67% < 70%
+1996-11-26,tzamach_global_radiation_Wm2_mean,110.06944444444444,coverage 62% < 70%,coverage 62% < 70%
+1996-11-27,tzamach_global_radiation_Wm2_mean,129.30434782608697,coverage 53% < 70%,coverage 53% < 70%
+1996-12-23,tzamach_global_radiation_Wm2_mean,173.08333333333334,coverage 66% < 70%,coverage 66% < 70%
+1997-01-01,tzamach_global_radiation_Wm2_mean,131.28671328671328,coverage 0% < 70%,coverage 0% < 70%
+1997-01-02,tzamach_global_radiation_Wm2_mean,129.1086956521739,coverage 36% < 70%,coverage 36% < 70%
+1997-09-22,tzamach_global_radiation_Wm2_mean,281.15294117647056,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_global_radiation_Wm2_mean,120.79861111111111,coverage 69% < 70%,coverage 69% < 70%
+1997-11-30,tzamach_global_radiation_Wm2_mean,116.00694444444444,coverage 0% < 70%,coverage 0% < 70%
+1997-12-01,tzamach_global_radiation_Wm2_mean,139.59848484848484,coverage 0% < 70%,coverage 0% < 70%
+1997-12-02,tzamach_global_radiation_Wm2_mean,161.14583333333334,coverage 0% < 70%,coverage 0% < 70%
+1997-12-03,tzamach_global_radiation_Wm2_mean,141.77083333333334,coverage 0% < 70%,coverage 0% < 70%
+1997-12-04,tzamach_global_radiation_Wm2_mean,163.32638888888889,coverage 0% < 70%,coverage 0% < 70%
+1997-12-05,tzamach_global_radiation_Wm2_mean,149.04166666666666,coverage 0% < 70%,coverage 0% < 70%
+1997-12-06,tzamach_global_radiation_Wm2_mean,160.77083333333334,coverage 0% < 70%,coverage 0% < 70%
+1997-12-07,tzamach_global_radiation_Wm2_mean,159.89583333333334,coverage 0% < 70%,coverage 0% < 70%
+1997-12-08,tzamach_global_radiation_Wm2_mean,99.90277777777776,coverage 0% < 70%,coverage 0% < 70%
+1997-12-09,tzamach_global_radiation_Wm2_mean,50.80555555555556,coverage 0% < 70%,coverage 0% < 70%
+1997-12-10,tzamach_global_radiation_Wm2_mean,84.92361111111111,coverage 0% < 70%,coverage 0% < 70%
+1997-12-11,tzamach_global_radiation_Wm2_mean,80.36764705882354,coverage 38% < 70%,coverage 38% < 70%
+1997-12-16,tzamach_global_radiation_Wm2_mean,95.3125,coverage 3% < 70%,coverage 3% < 70%
+1997-12-18,tzamach_global_radiation_Wm2_mean,86.84027777777777,coverage 3% < 70%,coverage 3% < 70%
+1997-12-19,tzamach_global_radiation_Wm2_mean,39.42857142857143,coverage 0% < 70%,coverage 0% < 70%
+1997-12-22,tzamach_global_radiation_Wm2_mean,119.86861313868611,coverage 8% < 70%,coverage 8% < 70%
+1999-04-07,tzamach_global_radiation_Wm2_mean,105.10416666666669,coverage 67% < 70%,coverage 67% < 70%
+2000-09-01,tzamach_global_radiation_Wm2_mean,279.47222222222223,coverage 64% < 70%,coverage 64% < 70%
+2001-03-15,tzamach_global_radiation_Wm2_mean,109.16923076923077,coverage 45% < 70%,coverage 45% < 70%
+2001-04-12,tzamach_global_radiation_Wm2_mean,51.41463414634146,coverage 29% < 70%,coverage 29% < 70%
+2002-01-10,tzamach_global_radiation_Wm2_mean,83.66216216216216,coverage 64% < 70%,coverage 64% < 70%
+2005-11-20,tzamach_global_radiation_Wm2_mean,103.72222222222224,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_global_radiation_Wm2_mean,320.8888888888889,coverage 53% < 70%,coverage 53% < 70%
+2007-08-09,tzamach_global_radiation_Wm2_mean,298.21527777777777,coverage 0% < 70%,coverage 0% < 70%
+2007-08-10,tzamach_global_radiation_Wm2_mean,309.6458333333333,coverage 0% < 70%,coverage 0% < 70%
+2007-08-11,tzamach_global_radiation_Wm2_mean,282.5138888888889,coverage 0% < 70%,coverage 0% < 70%
+2007-08-12,tzamach_global_radiation_Wm2_mean,306.0416666666667,coverage 0% < 70%,coverage 0% < 70%
+2007-08-13,tzamach_global_radiation_Wm2_mean,297.03472222222223,coverage 0% < 70%,coverage 0% < 70%
+2007-08-14,tzamach_global_radiation_Wm2_mean,315.63194444444446,coverage 0% < 70%,coverage 0% < 70%
+2007-08-15,tzamach_global_radiation_Wm2_mean,310.03472222222223,coverage 0% < 70%,coverage 0% < 70%
+2007-08-16,tzamach_global_radiation_Wm2_mean,289.1041666666667,coverage 0% < 70%,coverage 0% < 70%
+2007-08-17,tzamach_global_radiation_Wm2_mean,278.72222222222223,coverage 0% < 70%,coverage 0% < 70%
+2007-08-18,tzamach_global_radiation_Wm2_mean,267.15972222222223,coverage 0% < 70%,coverage 0% < 70%
+2007-08-19,tzamach_global_radiation_Wm2_mean,265.5625,coverage 0% < 70%,coverage 0% < 70%
+2007-08-20,tzamach_global_radiation_Wm2_mean,300.96527777777777,coverage 0% < 70%,coverage 0% < 70%
+2008-06-15,tzamach_global_radiation_Wm2_mean,343.15277777777777,coverage 5% < 70%,coverage 5% < 70%
+2008-06-16,tzamach_global_radiation_Wm2_mean,343.6666666666667,coverage 0% < 70%,coverage 0% < 70%
+2008-06-17,tzamach_global_radiation_Wm2_mean,336.2361111111111,coverage 0% < 70%,coverage 0% < 70%
+2008-06-18,tzamach_global_radiation_Wm2_mean,345.8125,coverage 0% < 70%,coverage 0% < 70%
+2008-06-19,tzamach_global_radiation_Wm2_mean,337.5,coverage 0% < 70%,coverage 0% < 70%
+2008-06-20,tzamach_global_radiation_Wm2_mean,345.2916666666667,coverage 0% < 70%,coverage 0% < 70%
+2008-06-21,tzamach_global_radiation_Wm2_mean,341.8125,coverage 0% < 70%,coverage 0% < 70%
+2008-09-23,tzamach_global_radiation_Wm2_mean,239.47222222222223,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_global_radiation_Wm2_mean,155.93055555555554,coverage 5% < 70%,coverage 5% < 70%
+2008-10-17,tzamach_global_radiation_Wm2_mean,206.9375,coverage 0% < 70%,coverage 0% < 70%
+2008-10-18,tzamach_global_radiation_Wm2_mean,200.66666666666663,coverage 0% < 70%,coverage 0% < 70%
+2008-10-19,tzamach_global_radiation_Wm2_mean,161.5,coverage 0% < 70%,coverage 0% < 70%
+2008-10-20,tzamach_global_radiation_Wm2_mean,177.36805555555554,coverage 0% < 70%,coverage 0% < 70%
+2009-02-02,tzamach_global_radiation_Wm2_mean,113.08823529411764,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_global_radiation_Wm2_mean,140.47222222222223,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_global_radiation_Wm2_mean,0.0,coverage 36% < 70%,coverage 36% < 70%
+2009-04-12,tzamach_global_radiation_Wm2_mean,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-22,tzamach_global_radiation_Wm2_mean,187.8703703703704,coverage 38% < 70%,coverage 38% < 70%
+1994-02-03,tzamach_global_radiation_Wm2_sum,0.0,coverage 9% < 70%,coverage 9% < 70%
+1994-02-04,tzamach_global_radiation_Wm2_sum,22276.0,coverage 58% < 70%,coverage 58% < 70%
+1994-11-11,tzamach_global_radiation_Wm2_sum,0.0,coverage 11% < 70%,coverage 11% < 70%
+1995-03-11,tzamach_global_radiation_Wm2_sum,0.0,coverage 19% < 70%,coverage 19% < 70%
+1995-06-01,tzamach_global_radiation_Wm2_sum,45867.0,coverage 5% < 70%,coverage 5% < 70%
+1995-06-02,tzamach_global_radiation_Wm2_sum,44867.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-03,tzamach_global_radiation_Wm2_sum,44741.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-04,tzamach_global_radiation_Wm2_sum,46062.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-05,tzamach_global_radiation_Wm2_sum,41809.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-06,tzamach_global_radiation_Wm2_sum,41558.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-07,tzamach_global_radiation_Wm2_sum,43668.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-08,tzamach_global_radiation_Wm2_sum,43770.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-09,tzamach_global_radiation_Wm2_sum,44517.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-10,tzamach_global_radiation_Wm2_sum,46549.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-11,tzamach_global_radiation_Wm2_sum,46362.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-12,tzamach_global_radiation_Wm2_sum,47091.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-13,tzamach_global_radiation_Wm2_sum,46287.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-14,tzamach_global_radiation_Wm2_sum,45911.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-15,tzamach_global_radiation_Wm2_sum,45477.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-16,tzamach_global_radiation_Wm2_sum,46531.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-17,tzamach_global_radiation_Wm2_sum,45255.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-18,tzamach_global_radiation_Wm2_sum,41894.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-19,tzamach_global_radiation_Wm2_sum,44199.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-20,tzamach_global_radiation_Wm2_sum,46101.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-21,tzamach_global_radiation_Wm2_sum,43857.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-22,tzamach_global_radiation_Wm2_sum,45321.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-23,tzamach_global_radiation_Wm2_sum,46544.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-24,tzamach_global_radiation_Wm2_sum,47002.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-25,tzamach_global_radiation_Wm2_sum,45197.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-26,tzamach_global_radiation_Wm2_sum,44884.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-27,tzamach_global_radiation_Wm2_sum,42450.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-28,tzamach_global_radiation_Wm2_sum,43764.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-29,tzamach_global_radiation_Wm2_sum,44880.0,coverage 0% < 70%,coverage 0% < 70%
+1995-06-30,tzamach_global_radiation_Wm2_sum,44724.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-01,tzamach_global_radiation_Wm2_sum,42984.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-02,tzamach_global_radiation_Wm2_sum,43493.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-03,tzamach_global_radiation_Wm2_sum,34240.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-04,tzamach_global_radiation_Wm2_sum,41082.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-05,tzamach_global_radiation_Wm2_sum,43296.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-06,tzamach_global_radiation_Wm2_sum,45044.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-07,tzamach_global_radiation_Wm2_sum,45971.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-08,tzamach_global_radiation_Wm2_sum,45289.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-09,tzamach_global_radiation_Wm2_sum,40739.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-10,tzamach_global_radiation_Wm2_sum,38241.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-11,tzamach_global_radiation_Wm2_sum,33727.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-12,tzamach_global_radiation_Wm2_sum,30773.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-13,tzamach_global_radiation_Wm2_sum,43794.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-14,tzamach_global_radiation_Wm2_sum,41957.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-15,tzamach_global_radiation_Wm2_sum,4595.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-24,tzamach_global_radiation_Wm2_sum,41492.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-25,tzamach_global_radiation_Wm2_sum,44190.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-26,tzamach_global_radiation_Wm2_sum,44156.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-27,tzamach_global_radiation_Wm2_sum,43335.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-28,tzamach_global_radiation_Wm2_sum,41945.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-29,tzamach_global_radiation_Wm2_sum,42356.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-30,tzamach_global_radiation_Wm2_sum,42084.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-31,tzamach_global_radiation_Wm2_sum,43710.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-01,tzamach_global_radiation_Wm2_sum,43464.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-02,tzamach_global_radiation_Wm2_sum,42821.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-03,tzamach_global_radiation_Wm2_sum,42822.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-04,tzamach_global_radiation_Wm2_sum,41526.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-05,tzamach_global_radiation_Wm2_sum,42877.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-06,tzamach_global_radiation_Wm2_sum,34730.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-07,tzamach_global_radiation_Wm2_sum,41469.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-08,tzamach_global_radiation_Wm2_sum,38521.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-09,tzamach_global_radiation_Wm2_sum,38891.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-10,tzamach_global_radiation_Wm2_sum,42024.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-11,tzamach_global_radiation_Wm2_sum,42527.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-12,tzamach_global_radiation_Wm2_sum,42464.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-13,tzamach_global_radiation_Wm2_sum,40984.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-14,tzamach_global_radiation_Wm2_sum,41568.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-15,tzamach_global_radiation_Wm2_sum,38437.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-16,tzamach_global_radiation_Wm2_sum,41340.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-17,tzamach_global_radiation_Wm2_sum,39109.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-18,tzamach_global_radiation_Wm2_sum,41410.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-19,tzamach_global_radiation_Wm2_sum,40409.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-20,tzamach_global_radiation_Wm2_sum,39454.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-21,tzamach_global_radiation_Wm2_sum,35680.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-22,tzamach_global_radiation_Wm2_sum,30175.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-23,tzamach_global_radiation_Wm2_sum,34866.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-24,tzamach_global_radiation_Wm2_sum,36484.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-25,tzamach_global_radiation_Wm2_sum,37672.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-26,tzamach_global_radiation_Wm2_sum,37727.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-27,tzamach_global_radiation_Wm2_sum,38645.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-28,tzamach_global_radiation_Wm2_sum,38801.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-29,tzamach_global_radiation_Wm2_sum,38669.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-30,tzamach_global_radiation_Wm2_sum,37082.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-31,tzamach_global_radiation_Wm2_sum,40128.0,coverage 0% < 70%,coverage 0% < 70%
+1995-11-23,tzamach_global_radiation_Wm2_sum,3253.0,coverage 53% < 70%,coverage 53% < 70%
+1995-11-30,tzamach_global_radiation_Wm2_sum,14429.0,coverage 67% < 70%,coverage 67% < 70%
+1995-12-05,tzamach_global_radiation_Wm2_sum,8267.0,coverage 4% < 70%,coverage 4% < 70%
+1995-12-06,tzamach_global_radiation_Wm2_sum,19585.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-07,tzamach_global_radiation_Wm2_sum,19952.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-08,tzamach_global_radiation_Wm2_sum,18439.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-09,tzamach_global_radiation_Wm2_sum,16084.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-10,tzamach_global_radiation_Wm2_sum,11980.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-11,tzamach_global_radiation_Wm2_sum,9208.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-12,tzamach_global_radiation_Wm2_sum,12081.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-13,tzamach_global_radiation_Wm2_sum,14167.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-14,tzamach_global_radiation_Wm2_sum,18281.0,coverage 0% < 70%,coverage 0% < 70%
+1995-12-15,tzamach_global_radiation_Wm2_sum,19194.0,coverage 54% < 70%,coverage 54% < 70%
+1996-01-01,tzamach_global_radiation_Wm2_sum,17727.0,coverage 44% < 70%,coverage 44% < 70%
+1996-02-20,tzamach_global_radiation_Wm2_sum,8258.0,coverage 60% < 70%,coverage 60% < 70%
+1996-03-01,tzamach_global_radiation_Wm2_sum,0.0,coverage 5% < 70%,coverage 5% < 70%
+1996-03-02,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1996-03-03,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1996-03-04,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1996-03-05,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1996-03-06,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1996-03-07,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1996-03-08,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1996-03-09,tzamach_global_radiation_Wm2_sum,0.0,coverage 57% < 70%,coverage 57% < 70%
+1996-06-05,tzamach_global_radiation_Wm2_sum,31393.0,coverage 58% < 70%,coverage 58% < 70%
+1996-08-13,tzamach_global_radiation_Wm2_sum,41102.0,coverage 69% < 70%,coverage 69% < 70%
+1996-08-14,tzamach_global_radiation_Wm2_sum,36646.0,coverage 57% < 70%,coverage 57% < 70%
+1996-08-18,tzamach_global_radiation_Wm2_sum,41494.0,coverage 62% < 70%,coverage 62% < 70%
+1996-08-19,tzamach_global_radiation_Wm2_sum,38480.0,coverage 61% < 70%,coverage 61% < 70%
+1996-08-22,tzamach_global_radiation_Wm2_sum,25619.0,coverage 59% < 70%,coverage 59% < 70%
+1996-08-23,tzamach_global_radiation_Wm2_sum,35249.0,coverage 56% < 70%,coverage 56% < 70%
+1996-10-02,tzamach_global_radiation_Wm2_sum,31426.0,coverage 37% < 70%,coverage 37% < 70%
+1996-10-03,tzamach_global_radiation_Wm2_sum,30659.0,coverage 53% < 70%,coverage 53% < 70%
+1996-10-07,tzamach_global_radiation_Wm2_sum,36058.0,coverage 59% < 70%,coverage 59% < 70%
+1996-10-08,tzamach_global_radiation_Wm2_sum,12585.0,coverage 49% < 70%,coverage 49% < 70%
+1996-10-27,tzamach_global_radiation_Wm2_sum,15935.0,coverage 67% < 70%,coverage 67% < 70%
+1996-11-26,tzamach_global_radiation_Wm2_sum,15850.0,coverage 62% < 70%,coverage 62% < 70%
+1996-11-27,tzamach_global_radiation_Wm2_sum,17844.0,coverage 53% < 70%,coverage 53% < 70%
+1996-12-23,tzamach_global_radiation_Wm2_sum,22847.0,coverage 66% < 70%,coverage 66% < 70%
+1997-01-01,tzamach_global_radiation_Wm2_sum,18774.0,coverage 0% < 70%,coverage 0% < 70%
+1997-01-02,tzamach_global_radiation_Wm2_sum,17817.0,coverage 36% < 70%,coverage 36% < 70%
+1997-09-22,tzamach_global_radiation_Wm2_sum,23898.0,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_global_radiation_Wm2_sum,17395.0,coverage 69% < 70%,coverage 69% < 70%
+1997-11-30,tzamach_global_radiation_Wm2_sum,16705.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-01,tzamach_global_radiation_Wm2_sum,18427.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-02,tzamach_global_radiation_Wm2_sum,23205.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-03,tzamach_global_radiation_Wm2_sum,20415.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-04,tzamach_global_radiation_Wm2_sum,23519.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-05,tzamach_global_radiation_Wm2_sum,21462.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-06,tzamach_global_radiation_Wm2_sum,23151.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-07,tzamach_global_radiation_Wm2_sum,23025.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-08,tzamach_global_radiation_Wm2_sum,14386.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-09,tzamach_global_radiation_Wm2_sum,7316.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-10,tzamach_global_radiation_Wm2_sum,12229.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-11,tzamach_global_radiation_Wm2_sum,10930.0,coverage 38% < 70%,coverage 38% < 70%
+1997-12-16,tzamach_global_radiation_Wm2_sum,13725.0,coverage 3% < 70%,coverage 3% < 70%
+1997-12-18,tzamach_global_radiation_Wm2_sum,12505.0,coverage 3% < 70%,coverage 3% < 70%
+1997-12-19,tzamach_global_radiation_Wm2_sum,276.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-20,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+1997-12-22,tzamach_global_radiation_Wm2_sum,16422.0,coverage 8% < 70%,coverage 8% < 70%
+1999-04-07,tzamach_global_radiation_Wm2_sum,15135.0,coverage 67% < 70%,coverage 67% < 70%
+2000-09-01,tzamach_global_radiation_Wm2_sum,40244.0,coverage 64% < 70%,coverage 64% < 70%
+2001-03-15,tzamach_global_radiation_Wm2_sum,7096.0,coverage 45% < 70%,coverage 45% < 70%
+2001-04-12,tzamach_global_radiation_Wm2_sum,2108.0,coverage 29% < 70%,coverage 29% < 70%
+2002-01-10,tzamach_global_radiation_Wm2_sum,6191.0,coverage 64% < 70%,coverage 64% < 70%
+2005-11-20,tzamach_global_radiation_Wm2_sum,14936.0,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_global_radiation_Wm2_sum,46208.0,coverage 53% < 70%,coverage 53% < 70%
+2007-08-09,tzamach_global_radiation_Wm2_sum,42943.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-10,tzamach_global_radiation_Wm2_sum,44589.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-11,tzamach_global_radiation_Wm2_sum,40682.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-12,tzamach_global_radiation_Wm2_sum,44070.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-13,tzamach_global_radiation_Wm2_sum,42773.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-14,tzamach_global_radiation_Wm2_sum,45451.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-15,tzamach_global_radiation_Wm2_sum,44645.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-16,tzamach_global_radiation_Wm2_sum,41631.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-17,tzamach_global_radiation_Wm2_sum,40136.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-18,tzamach_global_radiation_Wm2_sum,38471.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-19,tzamach_global_radiation_Wm2_sum,38241.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-20,tzamach_global_radiation_Wm2_sum,43339.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-15,tzamach_global_radiation_Wm2_sum,49414.0,coverage 5% < 70%,coverage 5% < 70%
+2008-06-16,tzamach_global_radiation_Wm2_sum,49488.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-17,tzamach_global_radiation_Wm2_sum,48418.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-18,tzamach_global_radiation_Wm2_sum,49797.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-19,tzamach_global_radiation_Wm2_sum,48600.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-20,tzamach_global_radiation_Wm2_sum,49722.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-21,tzamach_global_radiation_Wm2_sum,49221.0,coverage 0% < 70%,coverage 0% < 70%
+2008-09-23,tzamach_global_radiation_Wm2_sum,34484.0,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_global_radiation_Wm2_sum,22454.0,coverage 5% < 70%,coverage 5% < 70%
+2008-10-17,tzamach_global_radiation_Wm2_sum,29799.0,coverage 0% < 70%,coverage 0% < 70%
+2008-10-18,tzamach_global_radiation_Wm2_sum,28896.0,coverage 0% < 70%,coverage 0% < 70%
+2008-10-19,tzamach_global_radiation_Wm2_sum,23256.0,coverage 0% < 70%,coverage 0% < 70%
+2008-10-20,tzamach_global_radiation_Wm2_sum,25541.0,coverage 0% < 70%,coverage 0% < 70%
+2009-02-02,tzamach_global_radiation_Wm2_sum,11535.0,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_global_radiation_Wm2_sum,20228.0,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_global_radiation_Wm2_sum,0.0,coverage 36% < 70%,coverage 36% < 70%
+2009-04-12,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-13,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-14,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-15,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-16,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-17,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-18,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-19,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-20,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-04-22,tzamach_global_radiation_Wm2_sum,10145.0,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_global_radiation_Wm2_sum,0.0,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_global_radiation_Wm2_sum,0.0,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_global_radiation_Wm2_sum,0.0,coverage 38% < 70%,coverage 38% < 70%
+2009-11-07,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-11-08,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-11-09,tzamach_global_radiation_Wm2_sum,0.0,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_global_radiation_Wm2_sum,0.0,coverage 38% < 70%,coverage 38% < 70%
+2011-06-03,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2011-06-04,tzamach_global_radiation_Wm2_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2011-06-05,tzamach_global_radiation_Wm2_sum,0.0,coverage 10% < 70%,coverage 10% < 70%
+1999-04-07,tzamach_rainfall_mm_sum,19.2,coverage 67% < 70%,coverage 67% < 70%
+2000-09-01,tzamach_rainfall_mm_sum,0.0,coverage 64% < 70%,coverage 64% < 70%
+2001-03-15,tzamach_rainfall_mm_sum,0.0,coverage 45% < 70%,coverage 45% < 70%
+2001-04-12,tzamach_rainfall_mm_sum,0.0,coverage 29% < 70%,coverage 29% < 70%
+2002-01-10,tzamach_rainfall_mm_sum,2.0,coverage 64% < 70%,coverage 64% < 70%
+2005-11-20,tzamach_rainfall_mm_sum,0.4,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_rainfall_mm_sum,0.0,coverage 53% < 70%,coverage 53% < 70%
+2007-08-09,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-10,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-11,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-12,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-13,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-14,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-15,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-16,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-17,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-18,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-19,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-20,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-15,tzamach_rainfall_mm_sum,0.0,coverage 5% < 70%,coverage 5% < 70%
+2008-06-16,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-17,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-18,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-19,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-20,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-21,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-09-23,tzamach_rainfall_mm_sum,0.0,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_rainfall_mm_sum,0.0,coverage 5% < 70%,coverage 5% < 70%
+2008-10-17,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-10-18,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-10-19,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2008-10-20,tzamach_rainfall_mm_sum,0.0,coverage 0% < 70%,coverage 0% < 70%
+2009-02-02,tzamach_rainfall_mm_sum,1.8,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_rainfall_mm_sum,0.0,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_rainfall_mm_sum,0.0,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_rainfall_mm_sum,0.0,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_rainfall_mm_sum,0.0,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_rainfall_mm_sum,30.6,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_rainfall_mm_sum,0.0,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_rainfall_mm_sum,0.0,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_rainfall_mm_sum,0.0,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_rainfall_mm_sum,0.0,coverage 10% < 70%,coverage 10% < 70%
+1994-02-03,tzamach_relative_humidity_pct_mean,86.0,coverage 9% < 70%,coverage 9% < 70%
+1994-02-04,tzamach_relative_humidity_pct_mean,56.71084337349398,coverage 58% < 70%,coverage 58% < 70%
+1994-11-11,tzamach_relative_humidity_pct_mean,52.5625,coverage 11% < 70%,coverage 11% < 70%
+1996-01-01,tzamach_relative_humidity_pct_mean,81.0,coverage 44% < 70%,coverage 44% < 70%
+1996-02-20,tzamach_relative_humidity_pct_mean,86.1044776119403,coverage 60% < 70%,coverage 60% < 70%
+1996-03-01,tzamach_relative_humidity_pct_mean,77.90972222222223,coverage 5% < 70%,coverage 5% < 70%
+1996-03-02,tzamach_relative_humidity_pct_mean,91.84722222222224,coverage 0% < 70%,coverage 0% < 70%
+1996-03-03,tzamach_relative_humidity_pct_mean,88.66666666666667,coverage 0% < 70%,coverage 0% < 70%
+1996-03-04,tzamach_relative_humidity_pct_mean,84.63194444444444,coverage 0% < 70%,coverage 0% < 70%
+1996-03-05,tzamach_relative_humidity_pct_mean,80.84027777777777,coverage 0% < 70%,coverage 0% < 70%
+1996-03-06,tzamach_relative_humidity_pct_mean,74.97916666666667,coverage 0% < 70%,coverage 0% < 70%
+1996-03-07,tzamach_relative_humidity_pct_mean,87.97222222222223,coverage 0% < 70%,coverage 0% < 70%
+1996-03-08,tzamach_relative_humidity_pct_mean,82.36111111111111,coverage 0% < 70%,coverage 0% < 70%
+1996-03-09,tzamach_relative_humidity_pct_mean,87.88888888888889,coverage 57% < 70%,coverage 57% < 70%
+1996-06-05,tzamach_relative_humidity_pct_mean,64.984375,coverage 58% < 70%,coverage 58% < 70%
+1996-08-13,tzamach_relative_humidity_pct_mean,68.41666666666667,coverage 69% < 70%,coverage 69% < 70%
+1996-08-14,tzamach_relative_humidity_pct_mean,68.51079136690647,coverage 57% < 70%,coverage 57% < 70%
+1996-08-18,tzamach_relative_humidity_pct_mean,69.81944444444444,coverage 62% < 70%,coverage 62% < 70%
+1996-08-19,tzamach_relative_humidity_pct_mean,68.07971014492753,coverage 61% < 70%,coverage 61% < 70%
+1996-08-22,tzamach_relative_humidity_pct_mean,65.04761904761905,coverage 59% < 70%,coverage 59% < 70%
+1996-08-23,tzamach_relative_humidity_pct_mean,54.87058823529412,coverage 56% < 70%,coverage 56% < 70%
+1996-10-02,tzamach_relative_humidity_pct_mean,57.47916666666666,coverage 37% < 70%,coverage 37% < 70%
+1996-10-03,tzamach_relative_humidity_pct_mean,61.97122302158273,coverage 53% < 70%,coverage 53% < 70%
+1996-10-07,tzamach_relative_humidity_pct_mean,76.26618705035972,coverage 59% < 70%,coverage 59% < 70%
+1996-10-08,tzamach_relative_humidity_pct_mean,60.03030303030303,coverage 49% < 70%,coverage 49% < 70%
+1996-10-27,tzamach_relative_humidity_pct_mean,74.05072463768116,coverage 67% < 70%,coverage 67% < 70%
+1996-11-26,tzamach_relative_humidity_pct_mean,70.80555555555556,coverage 62% < 70%,coverage 62% < 70%
+1996-11-27,tzamach_relative_humidity_pct_mean,75.92028985507247,coverage 53% < 70%,coverage 53% < 70%
+1996-12-23,tzamach_relative_humidity_pct_mean,84.3030303030303,coverage 66% < 70%,coverage 66% < 70%
+1997-01-01,tzamach_relative_humidity_pct_mean,83.35664335664336,coverage 0% < 70%,coverage 0% < 70%
+1997-01-02,tzamach_relative_humidity_pct_mean,85.94202898550725,coverage 36% < 70%,coverage 36% < 70%
+1997-09-22,tzamach_relative_humidity_pct_mean,74.0,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_relative_humidity_pct_mean,57.36363636363637,coverage 69% < 70%,coverage 69% < 70%
+1997-12-11,tzamach_relative_humidity_pct_mean,88.76271186440678,coverage 38% < 70%,coverage 38% < 70%
+1997-12-16,tzamach_relative_humidity_pct_mean,87.33333333333333,coverage 3% < 70%,coverage 3% < 70%
+1997-12-18,tzamach_relative_humidity_pct_mean,87.89583333333333,coverage 3% < 70%,coverage 3% < 70%
+1997-12-19,tzamach_relative_humidity_pct_mean,92.77083333333331,coverage 0% < 70%,coverage 0% < 70%
+1997-12-20,tzamach_relative_humidity_pct_mean,81.90277777777777,coverage 0% < 70%,coverage 0% < 70%
+1997-12-22,tzamach_relative_humidity_pct_mean,83.92700729927007,coverage 8% < 70%,coverage 8% < 70%
+1999-04-07,tzamach_relative_humidity_pct_mean,89.19444444444444,coverage 67% < 70%,coverage 67% < 70%
+2000-09-01,tzamach_relative_humidity_pct_mean,58.99305555555556,coverage 64% < 70%,coverage 64% < 70%
+2001-03-15,tzamach_relative_humidity_pct_mean,90.6153846153846,coverage 45% < 70%,coverage 45% < 70%
+2001-04-12,tzamach_relative_humidity_pct_mean,93.7560975609756,coverage 29% < 70%,coverage 29% < 70%
+2002-01-10,tzamach_relative_humidity_pct_mean,77.44680851063829,coverage 64% < 70%,coverage 64% < 70%
+2005-11-20,tzamach_relative_humidity_pct_mean,69.87128712871286,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_relative_humidity_pct_mean,66.31111111111112,coverage 53% < 70%,coverage 53% < 70%
+2008-06-15,tzamach_relative_humidity_pct_mean,53.50694444444444,coverage 5% < 70%,coverage 5% < 70%
+2008-06-16,tzamach_relative_humidity_pct_mean,60.18055555555556,coverage 0% < 70%,coverage 0% < 70%
+2008-06-17,tzamach_relative_humidity_pct_mean,65.79166666666667,coverage 0% < 70%,coverage 0% < 70%
+2008-06-18,tzamach_relative_humidity_pct_mean,63.326388888888886,coverage 0% < 70%,coverage 0% < 70%
+2008-06-19,tzamach_relative_humidity_pct_mean,65.09027777777777,coverage 0% < 70%,coverage 0% < 70%
+2008-06-20,tzamach_relative_humidity_pct_mean,58.96527777777778,coverage 0% < 70%,coverage 0% < 70%
+2008-06-21,tzamach_relative_humidity_pct_mean,59.05555555555556,coverage 0% < 70%,coverage 0% < 70%
+2008-09-23,tzamach_relative_humidity_pct_mean,60.74305555555556,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_relative_humidity_pct_mean,76.52777777777777,coverage 5% < 70%,coverage 5% < 70%
+2008-10-17,tzamach_relative_humidity_pct_mean,76.13888888888889,coverage 0% < 70%,coverage 0% < 70%
+2008-10-18,tzamach_relative_humidity_pct_mean,70.71527777777777,coverage 0% < 70%,coverage 0% < 70%
+2008-10-19,tzamach_relative_humidity_pct_mean,71.85416666666667,coverage 0% < 70%,coverage 0% < 70%
+2008-10-20,tzamach_relative_humidity_pct_mean,72.41666666666667,coverage 0% < 70%,coverage 0% < 70%
+2009-02-02,tzamach_relative_humidity_pct_mean,88.0,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_relative_humidity_pct_mean,79.70270270270271,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_relative_humidity_pct_mean,87.4423076923077,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_relative_humidity_pct_mean,51.13333333333333,coverage 38% < 70%,coverage 38% < 70%
+2009-11-06,tzamach_relative_humidity_pct_mean,82.01818181818182,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_relative_humidity_pct_mean,72.234375,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_relative_humidity_pct_mean,80.53703703703704,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_relative_humidity_pct_mean,69.28571428571429,coverage 10% < 70%,coverage 10% < 70%
+1994-02-03,tzamach_temperature_C_max,9.2,coverage 9% < 70%,coverage 9% < 70%
+1994-02-04,tzamach_temperature_C_max,20.1,coverage 58% < 70%,coverage 58% < 70%
+1994-11-11,tzamach_temperature_C_max,18.6,coverage 11% < 70%,coverage 11% < 70%
+1995-03-11,tzamach_temperature_C_max,10.6,coverage 19% < 70%,coverage 19% < 70%
+1995-11-23,tzamach_temperature_C_max,16.0,coverage 53% < 70%,coverage 53% < 70%
+1995-11-30,tzamach_temperature_C_max,21.3,coverage 67% < 70%,coverage 67% < 70%
+1995-12-05,tzamach_temperature_C_max,16.3,coverage 4% < 70%,coverage 4% < 70%
+1995-12-15,tzamach_temperature_C_max,18.3,coverage 54% < 70%,coverage 54% < 70%
+1996-01-01,tzamach_temperature_C_max,21.6,coverage 44% < 70%,coverage 44% < 70%
+1996-02-20,tzamach_temperature_C_max,19.1,coverage 60% < 70%,coverage 60% < 70%
+1996-03-01,tzamach_temperature_C_max,16.7,coverage 5% < 70%,coverage 5% < 70%
+1996-03-09,tzamach_temperature_C_max,16.3,coverage 57% < 70%,coverage 57% < 70%
+1996-06-05,tzamach_temperature_C_max,35.4,coverage 58% < 70%,coverage 58% < 70%
+1996-08-13,tzamach_temperature_C_max,37.8,coverage 69% < 70%,coverage 69% < 70%
+1996-08-14,tzamach_temperature_C_max,37.2,coverage 57% < 70%,coverage 57% < 70%
+1996-08-18,tzamach_temperature_C_max,40.9,coverage 62% < 70%,coverage 62% < 70%
+1996-08-19,tzamach_temperature_C_max,37.0,coverage 61% < 70%,coverage 61% < 70%
+1996-08-22,tzamach_temperature_C_max,35.3,coverage 59% < 70%,coverage 59% < 70%
+1996-08-23,tzamach_temperature_C_max,36.0,coverage 56% < 70%,coverage 56% < 70%
+1996-10-02,tzamach_temperature_C_max,26.4,coverage 37% < 70%,coverage 37% < 70%
+1996-10-03,tzamach_temperature_C_max,34.9,coverage 53% < 70%,coverage 53% < 70%
+1996-10-07,tzamach_temperature_C_max,32.7,coverage 59% < 70%,coverage 59% < 70%
+1996-10-08,tzamach_temperature_C_max,31.6,coverage 49% < 70%,coverage 49% < 70%
+1996-10-27,tzamach_temperature_C_max,24.5,coverage 67% < 70%,coverage 67% < 70%
+1996-11-26,tzamach_temperature_C_max,26.8,coverage 62% < 70%,coverage 62% < 70%
+1996-11-27,tzamach_temperature_C_max,26.1,coverage 53% < 70%,coverage 53% < 70%
+1996-12-23,tzamach_temperature_C_max,20.2,coverage 66% < 70%,coverage 66% < 70%
+1997-01-02,tzamach_temperature_C_max,20.3,coverage 36% < 70%,coverage 36% < 70%
+1997-09-22,tzamach_temperature_C_max,32.7,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_temperature_C_max,27.6,coverage 69% < 70%,coverage 69% < 70%
+1997-12-11,tzamach_temperature_C_max,18.8,coverage 38% < 70%,coverage 38% < 70%
+1997-12-16,tzamach_temperature_C_max,10.9,coverage 3% < 70%,coverage 3% < 70%
+1997-12-18,tzamach_temperature_C_max,12.6,coverage 3% < 70%,coverage 3% < 70%
+1997-12-22,tzamach_temperature_C_max,11.6,coverage 8% < 70%,coverage 8% < 70%
+1999-04-07,tzamach_temperature_C_max,17.9,coverage 67% < 70%,coverage 67% < 70%
+2000-09-01,tzamach_temperature_C_max,37.5,coverage 64% < 70%,coverage 64% < 70%
+2001-03-15,tzamach_temperature_C_max,20.3,coverage 45% < 70%,coverage 45% < 70%
+2001-04-12,tzamach_temperature_C_max,24.9,coverage 29% < 70%,coverage 29% < 70%
+2002-01-10,tzamach_temperature_C_max,14.0,coverage 64% < 70%,coverage 64% < 70%
+2005-11-20,tzamach_temperature_C_max,24.0,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_temperature_C_max,35.0,coverage 53% < 70%,coverage 53% < 70%
+2008-09-23,tzamach_temperature_C_max,34.7,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_temperature_C_max,20.7,coverage 5% < 70%,coverage 5% < 70%
+2009-02-02,tzamach_temperature_C_max,14.6,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_temperature_C_max,18.9,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_temperature_C_max,15.4,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_temperature_C_max,32.4,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_temperature_C_max,22.4,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_temperature_C_max,17.8,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_temperature_C_max,23.3,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_temperature_C_max,26.8,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_temperature_C_max,24.7,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_temperature_C_max,25.4,coverage 10% < 70%,coverage 10% < 70%
+1994-02-03,tzamach_temperature_C_mean,8.830769230769231,coverage 9% < 70%,coverage 9% < 70%
+1994-02-04,tzamach_temperature_C_mean,16.59036144578313,coverage 58% < 70%,coverage 58% < 70%
+1994-11-11,tzamach_temperature_C_mean,17.19375,coverage 11% < 70%,coverage 11% < 70%
+1995-03-11,tzamach_temperature_C_mean,8.522222222222222,coverage 19% < 70%,coverage 19% < 70%
+1995-06-01,tzamach_temperature_C_mean,21.942857142857143,coverage 5% < 70%,coverage 5% < 70%
+1995-11-23,tzamach_temperature_C_mean,13.475,coverage 53% < 70%,coverage 53% < 70%
+1995-11-30,tzamach_temperature_C_mean,14.70625,coverage 67% < 70%,coverage 67% < 70%
+1995-12-05,tzamach_temperature_C_mean,15.983333333333334,coverage 4% < 70%,coverage 4% < 70%
+1995-12-15,tzamach_temperature_C_mean,15.289743589743589,coverage 54% < 70%,coverage 54% < 70%
+1996-01-01,tzamach_temperature_C_mean,16.43125,coverage 44% < 70%,coverage 44% < 70%
+1996-02-20,tzamach_temperature_C_mean,14.750574712643678,coverage 60% < 70%,coverage 60% < 70%
+1996-03-01,tzamach_temperature_C_mean,16.271428571428572,coverage 5% < 70%,coverage 5% < 70%
+1996-03-09,tzamach_temperature_C_mean,14.923170731707318,coverage 57% < 70%,coverage 57% < 70%
+1996-06-05,tzamach_temperature_C_mean,25.547619047619047,coverage 58% < 70%,coverage 58% < 70%
+1996-08-13,tzamach_temperature_C_mean,29.81717171717172,coverage 69% < 70%,coverage 69% < 70%
+1996-08-14,tzamach_temperature_C_mean,33.22439024390244,coverage 57% < 70%,coverage 57% < 70%
+1996-08-18,tzamach_temperature_C_mean,28.80444444444445,coverage 62% < 70%,coverage 62% < 70%
+1996-08-19,tzamach_temperature_C_mean,31.869318181818183,coverage 61% < 70%,coverage 61% < 70%
+1996-08-22,tzamach_temperature_C_mean,28.13529411764706,coverage 59% < 70%,coverage 59% < 70%
+1996-08-23,tzamach_temperature_C_mean,31.1283950617284,coverage 56% < 70%,coverage 56% < 70%
+1996-10-02,tzamach_temperature_C_mean,21.4,coverage 37% < 70%,coverage 37% < 70%
+1996-10-03,tzamach_temperature_C_mean,29.82987012987013,coverage 53% < 70%,coverage 53% < 70%
+1996-10-07,tzamach_temperature_C_mean,23.968235294117648,coverage 59% < 70%,coverage 59% < 70%
+1996-10-08,tzamach_temperature_C_mean,27.544285714285717,coverage 49% < 70%,coverage 49% < 70%
+1996-10-27,tzamach_temperature_C_mean,19.304123711340207,coverage 67% < 70%,coverage 67% < 70%
+1996-11-26,tzamach_temperature_C_mean,21.70674157303371,coverage 62% < 70%,coverage 62% < 70%
+1996-11-27,tzamach_temperature_C_mean,22.55194805194805,coverage 53% < 70%,coverage 53% < 70%
+1996-12-23,tzamach_temperature_C_mean,15.04,coverage 66% < 70%,coverage 66% < 70%
+1997-01-02,tzamach_temperature_C_mean,14.734615384615385,coverage 36% < 70%,coverage 36% < 70%
+1997-09-22,tzamach_temperature_C_mean,24.43125,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_temperature_C_mean,22.199,coverage 69% < 70%,coverage 69% < 70%
+1997-12-11,tzamach_temperature_C_mean,17.12037037037037,coverage 38% < 70%,coverage 38% < 70%
+1997-12-16,tzamach_temperature_C_mean,10.6,coverage 3% < 70%,coverage 3% < 70%
+1997-12-18,tzamach_temperature_C_mean,12.425,coverage 3% < 70%,coverage 3% < 70%
+1997-12-22,tzamach_temperature_C_mean,11.136363636363637,coverage 8% < 70%,coverage 8% < 70%
+1999-04-07,tzamach_temperature_C_mean,15.8,coverage 67% < 70%,coverage 67% < 70%
+2000-09-01,tzamach_temperature_C_mean,32.006521739130434,coverage 64% < 70%,coverage 64% < 70%
+2001-03-15,tzamach_temperature_C_mean,14.393846153846154,coverage 45% < 70%,coverage 45% < 70%
+2001-04-12,tzamach_temperature_C_mean,19.997619047619047,coverage 29% < 70%,coverage 29% < 70%
+2002-01-10,tzamach_temperature_C_mean,11.817391304347826,coverage 64% < 70%,coverage 64% < 70%
+2005-11-20,tzamach_temperature_C_mean,19.93232323232323,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_temperature_C_mean,27.13246753246753,coverage 53% < 70%,coverage 53% < 70%
+2008-06-15,tzamach_temperature_C_mean,22.457142857142856,coverage 5% < 70%,coverage 5% < 70%
+2008-09-23,tzamach_temperature_C_mean,27.693877551020407,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_temperature_C_mean,20.1,coverage 5% < 70%,coverage 5% < 70%
+2009-02-02,tzamach_temperature_C_mean,13.035365853658538,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_temperature_C_mean,15.216216216216216,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_temperature_C_mean,12.107692307692307,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_temperature_C_mean,25.246296296296297,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_temperature_C_mean,18.05079365079365,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_temperature_C_mean,16.25263157894737,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_temperature_C_mean,17.51090909090909,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_temperature_C_mean,23.55625,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_temperature_C_mean,20.942592592592597,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_temperature_C_mean,24.821428571428573,coverage 10% < 70%,coverage 10% < 70%
+1994-02-03,tzamach_temperature_C_min,8.3,coverage 9% < 70%,coverage 9% < 70%
+1994-02-04,tzamach_temperature_C_min,11.1,coverage 58% < 70%,coverage 58% < 70%
+1994-11-11,tzamach_temperature_C_min,15.6,coverage 11% < 70%,coverage 11% < 70%
+1995-03-11,tzamach_temperature_C_min,7.2,coverage 19% < 70%,coverage 19% < 70%
+1995-06-01,tzamach_temperature_C_min,21.2,coverage 5% < 70%,coverage 5% < 70%
+1995-11-23,tzamach_temperature_C_min,11.7,coverage 53% < 70%,coverage 53% < 70%
+1995-11-30,tzamach_temperature_C_min,8.8,coverage 67% < 70%,coverage 67% < 70%
+1995-12-05,tzamach_temperature_C_min,15.5,coverage 4% < 70%,coverage 4% < 70%
+1995-12-15,tzamach_temperature_C_min,8.9,coverage 54% < 70%,coverage 54% < 70%
+1996-01-01,tzamach_temperature_C_min,11.5,coverage 44% < 70%,coverage 44% < 70%
+1996-02-20,tzamach_temperature_C_min,9.4,coverage 60% < 70%,coverage 60% < 70%
+1996-03-01,tzamach_temperature_C_min,15.9,coverage 5% < 70%,coverage 5% < 70%
+1996-03-09,tzamach_temperature_C_min,12.4,coverage 57% < 70%,coverage 57% < 70%
+1996-06-05,tzamach_temperature_C_min,18.2,coverage 58% < 70%,coverage 58% < 70%
+1996-08-13,tzamach_temperature_C_min,24.4,coverage 69% < 70%,coverage 69% < 70%
+1996-08-14,tzamach_temperature_C_min,29.3,coverage 57% < 70%,coverage 57% < 70%
+1996-08-18,tzamach_temperature_C_min,24.3,coverage 62% < 70%,coverage 62% < 70%
+1996-08-19,tzamach_temperature_C_min,26.6,coverage 61% < 70%,coverage 61% < 70%
+1996-08-22,tzamach_temperature_C_min,22.9,coverage 59% < 70%,coverage 59% < 70%
+1996-08-23,tzamach_temperature_C_min,25.4,coverage 56% < 70%,coverage 56% < 70%
+1996-10-02,tzamach_temperature_C_min,19.1,coverage 37% < 70%,coverage 37% < 70%
+1996-10-03,tzamach_temperature_C_min,21.6,coverage 53% < 70%,coverage 53% < 70%
+1996-10-07,tzamach_temperature_C_min,19.3,coverage 59% < 70%,coverage 59% < 70%
+1996-10-08,tzamach_temperature_C_min,21.3,coverage 49% < 70%,coverage 49% < 70%
+1996-10-27,tzamach_temperature_C_min,14.7,coverage 67% < 70%,coverage 67% < 70%
+1996-11-26,tzamach_temperature_C_min,16.6,coverage 62% < 70%,coverage 62% < 70%
+1996-11-27,tzamach_temperature_C_min,18.5,coverage 53% < 70%,coverage 53% < 70%
+1996-12-23,tzamach_temperature_C_min,12.1,coverage 66% < 70%,coverage 66% < 70%
+1997-01-02,tzamach_temperature_C_min,10.6,coverage 36% < 70%,coverage 36% < 70%
+1997-09-22,tzamach_temperature_C_min,19.6,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_temperature_C_min,18.8,coverage 69% < 70%,coverage 69% < 70%
+1997-12-11,tzamach_temperature_C_min,14.4,coverage 38% < 70%,coverage 38% < 70%
+1997-12-16,tzamach_temperature_C_min,10.4,coverage 3% < 70%,coverage 3% < 70%
+1997-12-18,tzamach_temperature_C_min,12.2,coverage 3% < 70%,coverage 3% < 70%
+1997-12-22,tzamach_temperature_C_min,10.6,coverage 8% < 70%,coverage 8% < 70%
+1999-04-07,tzamach_temperature_C_min,14.0,coverage 67% < 70%,coverage 67% < 70%
+2000-09-01,tzamach_temperature_C_min,25.2,coverage 64% < 70%,coverage 64% < 70%
+2001-03-15,tzamach_temperature_C_min,12.3,coverage 45% < 70%,coverage 45% < 70%
+2001-04-12,tzamach_temperature_C_min,15.1,coverage 29% < 70%,coverage 29% < 70%
+2002-01-10,tzamach_temperature_C_min,7.6,coverage 64% < 70%,coverage 64% < 70%
+2005-11-20,tzamach_temperature_C_min,16.0,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_temperature_C_min,21.5,coverage 53% < 70%,coverage 53% < 70%
+2008-06-15,tzamach_temperature_C_min,21.5,coverage 5% < 70%,coverage 5% < 70%
+2008-09-23,tzamach_temperature_C_min,22.1,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_temperature_C_min,19.4,coverage 5% < 70%,coverage 5% < 70%
+2009-02-02,tzamach_temperature_C_min,11.8,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_temperature_C_min,11.0,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_temperature_C_min,10.6,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_temperature_C_min,17.7,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_temperature_C_min,16.6,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_temperature_C_min,15.6,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_temperature_C_min,15.1,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_temperature_C_min,18.6,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_temperature_C_min,19.1,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_temperature_C_min,24.2,coverage 10% < 70%,coverage 10% < 70%
+2005-11-20,tzamach_temperature_max_C_max,24.2,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_temperature_max_C_max,35.4,coverage 53% < 70%,coverage 53% < 70%
+2008-06-15,tzamach_temperature_max_C_max,23.7,coverage 5% < 70%,coverage 5% < 70%
+2008-09-23,tzamach_temperature_max_C_max,34.9,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_temperature_max_C_max,20.9,coverage 5% < 70%,coverage 5% < 70%
+2009-02-02,tzamach_temperature_max_C_max,14.7,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_temperature_max_C_max,19.0,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_temperature_max_C_max,15.7,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_temperature_max_C_max,32.5,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_temperature_max_C_max,22.5,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_temperature_max_C_max,22.0,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_temperature_max_C_max,23.4,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_temperature_max_C_max,27.0,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_temperature_max_C_max,24.9,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_temperature_max_C_max,25.5,coverage 10% < 70%,coverage 10% < 70%
+2005-11-20,tzamach_temperature_min_C_min,15.9,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_temperature_min_C_min,21.5,coverage 53% < 70%,coverage 53% < 70%
+2008-06-15,tzamach_temperature_min_C_min,21.3,coverage 5% < 70%,coverage 5% < 70%
+2008-09-23,tzamach_temperature_min_C_min,22.0,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_temperature_min_C_min,19.3,coverage 5% < 70%,coverage 5% < 70%
+2009-02-02,tzamach_temperature_min_C_min,11.7,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_temperature_min_C_min,10.7,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_temperature_min_C_min,10.4,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_temperature_min_C_min,17.6,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_temperature_min_C_min,16.6,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_temperature_min_C_min,15.6,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_temperature_min_C_min,15.1,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_temperature_min_C_min,18.6,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_temperature_min_C_min,19.0,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_temperature_min_C_min,24.2,coverage 10% < 70%,coverage 10% < 70%
+1995-07-01,tzamach_wind_speed_ms_max,4.6,coverage 0% < 70%,coverage 0% < 70%
+1995-07-02,tzamach_wind_speed_ms_max,7.7,coverage 0% < 70%,coverage 0% < 70%
+1995-07-03,tzamach_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+1995-07-04,tzamach_wind_speed_ms_max,6.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-05,tzamach_wind_speed_ms_max,7.7,coverage 0% < 70%,coverage 0% < 70%
+1995-07-06,tzamach_wind_speed_ms_max,7.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-07,tzamach_wind_speed_ms_max,7.7,coverage 0% < 70%,coverage 0% < 70%
+1995-07-08,tzamach_wind_speed_ms_max,5.6,coverage 0% < 70%,coverage 0% < 70%
+1995-07-09,tzamach_wind_speed_ms_max,6.1,coverage 0% < 70%,coverage 0% < 70%
+1995-07-10,tzamach_wind_speed_ms_max,5.7,coverage 0% < 70%,coverage 0% < 70%
+1995-07-11,tzamach_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+1995-07-12,tzamach_wind_speed_ms_max,4.6,coverage 0% < 70%,coverage 0% < 70%
+1995-07-13,tzamach_wind_speed_ms_max,6.2,coverage 0% < 70%,coverage 0% < 70%
+1995-07-14,tzamach_wind_speed_ms_max,5.1,coverage 0% < 70%,coverage 0% < 70%
+1995-07-15,tzamach_wind_speed_ms_max,3.2,coverage 0% < 70%,coverage 0% < 70%
+1995-07-24,tzamach_wind_speed_ms_max,6.1,coverage 0% < 70%,coverage 0% < 70%
+1995-07-25,tzamach_wind_speed_ms_max,4.8,coverage 0% < 70%,coverage 0% < 70%
+1995-07-26,tzamach_wind_speed_ms_max,6.0,coverage 0% < 70%,coverage 0% < 70%
+1995-07-27,tzamach_wind_speed_ms_max,7.4,coverage 0% < 70%,coverage 0% < 70%
+1995-07-28,tzamach_wind_speed_ms_max,7.6,coverage 0% < 70%,coverage 0% < 70%
+1995-07-29,tzamach_wind_speed_ms_max,7.2,coverage 0% < 70%,coverage 0% < 70%
+1995-07-30,tzamach_wind_speed_ms_max,5.7,coverage 0% < 70%,coverage 0% < 70%
+1995-07-31,tzamach_wind_speed_ms_max,5.4,coverage 0% < 70%,coverage 0% < 70%
+1995-08-01,tzamach_wind_speed_ms_max,5.9,coverage 0% < 70%,coverage 0% < 70%
+1995-08-02,tzamach_wind_speed_ms_max,6.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-03,tzamach_wind_speed_ms_max,6.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-04,tzamach_wind_speed_ms_max,5.6,coverage 0% < 70%,coverage 0% < 70%
+1995-08-05,tzamach_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+1995-08-06,tzamach_wind_speed_ms_max,6.3,coverage 0% < 70%,coverage 0% < 70%
+1995-08-07,tzamach_wind_speed_ms_max,5.5,coverage 0% < 70%,coverage 0% < 70%
+1995-08-08,tzamach_wind_speed_ms_max,5.6,coverage 0% < 70%,coverage 0% < 70%
+1995-08-09,tzamach_wind_speed_ms_max,5.5,coverage 0% < 70%,coverage 0% < 70%
+1995-08-10,tzamach_wind_speed_ms_max,6.8,coverage 0% < 70%,coverage 0% < 70%
+1995-08-11,tzamach_wind_speed_ms_max,6.8,coverage 0% < 70%,coverage 0% < 70%
+1995-08-12,tzamach_wind_speed_ms_max,5.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-13,tzamach_wind_speed_ms_max,4.8,coverage 0% < 70%,coverage 0% < 70%
+1995-08-14,tzamach_wind_speed_ms_max,6.3,coverage 0% < 70%,coverage 0% < 70%
+1995-08-15,tzamach_wind_speed_ms_max,6.9,coverage 0% < 70%,coverage 0% < 70%
+1995-08-16,tzamach_wind_speed_ms_max,5.8,coverage 0% < 70%,coverage 0% < 70%
+1995-08-17,tzamach_wind_speed_ms_max,4.9,coverage 0% < 70%,coverage 0% < 70%
+1995-08-18,tzamach_wind_speed_ms_max,5.4,coverage 0% < 70%,coverage 0% < 70%
+1995-08-19,tzamach_wind_speed_ms_max,5.4,coverage 0% < 70%,coverage 0% < 70%
+1995-08-20,tzamach_wind_speed_ms_max,5.7,coverage 0% < 70%,coverage 0% < 70%
+1995-08-21,tzamach_wind_speed_ms_max,5.7,coverage 0% < 70%,coverage 0% < 70%
+1995-08-22,tzamach_wind_speed_ms_max,4.6,coverage 0% < 70%,coverage 0% < 70%
+1995-08-23,tzamach_wind_speed_ms_max,4.8,coverage 0% < 70%,coverage 0% < 70%
+1995-08-24,tzamach_wind_speed_ms_max,4.6,coverage 0% < 70%,coverage 0% < 70%
+1995-08-25,tzamach_wind_speed_ms_max,6.1,coverage 0% < 70%,coverage 0% < 70%
+1995-08-26,tzamach_wind_speed_ms_max,5.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-27,tzamach_wind_speed_ms_max,4.0,coverage 0% < 70%,coverage 0% < 70%
+1995-08-28,tzamach_wind_speed_ms_max,5.6,coverage 0% < 70%,coverage 0% < 70%
+1995-08-29,tzamach_wind_speed_ms_max,6.3,coverage 0% < 70%,coverage 0% < 70%
+1995-08-30,tzamach_wind_speed_ms_max,5.6,coverage 0% < 70%,coverage 0% < 70%
+1995-08-31,tzamach_wind_speed_ms_max,5.8,coverage 0% < 70%,coverage 0% < 70%
+1997-09-22,tzamach_wind_speed_ms_max,2.6,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_wind_speed_ms_max,4.1,coverage 69% < 70%,coverage 69% < 70%
+1997-11-30,tzamach_wind_speed_ms_max,3.5,coverage 0% < 70%,coverage 0% < 70%
+2005-11-20,tzamach_wind_speed_ms_max,6.7,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_wind_speed_ms_max,6.3,coverage 53% < 70%,coverage 53% < 70%
+2007-08-09,tzamach_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+2007-08-10,tzamach_wind_speed_ms_max,6.5,coverage 0% < 70%,coverage 0% < 70%
+2007-08-11,tzamach_wind_speed_ms_max,7.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-12,tzamach_wind_speed_ms_max,7.6,coverage 0% < 70%,coverage 0% < 70%
+2007-08-13,tzamach_wind_speed_ms_max,6.8,coverage 0% < 70%,coverage 0% < 70%
+2007-08-14,tzamach_wind_speed_ms_max,6.3,coverage 0% < 70%,coverage 0% < 70%
+2007-08-15,tzamach_wind_speed_ms_max,5.2,coverage 0% < 70%,coverage 0% < 70%
+2007-08-16,tzamach_wind_speed_ms_max,7.2,coverage 0% < 70%,coverage 0% < 70%
+2007-08-17,tzamach_wind_speed_ms_max,7.0,coverage 0% < 70%,coverage 0% < 70%
+2007-08-18,tzamach_wind_speed_ms_max,6.6,coverage 0% < 70%,coverage 0% < 70%
+2007-08-19,tzamach_wind_speed_ms_max,5.6,coverage 0% < 70%,coverage 0% < 70%
+2007-08-20,tzamach_wind_speed_ms_max,7.4,coverage 0% < 70%,coverage 0% < 70%
+2008-06-15,tzamach_wind_speed_ms_max,6.6,coverage 5% < 70%,coverage 5% < 70%
+2008-06-16,tzamach_wind_speed_ms_max,6.7,coverage 0% < 70%,coverage 0% < 70%
+2008-06-17,tzamach_wind_speed_ms_max,6.4,coverage 0% < 70%,coverage 0% < 70%
+2008-06-18,tzamach_wind_speed_ms_max,7.0,coverage 0% < 70%,coverage 0% < 70%
+2008-06-19,tzamach_wind_speed_ms_max,6.1,coverage 0% < 70%,coverage 0% < 70%
+2008-06-20,tzamach_wind_speed_ms_max,7.6,coverage 0% < 70%,coverage 0% < 70%
+2008-06-21,tzamach_wind_speed_ms_max,7.7,coverage 0% < 70%,coverage 0% < 70%
+2008-09-23,tzamach_wind_speed_ms_max,6.5,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_wind_speed_ms_max,5.9,coverage 5% < 70%,coverage 5% < 70%
+2008-10-17,tzamach_wind_speed_ms_max,4.1,coverage 0% < 70%,coverage 0% < 70%
+2008-10-18,tzamach_wind_speed_ms_max,4.1,coverage 0% < 70%,coverage 0% < 70%
+2008-10-19,tzamach_wind_speed_ms_max,3.3,coverage 0% < 70%,coverage 0% < 70%
+2008-10-20,tzamach_wind_speed_ms_max,5.4,coverage 0% < 70%,coverage 0% < 70%
+2009-02-02,tzamach_wind_speed_ms_max,2.7,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_wind_speed_ms_max,3.0,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_wind_speed_ms_max,2.4,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_wind_speed_ms_max,3.6,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_wind_speed_ms_max,2.6,coverage 44% < 70%,coverage 44% < 70%
+2009-11-02,tzamach_wind_speed_ms_max,6.6,coverage 53% < 70%,coverage 53% < 70%
+2009-11-06,tzamach_wind_speed_ms_max,6.7,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_wind_speed_ms_max,4.1,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_wind_speed_ms_max,3.4,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_wind_speed_ms_max,3.7,coverage 10% < 70%,coverage 10% < 70%
+1995-07-01,tzamach_wind_speed_ms_mean,1.727777777777778,coverage 0% < 70%,coverage 0% < 70%
+1995-07-02,tzamach_wind_speed_ms_mean,3.1819444444444445,coverage 0% < 70%,coverage 0% < 70%
+1995-07-03,tzamach_wind_speed_ms_mean,3.052777777777778,coverage 0% < 70%,coverage 0% < 70%
+1995-07-04,tzamach_wind_speed_ms_mean,3.115972222222222,coverage 0% < 70%,coverage 0% < 70%
+1995-07-05,tzamach_wind_speed_ms_mean,3.6104166666666666,coverage 0% < 70%,coverage 0% < 70%
+1995-07-06,tzamach_wind_speed_ms_mean,2.6409722222222225,coverage 0% < 70%,coverage 0% < 70%
+1995-07-07,tzamach_wind_speed_ms_mean,3.379861111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-07-08,tzamach_wind_speed_ms_mean,2.648611111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-07-09,tzamach_wind_speed_ms_mean,2.926388888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-07-10,tzamach_wind_speed_ms_mean,3.0506944444444444,coverage 0% < 70%,coverage 0% < 70%
+1995-07-11,tzamach_wind_speed_ms_mean,2.852777777777778,coverage 0% < 70%,coverage 0% < 70%
+1995-07-12,tzamach_wind_speed_ms_mean,2.021527777777778,coverage 0% < 70%,coverage 0% < 70%
+1995-07-13,tzamach_wind_speed_ms_mean,2.3666666666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-07-14,tzamach_wind_speed_ms_mean,2.2881944444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-07-15,tzamach_wind_speed_ms_mean,1.2741935483870968,coverage 0% < 70%,coverage 0% < 70%
+1995-07-24,tzamach_wind_speed_ms_mean,2.6164179104477614,coverage 0% < 70%,coverage 0% < 70%
+1995-07-25,tzamach_wind_speed_ms_mean,2.170138888888889,coverage 0% < 70%,coverage 0% < 70%
+1995-07-26,tzamach_wind_speed_ms_mean,2.515277777777777,coverage 0% < 70%,coverage 0% < 70%
+1995-07-27,tzamach_wind_speed_ms_mean,3.2291666666666665,coverage 0% < 70%,coverage 0% < 70%
+1995-07-28,tzamach_wind_speed_ms_mean,2.8777777777777778,coverage 0% < 70%,coverage 0% < 70%
+1995-07-29,tzamach_wind_speed_ms_mean,2.9659722222222222,coverage 0% < 70%,coverage 0% < 70%
+1995-07-30,tzamach_wind_speed_ms_mean,2.336111111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-07-31,tzamach_wind_speed_ms_mean,2.3194444444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-08-01,tzamach_wind_speed_ms_mean,2.634027777777778,coverage 0% < 70%,coverage 0% < 70%
+1995-08-02,tzamach_wind_speed_ms_mean,2.7,coverage 0% < 70%,coverage 0% < 70%
+1995-08-03,tzamach_wind_speed_ms_mean,2.6812500000000004,coverage 0% < 70%,coverage 0% < 70%
+1995-08-04,tzamach_wind_speed_ms_mean,2.9680555555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-08-05,tzamach_wind_speed_ms_mean,2.9368055555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-08-06,tzamach_wind_speed_ms_mean,2.645833333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-08-07,tzamach_wind_speed_ms_mean,2.584722222222222,coverage 0% < 70%,coverage 0% < 70%
+1995-08-08,tzamach_wind_speed_ms_mean,2.442361111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-09,tzamach_wind_speed_ms_mean,2.442361111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-10,tzamach_wind_speed_ms_mean,3.2805555555555554,coverage 0% < 70%,coverage 0% < 70%
+1995-08-11,tzamach_wind_speed_ms_mean,2.3381944444444445,coverage 0% < 70%,coverage 0% < 70%
+1995-08-12,tzamach_wind_speed_ms_mean,2.134722222222222,coverage 0% < 70%,coverage 0% < 70%
+1995-08-13,tzamach_wind_speed_ms_mean,2.2534722222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-08-14,tzamach_wind_speed_ms_mean,2.6125,coverage 0% < 70%,coverage 0% < 70%
+1995-08-15,tzamach_wind_speed_ms_mean,2.886805555555556,coverage 0% < 70%,coverage 0% < 70%
+1995-08-16,tzamach_wind_speed_ms_mean,2.7319444444444443,coverage 0% < 70%,coverage 0% < 70%
+1995-08-17,tzamach_wind_speed_ms_mean,2.3138888888888887,coverage 0% < 70%,coverage 0% < 70%
+1995-08-18,tzamach_wind_speed_ms_mean,2.399305555555556,coverage 0% < 70%,coverage 0% < 70%
+1995-08-19,tzamach_wind_speed_ms_mean,2.345833333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-08-20,tzamach_wind_speed_ms_mean,2.845833333333333,coverage 0% < 70%,coverage 0% < 70%
+1995-08-21,tzamach_wind_speed_ms_mean,2.685416666666667,coverage 0% < 70%,coverage 0% < 70%
+1995-08-22,tzamach_wind_speed_ms_mean,2.5069444444444446,coverage 0% < 70%,coverage 0% < 70%
+1995-08-23,tzamach_wind_speed_ms_mean,1.8784722222222223,coverage 0% < 70%,coverage 0% < 70%
+1995-08-24,tzamach_wind_speed_ms_mean,1.8861111111111115,coverage 0% < 70%,coverage 0% < 70%
+1995-08-25,tzamach_wind_speed_ms_mean,2.492361111111111,coverage 0% < 70%,coverage 0% < 70%
+1995-08-26,tzamach_wind_speed_ms_mean,2.299305555555556,coverage 0% < 70%,coverage 0% < 70%
+1995-08-27,tzamach_wind_speed_ms_mean,2.018055555555556,coverage 0% < 70%,coverage 0% < 70%
+1995-08-28,tzamach_wind_speed_ms_mean,2.2125000000000004,coverage 0% < 70%,coverage 0% < 70%
+1995-08-29,tzamach_wind_speed_ms_mean,2.2333333333333334,coverage 0% < 70%,coverage 0% < 70%
+1995-08-30,tzamach_wind_speed_ms_mean,2.58125,coverage 0% < 70%,coverage 0% < 70%
+1995-08-31,tzamach_wind_speed_ms_mean,2.6733333333333333,coverage 0% < 70%,coverage 0% < 70%
+1997-09-22,tzamach_wind_speed_ms_mean,1.2858823529411765,coverage 56% < 70%,coverage 56% < 70%
+1997-11-29,tzamach_wind_speed_ms_mean,2.2325,coverage 69% < 70%,coverage 69% < 70%
+1997-11-30,tzamach_wind_speed_ms_mean,1.4583333333333333,coverage 0% < 70%,coverage 0% < 70%
+2005-11-20,tzamach_wind_speed_ms_mean,2.3284722222222225,coverage 69% < 70%,coverage 69% < 70%
+2007-08-08,tzamach_wind_speed_ms_mean,3.252083333333333,coverage 53% < 70%,coverage 53% < 70%
+2007-08-09,tzamach_wind_speed_ms_mean,3.080555555555556,coverage 0% < 70%,coverage 0% < 70%
+2007-08-10,tzamach_wind_speed_ms_mean,3.2437500000000004,coverage 0% < 70%,coverage 0% < 70%
+2007-08-11,tzamach_wind_speed_ms_mean,3.1555555555555554,coverage 0% < 70%,coverage 0% < 70%
+2007-08-12,tzamach_wind_speed_ms_mean,3.236805555555556,coverage 0% < 70%,coverage 0% < 70%
+2007-08-13,tzamach_wind_speed_ms_mean,2.8229166666666665,coverage 0% < 70%,coverage 0% < 70%
+2007-08-14,tzamach_wind_speed_ms_mean,2.8895833333333334,coverage 0% < 70%,coverage 0% < 70%
+2007-08-15,tzamach_wind_speed_ms_mean,2.432638888888889,coverage 0% < 70%,coverage 0% < 70%
+2007-08-16,tzamach_wind_speed_ms_mean,3.046527777777777,coverage 0% < 70%,coverage 0% < 70%
+2007-08-17,tzamach_wind_speed_ms_mean,3.19375,coverage 0% < 70%,coverage 0% < 70%
+2007-08-18,tzamach_wind_speed_ms_mean,2.8284722222222225,coverage 0% < 70%,coverage 0% < 70%
+2007-08-19,tzamach_wind_speed_ms_mean,3.2041666666666666,coverage 0% < 70%,coverage 0% < 70%
+2007-08-20,tzamach_wind_speed_ms_mean,2.627083333333333,coverage 0% < 70%,coverage 0% < 70%
+2008-06-15,tzamach_wind_speed_ms_mean,2.603472222222222,coverage 5% < 70%,coverage 5% < 70%
+2008-06-16,tzamach_wind_speed_ms_mean,3.263888888888889,coverage 0% < 70%,coverage 0% < 70%
+2008-06-17,tzamach_wind_speed_ms_mean,2.640277777777777,coverage 0% < 70%,coverage 0% < 70%
+2008-06-18,tzamach_wind_speed_ms_mean,3.0013888888888887,coverage 0% < 70%,coverage 0% < 70%
+2008-06-19,tzamach_wind_speed_ms_mean,2.632638888888889,coverage 0% < 70%,coverage 0% < 70%
+2008-06-20,tzamach_wind_speed_ms_mean,2.8354166666666667,coverage 0% < 70%,coverage 0% < 70%
+2008-06-21,tzamach_wind_speed_ms_mean,2.513888888888889,coverage 0% < 70%,coverage 0% < 70%
+2008-09-23,tzamach_wind_speed_ms_mean,2.577777777777777,coverage 68% < 70%,coverage 68% < 70%
+2008-10-16,tzamach_wind_speed_ms_mean,2.466666666666667,coverage 5% < 70%,coverage 5% < 70%
+2008-10-17,tzamach_wind_speed_ms_mean,1.9263888888888887,coverage 0% < 70%,coverage 0% < 70%
+2008-10-18,tzamach_wind_speed_ms_mean,1.86875,coverage 0% < 70%,coverage 0% < 70%
+2008-10-19,tzamach_wind_speed_ms_mean,1.839583333333333,coverage 0% < 70%,coverage 0% < 70%
+2008-10-20,tzamach_wind_speed_ms_mean,1.820138888888889,coverage 0% < 70%,coverage 0% < 70%
+2009-02-02,tzamach_wind_speed_ms_mean,1.4184615384615384,coverage 57% < 70%,coverage 57% < 70%
+2009-02-03,tzamach_wind_speed_ms_mean,1.5125000000000002,coverage 51% < 70%,coverage 51% < 70%
+2009-04-11,tzamach_wind_speed_ms_mean,1.5384615384615383,coverage 36% < 70%,coverage 36% < 70%
+2009-04-22,tzamach_wind_speed_ms_mean,1.6814814814814814,coverage 38% < 70%,coverage 38% < 70%
+2009-11-01,tzamach_wind_speed_ms_mean,1.2859375,coverage 44% < 70%,coverage 44% < 70%
+2009-11-06,tzamach_wind_speed_ms_mean,2.323636363636364,coverage 38% < 70%,coverage 38% < 70%
+2009-11-09,tzamach_wind_speed_ms_mean,1.9609375,coverage 44% < 70%,coverage 44% < 70%
+2011-06-02,tzamach_wind_speed_ms_mean,1.9611111111111112,coverage 38% < 70%,coverage 38% < 70%
+2011-06-05,tzamach_wind_speed_ms_mean,2.1142857142857143,coverage 10% < 70%,coverage 10% < 70%
+2007-08-24,lev_kinneret_temperature_min_C_min,27.5,persistence_4_days_identical,persistence
+2007-08-25,lev_kinneret_temperature_min_C_min,27.5,persistence_4_days_identical,persistence
+2007-08-26,lev_kinneret_temperature_min_C_min,27.5,persistence_4_days_identical,persistence
+2007-08-27,lev_kinneret_temperature_min_C_min,27.5,persistence_4_days_identical,persistence
 2013-08-12,kfar_nachum_rainfall_mm_sum,-199980.0,"physical_bounds [0, 300]",physical
 2024-10-25,kfar_nachum_rainfall_mm_sum,-169915.62,"physical_bounds [0, 300]",physical
 2024-10-26,kfar_nachum_rainfall_mm_sum,-809919.0,"physical_bounds [0, 300]",physical
