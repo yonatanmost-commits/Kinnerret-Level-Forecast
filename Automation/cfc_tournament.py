@@ -167,12 +167,22 @@ def references(base, anchors, year, train_mask) -> list:
 # Method A - relay
 # ─────────────────────────────────────────────────────────────────────────────
 
+RELAY_MET = list(Hz.DAILY_MET)        # the relay's weather columns, before any table trims them
+
+
+def relay_met(table: str) -> list:
+    """Weather columns the relay swaps for climatology under "clim". Rain intensity is a
+    model input only on the IMS table; there it must be swapped too, or the relay reads
+    the real future intensity."""
+    return [c for c in RELAY_MET if table == "ims" or c != L.NO_INTENSITY]
+
+
 def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14, kind="lnn"):
     Hz.S1_FEATURES = lnc.S1_FEATURES                                     # set by L.set_features
     # A1 (one-step relay) drops the inflow step: volume change straight from weather
     # and lake state, so A1 vs B isolates relay vs direct, and A vs A1 the inflow step
     Hz.S2_FEATURES = [f for f in lnc.S2_FEATURES if not (one_step and f == "predicted_inflow_m3")]
-    Hz.DAILY_MET = [c for c in Hz.DAILY_MET if c != L.NO_INTENSITY]
+    Hz.DAILY_MET = relay_met(TABLE)
     yrs = lagged["date"].dt.year.to_numpy()
     trm = yrs < year
     clim = Hz.doy_climatology(lagged, trm)
