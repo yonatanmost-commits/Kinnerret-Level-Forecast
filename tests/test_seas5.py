@@ -54,3 +54,29 @@ def test_adjusted_weather_scales_only_forecast_months_after_the_start():
     jun = pd.Timestamp("2011-06-15").dayofyear          # past the 6-month reach (Oct-Mar)
     assert adj.loc[jan, "rainfall_mm"] == 3.0 and adj.loc[jan, "temp_max_C"] == 16.0
     assert adj.loc[jun, "rainfall_mm"] == 1.0 and adj.loc[jun, "temp_mean_C"] == 10.0
+
+
+def test_calibration_slope_from_earlier_years_only():
+    # each target month has one true signal r; every forecast of that month sees it (plus a
+    # little noise) and the observed ratio is 1 + 2 (r - 1) in 2000-2009. From 2010 the
+    # relation flips (a negative slope). The 2010 calibration must use 2000-2009 only: slope 2.
+    rng = np.random.default_rng(0)
+    months = pd.date_range("2000-01-01", "2012-06-01", freq="MS")
+    r = pd.Series(1 + rng.normal(scale=0.1, size=len(months)), index=months)
+    month_obs = pd.Series([1 + (2 if t.year < 2010 else -3) * (r[t] - 1) for t in months], index=months)
+    rows = []
+    for init in pd.date_range("2000-01-01", "2011-12-01", freq="MS"):
+        for lead in range(1, 7):
+            tgt = init + pd.DateOffset(months=lead - 1)
+            rows.append({"init": init, "lead": lead, "target": tgt,
+                         "rain_mm_day": 2.0 * (r[tgt] + rng.normal(scale=0.005)), "t2m_C": 20.0})
+    t = pd.DataFrame(rows)
+    slopes = seas5.calibration_slopes(seas5.anomalies(t, 2010), month_obs, test_year=2010)
+    assert set(slopes) == set(range(1, 7))
+    assert all(abs(s - 2.0) < 0.25 for s in slopes.values()), slopes
+
+
+def test_calibrated_ratio_applies_the_slope():
+    a = pd.DataFrame({"init": pd.Timestamp("2010-10-01"), "lead": [1, 2], "rain_ratio": [1.2, 0.9], "t2m_anom": 0.0})
+    out = seas5.calibrate(a, {1: 2.0, 2: 0.5})
+    assert np.allclose(out.rain_ratio, [1.4, 0.95])

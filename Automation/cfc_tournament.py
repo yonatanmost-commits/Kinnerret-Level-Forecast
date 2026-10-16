@@ -61,7 +61,10 @@ Environment: CFC_OUT (results folder), CFC_YEARS (comma list of test years), CFC
 (the gold table --table ims reads; default Gold Data/kinneret_gold_features.csv).
 
 Seasonal forecast
-  --seas5         adds weather "seas5": average weather with the ECMWF SEAS5 forecast
+  --seas5         adds weathers "seas5" and "seas5c" (calibrated: SEAS5's rain ratio
+                  stretched or shrunk by how its earlier forecasts matched the rain that
+                  fell, per lead month, earlier years only; seas5.calibrate):
+                  average weather with the ECMWF SEAS5 forecast
                   months rescaled (rain x predicted ratio, temperature + anomaly; see
                   seas5.py). B, A, A1 and G. Needs Raw Data/SEAS5 (seas5_fetch.py).
 
@@ -233,16 +236,30 @@ def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14, kind="
     m = Hz.TwoStage(kind, "cfc", seeds, seq_len).fit(lagged, trm)
     out = {w: Hz.rollout(m, dfx, anchors, HMAX, w, clim, bathy) for w in ("obs", "clim")}
     if SEAS5 is not None:                       # starts sharing a forecast roll out together
-        anom = seas5.anomalies(SEAS5, year)
         days = lagged["date"].iloc[anchors]
         group = np.array([seas5.init_for(d) for d in days])
-        P = np.empty((len(anchors), HMAX))
-        for g in np.unique(group):
-            k = np.where(group == g)[0]          # adjusted from the group's first start
-            P[k] = Hz.rollout(m, dfx, anchors[k], HMAX, "clim",
-                              seas5.adjust_clim(clim, days.iat[k[0]], anom), bathy)
-        out["seas5"] = P
+        for w in SEAS5_WEATHERS:
+            anom = seas5_anomalies(base, year, calibrated=w == "seas5c")
+            P = np.empty((len(anchors), HMAX))
+            for g in np.unique(group):
+                k = np.where(group == g)[0]      # adjusted from the group's first start
+                P[k] = Hz.rollout(m, dfx, anchors[k], HMAX, "clim",
+                                  seas5.adjust_clim(clim, days.iat[k[0]], anom), bathy)
+            out[w] = P
     return out
+
+
+SEAS5_WEATHERS = ("seas5", "seas5c")
+
+
+def seas5_anomalies(base, year, calibrated=False):
+    """SEAS5 anomalies for test year `year`; calibrated against the bench table's own
+    rain (the weather the model was trained on), earlier years only."""
+    anom = seas5.anomalies(SEAS5, year)
+    if not calibrated:
+        return anom
+    obs = seas5.observed_ratio(base.set_index("date")["rainfall_mm"], year)
+    return seas5.calibrate(anom, seas5.calibration_slopes(anom, obs, year))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -296,14 +313,15 @@ def future_weather(base, anchors, weather, clim, n_days):
     W = np.full((len(anchors), n_days, len(DM)), np.nan)
     X = base[DM].to_numpy(float)
     d0 = base["date"].iloc[anchors].to_numpy()
-    anom = seas5.anomalies(SEAS5, pd.Timestamp(d0[0]).year) if weather == "seas5" else None
+    anom = (seas5_anomalies(base, pd.Timestamp(d0[0]).year, calibrated=weather == "seas5c")
+            if weather in SEAS5_WEATHERS else None)
     for k, a in enumerate(anchors):
         if weather == "obs":
             seg = X[a + 1:a + 1 + n_days]
             W[k, :len(seg)] = seg
         else:
             doy = pd.DatetimeIndex(d0[k] + np.arange(1, n_days + 1) * np.timedelta64(1, "D")).dayofyear
-            ck = seas5.adjust_clim(clim, pd.Timestamp(d0[k]), anom) if weather == "seas5" else clim
+            ck = seas5.adjust_clim(clim, pd.Timestamp(d0[k]), anom) if anom is not None else clim
             W[k] = ck.loc[doy, DM].to_numpy(float)
     return W
 
@@ -455,7 +473,7 @@ def run_B(base, year, anchors, seeds, occlude=(), ensemble=False):
     clim = climatology(base, yrs < year)
     Xa = torch.tensor(windows(Ze, anchors, ENC_L))
     S_raw = {w: window_summaries(future_weather(base, anchors, w, clim, HMAX))
-             for w in ("obs", "clim") + (("seas5",) if SEAS5 is not None else ())}
+             for w in ("obs", "clim") + (SEAS5_WEATHERS if SEAS5 is not None else ())}
     if ensemble:
         S_raw.update({f"ens|{Y}": window_summaries(W)
                       for Y, W in member_weather(base, anchors, year, HMAX).items()})
