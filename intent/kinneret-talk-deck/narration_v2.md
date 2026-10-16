@@ -286,3 +286,76 @@ Thank you.
 LENGTH: about 3,000 spoken words, roughly 21-22 minutes at a calm pace. Over the 15-20 limit; tighten 6-8 (merge to one slide) and the scoreboard before adding anything.
 Waiting (X): the fan values for this winter, the red-line chance, the seasonal lean, the calibrated seasonal gain, which bench is final.
 Backup / Q&A: relay vs direct, memory length, calibration percentages, ERA5 vs stations, humidity, the elegant continuous version that came last, the 14-30 day soil bucket.
+
+
+## SCRIPT v5: 15 MINUTES, ONE CROWD QUESTION PER SLIDE (2026-10-16 night; SUPERSEDES v4)
+Originator: never say "our abstract"; cut to 15 minutes; every slide answers a question the crowd would ask. About 1,500 spoken words, about 13 minutes plus pauses. X = waiting on data-science-project-be. [brackets] = slide design.
+Cut to backup / Q&A: the benchmark (F-55), the pipeline, organise/enrich (bronze/silver/gold), most scoreboard clicks, relay vs direct, memory length, calibration percentages, ERA5 vs stations, the elegant continuous version, the 14-30 day soil bucket.
+
+### 1. Why should I care? [one continuous slide: two lake years merge into one lake with two water lines -> zoom out to the map -> the Mediterranean appears -> lake and sea together]
+In my first year here at Kinneret, the lake was so low that I walked out to the island in front of the campus. By the time I graduated, the waves were flooding the Tiberias promenade, taking their toll on the wooden market stands. Today, those stands stand high above the water once again.
+The lake's ups and downs aren't new. But today it sits below the red line, and it is our national backup.
+So which winter is coming? One like twenty eighteen to nineteen, the best of the last twenty? Or one like twenty twenty-four to twenty-five, the worst?
+Nobody knows. Certainly not me. I'm not a forecaster. I scraped data together and ran models on an old computer that kept running out of memory. But if I could get any results this way, imagine what our best efforts could do.
+And it matters right now. This autumn, algae bloomed off our southern coast and choked the desalination plants. Keeping the water flowing meant hard choices. How hard depends on that same question: can the lake carry us next year? With better forecasts, we'd know how much room we have.
+
+### 2. Hasn't anyone done this already? [the lake in the middle, quiet labels around it: water balance, catchment models, scenario outlooks, lakes elsewhere; one empty spot: daily, learned from data]
+I'm not the first to ask. Researchers here at Kinneret have spent decades on the lake's water balance: what flows in, what the sun takes, what a warmer climate will do. The Water Authority thinks in scenarios: an average winter ends here, a dry one here. The Great Lakes get an official forecast every month, six months ahead, as a range.
+What I couldn't find was a daily forecast learned from data, from a week to a year ahead. That's the small gap I happened to fill. And by the end, I'll tell you honestly how far ahead I could see.
+
+### 3. How can an amateur do this? [a centaur; on screen: "Centaur"]
+This is a centaur: half human, half horse. After Kasparov lost to a chess computer, players started teaming up with machines. In two thousand and five, an open tournament let anyone enter, with any computer help they liked. The winners weren't grandmasters, and not the strongest machine. They were two amateurs with three ordinary computers, and a very good way of working with them.
+Keep them in mind. Because the person in front of you is one too.
+
+### 4. Who are you, and what did you build? [the app's front page]
+I'm a process engineer: I design wastewater treatment plants for TTT, of the WFI Group. And I owe this talk to my co-author, Adnan Agbaria, my lecturer in a data science course during my master's here at Kinneret. He gave us an open task, and I said: I'll forecast the Kinneret's level from weather data off the internet. One week ahead. How hard can it be?
+This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since twenty twelve and see how the model would have done. The link comes at the end.
+
+### 5. Where does the data come from? [a dark forest, a flashlight beam]
+Not from one place. Stations change names, every source has its own format, its own gaps. It's a dark forest. AI is the flashlight. I pointed Claude at a website and said: find the API key. Minutes later, I had any weather station I wanted. The rivers took two months of emails, always "you can't get that data." Then Claude found a Facebook post with a link to a beta site, wrote a scraper, and the river data has come in every day since.
+Then I asked it to clean everything into one table, one row per day. It came back with tactics I'd never have thought of. But there was a catch hiding in there.
+
+### 6. Can you trust it? [the scoreboard line, 0 to 1: one dot per attempt; grey dots for the fancy models; the 2023 dot jumps]
+My first model scored zero point six nine, where one is perfect and zero is just guessing the average. Then I tried what everyone tries: fancier models. Worse. A neural network: seventy-one minutes of training, and worse than guessing.
+The biggest step wasn't a model. I asked Claude to play an expert hydrologist and review my work. The newest oldest trick in the book. It noticed every model stumbled in the same year, and said: when every model fails the same way, it's the data.
+A rain gauge had been offline, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixed, and the score jumped to zero point seven six. Not a bigger model. Better data.
+
+### 7. How far ahead can it see? [a horizon ladder from a week to a year; the error bar grows left to right; a blue rain wall at the winter; a sun over the summer month]
+A week ahead, it's usually off by two or three centimetres. That's less than half of what the lake itself moves in a typical week.
+Adnan wanted more. A season. I tried: temperature alone, climate models. Mostly misses. Past a few weeks, everything waits for the rain, and rain here is one of the hardest forecasts there is.
+But one shot hit. In summer there's no rain to guess, only a lake drying in the sun. A month ahead, a simple drying curve named the day it would cross the red line, within about two days.
+No rain, and we see far. Rain, and we go blind. The rain sets the limit.
+
+### 8. Could a smarter model see past the rain? [animation: the lake as a bucket -> one circle -> many circles = a network]
+I couldn't let it go. So I tried a new kind of model: a liquid network.
+Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.
+A liquid network is made of little buckets like that. Each one fills and slowly drains: that's how it remembers, and how it forgets. And how fast it drains changes with what flows in. A storm and a dry spell move at different speeds.
+So I'm forecasting a lake... with a network made of little lakes. And a newer version, called CfC, does it fast enough to run on a phone. Or on my old computer.
+
+### 9. Where did that idea come from? [photo: C. elegans under a microscope; licence to check]
+Not from me. From Daniela Rus's lab at MIT, with researchers in Austria, and from this worm. About three hundred neurons, and it gets around just fine. Inspired by it, they built a network where nineteen neurons learned to steer a car. They've since started a company, Liquid AI. Worth following. And the tools are open: anyone can try them.
+
+### 10. So which model is best? [one chart, a year ahead: three pairs of bars (champion, plain network, liquid network); light = winter unknown, dark = winter handed to it]
+My first liquid result looked brilliant. Then I saw why: it had quietly been handed the real winter.
+So I set the rules first: same years, same test, for everyone. And I gave the neural network that came last a second chance. I'd been asking it to forecast the lake without telling it the weather. Given the same information, it caught up.
+A week ahead, all three land together. A year ahead, with no idea which winter is coming, the networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.
+(X: the year-ahead split holds on the 15-year station record, not on the older test; the peer to confirm which is final.)
+
+### 11. So which winter is coming? [the fan from the morning of the talk: one thin line per past winter, 2018-19 and 2024-25 highlighted, the red line dashed; a late-October still as fallback]
+I can't tell you. But I can show you what each one would do.
+This is the lake, from this morning. Every line is one past winter, run through the model. A winter like twenty eighteen to nineteen lifts it to about X. One like twenty twenty-four to twenty-five keeps it falling, to about X. The chance it's still below the red line next autumn: about X in ten.
+Can anyone forecast the winter? The European seasonal forecast helps a little: in autumn it trims about five centimetres off my error (X calibrated). This year, it leans X.
+The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.
+
+### 12. What do I take home? [three icons, no words: a sealed envelope, a balance scale, a magnifying glass]
+Not a model. Three rules, and anyone here can use them, with an AI at their side.
+Decide how you'll judge before you see the results.
+Compare against the best you have, and against doing nothing.
+When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a brilliant number, a network I nearly threw away.
+Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.
+
+### 13. So how far did you get? [the lake video's last frame; the QR code; a small live fan]
+I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, updated every morning. Here it is.
+What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
+An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.
+Thank you.
