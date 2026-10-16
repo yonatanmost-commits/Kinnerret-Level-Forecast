@@ -57,6 +57,9 @@ Why does a week of history suffice? (B only)
                   instead of the CfC. Label suffix lstm.
   --cell gru      the same with a GRU (75 units, ~21k weights). Label suffix gru.
 
+Environment: CFC_OUT (results folder), CFC_YEARS (comma list of test years), CFC_GOLD
+(the gold table --table ims reads; default Gold Data/kinneret_gold_features.csv).
+
 Seasonal forecast
   --seas5         adds weather "seas5": average weather with the ECMWF SEAS5 forecast
                   months rescaled (rain x predicted ratio, temperature + anomaly; see
@@ -90,6 +93,8 @@ import seas5                               # SEAS5 seasonal forecast as weather 
 
 t08, lnc = L.t08, L.lnc
 OUT = Path(os.environ.get("CFC_OUT", t08.BASE_DIR / "docs" / "experiments" / "cfc_tournament"))
+if "CFC_GOLD" in os.environ:                 # --table ims from another gold file (e.g. a branch's worktree)
+    t08.GOLD_FILE = Path(os.environ["CFC_GOLD"])
 HORIZONS = [7, 13, 26, 130, 260, 365]
 HMAX = max(HORIZONS)
 TEST_YEARS = [int(y) for y in os.environ["CFC_YEARS"].split(",")] if "CFC_YEARS" in os.environ     else list(range(2010, 2026))
