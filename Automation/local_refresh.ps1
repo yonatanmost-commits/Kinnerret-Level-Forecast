@@ -10,13 +10,22 @@
     It is safe to run at any time, including while CI is running: it rebases
     onto whatever the bot has already pushed before committing.
 
+    Conflicts during that rebase: Gold Data/ and Models/ are derived - the agent
+    rebuilds them on every run - so a conflict there takes CI's copy and the
+    rebase goes on. A conflict anywhere else aborts the rebase, leaving the tree
+    and HEAD exactly as they were, and exits 1. (On 2026-10-16 a gold conflict
+    left the rebase stopped half-way and the working tree stripped.)
+
     Register it to run daily (see docs/DEPLOYMENT.md):
 
         schtasks /create /tn "Kinneret daily refresh" /sc daily /st 07:30 ^
           /tr "powershell -NoProfile -ExecutionPolicy Bypass -File \"<repo>\Automation\local_refresh.ps1\""
 
+    -SyncOnly runs just the rebase step and stops (no agent, no commit, no push).
+
     Exit codes: 0 = refreshed or already current, 1 = something needs a look.
 #>
+param([switch]$SyncOnly)
 
 $ErrorActionPreference = 'Stop'
 
@@ -81,9 +90,56 @@ if ($dirty) {
     exit 1
 }
 
+$Derived = @('Gold Data/', 'Models/')        # rebuilt by the agent; CI's copy wins a conflict
+
+function Test-MidRebase {
+    foreach ($d in 'rebase-merge', 'rebase-apply') {
+        if (Test-Path (& git rev-parse --git-path $d)) { return $true }
+    }
+    return $false
+}
+
+<#
+    Rebase onto origin/master. Returns $true when the tree is on top of origin,
+    $false after aborting (tree and HEAD as before). In a rebase "ours" is the
+    side being rebased onto - origin plus the commits already replayed - so
+    `checkout --ours` takes CI's copy of a derived file.
+#>
+function Sync-WithOrigin {
+    $code = Invoke-Native git @('pull', '--rebase', '--autostash', 'origin', 'master')
+    if ($code -eq 0) { return $true }
+    if (-not (Test-MidRebase)) { Write-Log "pull failed before rebasing (exit $code)."; return $false }
+    $env:GIT_EDITOR = 'true'                   # keep each commit's message, never open an editor
+    while (Test-MidRebase) {
+        $conflicts = @(& git diff --name-only --diff-filter=U)
+        if ($conflicts.Count -eq 0) {
+            Write-Log 'Rebase stopped without a file conflict.'
+            break
+        }
+        $other = @($conflicts | Where-Object { $f = $_; -not ($Derived | Where-Object { $f.StartsWith($_) }) })
+        if ($other.Count -gt 0) {
+            Write-Log 'Conflict outside the derived data - not resolving it automatically:'
+            foreach ($f in $other) { Write-Log "  $f" }
+            break
+        }
+        foreach ($f in $conflicts) { Write-Log "  derived-data conflict, taking CI's copy: $f" }
+        Invoke-Native git (@('checkout', '--ours', '--') + $conflicts) -Quiet | Out-Null
+        Invoke-Native git (@('add', '--') + $conflicts) -Quiet | Out-Null
+        & git diff --cached --quiet
+        $step = if ($LASTEXITCODE -eq 0) { 'skip' } else { 'continue' }   # nothing left of this commit
+        Invoke-Native git @('rebase', "--$step") | Out-Null
+    }
+    if (Test-MidRebase) {
+        Invoke-Native git @('rebase', '--abort') | Out-Null
+        Write-Log 'Rebase aborted; the tree is as it was before the refresh.'
+        return $false
+    }
+    return $true
+}
+
 Write-Log 'Rebasing onto origin/master ...'
-$code = Invoke-Native git @('pull', '--rebase', '--autostash', 'origin', 'master')
-if ($code -ne 0) { Write-Log "ABORT: pull failed (exit $code)."; exit 1 }
+if (-not (Sync-WithOrigin)) { Write-Log 'ABORT: could not rebase onto origin/master.'; exit 1 }
+if ($SyncOnly) { Write-Log 'Synced (-SyncOnly): stopping before the agent.'; exit 0 }
 
 Write-Log 'Running the daily agent ...'
 $env:PYTHONIOENCODING = 'utf-8'
