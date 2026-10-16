@@ -80,3 +80,31 @@ def test_calibrated_ratio_applies_the_slope():
     a = pd.DataFrame({"init": pd.Timestamp("2010-10-01"), "lead": [1, 2], "rain_ratio": [1.2, 0.9], "t2m_anom": 0.0})
     out = seas5.calibrate(a, {1: 2.0, 2: 0.5})
     assert np.allclose(out.rain_ratio, [1.4, 0.95])
+
+
+def _season_world(slope_before, slope_after, split=2010):
+    """Each month has one SEAS5 signal fc_m (small swing); every forecast covering that month
+    sees it. The month's real rain factor is 1 + slope (fc_m - 1), the slope changing at
+    `split`, so season totals relate to the forecast's season mean with that slope."""
+    rng = np.random.default_rng(3)
+    months = pd.date_range("1995-01-01", "2013-12-01", freq="MS")
+    fc_m = pd.Series(1 + rng.normal(scale=0.05, size=len(months)), index=months)
+    factor = {m: 1 + (slope_before if m.year < split else slope_after) * (fc_m[m] - 1) for m in months}
+    rows = []
+    for init in pd.date_range("1995-01-01", "2012-07-01", freq="MS"):
+        for lead in range(1, 7):
+            tgt = init + pd.DateOffset(months=lead - 1)
+            rows.append({"init": init, "lead": lead, "target": tgt, "rain_mm_day": 2.0 * fc_m[tgt], "t2m_C": 20.0})
+    days = pd.date_range("1995-01-01", "2013-12-31")
+    rain = pd.Series([factor[pd.Timestamp(d.year, d.month, 1)] for d in days], index=days)
+    return pd.DataFrame(rows), rain
+
+
+def test_season_calibration_uses_earlier_years_and_gives_one_ratio_per_forecast():
+    t, rain = _season_world(slope_before=3.0, slope_after=-3.0)
+    a = seas5.season_calibrate(seas5.anomalies(t, 2010), rain, test_year=2010)
+    f = a[a["init"] == pd.Timestamp("2010-10-01")]
+    assert f["rain_ratio"].nunique() == 1                       # one ratio for the whole season
+    raw = seas5.anomalies(t, 2010)
+    fc = raw[raw["init"] == pd.Timestamp("2010-10-01")]["rain_ratio"].mean()
+    assert abs((f["rain_ratio"].iat[0] - 1) - 3.0 * (fc - 1)) < 0.6 * abs(fc - 1) + 0.01   # slope ~3, not -3
