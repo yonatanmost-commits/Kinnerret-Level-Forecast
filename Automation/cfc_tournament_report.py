@@ -11,6 +11,7 @@ Run:  python Automation/cfc_tournament_report.py [out.html]
 import html
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -381,6 +382,10 @@ def build():
 
     # memory
     if len(mem):
+        # the tournament's own runs of the same method are sweep points too (same nets, same seeds)
+        m0 = re.match(r"^(A1|A|B|C)", mem["method"].iat[0]).group(1)
+        same = d[d["method"].str.fullmatch(rf"{m0}\d+") & d["weather"].isin(["clim", "obs"])]
+        mem = pd.concat([mem, same]).drop_duplicates(["method", "weather", "start", "H"])
         method = mem["method"].str.extract(r"^(A1|A|B|C)_?(\d+)?$")
         mem = mem.assign(m=method[0], L=pd.to_numeric(method[1]).fillna(14).astype(int))
         mem = mem[mem["weather"].str.startswith("clim")]
@@ -396,7 +401,8 @@ def build():
             parts.append(section(f"Memory · how many past days {m0} should read",
                                  xy_chart([("130–365 d", "--m-B60", pts_long, False),
                                            ("all horizons", "--muted", pts_all, True)],
-                                          [int(x) for x in Ls], "days of history the model reads", "history sweep")))
+                                          [int(x) for x in Ls], "days of history the model reads", "history sweep"),
+                                 note=f"{cm['year'].nunique()} test years ({cm['year'].min()}–{cm['year'].max()})"))
         occ = mem[mem["weather"].str.contains(r"\|")]
         if len(occ):
             series = []
@@ -414,7 +420,8 @@ def build():
                 parts.append(section("Memory · same model, older days blanked",
                                      xy_chart(series, sorted({k for s in series for k in s[2]}),
                                               "days of history left visible", "occlusion test"),
-                                     note="130–365 d error. Flat to the left of a point = days older than it are not used."))
+                                     note=f"130–365 d error · {occ['year'].nunique()} test years. "
+                                          "Flat to the left of a point = days older than it are not used."))
 
     tests = (f"{len(years)} test years ({years[0]}–{years[-1]}) · {c1.groupby(['start']).ngroups} starts · "
              f"{len(c1):,} compared forecasts" if years else "")
