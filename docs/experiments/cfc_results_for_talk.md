@@ -104,7 +104,7 @@ range is over a metre, because it depends on a winter nobody can forecast yet." 
 the 80% range still misses the record winters (2018-19 wet, 2024-25 dry) more often than
 promised. The report has three example fans (autumn 2018, 2020, 2024).
 
-## 6. T1 - weather source alone: ERA5 vs IMS, same model, same span, same test years (sha below)
+## 6. T1 - weather source alone: ERA5 vs IMS, same model, same span, same test years (sha 4eb0788)
 B14 trained on ERA5 cut to the IMS period (from 2012-09-01) vs B14 on IMS. Test years 2021-2024.
 
 | B14 trained on | weather ahead | 7 d | 26 d | 130 d | 260 d | 365 d | 130-365 d |
@@ -127,3 +127,23 @@ years, the station-trained model forecast the next year better with average weat
 0.72 m), but four years can't settle it, and given the actual weather the satellite-era
 reanalysis does as well." The earlier "0.10 m" figure mixed several differences (see section Q6
 of the message history); prefer this test.
+
+## 7. T3 - the GRU on the same bench (sha acb6877)
+B14 with a GRU encoder (75 units, ~21k weights, about the CfC cell's size), 16 test years,
+average weather.
+
+| model | 7 d | 13 d | 26 d | 130 d | 260 d | 365 d | 130-365 d |
+|---|---|---|---|---|---|---|---|
+| GRU direct (B14gru) | 0.024 | 0.043 | 0.082 | 0.394 | 0.726 | 0.938 | 0.682 |
+| CfC direct (B14) | 0.026 | 0.046 | 0.090 | 0.420 | 0.723 | 0.933 | 0.688 |
+| CfC relay (A) | 0.024 | 0.044 | 0.086 | 0.399 | 0.744 | 0.964 | 0.699 |
+| GBR champion (G) | 0.025 | 0.046 | 0.091 | 0.410 | 0.745 | 0.954 | 0.699 |
+
+- 7-26 d: the GRU is slightly better than the CfC direct model (-0.005 m, 90% interval
+  -0.006..-0.003) and than the GBR (-0.004, -0.008..-0.001). It ties the CfC relay.
+- 130-365 d: all tie.
+- **This bends the talk's "the GRU fails, the CfC wins" spine.** In the earlier one-day
+  olympics the GRU failed; set up like the CfC here (same inputs, same direct multi-horizon
+  head), it does as well or a few millimetres better. Safe line: "any good recurrent network
+  matches the champion once it is set up right; the liquid network's edge is not accuracy
+  alone." Don't claim the CfC beats the GRU.
