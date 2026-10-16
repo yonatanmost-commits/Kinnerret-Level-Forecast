@@ -62,6 +62,11 @@ Seasonal forecast
                   months rescaled (rain x predicted ratio, temperature + anomaly; see
                   seas5.py). B, A, A1 and G. Needs Raw Data/SEAS5 (seas5_fetch.py).
 
+Humidity check
+  --no-humidity   drop every input derived from humidity (humidity, VPD, ET0, ET0 sums and
+                  the rain-minus-ET0 balances), for B and the relay. The IMS stations'
+                  humidity steps in 2012-13. Label suffix h.
+
 Weather-source fight
   --table-from D  drop every row before date D (YYYY-MM-DD) from the table, so training,
                   scaling and climatology see the same span as another table (e.g. the
@@ -96,6 +101,21 @@ DM = ["temp_mean_C", "temp_max_C", "temp_min_C", "humidity_pct", "wind_speed_ms"
       "rainfall_mm", "radiation_MJm2", "vpd_kPa", "et0_mm"]
 SUM_COLS = ["rainfall_mm", "et0_mm", "radiation_MJm2"]           # window totals
 MEAN_COLS = ["temp_mean_C", "humidity_pct", "wind_speed_ms", "vpd_kPa"]   # window means
+HUMIDITY_INPUTS = ("humidity", "vpd", "et0", "moisture_balance")   # name prefixes, --no-humidity
+NO_HUMIDITY = False
+
+
+def drop_humidity():
+    """--no-humidity: drop every weather input derived from humidity."""
+    global DM, SUM_COLS, MEAN_COLS, NO_HUMIDITY
+    NO_HUMIDITY = True
+    keep = lambda cols: [c for c in cols if not c.startswith(HUMIDITY_INPUTS)]
+    DM, SUM_COLS, MEAN_COLS = keep(DM), keep(SUM_COLS), keep(MEAN_COLS)
+
+
+def relay_features(feats: list) -> list:
+    """The relay's (A, A1, G) feature list, less the humidity inputs under --no-humidity."""
+    return [f for f in feats if not (NO_HUMIDITY and f.startswith(HUMIDITY_INPUTS))]
 TABLE = "era5"                 # --table
 EXTRA_ENC = []                 # history-only inputs added by --table ims / --bucket
 HISTORY = "all"                # "all" | "weather" (--no-state) | "state" (--state-only)
@@ -194,10 +214,11 @@ def relay_met(table: str) -> list:
 
 
 def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14, kind="lnn"):
-    Hz.S1_FEATURES = lnc.S1_FEATURES                                     # set by L.set_features
+    Hz.S1_FEATURES = relay_features(lnc.S1_FEATURES)                     # set by L.set_features
     # A1 (one-step relay) drops the inflow step: volume change straight from weather
     # and lake state, so A1 vs B isolates relay vs direct, and A vs A1 the inflow step
-    Hz.S2_FEATURES = [f for f in lnc.S2_FEATURES if not (one_step and f == "predicted_inflow_m3")]
+    Hz.S2_FEATURES = [f for f in relay_features(lnc.S2_FEATURES)
+                      if not (one_step and f == "predicted_inflow_m3")]
     Hz.DAILY_MET = relay_met(TABLE)
     yrs = lagged["date"].dt.year.to_numpy()
     trm = yrs < year
@@ -367,6 +388,7 @@ def window_summaries(W: np.ndarray) -> np.ndarray:
     """(A, n_days, DM) -> (A, 6 horizons x 7) totals and means of each horizon window."""
     si = [DM.index(c) for c in SUM_COLS]
     mi = [DM.index(c) for c in MEAN_COLS]
+    n = len(si) + len(mi)
     cs = np.nancumsum(W, axis=1)
     out = []
     for H in HORIZONS:
@@ -374,7 +396,7 @@ def window_summaries(W: np.ndarray) -> np.ndarray:
         out.append(cs[:, H - 1, mi] / H)
     S = np.concatenate(out, axis=1)
     for i, H in enumerate(HORIZONS):                          # obs weather ran out
-        S[np.isnan(W[:, :H]).any(axis=(1, 2)), i * 7:(i + 1) * 7] = np.nan
+        S[np.isnan(W[:, :H]).any(axis=(1, 2)), i * n:(i + 1) * n] = np.nan
     return S
 
 
@@ -433,7 +455,8 @@ def run_B(base, year, anchors, seeds, occlude=(), ensemble=False):
         S_raw.update({f"ens|{Y}": window_summaries(W)
                       for Y, W in member_weather(base, anchors, year, HMAX).items()})
     S_test = {w: torch.tensor(sc_s(S)) for w, S in S_raw.items()}
-    gone = {w: np.isnan(S[:, ::7]) for w, S in S_raw.items()}      # horizon windows with missing weather
+    gone = {w: np.isnan(S[:, ::S.shape[1] // len(HORIZONS)])        # horizon windows with missing weather
+            for w, S in S_raw.items()}
     preds = {(w, k): [] for k in (None, *occlude) for w in S_test}
     for s in range(seeds):
         net = fit_loop(DirectNet(Ze.shape[1], Xs.shape[1]), loss, len(tr), seed=s)
@@ -546,6 +569,7 @@ def run_method(method, seeds, a_seq=14, occlude=(), c_full=False, ensemble=False
     else:
         label = (f"{method}{ENC_L}" + ("f" if c_full else "") + ("b" if "bucket_S" in EXTRA_ENC else "")
                  + {"all": "", "weather": "n", "state": "s"}[HISTORY] + (CELL if CELL != "cfc" else ""))
+    label += "h" if NO_HUMIDITY else ""
     name = f"{label}_s{seeds}" + ("_occ" if occlude else "") + ("_ens" if ensemble else "")
     done = json.loads(ckpt(name).read_text(encoding="utf-8")) if ckpt(name).exists() else {}
     refs = json.loads(ckpt("references").read_text(encoding="utf-8")) if ckpt("references").exists() else {}
@@ -646,6 +670,7 @@ def main():
     ap.add_argument("--cell", choices=["cfc", "lstm", "gru"], default="cfc", help="B only: encoder cell")
     ap.add_argument("--table-from", default=None, help="drop table rows before this date")
     ap.add_argument("--seas5", action="store_true", help="add the SEAS5 seasonal-forecast weather")
+    ap.add_argument("--no-humidity", action="store_true", help="drop humidity, VPD and ET0 inputs")
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--only", default="", help="comma list of methods to include in --summary")
     a = ap.parse_args()
@@ -663,6 +688,8 @@ def main():
     HISTORY = "weather" if a.no_state else "state" if a.state_only else "all"
     CELL = a.cell
     TABLE_FROM = a.table_from
+    if a.no_humidity:
+        drop_humidity()
     if a.seas5:
         if a.method == "C":
             ap.error("--seas5 is for A, A1, B and G")
