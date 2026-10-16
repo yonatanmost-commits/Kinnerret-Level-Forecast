@@ -5,7 +5,8 @@ Monthly means of total precipitation rate and 2 m temperature, every start month
 1993..last year, lead months 1-6, all ensemble members (25 in hindcasts to 2016,
 51 after), on the 1-degree cells around the lake (32.5-33.5 N, 35.5-36.5 E).
 One NetCDF per start year in Raw Data/SEAS5/ (git-ignored). A year already on disk
-is skipped, so a rerun only fetches what is missing.
+is skipped, so a rerun only fetches what is missing. CDS caps queued requests per
+account and dataset; a request rejected for that waits and retries.
 
 Needs a Copernicus CDS account: ~/.cdsapirc with url + personal access token, and
 the licence of "seasonal-monthly-single-levels" accepted on the CDS site.
@@ -13,9 +14,11 @@ the licence of "seasonal-monthly-single-levels" accepted on the CDS site.
 Run:  python Automation/seas5_fetch.py [first_year] [last_year]
 """
 import sys
+import time
 from pathlib import Path
 
 import cdsapi
+import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "Raw Data" / "SEAS5"
@@ -27,6 +30,17 @@ def fetch(year: int, client: cdsapi.Client) -> Path:
     if path.exists():
         return path
     tmp = path.with_suffix(".part")
+    for attempt in range(30):
+        try:
+            return _retrieve(year, client, tmp, path)
+        except requests.HTTPError as e:
+            if "temporarily limited" not in str(e) and "queued requests" not in str(e):
+                raise
+            time.sleep(120)
+    raise RuntimeError(f"{year}: CDS queue still full after 30 tries")
+
+
+def _retrieve(year, client, tmp, path):
     client.retrieve("seasonal-monthly-single-levels", {
         "originating_centre": "ecmwf", "system": "51",
         "variable": ["total_precipitation", "2m_temperature"],
