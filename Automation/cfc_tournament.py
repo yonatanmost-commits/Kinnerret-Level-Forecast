@@ -58,7 +58,9 @@ Why does a week of history suffice? (B only)
   --cell gru      the same with a GRU (75 units, ~21k weights). Label suffix gru.
 
 Environment: CFC_OUT (results folder), CFC_YEARS (comma list of test years), CFC_GOLD
-(the gold table --table ims reads; default Gold Data/kinneret_gold_features.csv).
+(the gold table --table ims reads; default Gold Data/kinneret_gold_features.csv),
+CFC_FUTURE=1 (also keep forecasts that reach past the table's last day, with obs None:
+a forecast from today rather than a backtest).
 
 Seasonal forecast
   --seas5         adds weathers "seas5", "seas5c" (calibrated per lead month: SEAS5's rain
@@ -131,6 +133,7 @@ HISTORY = "all"                # "all" | "weather" (--no-state) | "state" (--sta
 CELL = "cfc"                   # --cell
 TABLE_FROM = None              # --table-from
 SEAS5 = None                   # --seas5: the SEAS5 ensemble-mean table
+KEEP_FUTURE = os.environ.get("CFC_FUTURE") == "1"   # keep forecasts whose outcome is not known yet
 BUCKET_S_MAX = 150.0           # mm, as longrange_phaseb_eval / bucket_backport_eval
 torch.set_num_threads(8)
 
@@ -183,12 +186,13 @@ def records(method, year, base, anchors, preds: dict) -> list:
     for w, P in preds.items():
         for k, a in enumerate(anchors):
             for H in HORIZONS:
-                if a + H >= len(base) or np.isnan(lvl[a + H]) or np.isnan(P[k, H - 1]):
+                known = a + H < len(base) and not np.isnan(lvl[a + H])
+                if np.isnan(P[k, H - 1]) or not (known or (KEEP_FUTURE and a + H >= len(base))):
                     continue
                 out.append({"method": method, "weather": w, "year": year,
                             "start": str(base["date"].iat[a].date()), "H": H,
                             "level0": float(lvl[a]), "pred": float(P[k, H - 1]),
-                            "obs": float(lvl[a + H])})
+                            "obs": float(lvl[a + H]) if known else None})
     return out
 
 
