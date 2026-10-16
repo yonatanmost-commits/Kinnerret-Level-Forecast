@@ -64,6 +64,35 @@ def anomalies(t: pd.DataFrame, test_year: int) -> pd.DataFrame:
     return a.drop(columns="m")
 
 
+def observed_ratio(daily_rain: pd.Series, test_year: int) -> pd.Series:
+    """Each month's rain total over the mean of that calendar month in years before
+    test_year (index: month start). The partner of SEAS5's rain_ratio for calibration."""
+    m = daily_rain.resample("MS").sum(min_count=20)
+    base = m[m.index.year < test_year].groupby(m[m.index.year < test_year].index.month).mean()
+    return (m / base.reindex(m.index.month).to_numpy()).dropna()
+
+
+def calibration_slopes(anom: pd.DataFrame, month_obs: pd.Series, test_year: int) -> dict:
+    """Per lead month, the least-squares slope of observed rain ratio on SEAS5's ratio,
+    through (1, 1), over forecast months fully observed before test_year. SEAS5's
+    swing is far smaller than real winters'; the slope says how much to stretch (or
+    shrink) it, given how often it was right."""
+    a = anom[anom["target"] < pd.Timestamp(test_year, 1, 1)].copy()
+    a["obs"] = month_obs.reindex(pd.DatetimeIndex(a["target"])).to_numpy()
+    a = a.dropna(subset=["obs", "rain_ratio"])
+    out = {}
+    for lead, g in a.groupby("lead"):
+        x, y = g["rain_ratio"] - 1, g["obs"] - 1
+        out[int(lead)] = float(np.clip((x * y).sum() / max((x * x).sum(), 1e-12), 0.0, 3.0))
+    return out
+
+
+def calibrate(anom: pd.DataFrame, slopes: dict) -> pd.DataFrame:
+    """rain_ratio -> 1 + slope(lead) x (rain_ratio - 1); temperature unchanged."""
+    s = anom["lead"].map(slopes).fillna(1.0)
+    return anom.assign(rain_ratio=(1 + s * (anom["rain_ratio"] - 1)).clip(*RATIO_CLIP))
+
+
 def adjust_clim(clim: pd.DataFrame, start: pd.Timestamp, anom: pd.DataFrame) -> pd.DataFrame:
     init = init_for(start)
     f = anom[anom["init"] == init]
