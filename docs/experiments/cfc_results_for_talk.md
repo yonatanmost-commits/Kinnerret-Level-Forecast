@@ -147,3 +147,25 @@ average weather.
   head), it does as well or a few millimetres better. Safe line: "any good recurrent network
   matches the champion once it is set up right; the liquid network's edge is not accuracy
   alone." Don't claim the CfC beats the GRU.
+
+## 8. The three models on the longer IMS station record, 2011-2025 (sha d19384b)
+Gold rebuilt Tzemach-first from 2002-07 by the IMS session (branch tzemach-gold-1998 @ 81a2082,
+not on master/live yet). 15 test years, each trained on all earlier years.
+
+| model | weather ahead | 7 d | 26 d | 130 d | 260 d | 365 d | 130-365 d |
+|---|---|---|---|---|---|---|---|
+| CfC | average | 0.030 | 0.105 | 0.475 | 0.766 | 0.919 | **0.716** |
+| GRU | average | 0.029 | 0.103 | 0.456 | 0.765 | 0.972 | 0.727 |
+| GBR | average | 0.027 | 0.102 | 0.491 | 0.938 | 1.262 | 0.891 |
+| CfC | actual | 0.023 | 0.073 | 0.410 | 0.773 | 0.899 | 0.690 |
+| GRU | actual | 0.021 | 0.073 | 0.403 | 0.768 | 0.944 | 0.701 |
+| GBR | actual | 0.020 | 0.071 | 0.299 | 0.570 | 0.776 | **0.545** |
+| average change | - | 0.035 | 0.115 | 0.490 | 0.869 | 1.139 | 0.828 |
+
+- 7-26 d: a three-way tie (all within 3 mm).
+- 130-365 d, the real case (average weather ahead): the CfC and GRU tie; the GBR is clearly worse
+  (+0.20 m, 90% interval +0.04..+0.37) and even worse than "average change".
+- Given the ACTUAL weather, the GBR is best (0.55 vs 0.69). On this station data the networks
+  barely use the weather of the window ahead; the GBR does, but only pays off with a good forecast.
+- Talk: "with no forecast of the winter, the liquid network (and the GRU) give the best year-ahead
+  outlook; the gradient-boosting champion only wins if someone hands it the coming winter's weather."
