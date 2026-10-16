@@ -45,16 +45,16 @@ def main():
 
 
 def rebuild_from_wide():
+    # met_data_wide.csv is 207 MB and is excluded from the repository, so it is
+    # absent in CI and in any fresh clone. The daily agent never extends it either
+    # - it appends to met_data_daily.csv - so a rebuild only recomputes the manual
+    # export's era, and would overwrite the days update_cache has since fetched
+    # from the IMS feed (it rolled the cache back to April on 2026-10-16). Rebuild
+    # only when there is no cache at all; otherwise keep it, as CI always does.
+    if OUT_FILE.exists():
+        print("SKIP: keeping cached " + OUT_FILE.name + "; the IMS feed extends it.")
+        return
     if not IN_WIDE.exists():
-        # met_data_wide.csv is 207 MB and is excluded from the repository, so it
-        # is absent in CI and in any fresh clone.  The daily agent never extends
-        # it either - it appends to met_data_daily.csv - which makes this step a
-        # recompute of an unchanging result.  When the cached output is already
-        # present, skip rather than fail, so the agent goes on to train.
-        if OUT_FILE.exists():
-            print("SKIP: " + IN_WIDE.name + " not present; keeping cached "
-                  + OUT_FILE.name + " as-is.")
-            return
         raise FileNotFoundError(
             str(IN_WIDE) + " not found and no cached " + OUT_FILE.name
             + " to fall back on - run 02_pivot_wide_met_data.py first"
