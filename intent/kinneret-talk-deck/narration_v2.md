@@ -223,3 +223,66 @@ In twenty twenty-three they started a company, Liquid AI, building models that r
 5 the honest answer (may become the close): A week ahead, it's usually off by two or three centimetres. That's less than half of what the lake itself moves in a typical week. Six months ahead, the honest answer is a range more than a metre wide, because it depends on a winter nobody can forecast yet.
   (Peer, inherited: 7 d error 0.024-0.026 m vs no-change 0.058; 80% range 7 d 0.05 m wide, 130 d 1.2 m; calibrated 47-50% / 72-81%. All on the 16-year ERA5 bench, average weather. Flood weeks are worse than the average.)
 6 stamp: "Still running this weekend." [WAITS SEAS5, 2026-10-17: seasonal forecasts may narrow the six-month range.]
+
+
+## SCRIPT v4: FULL RUN (2026-10-16 night; talk-deck-script; SUPERSEDES the order of everything above)
+Originator, this pass: the abstract is the spine (three horizons, "the rain sets the limit"); the liquid network and the new numbers are a bonus; Adnan MUST be credited (slide 4 keeps him, slide 11 brings him back); Adnan reviews the slideshow by 25 Oct. X = a number still waiting on data-science-project-be. [brackets] = slide design.
+Thread: "which winter is coming, and how far ahead can we see?" Asked in 1, answered in 15 and 17.
+
+1. the lake: unchanged (see "## 1." above). [one continuous slide: the two lake years merge into one lake with two water lines; zoom out to the map; the Mediterranean appears; lake and sea together]
+2. the field: as in SPINE v3 DRAFT v2 "NEW 2". Source to switch to the originator's own Related Work section (sent to Adnan 2026-08-04). [the lake in the middle, quiet labels around it: water balance, catchment models, scenario outlooks, lakes elsewhere; one empty spot: daily, learned from data]
+3. centaur: unchanged. [a centaur; on screen: "Centaur"]
+4. app front + Adnan: unchanged, except "I said so myself, two slides ago" -> "I said so myself, at the start." [the app's front page]
+5. pipeline: unchanged. [the whole system in one picture]
+6. gather: unchanged. [a dark forest, a flashlight beam]
+7. organise: unchanged. [bronze -> silver: the messy shapes become one clean table]
+8. enrich: unchanged. [gold: the table grows new columns]
+9. benchmark: unchanged. [photo: F-55 at Jaffa port, B&W]
+10. scoreboard: unchanged (click 4, the neural network "worse than guessing", now sets up slide 14). [one chart built click by click, 0.69 -> 0.77]
+
+### 11. how far? [one picture: a horizon ladder from a week to a year; the error bar grows left to right; a blue rain-wall stands at the winter; a sun marks the summer month]
+So how far ahead can it see? A week ahead, it's usually off by two or three centimetres. That's less than half of what the lake itself moves in a typical week. The week holds.
+Adnan wanted more. A season. I told him I didn't have the data. I tried anyway: temperature alone, climate models. Shots in the dark, and mostly misses. Past a few weeks, everything waits for the rain, and rain here is one of the hardest forecasts there is.
+But one shot hit. In summer there's no rain to guess, only a lake drying in the sun. So: when will it cross the red line? A month ahead, a simple drying curve named the day within about two days.
+No rain, and we see far. Rain, and we go blind. In our abstract we called it a rain-gated frontier. Simply put: the rain sets the limit.
+
+### 12. the lake becomes a neuron [animation: the lake as a bucket -> shrinks to one circle -> many circles = a network]
+After we sent the abstract, I couldn't let the winter go. I went looking for a different kind of model.
+Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.
+A liquid network is made of little buckets like that. Each one fills with what comes in, and slowly drains. That's how it remembers, and how it forgets. And how fast each one drains changes with what's flowing in: a storm and a dry spell move at different speeds. It adapts its own clock.
+So I'm forecasting a lake... with a network made of little lakes.
+The first versions had to watch every bucket drip, step by tiny step, and kept crashing my old computer. The newer one, called CfC, found a shortcut: tell it how much time has passed, and it tells you how full the bucket is. Fast enough for a phone. Or for my old computer.
+
+### 13. credit [photo: C. elegans under a microscope; licence to check]
+This idea didn't come from me. It came from Daniela Rus's lab at MIT, working with researchers in Austria. And it started with this worm. About three hundred neurons, yet it gets around just fine. Inspired by it, they built a network where nineteen neurons learned to steer a car.
+In twenty twenty-three they started a company, Liquid AI, building models that run on your phone rather than in the cloud. They're worth following. And the tools are open: anyone can try them.
+
+### 14. a fair race [one chart, a year ahead: three pairs of bars (champion, plain network, liquid network); light bar = winter unknown, dark bar = winter handed to it]
+My first liquid result looked brilliant. Then I saw why: it had quietly been handed the real winter. Without it, it was ordinary.
+So I set the rules first. Decide how to judge before you look. Same years, same test, for everyone.
+Remember the neural network that came last, worse than guessing? I gave it a second chance, and noticed what I'd done: I'd asked it to forecast the lake without telling it the weather. Given the same information, it caught up. A week ahead, all three land together.
+A year ahead, they split. With no idea which winter is coming, the two networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs, just as our abstract said. The name of the model mattered less than how fairly I compared them.
+(X: "the networks guess better without the winter" holds on the station record, 15 years (sha d19384b); on the ERA5 bench all three tie. Confirm with the peer which bench is final before this line stands.)
+
+### 15. this winter [the fan from the morning of the talk: one thin line per past winter, 2018-19 and 2024-25 highlighted, the red line dashed; still image from late October as fallback]
+So, which winter is coming? I can't tell you. But I can show you what each one would do.
+This is the lake, from this morning. Every line is one past winter, run through the model. A winter like twenty eighteen to nineteen lifts it to about X. One like twenty twenty-four to twenty-five keeps it falling, to about X. Most likely, around X. The chance it's still below the red line next autumn: about X in ten.
+A year ahead, about a third of my error is simply not knowing the winter. Can anyone forecast it? The European seasonal forecast helps a little: in autumn it trims about five centimetres off my error (X: calibrated version pending). This year, it leans X.
+The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.
+
+### 16. three rules [three icons, no words: a sealed envelope, a balance scale, a magnifying glass]
+What I take from all this isn't a model. It's three rules, and anyone here can use them, with an AI at their side.
+One: decide how you'll judge before you see the results.
+Two: compare against the best you have, and against doing nothing.
+Three: when you're wrong, find out why, and say so. I was wrong more than once: a rain gauge, a number that looked brilliant, a network I nearly threw away.
+With rules like these, someone who isn't a programmer can build a dataset with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.
+
+### 17. close [the lake video's last frame; the QR code; a small live fan]
+So what stops us from seeing further? Partly the winter: nobody can see it yet. And partly the chain: measuring, gathering, cleaning, sharing. A river station that went silent. A dash in a file. The water pumped from the lake, which my model never sees. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
+I promised to tell you honestly how far ahead I got. A week: a few centimetres. A month, in summer. Next winter: a range, updated every morning. Here it is.
+An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.
+Thank you.
+
+LENGTH: about 3,000 spoken words, roughly 21-22 minutes at a calm pace. Over the 15-20 limit; tighten 6-8 (merge to one slide) and the scoreboard before adding anything.
+Waiting (X): the fan values for this winter, the red-line chance, the seasonal lean, the calibrated seasonal gain, which bench is final.
+Backup / Q&A: relay vs direct, memory length, calibration percentages, ERA5 vs stations, humidity, the elegant continuous version that came last, the 14-30 day soil bucket.
