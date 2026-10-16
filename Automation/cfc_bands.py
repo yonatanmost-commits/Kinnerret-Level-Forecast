@@ -1,7 +1,7 @@
 """
 cfc_bands.py  -  forecast ranges from scenarios and from the errors of earlier forecasts.
 
-    bands(forecasts, levels, doy_window, min_years, errors=None, gamma=0.0)
+    bands(forecasts, levels, doy_window, min_years, errors=None, gamma=0.0, thresholds=None)
 
 forecasts: one row per forecast (start, H, pred, obs, year), or SEVERAL rows per
 (start, H) when the forecast is a set of scenarios (e.g. one per past winter's weather).
@@ -29,8 +29,11 @@ used for the quantiles, wider after a miss and narrower after a hit, so the band
 tracks the coverage it promises even when errors drift. Feedback arrives only when an
 outcome is observed (start + H), never earlier.
 
+thresholds = {name: level} adds p_<name>: the probability, from the same weighted draws,
+that the level ends BELOW that level (e.g. a red line), for forecasts that have a band.
+
 Returns one row per (start, H): year, start, H, pred (median scenario), obs, members,
-lo_<k>, hi_<k> for each level k (e.g. 80 -> lo_80, hi_80).
+lo_<k>, hi_<k> for each level k (e.g. 80 -> lo_80, hi_80), and p_<name> per threshold.
 """
 import numpy as np
 import pandas as pd
@@ -52,7 +55,8 @@ def _quantiles(draws: np.ndarray, cw: np.ndarray, a: float):
 
 
 def bands(forecasts: pd.DataFrame, levels=(0.5, 0.8, 0.9), doy_window: int = 45,
-          min_years: int = 3, errors: pd.DataFrame = None, gamma: float = 0.0) -> pd.DataFrame:
+          min_years: int = 3, errors: pd.DataFrame = None, gamma: float = 0.0,
+          thresholds: dict = None) -> pd.DataFrame:
     errors = forecasts if errors is None else errors
     f = forecasts.assign(_t=pd.to_datetime(forecasts["start"]))
     e = errors.assign(_t=pd.to_datetime(errors["start"]))
@@ -93,6 +97,8 @@ def bands(forecasts: pd.DataFrame, levels=(0.5, 0.8, 0.9), doy_window: int = 45,
                 o = np.argsort(d)
                 draws, dw = d[o], dw[o]
                 cw = (np.cumsum(dw) - dw / 2) / dw.sum()
+                for name, level in (thresholds or {}).items():
+                    row[f"p_{name}"] = float(dw[draws < level].sum() / dw.sum())
                 for p in levels:
                     lo, hi = _quantiles(draws, cw, alpha[p])
                     k = int(round(p * 100))
@@ -101,11 +107,10 @@ def bands(forecasts: pd.DataFrame, levels=(0.5, 0.8, 0.9), doy_window: int = 45,
                         pending.append((t + pd.Timedelta(days=int(H)), p, lo <= obs <= hi))
             out.append(row)
     out = pd.DataFrame(out)
-    for p in levels:                                # columns exist even when all NaN
-        k = int(round(p * 100))
-        for c in (f"lo_{k}", f"hi_{k}"):
-            if c not in out:
-                out[c] = np.nan
+    cols = [c for p in levels for c in (f"lo_{int(round(p * 100))}", f"hi_{int(round(p * 100))}")]
+    for c in cols + [f"p_{n}" for n in (thresholds or {})]:   # columns exist even when all NaN
+        if c not in out:
+            out[c] = np.nan
     return out
 
 
