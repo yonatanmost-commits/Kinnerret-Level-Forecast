@@ -8,8 +8,8 @@ daily CSV so that 07_build_gold_features.py does not need to reload the
 large file on every run.
 
 Peak 1-hour intensity: maximum of any rolling 6-slot (60-minute) window of
-10-minute readings.  Uses lev_kinneret_rainfall_mm; falls back to the mean
-of all available station rainfall columns where lev_kinneret is NaN.
+10-minute readings, as defined in precip_intensity.daily_intensity (Tzemach's
+gauge first, the mean of the other gauges where it is missing).
 
 After that (whether or not the wide file is present), the days after the
 cache's last value are filled from the IMS 10-minute feed through yesterday
@@ -29,7 +29,7 @@ Usage
 import pathlib
 import pandas as pd
 
-from precip_intensity import update_cache
+from precip_intensity import daily_intensity, update_cache
 
 BASE_DIR   = pathlib.Path(__file__).resolve().parent.parent
 SILVER_MET = BASE_DIR / "Silver Data" / "Meteorological"
@@ -66,24 +66,11 @@ def rebuild_from_wide():
         usecols=lambda c: c == "datetime" or c.endswith("_rainfall_mm"),
     )
     wide["datetime"] = pd.to_datetime(wide["datetime"], errors="coerce")
-    wide = wide.dropna(subset=["datetime"]).sort_values("datetime")
-    wide["date"] = wide["datetime"].dt.strftime("%Y-%m-%d")
+    wide = wide.dropna(subset=["datetime"]).drop_duplicates("datetime").set_index("datetime")
+    rain10 = wide.rename(columns=lambda c: c.removesuffix("_rainfall_mm"))
 
-    rain_cols = [c for c in wide.columns if c.endswith("_rainfall_mm")]
-    lev_col   = "lev_kinneret_rainfall_mm"
-    if lev_col in rain_cols:
-        wide["_rain"] = wide[lev_col].fillna(wide[rain_cols].mean(axis=1))
-    else:
-        wide["_rain"] = wide[rain_cols].mean(axis=1)
-
-    # Peak 1-hour intensity: max rolling sum of 6 consecutive 10-min slots
-    wide["_6slot"] = wide["_rain"].rolling(6, min_periods=6).sum()
-    result = (
-        wide.groupby("date")["_6slot"]
-        .max()
-        .rename("precip_intensity_mm_hr")
-        .reset_index()
-    )
+    # the one definition, shared with the IMS-feed extension (precip_intensity.daily_intensity)
+    result = daily_intensity(rain10).rename_axis("date").reset_index()
 
     result.to_csv(OUT_FILE, index=False, encoding="utf-8")
     print("Saved " + str(OUT_FILE))
