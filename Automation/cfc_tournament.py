@@ -45,6 +45,12 @@ IMS bench and calibration (B only):
   --ensemble      past-winters ensemble: one extra forecast per earlier year Y, fed Y's
                   weather from the same day of year (past weather only), stored as weather
                   "ens|Y". No retraining; the report scores the median and the band.
+
+Why does a week of history suffice? (B only)
+  --no-state      history without level, volume change and the level-read flag (weather
+                  and inflow stay); the level still converts dV to level. Label suffix n.
+  --cell lstm     B's encoder is an LSTM (64 units, ~20k weights, the CfC cell ~23k)
+                  instead of the CfC. Label suffix lstm.
 """
 import argparse
 import json
@@ -76,6 +82,8 @@ SUM_COLS = ["rainfall_mm", "et0_mm", "radiation_MJm2"]           # window totals
 MEAN_COLS = ["temp_mean_C", "humidity_pct", "wind_speed_ms", "vpd_kPa"]   # window means
 TABLE = "era5"                 # --table
 EXTRA_ENC = []                 # history-only inputs added by --table ims / --bucket
+NO_STATE = False               # --no-state
+CELL = "cfc"                   # --cell
 BUCKET_S_MAX = 150.0           # mm, as longrange_phaseb_eval / bucket_backport_eval
 torch.set_num_threads(8)
 
@@ -179,9 +187,10 @@ def encoder_matrix(base: pd.DataFrame) -> np.ndarray:
     NaN here; a 0/1 flag says whether the level was read that day."""
     f = base[DM + ["season_sin", "season_cos"]].copy()
     f["log_inflow"] = np.log1p(base["inflow_obstacle_m3"].clip(lower=0))
-    f["level_m"] = base["level_m"]
-    f["dvol"] = base["volume_change_Mm3"]
-    f["level_seen"] = base["level_m"].notna().astype(float)
+    if not NO_STATE:
+        f["level_m"] = base["level_m"]
+        f["dvol"] = base["volume_change_Mm3"]
+        f["level_seen"] = base["level_m"].notna().astype(float)
     for c in EXTRA_ENC:
         f[c] = base[c]
     return f.to_numpy(float)
@@ -327,11 +336,19 @@ def window_summaries(W: np.ndarray) -> np.ndarray:
 class DirectNet(nn.Module):
     def __init__(self, n_enc, n_sum, units=32):
         super().__init__()
-        self.enc = CfC(n_enc, units, batch_first=True, return_sequences=False)
+        if CELL == "lstm":
+            units = 64                                    # about the CfC cell's weight count
+            self.enc = nn.LSTM(n_enc, units, batch_first=True)
+        else:
+            self.enc = CfC(n_enc, units, batch_first=True, return_sequences=False)
         self.head = nn.Sequential(nn.Linear(units + n_sum, 64), nn.GELU(), nn.Linear(64, len(HORIZONS)))
 
     def forward(self, x, s):
-        h, _ = self.enc(x)
+        if CELL == "lstm":
+            _, (h, _) = self.enc(x)
+            h = h[-1]
+        else:
+            h, _ = self.enc(x)
         return self.head(torch.cat([h, s], dim=1))
 
 
@@ -473,7 +490,8 @@ def run_method(method, seeds, a_seq=14, occlude=(), c_full=False, ensemble=False
     if method in ("A", "A1"):                                         # A, A1 read 14 days
         label = method if a_seq == 14 else f"{method}_{a_seq}"
     else:
-        label = f"{method}{ENC_L}" + ("f" if c_full else "") + ("b" if "bucket_S" in EXTRA_ENC else "")
+        label = (f"{method}{ENC_L}" + ("f" if c_full else "") + ("b" if "bucket_S" in EXTRA_ENC else "")
+                 + ("n" if NO_STATE else "") + ("lstm" if CELL == "lstm" else ""))
     name = f"{label}_s{seeds}" + ("_occ" if occlude else "") + ("_ens" if ensemble else "")
     done = json.loads(ckpt(name).read_text(encoding="utf-8")) if ckpt(name).exists() else {}
     refs = json.loads(ckpt("references").read_text(encoding="utf-8")) if ckpt("references").exists() else {}
@@ -566,10 +584,12 @@ def main():
     ap.add_argument("--table", choices=["era5", "ims"], default="era5")
     ap.add_argument("--bucket", action="store_true", help="history carries the soil bucket")
     ap.add_argument("--ensemble", action="store_true", help="B only: past-winters ensemble")
+    ap.add_argument("--no-state", action="store_true", help="B only: history without level/volume")
+    ap.add_argument("--cell", choices=["cfc", "lstm"], default="cfc", help="B only: encoder cell")
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--only", default="", help="comma list of methods to include in --summary")
     a = ap.parse_args()
-    global ENC_L, TABLE, TEST_YEARS
+    global ENC_L, TABLE, TEST_YEARS, NO_STATE, CELL
     ENC_L = a.enc_len or 60
     TABLE = a.table
     if TABLE == "ims":
@@ -578,8 +598,9 @@ def main():
             TEST_YEARS = list(range(2021, 2026))
     if a.bucket:
         EXTRA_ENC.extend(["bucket_S", "bucket_Q30"])
-    if a.ensemble and a.method != "B":
-        ap.error("--ensemble needs --method B")
+    if (a.ensemble or a.no_state or a.cell != "cfc") and a.method != "B":
+        ap.error("--ensemble, --no-state and --cell need --method B")
+    NO_STATE, CELL = a.no_state, a.cell
     occ = tuple(int(k) for k in a.occlude.split(",") if k)
     if occ and a.method not in ("B", "C"):
         ap.error("--occlude needs --method B or C")
