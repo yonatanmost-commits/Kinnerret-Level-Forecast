@@ -15,12 +15,23 @@ Status: slides 1-5 agreed in chat; 6 to the close is draft v2 (storytelling pass
 Parked: slide-6 order (the record: race -> Wade Storm -> 2023 fix), on-screen text
 (centaur = "Centaur"), length (target about 1,800 words).
 
-## 1. lake-years video (agreed)
+## 1. lake-years video -> "put it in context" (agreed 2026-10-16 v3 for now; next pass once slides exist)
 In my first year here at Kinneret, the lake was so low that I walked all the way out to the island in front of the campus.
 By the time I graduated, the waves were flooding the Tiberias promenade, taking their toll on the wooden market stands. Today, those stands stand high above the water once again.
-The lake's ups and downs aren't new. But today it sits below the red line, and it is our national backup. A low lake means leaning harder on desalination, water quality and algae at risk, and pressure that spreads out in wider circles.
+The lake's ups and downs aren't new. But today it sits below the red line, and it is our national backup.
 So which winter is coming? One like twenty eighteen to nineteen, the best of the last twenty, that lifted the lake back up? Or one like twenty twenty-four to twenty-five, the worst, that kept it falling?
-Imagine knowing that a year ahead. Hold on to that thought: by the end of this talk, I'll tell you honestly how far ahead I got.
+Nobody knows. Certainly not me. I'm not a forecaster. I scraped data together and ran models on an old computer that kept running out of memory.
+But that's exactly the point. If I could get any results this way, imagine what our best efforts could do.
+And it matters right now. This autumn, algae bloomed off our southern coast and choked the desalination plants. Keeping the water flowing meant hard choices. How hard depends on that same question: can the lake carry us next year? With better forecasts, we'd know how much room we have. It deserves our best.
+So I'll show you how I got here: what worked, what didn't. Maybe something in it will be useful to you. And by the end, I'll tell you honestly how far ahead I could see.
+
+Design note for the designer (the originator's idea, 2026-10-16): ONE continuous slide, no cut, "put it in context".
+- "which winter is coming?": the two lake images merge into one lake with TWO water lines (best-year and worst-year level).
+- "Nobody knows ... best efforts": hold on the two lines.
+- "And it matters right now.": zoom out, the lake shrinks into its place on the map of Israel.
+- "algae bloomed off our southern coast": the Mediterranean appears. No plants, names or algae marked.
+- "can the lake carry us next year?": lake and sea on screen together.
+SENSITIVE (originator): no cause of the bloom, no chemical or "poison" words, no plant or authority names; the decision-makers may be in the room. Facts to rest on a public source before the talk.
 
 ## 2. centaur (agreed; on screen: "Centaur")
 First, a picture. This is a centaur: half human, half horse.
