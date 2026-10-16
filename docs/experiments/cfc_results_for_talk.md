@@ -169,3 +169,106 @@ not on master/live yet). 15 test years, each trained on all earlier years.
   barely use the weather of the window ahead; the GBR does, but only pays off with a good forecast.
 - Talk: "with no forecast of the winter, the liquid network (and the GRU) give the best year-ahead
   outlook; the gradient-boosting champion only wins if someone hands it the coming winter's weather."
+
+## 9. The PROCESS - how we got here, step by step (tactics, wrong turns, corrections)
+Errors are mean absolute lake-level errors in metres. "Year ahead" = mean of the 130/260/365-day
+horizons. "Average weather" = no forecast of the weather ahead; "actual weather" = a perfect one.
+
+**0. Starting point (before the tournament)**
+- The live champion: a two-stage gradient-boosting model (GBR), 7 days ahead, R² 0.77.
+- The June "model olympics": the GRU scored R² ≈ 0 and was retired.
+- A liquid network (CfC) relay on IMS station data, 2021-24: 365 days 0.57 m given the actual
+  weather, 0.92 with average weather. That 0.57 looked like the number to beat, but it assumed a
+  perfect weather forecast.
+
+**1. Build one fair bench.** IMS station data only started in 2012 (too few winters), so we built
+a 25-year ERA5 reanalysis table (2001-2025) and tested 16 years (2010-2025):
+- a forecast every 7 days, at 7/13/26/130/260/365 days ahead
+- every forecast run twice, with average and with actual weather
+- 3 seeds per network
+- the winner rule written down BEFORE any result
+- every comparison paired (same start days) with a 90% interval over test years
+
+**2. Round 1: how should a liquid network forecast far ahead?**
+- A = relay (predict tomorrow, feed it back, 365 times)
+- A1 = one-step relay
+- B = direct (read the recent past, predict all horizons at once)
+
+All-horizon errors: A 0.370, A1 0.374, B14 0.366 (winner), B60 0.368. All inside each other's
+intervals: the architecture barely matters.
+
+**3. Round 2: the elegant option fails.** C = a continuous-time decoder (the liquid network's
+"natural" form):
+- 0.442, worse than simply assuming an average year's change (0.423)
+- a fair rerun (trained like B) was worse again, so C was retired
+
+Lesson: the most elegant design was not the best one.
+
+**4. How much past does it need?** History tested from 1 to 120 days, plus "blanking" old days
+at test time:
+- 3 days is as good as 120 (year ahead 0.686-0.697); 1 day is a bit worse (0.703)
+- Why, tested rather than assumed: hiding the lake level/volume history costs 0.065 m, and a
+  history of ONLY level/volume costs as much. The model needs both the lake's recent trend and
+  the latest rain and river flow.
+- We first claimed "the level is its own memory", then corrected it (section 2).
+- An LSTM (an additive memory path) does use 60 days, but only reaches the 7-day CfC.
+
+**5. Where the error really comes from.**
+- Year-by-year errors track the coming winter's rain (Spearman 0.90 for autumn starts): record
+  wet 2018-19 under-called by 2.3 m, dry 2024-25 over-called by 1.8 m.
+- Given the actual weather, the year-ahead error drops from 0.93 to 0.55 at 365 days: 0.38 m of
+  the error is simply not knowing the winter. From then on the question was the weather, not
+  the network.
+
+**6. Honesty checks that changed things.**
+- Bug found and fixed: on the IMS table the relay could read the real future rain intensity
+  under "average weather". No published number used that path.
+- The "ERA5 costs 0.10 m" figure turned out to mix several differences.
+- T1 (same model, same years, only the data source differs) does NOT support "quality beats
+  quantity".
+
+**7. The champion on the same bench.** The GBR on the 16-year ERA5 bench ties both CfC variants
+at every horizon.
+
+**8. The GRU, given a fair setup.**
+- The June GRU predicted ONE day's change with no weather for that day.
+- Set up like the CfC, it ties or edges it: 7-26 days 4-5 mm better.
+- Lesson: the setup and the information decide, not the cell type.
+
+**9. Ranges you can trust.**
+- Ranges from past errors alone were too narrow: an "80%" range held only 61-72%.
+- Adding a self-correction helped at short range but ballooned to 4 m at a year.
+- Final method: run the past winters' weather through the model (one scenario per past winter),
+  widen by the model's own error, then self-correct. The 80% range holds 81/79/78/75/72% at
+  7/26/130/260/365 days, widths 5 cm .. 3.4 m.
+
+**10. Can anyone forecast the winter?**
+- Climate indices (ENSO, NAO, EA ...) from September-October: no (|rho| <= 0.33, 24 winters).
+- Copernicus/ECMWF SEAS5 seasonal forecast, issued in September-November: weak but real skill
+  (0.30-0.46). It picked 2018-19 wet and 2024-25 dry, and missed 2019-22.
+
+**11. The longer station record (IMS, Tzemach-based, 2002-2025; 15 test years)**
+- Week ahead: all three tie.
+- Year ahead with average weather: CfC 0.72 = GRU 0.73, both better than GBR 0.89.
+- With actual weather the GBR is best (0.55): the trees use the coming weather; the networks
+  lean on the lake's state and the season.
+- Dropping the humidity inputs (a station step in 2012-13) makes the networks 5 mm better at
+  short range and the GBR worse.
+
+**12. Using the seasonal forecast** (running; results 2026-10-16/17)
+- Raw SEAS5 into the CfC: year ahead 0.688 -> 0.665 (about 2 cm of a possible 24).
+- Calibration: SEAS5's monthly rain signal, fitted to what actually fell, should be SHRUNK
+  (trust about 0.9 in the first month, 0.3-0.6 after), not stretched.
+- GRU and GBR results to follow; the GBR is the one that might gain.
+
+**13. Plumbing that had to work for any of this to go live.** The 07:30 daily refresh was fixed
+on 2026-10-16 (two bugs, each pinned by a locked test), and live data is current again.
+
+**Tactics worth saying on stage**
+1. Write the winner rule before the results.
+2. Compare paired forecasts, with intervals over years, not single numbers.
+3. Bracket every result between "no forecast" (average weather) and "perfect forecast" (actual
+   weather).
+4. Use only what was knowable on the start day.
+5. Test the "why", don't assert it, and publish the corrections.
+6. Compare every idea against the champion and the GRU, not just against itself.
