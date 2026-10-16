@@ -14,6 +14,8 @@ Methods
   A  relay   - the two-stage one-day CfC rolled forward on its own predictions
                (liquid_nn_horizons.rollout, unchanged)
   A1 relay, one step - as A without the inflow step (control: B has no inflow step)
+  G  the production two-stage GBR (train_08 settings), rolled forward exactly as A:
+     the champion the CfC methods have to beat. Deterministic, so --seeds is ignored.
   B  direct  - a CfC reads the 60 days up to the start day; a small head adds the
                weather totals of each horizon's window and predicts all six volume
                changes at once. No prediction is ever fed back.
@@ -165,7 +167,7 @@ def references(base, anchors, year, train_mask) -> list:
 # Method A - relay
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14):
+def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14, kind="lnn"):
     Hz.S1_FEATURES = lnc.S1_FEATURES                                     # set by L.set_features
     # A1 (one-step relay) drops the inflow step: volume change straight from weather
     # and lake state, so A1 vs B isolates relay vs direct, and A vs A1 the inflow step
@@ -176,7 +178,7 @@ def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14):
     clim = Hz.doy_climatology(lagged, trm)
     dfx = Hz.extend(lagged, HMAX + 1, clim)
     bathy = t08.fit_vol2level_poly()
-    m = Hz.TwoStage("lnn", "cfc", seeds, seq_len).fit(lagged, trm)
+    m = Hz.TwoStage(kind, "cfc", seeds, seq_len).fit(lagged, trm)
     return {w: Hz.rollout(m, dfx, anchors, HMAX, w, clim, bathy) for w in ("obs", "clim")}
 
 
@@ -491,7 +493,9 @@ def run_method(method, seeds, a_seq=14, occlude=(), c_full=False, ensemble=False
     OUT.mkdir(parents=True, exist_ok=True)
     L.set_features(None if TABLE == "ims" else L.NO_INTENSITY)
     base, lagged = tables()
-    if method in ("A", "A1"):                                         # A, A1 read 14 days
+    if method == "G":
+        label = "G"
+    elif method in ("A", "A1"):                                       # A, A1 read 14 days
         label = method if a_seq == 14 else f"{method}_{a_seq}"
     else:
         label = (f"{method}{ENC_L}" + ("f" if c_full else "") + ("b" if "bucket_S" in EXTRA_ENC else "")
@@ -507,7 +511,9 @@ def run_method(method, seeds, a_seq=14, occlude=(), c_full=False, ensemble=False
         if str(year) in done:
             continue
         t0 = time.time()
-        if method in ("A", "A1"):
+        if method == "G":
+            preds = run_A(base, lagged, year, anchors, seeds, kind="gbr")
+        elif method in ("A", "A1"):
             preds = run_A(base, lagged, year, anchors, seeds, one_step=method == "A1", seq_len=a_seq)
         elif method == "B":
             preds = run_B(base, year, anchors, seeds, occlude, ensemble)
@@ -580,7 +586,7 @@ def summary(only="", n_boot=2000):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--method", choices=["A", "A1", "B", "C"])
+    ap.add_argument("--method", choices=["A", "A1", "B", "C", "G"])
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--enc-len", type=int, default=None, help="history days (B/C default 60, A/A1 14)")
     ap.add_argument("--occlude", default="", help="B/C only: comma list of k, see the header")
