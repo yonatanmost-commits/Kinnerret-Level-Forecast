@@ -249,7 +249,8 @@ def year_heat(c, methods, hh, label, w=720):
     return svg(w, h, "".join(g), label)
 
 
-def xy_chart(series, xs_ticks, xlabel, label, w=720, h=300, logscale=True, ymin=0.0):
+def xy_chart(series, xs_ticks, xlabel, label, w=720, h=300, logscale=True, ymin=0.0,
+             ylabel="level error, m", pct=False):
     """series: (name, css colour var, {x: y}, dashed). ymin > 0 zooms the y axis."""
     ml, mr, mt, mb = 52, 120, 16, 40
     allx = [x for s in series for x in s[2]]
@@ -261,12 +262,13 @@ def xy_chart(series, xs_ticks, xlabel, label, w=720, h=300, logscale=True, ymin=
     g = []
     for v in np.arange(ymin, ymax + 1e-9, step):
         g.append(f'<line class="grid" x1="{ml}" x2="{w - mr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
-                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">{round(v, 3):g}</text>')
+                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">'
+                 f'{f"{v:.0%}" if pct else f"{round(v, 3):g}"}</text>')
     for x in xs_ticks:
         g.append(f'<text class="tick" x="{X(x):.1f}" y="{h - mb + 18}" text-anchor="middle">{x}</text>')
     g.append(f'<text class="axis" x="{(ml + w - mr) / 2}" y="{h - 4}" text-anchor="middle">{esc(xlabel)}</text>'
              f'<text class="axis" x="14" y="{(mt + h - mb) / 2}" transform="rotate(-90 14 {(mt + h - mb) / 2})" '
-             f'text-anchor="middle">level error, m</text>')
+             f'text-anchor="middle">{esc(ylabel)}</text>')
     ends = []
     for name, col, pts, dashed in series:
         xs = sorted(pts)
@@ -474,6 +476,83 @@ Partly: an LSTM does gain from 60 days over 7, which the CfC does not, but it on
 """
 
 
+def fan_chart(f, label, w=720, h=300):
+    """One start's forecast: median path and 50/80/90% ranges against what happened.
+    f: rows of one start (H, pred, obs, lo_*/hi_*) plus level0."""
+    ml, mr, mt, mb = 76, 16, 14, 34
+    f = f.sort_values("H")
+    lv0 = float(f["level0"].iat[0])
+    xs = [0] + f["H"].tolist()
+    vals = [lv0] + f[["lo_90", "hi_90", "obs"]].stack().dropna().tolist()
+    lo, hi = min(vals), max(vals)
+    pad = (hi - lo) * 0.08 + 0.05
+    X = lin(0, 365, ml, w - mr)
+    Y = lin(lo - pad, hi + pad, h - mb, mt)
+    g = []
+    step = 0.5 if hi - lo < 3 else 1.0
+    for v in np.arange(np.ceil((lo - pad) / step) * step, hi + pad, step):
+        g.append(f'<line class="grid" x1="{ml}" x2="{w - mr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
+                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">{v:.1f}</text>')
+    for x in (0, 30, 90, 130, 180, 260, 365):
+        g.append(f'<text class="tick" x="{X(x):.1f}" y="{h - mb + 18}" text-anchor="middle">{x}</text>')
+    g.append(f'<text class="axis" x="{(ml + w - mr) / 2}" y="{h - 2}" text-anchor="middle">days ahead</text>'
+             f'<text class="axis" x="14" y="{(mt + h - mb) / 2}" transform="rotate(-90 14 {(mt + h - mb) / 2})" '
+             f'text-anchor="middle">lake level, m</text>')
+    for k, cls in ((90, "b90"), (80, "b80"), (50, "b50")):
+        top = [(0, lv0)] + list(zip(f["H"], f[f"hi_{k}"]))
+        bot = list(zip(f["H"], f[f"lo_{k}"]))[::-1] + [(0, lv0)]
+        pts = " ".join(f"{X(x):.1f},{Y(y):.1f}" for x, y in top + bot if np.isfinite(y))
+        g.append(f'<polygon class="band {cls}" points="{pts}"/>')
+    med = " ".join(f"{'M' if i == 0 else 'L'}{X(x):.1f},{Y(y):.1f}"
+                   for i, (x, y) in enumerate(zip(xs, [lv0] + f["pred"].tolist())))
+    g.append(f'<path class="ln med" d="{med}"/>')
+    ob = [(x, y) for x, y in zip(xs, [lv0] + f["obs"].tolist()) if np.isfinite(y)]
+    g.append('<path class="ln actual" d="' + " ".join(f"{'M' if i == 0 else 'L'}{X(x):.1f},{Y(y):.1f}"
+                                                     for i, (x, y) in enumerate(ob)) + '"/>')
+    g += [f'<circle class="actual" cx="{X(x):.1f}" cy="{Y(y):.1f}" r="3.6"/>' for x, y in ob[1:]]
+    return svg(w, h, "".join(g), label)
+
+
+def bands_section():
+    """B14 forecast ranges on the 16-year bench: past-winter scenarios plus the model's
+    own known-weather error, self-correcting (cfc_bands). Calibration, then example fans."""
+    import cfc_bands as cb
+    folder = T.parent / "cfc_ens"
+    e = load(folder) if folder.exists() else pd.DataFrame()
+    if not len(e):
+        return []
+    e = e[e["method"] == "B14"]
+    mem, ob = e[e["weather"].str.startswith("ens|")], e[e["weather"] == "obs"]
+    o = cb.bands(mem, levels=(0.5, 0.8, 0.9), errors=ob, gamma=0.005)
+    cov = cb.coverage(o, (0.5, 0.8, 0.9))
+    series = []
+    for p, col in ((0.9, "--L1"), (0.8, "--L2"), (0.5, "--L3")):
+        c = cov[cov["level"] == p].set_index("H")["coverage"].to_dict()
+        series.append((f"{p:.0%} range", col, c, False))
+        series.append((f"promised {p:.0%}", col, {hh: p for hh in c}, True))
+    calib = xy_chart(series, H, "days ahead", "range calibration", ymin=0.4,
+                     ylabel="outcomes inside the range", pct=True)
+    w80 = cov[cov["level"] == 0.8].set_index("H")["width"]
+    o = o.merge(e[["start", "level0"]].drop_duplicates("start"), on="start", how="left")
+    o["t"] = pd.to_datetime(o["start"])
+    fans = []
+    for yr, name in ((2018, "a record wet winter"), (2020, "an ordinary winter"), (2024, "a record dry winter")):
+        cand = o[(o["t"].dt.year == yr) & o["lo_90"].notna()]
+        if not len(cand):
+            continue
+        tgt = pd.Timestamp(yr, 10, 15)
+        s0 = cand.loc[(cand["t"] - tgt).abs().idxmin(), "start"]
+        fans.append(f'<figure class="fan"><figcaption>start {esc(str(s0)[:10])} · {esc(name)} ahead</figcaption>'
+                    f'{fan_chart(o[o["start"] == s0], f"forecast from {s0}")}</figure>')
+    key = ('<i class="key sw b50"></i>50% <i class="key sw b80"></i>80% <i class="key sw b90"></i>90% '
+           '<i class="key line med"></i>forecast <i class="key dotk actual"></i>what happened')
+    return [section("Forecast ranges · do they hold?", calib,
+                    note=f"16 test years. Ranges = past winters' weather run through B14, widened by B14's own "
+                         f"error when the weather is known, self-correcting as outcomes arrive. Typical 80% width: "
+                         + ", ".join(f"{int(hh)} d {w80[hh]:.2f} m" for hh in w80.index) + "."),
+            section("Forecast ranges · three autumns", "".join(fans), note=key)]
+
+
 def why_section(d, mem):
     """Why a week of history is enough: B without its level/volume history, and B with an
     LSTM encoder (an additive carry path), each at 7 and 60 days, against plain B."""
@@ -581,6 +660,7 @@ def build():
 
     parts += ims_section()
     parts += why_section(d, mem)
+    parts += bands_section()
 
     # memory
     if len(mem):
@@ -707,6 +787,13 @@ footer {{ color:var(--muted); font-size:.72rem; font-family:var(--mono) }}
 .math {{ display:grid; gap:10px }} .math .eq {{ overflow-x:auto; color:var(--fg) }}
 .fig mjx-container svg {{ width:auto; min-width:0; display:inline }} .math pre.mermaid {{ margin:0; background:none }}
 .cap {{ margin:0; color:var(--muted); font-size:.82rem; max-width:68ch }} .cap b {{ color:var(--fg) }}
+.fan {{ margin:0 0 14px; display:grid; gap:4px }} .fan figcaption {{ font-size:.8rem; color:var(--muted) }}
+.band {{ fill:var(--L2); stroke:none }} .b90 {{ fill-opacity:.16 }} .b80 {{ fill-opacity:.26 }} .b50 {{ fill-opacity:.42 }}
+.ln.med {{ stroke:var(--L3); stroke-width:2.2 }} .ln.actual {{ stroke:var(--m-A); stroke-width:1.6; stroke-dasharray:4 3 }}
+circle.actual {{ fill:var(--m-A) }}
+i.key.sw.b50, i.key.sw.b80, i.key.sw.b90 {{ background:var(--L2) }} i.key.sw.b50 {{ opacity:.42 }}
+i.key.sw.b80 {{ opacity:.26 }} i.key.sw.b90 {{ opacity:.16 }}
+i.key.line {{ border-top:2px solid var(--L3) }} i.key.dotk {{ width:8px; height:8px; border:0; border-radius:50%; background:var(--m-A) }}
 @media (max-width: 560px) {{ h1 {{ font-size:1.35rem }} }}
 </style>
 <main>
