@@ -135,3 +135,40 @@ Thank you.
 - one real week: forecast issued on day one against the lake, the week picked by a stated rule (not cherry-picked).
 - skill fading with lead time: one line, from the long-range evaluation.
 - one summer replayed: a month ahead, predicted crossing date against the real one (most recent crossing).
+
+## SPINE v3 DRAFT: slides 9-13 (proposed by talk-deck-script 2026-10-16, NOT yet reviewed by the originator)
+Mother test: every line in plain words. [WAITS x] = a run the CfC tournament session is doing (it messages talk-deck-script as each lands).
+
+### 9. feeding it better (scoreboard line, May-Oct, data dots blue, click by click)
+The first model I trained was already decent. But a model is only as good as what you feed it.
+So I tried an old trick: I asked the AI to play an expert, a seasoned hydrologist, and check my work. The newest oldest trick in the book. And the expert said: something's wrong with twenty twenty-three.
+It was right. A rain sensor had failed, and its silence had been read as "no rain." A whole winter, dry on paper. That's the price of not looking at every number with your own eyes, and the credit goes to the machine for noticing. Fixed, and the model jumped.
+[WAITS T1] Then I tried more data: twenty-five years of global weather instead of a dozen years from our own stations. And the models trained on our stations did better.
+(Peer, measured: "IMS-trained beat ERA5-trained by 0.1-0.2 m on the same test years" is SAFE; crediting it all to quality is NOT until T1 (ERA5 trimmed to the IMS span). The jump 0.694->0.758 = rain fix + six findings together.)
+
+### 10. the olympics (same scoreboard, model dots orange; grey = didn't help; GRU falls off the bottom; CfC rises above the line)
+At the same time, I let the models compete. The famous ones first. And the neural network, the most fashionable of all, came last: worse than simply guessing that nothing changes. And it took an hour to train.
+Then I found a different kind of neural network. A liquid one. It took the lead: in seventeen of twenty years, it beat my best model.
+(17/20 = one-day S2, ERA5 table, 1d1388e. [WAITS G-ERA5, G-IMS] same-bench head-to-head at long range; GRU 71 min dated May; [WAITS T3] GRU on the CfC bench.)
+
+### 11. the lake becomes a neuron (animation: lake as bucket -> shrinks to one circle -> many circles = a network)
+Here's how it works. Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.
+A liquid network is made of little buckets like that. Each one fills with what comes in, and slowly drains. That's how it remembers, and how it forgets.
+The clever part is that how fast each one drains changes with what's flowing in. A storm and a dry spell move at different speeds. Ordinary networks keep one fixed rhythm. This one adapts its own clock.
+So I'm forecasting a lake... with a network made of little lakes.
+The first liquid networks had to watch every bucket drip, step by tiny step. Slow and heavy. The newer version, called CfC, found a shortcut: tell it how much time has passed, and it tells you how full the bucket is. No dripping to simulate. That's why it runs on small chips... and on my old computer, where the heavier versions kept crashing.
+(True: LTC and mix 7-seed runs were killed for RAM 2026-10-14; only CfC finished.)
+
+### 12. credit (photo: C. elegans under a microscope, Wikimedia, licence to check)
+This idea didn't come from me. It came from MIT, from Daniela Rus's lab, with researchers from Vienna. And it started with this worm. About three hundred neurons, yet it gets around just fine. They built networks inspired by it, and a handful of those neurons learned to keep a car in its lane.
+They've since started a company, Liquid AI. They're worth following. And the tools are open: anyone can try them.
+(ALL FROM MEMORY, VERIFY: names (Hasani, Lechner, Amini, Rus; Grosu TU Wien), ~19-neuron lane-keeping demo, CfC paper Nature Machine Intelligence ~2022, ncps open-source, photo licence. No "going public" tip.)
+
+### 13. testing it now (click by click, one object at a time)
+1 three arrows (hop / jump / flow): Three ways to look far ahead. The simplest one won: jump straight there.
+2 memory: How far back does it need to look? A few days. Today's level already holds every winter before it. The lake remembers for you. [WAITS level-only run] (peer, measured 029fe90: 3-120 d history within ~0.01 m; hiding level costs ~0.065 m; say "a few days" not "a week")
+3 the two winters: A year ahead, it's off by about a metre. And it's blindest exactly on the extreme winters, like the two I opened with. Given an ordinary winter, it expects an ordinary winter. Give it the real weather, and the error drops to about half a metre. The rest belongs to the rain.
+  (peer, measured: row = start year; 2018 -2.28 m (missed the rise), 2024 +1.84 m (too high); 2019-20 equally bad (-2.11), so "like the two", not "only". B14 365 d 0.93 typical / 0.55 known; no-change 1.00.)
+4 the fan: So I can't tell you which winter is coming. But tell me the winter, and I'll tell you the lake. [WAITS fan; needs the originator's choice of band method in the CfC session]
+5 stamp: "Still running this weekend."
+Open: slide 13 crowded (fan may become the close and answer slide 1's promise); the chunk is ~5 min, so slides 6-8 tighten later.
