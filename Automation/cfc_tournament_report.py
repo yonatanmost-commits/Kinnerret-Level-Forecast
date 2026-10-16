@@ -26,7 +26,7 @@ LONG = [130, 260, 365]
 ROUND1 = ["A", "A1", "B14", "B60"]
 REFS = ["persistence", "clim_change"]
 NAMES = {"A": "A · relay, 2 steps", "A1": "A1 · relay, 1 step", "B14": "B · direct, 14 d",
-         "B60": "B · direct, 60 d", "C60": "C · continuous time, 60 d",
+         "B60": "B · direct, 60 d", "C60": "C · continuous time, 60 d", "C60f": "C · trained like B",
          "persistence": "no change", "clim_change": "average change"}
 
 
@@ -368,6 +368,7 @@ def build():
     parts.append(section("Year by year · 365 days ahead", year_heat(c1, r1, 365, "error per test year at 365 days")))
 
     # round 2: C against the rule winner, and against the long-range best if that differs
+    win = w1
     if "C60" in present(d, ["C60"]):
         for i, m1 in enumerate(dict.fromkeys([w1, wl])):
             c2 = common(d, [f"{m1}/clim", "C60/clim"] + [f"{r}/-" for r in REFS])
@@ -379,6 +380,20 @@ def build():
                                  horizon_chart(c2, [f"{m1}/clim", "C60/clim", "persistence/-"], "round 2 by horizon"),
                                  forest([(m1, "C60", boot(c2, f"{m1}/clim", "C60/clim", H),
                                           boot(c2, f"{m1}/clim", "C60/clim", LONG))], "round 2 paired difference")))
+
+    # round 2 handicap check: C trained like B (every day, same stopping), on the years it ran
+    if "C60f" in present(d, ["C60f"]):
+        c3 = common(d, [f"{win}/clim", "C60/clim", "C60f/clim", "persistence/-"])
+        ys = sorted(c3["year"].unique())
+        parts.append(section("Round 2 · C with full training",
+                             horizon_chart(c3, [f"{win}/clim", "C60/clim", "C60f/clim", "persistence/-"],
+                                           "C with full training by horizon"),
+                             forest([("C60f", win, boot(c3, "C60f/clim", f"{win}/clim", H),
+                                      boot(c3, "C60f/clim", f"{win}/clim", LONG)),
+                                     ("C60f", "C60", boot(c3, "C60f/clim", "C60/clim", H),
+                                      boot(c3, "C60f/clim", "C60/clim", LONG))], "full-training C paired differences"),
+                             note=f"Test years {', '.join(map(str, ys))}. C60: every other training day, 60 epochs. "
+                                  "C60f: every day, 80 epochs, like B."))
 
     # memory
     if len(mem):
@@ -437,7 +452,7 @@ PAGE = """<title>CfC Horizon Tournament</title>
 /* layout: one column of charts, each a self-explaining figure; kpis up top */
 :root {{
   --bg:#f3f6f7; --panel:#ffffff; --fg:#122229; --muted:#5d717a; --grid:#d8e1e5;
-  --m-A:#c26d1c; --m-A1:#d9a04b; --m-B14:#5fb0a8; --m-B60:#17716b; --m-C60:#6a56b8;
+  --m-A:#c26d1c; --m-A1:#d9a04b; --m-B14:#5fb0a8; --m-B60:#17716b; --m-C60:#6a56b8; --m-C60f:#a33d8f;
   --m-persistence:#8e9ca3; --m-clim_change:#b3bec3; --heat:#17716b;
   --L0:#a8d8d2; --L1:#5fb0a8; --L2:#17716b; --L3:#0d4c48; --L4:#6a56b8; --L5:#c26d1c;
   --sans:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
@@ -445,12 +460,12 @@ PAGE = """<title>CfC Horizon Tournament</title>
 }}
 @media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
-  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea;
+  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }} }}
 :root[data-theme="dark"] {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
-  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea;
+  --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }}
 body {{ background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:15px; line-height:1.5 }}
