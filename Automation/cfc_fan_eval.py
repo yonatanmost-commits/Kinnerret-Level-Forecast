@@ -197,6 +197,12 @@ def main():
                                      "reliability_red": reliability(o, "red").reset_index().to_dict("records")}
             if a.out:
                 o.assign(model=m, fan=name).to_csv(Path(a.out).with_name(f"{Path(a.out).stem}_{m}_{name}.csv"), index=False)
+                t = pd.to_datetime(o["start"])                 # one autumn start per year, for the report's fans
+                pick = [o.loc[(t[t.dt.year == y] - pd.Timestamp(y, 10, 15)).abs().idxmin(), "start"]
+                        for y in sorted(t.dt.year.unique())]
+                lv0 = dm.drop_duplicates("start").set_index("start")["level0"]
+                ex = o[o["start"].isin(pick)].assign(level0=lambda x: x["start"].map(lv0))
+                result[f"{m}/{name}"]["examples"] = ex.replace({np.nan: None}).to_dict("records")
         print(f"{m}: weights spread  median {w.median():.2f}  10-90% {w.quantile(0.1):.2f}..{w.quantile(0.9):.2f}")
         g = paired_gain(fans["plain"], fans["seas5"])
         result[f"{m}/gain"] = g
