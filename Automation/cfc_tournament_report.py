@@ -28,6 +28,8 @@ REFS = ["persistence", "clim_change"]
 NAMES = {"A": "A · relay, 2 steps", "A1": "A1 · relay, 1 step", "B14": "B · direct, 14 d",
          "B60": "B · direct, 60 d", "C60": "C · continuous time, 60 d", "C60f": "C · trained like B", "B14b": "B · + soil bucket",
          "relay7": "relay · 7 seeds", "relay3": "relay · 3 seeds",
+         "B7": "B · direct, 7 d", "B7n": "B no level · 7 d", "B60n": "B no level · 60 d",
+         "B7lstm": "B LSTM · 7 d", "B60lstm": "B LSTM · 60 d",
          "persistence": "no change", "clim_change": "average change"}
 
 
@@ -246,18 +248,19 @@ def year_heat(c, methods, hh, label, w=720):
     return svg(w, h, "".join(g), label)
 
 
-def xy_chart(series, xs_ticks, xlabel, label, w=720, h=300, logscale=True):
-    """series: (name, css colour var, {x: y}, dashed)."""
+def xy_chart(series, xs_ticks, xlabel, label, w=720, h=300, logscale=True, ymin=0.0):
+    """series: (name, css colour var, {x: y}, dashed). ymin > 0 zooms the y axis."""
     ml, mr, mt, mb = 52, 120, 16, 40
     allx = [x for s in series for x in s[2]]
     lo, hi = min(allx + xs_ticks), max(allx + xs_ticks)
     X = logx(ml, w - mr, lo * 0.85, hi * 1.15) if logscale else lin(lo, hi, ml, w - mr)
-    ymax, step = nice_max(max(v for s in series for v in s[2].values()))
-    Y = lin(0, ymax, h - mb, mt)
+    span, step = nice_max(max(v for s in series for v in s[2].values()) - ymin)
+    ymax = ymin + span
+    Y = lin(ymin, ymax, h - mb, mt)
     g = []
-    for v in np.arange(0, ymax + 1e-9, step):
+    for v in np.arange(ymin, ymax + 1e-9, step):
         g.append(f'<line class="grid" x1="{ml}" x2="{w - mr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
-                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">{v:g}</text>')
+                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">{round(v, 3):g}</text>')
     for x in xs_ticks:
         g.append(f'<text class="tick" x="{X(x):.1f}" y="{h - mb + 18}" text-anchor="middle">{x}</text>')
     g.append(f'<text class="axis" x="{(ml + w - mr) / 2}" y="{h - 4}" text-anchor="middle">{esc(xlabel)}</text>'
@@ -457,14 +460,41 @@ s &= \text{weather of each horizon window (3 totals, 4 means)} && 6\times 7 = 42
 level, volume change, a level-read flag (IMS table: + rain intensity; bucket: + storage, 30-day overflow).
 Huber loss on standardised \(\Delta V\), AdamW, 3 seeds averaged. About 28k weights per seed
 (cell 22.7k, head 5.2k).</p>
-<p class="cap"><b>Why about a week is enough: two candidate reasons, not yet tested.</b>
-(1) The inputs already carry today's level and volume, which sum up all earlier rain and inflow, so older days
-repeat what the level already says. (2) \(h_t\) is a fresh blend of two functions of \((u_t, h_{t-1})\), with no
+<p class="cap"><b>Why about a week is enough: two candidate reasons, both tested (chart "Why a week is enough").</b>
+(1) The inputs carry the lake's level and volume, which sum up earlier rain and inflow, so older days
+repeat what the level already says. Confirmed: hiding the level/volume history costs about 0.065 m at 130–365 d,
+at 7 and at 60 days alike, and longer weather history does not make up for it.
+(2) \(h_t\) is a fresh blend of two functions of \((u_t, h_{t-1})\), with no
 additive carry path like an LSTM's \(c_t = f\,c_{t-1} + \dots\), so long memory is hard to learn.
-The start day alone scoring within 0.013 m, and the soil bucket adding nothing on IMS, lean toward (1).</p>
+Partly: an LSTM does gain from 60 days over 7, which the CfC does not, but it only reaches the 7-day CfC.</p>
 </div>
 </section>
 """
+
+
+def why_section(d, mem):
+    """Why a week of history is enough: B without its level/volume history, and B with an
+    LSTM encoder (an additive carry path), each at 7 and 60 days, against plain B."""
+    why = load(T / "why") if (T / "why").exists() else pd.DataFrame()
+    if not len(why):
+        return []
+    e = pd.concat([why, mem, d]).drop_duplicates(["method", "weather", "start", "H"])
+    trio = {"B": ("B7", "B60", "--m-B60"), "B, no level": ("B7n", "B60n", "--m-A"),
+            "B, LSTM": ("B7lstm", "B60lstm", "--m-C60")}
+    keys = [f"{m}/clim" for a, b, _ in trio.values() for m in (a, b)]
+    if not set(keys) <= set(e["key"]):
+        return []
+    c = common(e, keys)
+    series = [(name, col, {7: mae(c, f"{a}/clim", LONG), 60: mae(c, f"{b}/clim", LONG)}, False)
+              for name, (a, b, col) in trio.items()]
+    pairs = [("B7", "B7n"), ("B60", "B60n"), ("B60lstm", "B7lstm"), ("B60lstm", "B60"), ("B7", "B7lstm")]
+    rows = [(a, b, boot(c, f"{a}/clim", f"{b}/clim", H), boot(c, f"{a}/clim", f"{b}/clim", LONG)) for a, b in pairs]
+    return [section("Why a week is enough",
+                    xy_chart(series, [7, 60], "days of history the model reads", "why test", ymin=0.6),
+                    forest(rows, "why test paired differences"),
+                    note=f"130–365 d error · {c['year'].nunique()} test years. "
+                         "No level/volume: the history keeps weather, season and inflow; the forecast still starts "
+                         "from today's level. LSTM: same model, an LSTM in place of the CfC.")]
 
 
 # ── page ─────────────────────────────────────────────────────────────────────
@@ -546,6 +576,7 @@ def build():
                                   "C60f: every day, 80 epochs, like B."))
 
     parts += ims_section()
+    parts += why_section(d, mem)
 
     # memory
     if len(mem):
@@ -573,7 +604,7 @@ def build():
         occ = mem[mem["weather"].str.contains(r"\|")]
         if len(occ):
             series = []
-            for i, L in enumerate(Ls):
+            for i, L in enumerate([L for L in Ls if L >= 7]):    # shorter histories have little to blank
                 sub = mem[mem["L"] == L]
                 if not sub["weather"].str.contains(r"\|").any():
                     continue
@@ -586,7 +617,7 @@ def build():
             if series:
                 parts.append(section("Memory · same model, older days blanked",
                                      xy_chart(series, sorted({k for s in series for k in s[2]}),
-                                              "days of history left visible", "occlusion test"),
+                                              "days of history left visible", "occlusion test", ymin=0.6),
                                      note=f"130–365 d error · {occ['year'].nunique()} test years. "
                                           "Flat to the left of a point = days older than it are not used."))
 
@@ -607,7 +638,7 @@ PAGE = """<title>CfC Horizon Tournament</title>
 :root {{
   --bg:#f3f6f7; --panel:#ffffff; --fg:#122229; --muted:#5d717a; --grid:#d8e1e5;
   --m-A:#c26d1c; --m-A1:#d9a04b; --m-B14:#5fb0a8; --m-B60:#17716b; --m-C60:#6a56b8; --m-C60f:#a33d8f; --m-B14b:#2f5fa8;
-  --m-relay7:#7a6a58; --m-relay3:#a8977f;
+  --m-relay7:#7a6a58; --m-relay3:#a8977f; --m-B7:#5fb0a8; --m-B7n:#d9a04b; --m-B60n:#c26d1c; --m-B7lstm:#a594ea; --m-B60lstm:#6a56b8;
   --m-persistence:#8e9ca3; --m-clim_change:#b3bec3; --heat:#17716b;
   --L0:#a8d8d2; --L1:#5fb0a8; --L2:#17716b; --L3:#0d4c48; --L4:#6a56b8; --L5:#c26d1c;
   --sans:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
@@ -616,13 +647,13 @@ PAGE = """<title>CfC Horizon Tournament</title>
 @media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
   --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
-  --m-relay7:#bfae96; --m-relay3:#8e7f6a;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }} }}
 :root[data-theme="dark"] {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
   --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
-  --m-relay7:#bfae96; --m-relay3:#8e7f6a;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }}
 body {{ background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:15px; line-height:1.5 }}
