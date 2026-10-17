@@ -26,11 +26,25 @@ def load_fan():
         return json.load(f)
 
 
+MONTH = 365.25 / 12
+
+
+def _point(fan, days, tol=3):
+    """The horizon the model forecast within `tol` days of `days`, or None. Never a line
+    between horizons: the lake's spring peak sits between them."""
+    near = [h for h in fan["horizons"] if abs(h["H"] - days) <= tol]
+    return min(near, key=lambda h: abs(h["H"] - days)) if near else None
+
+
 def _at(fan, key, days):
-    """A horizon value at `days`, interpolated between the bench horizons (6 months
-    lies between 130 and 260 days)."""
-    hs = fan["horizons"]
-    return float(np.interp(days, [h["H"] for h in hs], [h[key] for h in hs]))
+    h = _point(fan, days)
+    return None if h is None else float(h[key])
+
+
+def _months(fan):
+    """The month-by-month points (about every 30 days, 1 to 12 months), if the file has them."""
+    out = [_point(fan, k * MONTH) for k in range(1, 13)]
+    return [h for h in out if h is not None] if all(out) else []
 
 
 def _band(fig, x, lo, hi, alpha, name):
@@ -49,14 +63,20 @@ def render(history: pd.Series = None):
         return
     t0 = pd.Timestamp(fan["start"])
     red, upper = fan["lines"]["red"], fan["lines"]["upper"]
-    p6, p12 = _at(fan, "p_red", 182), _at(fan, "p_red", 365)
+    p12 = _at(fan, "p_red", 365)
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.metric("In 6 months, most likely", f"{_at(fan, 'median', 182):.2f} m",
-                  help=f"80% range {_at(fan, 'lo_80', 182):.2f} to {_at(fan, 'hi_80', 182):.2f} m")
-    with c2:
-        st.metric(f"Below {red:.0f} m in 6 months", f"{p6:.0%}")
+    if _point(fan, 182) is not None:
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.metric("In 6 months, most likely", f"{_at(fan, 'median', 182):.2f} m",
+                      help=f"80% range {_at(fan, 'lo_80', 182):.2f} to {_at(fan, 'hi_80', 182):.2f} m")
+        with c2:
+            st.metric(f"Below {red:.0f} m in 6 months", f"{_at(fan, 'p_red', 182):.0%}")
+    else:
+        c1, c3 = st.columns(2)
+        with c1:
+            st.metric("In 12 months, most likely", f"{_at(fan, 'median', 365):.2f} m",
+                      help=f"80% range {_at(fan, 'lo_80', 365):.2f} to {_at(fan, 'hi_80', 365):.2f} m")
     with c3:
         st.metric(f"Below {red:.0f} m in 12 months", f"{p12:.0%}")
 
@@ -90,6 +110,15 @@ def render(history: pd.Series = None):
     fig.update_layout(margin=dict(b=90))
     st.plotly_chart(fig, width="stretch")
 
+    months = _months(fan)
+    if months:
+        st.dataframe(pd.DataFrame({
+            "month": [pd.Timestamp(h["date"]).strftime("%b %Y") for h in months],
+            "most likely (m)": [round(h["median"], 2) for h in months],
+            "80% range (m)": [f"{h['lo_80']:.2f} to {h['hi_80']:.2f}" for h in months],
+            f"chance below {red:.0f} m": [f"{h['p_red']:.0%}" for h in months]}),
+            hide_index=True, width="stretch")
+
     s = fan.get("seasonal") or {}
     lean = ""
     if s.get("season_ratio") is not None:
@@ -103,5 +132,5 @@ def render(history: pd.Series = None):
         f"through the model, weighted by how well it matches the seasonal forecast, plus the "
         f"model's own past errors.{lean} Chance still below {red:.0f} m in 12 months: **{p12:.0%}**.")
     st.caption(f"{fan['model']} · made {fan['made_on']} · refreshed monthly after the seasonal "
-               f"forecast (5th) · tested 2011-2025: the 80% range held the outcome 78-82% of the time "
-               f"up to 8 months ahead, 73% at 12 months.")
+               f"forecast (5th) · tested 2011-2025: the 80% range held the outcome 78-84% of the time "
+               f"at every month out to 12 months.")

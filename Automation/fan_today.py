@@ -16,9 +16,12 @@ season from earlier years. Tested on 2011-2025 (docs/experiments/cfc_fan_eval).
 Monthly refresh, after SEAS5 comes out on the 5th:
 
   cd Automation
-  CFC_FUTURE=1 CFC_YEARS=<this year> CFC_OUT=../docs/experiments/cfc_today \\
-      python cfc_tournament.py --table ims --method B --enc-len 14 --ensemble --seeds 3
-  python fan_today.py                      # latest start in cfc_today -> Models/longrange_fan.json
+  CFC_HORIZONS=monthly CFC_FUTURE=1 CFC_YEARS=<this year> CFC_OUT=../docs/experiments/cfc_today_monthly \\
+      python cfc_tournament.py --method B --enc-len 14 --ensemble --seeds 3
+  python fan_today.py                      # latest start in cfc_today_monthly -> Models/longrange_fan.json
+
+The backtest (--back, cfc_monthly) must have the same horizons: 7/13/26 d, every month to
+12 months, and 130/260 d (CFC_HORIZONS=monthly, CFC_YEARS=2011..2025, made 2026-10-17).
 """
 import argparse
 import json
@@ -95,8 +98,8 @@ def seasonal_lean(S, era_m, start: pd.Timestamp) -> dict:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--today", default=str(ROOT / "docs" / "experiments" / "cfc_today"))
-    ap.add_argument("--back", default=str(ROOT / "docs" / "experiments" / "cfc_ims_ext_ens"),
+    ap.add_argument("--today", default=str(ROOT / "docs" / "experiments" / "cfc_today_monthly"))
+    ap.add_argument("--back", default=str(ROOT / "docs" / "experiments" / "cfc_monthly"),
                     help="backtest ensemble folder: the model's earlier errors")
     ap.add_argument("--method", default="B14")
     ap.add_argument("--start", default=None, help="default: the latest start in --today")
