@@ -189,27 +189,7 @@ No row for us: the gap is said, not shown.`,
 • The 7-day app's weekly forecast is the IMS city forecast for Tiberias. It's not on this chart, so "forecast" here means the seasonal one.
 • Footer attribution: "Copernicus Climate Change Service information, 2026".
 • One-day score 0.69 → 0.76 with the rain fix and six others (backup slide).` },
-{ id: "s10c", n: "6", q: "Can anyone forecast the winter?", image: "charts/seas5_vs_rain.png",
-  design: `Copernicus against the real rain (Chartbuilder v3): winters 1998–99 to 2026–27 across the bottom (no rain dot for 2000–01: March incomplete), season rain as % of normal up the side, a dashed "normal" line. Hollow dots: the October forecast. Solid teal dots: the rain that fell, with 2018–19 green and 2024–25 orange. Direct labels instead of a legend; no range bars. The last column is "this winter": a bold ring.`,
-  script: [`One of those sources needs a closer look. Copernicus is Europe's Earth-observation programme. Every month, on the fifth, its climate service publishes a seasonal forecast: the European weather centre runs its model fifty-one times, and looks half a year ahead.`,
-`Here's every winter since 1998. The hollow dots are what Copernicus forecast each October for the winter's rain. The solid dots are the rain that actually fell. A hundred percent is a normal winter.`,
-`How good is it? The forecasts hug normal, while the real winters swing from half to one and a half times. In our test, the wetter it said, the wetter it usually was, but loosely: a score of about 0.5, where 1 is perfect and 0 is no better than guessing. Weak, but real. And that's the limit: a year ahead, the lake can only be forecast as well as the winter's rain. The rain sets the limit.`,
-`We never use its millimetres. Its model rains differently from our gauge. We compare each forecast with what Copernicus itself said in earlier years for the same month: "twenty percent wetter than it usually says" becomes "twenty percent wetter than our normal". Then the past winters that fit that lean count a little more.`,
-`And this winter, on the right? It said a wet start, and October came in [wetter / drier: fill in on 1 Nov]. After that, about normal. A lean, not a call.`],
-  pointers: [
-    `Copernicus = Europe's Earth-observation programme · forecast on the 5th, 51 runs, half a year ahead`,
-    `Graph: hollow = October forecast · solid = rain that fell · 100% = normal`,
-    `How good: hugs normal, reality swings · score ~0.5 (1 perfect, 0 guessing) · weak but real → THE RAIN SETS THE LIMIT`,
-    `How we use it: never its mm · vs its own earlier forecasts → "% wetter than usual" · matching past winters count more`,
-    `This winter: said a wet start · October came in [fill 1 Nov] · then normal · a lean, not a call`],
-  facts: `Checked by model-coach: 51 members in the live forecast (25 in the hindcasts); ECMWF runs 7 months, the product uses 6 (Oct–Mar from an October issue), so "half a year" is right for us. Each month is compared with SEAS5's own average for that start month and lead in earlier years, so its model bias cancels; rain × ratio, and temperature is nudged by its anomaly too (this winter +1 °C in Jan–Feb); past winters are weighted by their season rain only. October 2026 to the 16th: 8.8 mm at Tzemach vs a normal 2.1 mm for 1–17 Oct (the full-October normal is 11.6 mm): running wet, in line, but early. FILL IN on 1 Nov with model-coach. Chart: docs/talk/charts/seas5_vs_rain.png (Chartbuilder; method and data confirmed by model-coach). October issue, the one the fan uses for an autumn start. Oct–Mar season rain as % of each series' own normal.
-• Rain before July 2002: the same Tzemach gauge from the silver table (its rain record starts Feb 1998). Checked against ERA5: same agreement as later years (daily r 0.76, monthly 0.91, totals 0.97), and the 1998–2001 lows are the real drought.
-• Skill (n = 27 winters): Spearman 0.52, Pearson 0.57. Say "about 0.5, weak but real".
-• 2018–19: forecast 115% → fell 142%. 2024–25: forecast 92% → fell 57% ("leaned dry, never guessed how dry"). Also 1998–99: forecast 84% → fell 54%. Misses: 2019–22 (said normal or dry, came wet) and 2023–24 (102% → about 150%).
-• Copernicus's own raw 80% range held the real winter only about 2 winters in 3 (67%). Our fan doesn't use that spread; it weights past winters by SEAS5 with a shrunk slope, so the fan's 80% holds 77–84%.
-• This winter: 105% on this chart's method, 106% in the product. Say "leans slightly wet", no number.
-• Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
-{ id: "s07m", n: "7", q: "What are the two models?", image: "charts/models_explained.png",
+{ id: "s07m", n: "6", q: "What are the two models?", image: "charts/models_explained.png",
   design: `Two halves split by a vertical line (Chartbuilder). Left: "Classic ML · GBR", a row of small decision trees joined by "+" ending in "= forecast". Right: "Deep learning · GRU", a chain of cells from day 1 to today with a memory line running through. Our own drawings; very few words.`,
   script: [`Two kinds of model made it to the end.`,
 `On the left, classic machine learning: gradient boosting, GBR for short. It grows hundreds of small decision trees. Each one asks a few yes-or-no questions, like: did more than twenty millimetres fall this week? Is it winter? Each new tree corrects what the ones before it got wrong, and the forecast is all of them added up.`,
@@ -219,7 +199,7 @@ No row for us: the gap is said, not shown.`,
     `Left, classic ML = GBR: hundreds of small trees, yes/no questions, each fixes the last, add them up`,
     `Right, deep learning = GRU: reads the days in order, carries a memory, gates keep or forget`],
   facts: `Diagrams drawn by Chartbuilder, not taken from the web (copyright). GBR = the two-stage gradient-boosting champion (scikit-learn GradientBoostingRegressor); GRU = gated recurrent unit, 75 units, 14 days of history, direct multi-horizon head. The tree questions are illustrative examples, not the model's actual splits.` },
-{ id: "s07", n: "8", q: "How did we choose it?", image: "charts/choices_sliders.png",
+{ id: "s07", n: "7", q: "How did we choose it?", image: "charts/choices_sliders.png",
   design: `Five full-width sliders (Chartbuilder), a one-word title above each. The end words are one or two words; the result sits in a rounded box toward the winner; teal marks what's in use.
 Week: GRU · [0.6 cm better] → GBR (in use), with the week's weather known
 Year: GRU ← [36 cm better] · GBR
@@ -247,25 +227,27 @@ Range: Past errors · [holds 77–84%] → Past winters`,
 4. Forecast: the GRU at 365 d 0.873 → 0.851, −2.1 cm [−6.1, +1.6]; year-ahead mean 0.677 → 0.658, −1.9 cm [−4.5, +0.6], not clear (model-coach); the GBR −2.8 cm [−4.8, −0.9], clear. "Real" holds firmly for the trees.
 5. Range, GRU fan: 80% held 77–84% across 17 horizons (the lowest 76.5% at 335 d; the app caption says 76–84%). "Past errors 61–72%" exists only for the CfC on the ERA5 bench: if asked, "an earlier bench".
 "Wherever I could": the winner rule was fixed before the tournament; the history length, station data and the bug fix were not rule-decided.` },
-{ id: "s06", n: "9", q: "How did we set it up?", image: "charts/method_lanes.png",
-  design: `Method diagram (Chartbuilder): two lanes. Top, "Week ahead · retrained every morning": weather forecast, 7 days → [trees] Jordan's flow → [trees] lake's change → level, 7 days. Bottom, "Year ahead · monthly, after Copernicus": last 14 days (lake · river · weather) + weather ahead (nudged by Copernicus) → [GRU chain] → lake's change, week → year → fan (every past winter, weighted by Copernicus). Footer: "trained on station data from July 2002".`,
-  script: [`Two forecasts, built differently, because the two problems are different.`,
-`The week ahead learns again every morning from the newest data. Give it the week's weather forecast, and it works in two steps: first, how much the Jordan will bring; then, from that flow and the weather, how much the lake will rise or fall.`,
-`The year ahead is rebuilt every month, after Copernicus publishes. The GRU reads the lake's last two weeks: its level, the river, the weather. Then it's told the weather ahead: an average year, nudged by Copernicus. There's no river forecast here; the river enters only through what it has already done. And it forecasts the lake at every distance at once, from a week to a year.`,
-`Then I run it again with the weather of every past winter, and the ones Copernicus favours count more. That spread is the fan you'll see in a moment.`],
+{ id: "s10c", n: "8", q: "Can anyone forecast the winter?", image: "charts/seas5_vs_rain.png",
+  design: `Copernicus against the real rain (Chartbuilder v3): winters 1998–99 to 2026–27 across the bottom (no rain dot for 2000–01: March incomplete), season rain as % of normal up the side, a dashed "normal" line. Hollow dots: the October forecast. Solid teal dots: the rain that fell, with 2018–19 green and 2024–25 orange. Direct labels instead of a legend; no range bars. The last column is "this winter": a bold ring.`,
+  script: [`One of those sources needs a closer look. Copernicus is Europe's Earth-observation programme. Every month, on the fifth, its climate service publishes a seasonal forecast: the European weather centre runs its model fifty-one times, and looks half a year ahead.`,
+`Here's every winter since 1998. The hollow dots are what Copernicus forecast each October for the winter's rain. The solid dots are the rain that actually fell. A hundred percent is a normal winter.`,
+`How good is it? The forecasts hug normal, while the real winters swing from half to one and a half times. In our test, the wetter it said, the wetter it usually was, but loosely: a score of about 0.5, where 1 is perfect and 0 is no better than guessing. Weak, but real. And that's the limit: a year ahead, the lake can only be forecast as well as the winter's rain. The rain sets the limit.`,
+`We never use its millimetres. Its model rains differently from our gauge. We compare each forecast with what Copernicus itself said in earlier years for the same month: "twenty percent wetter than it usually says" becomes "twenty percent wetter than our normal". Then the past winters that fit that lean count a little more.`,
+`And this winter, on the right? It said a wet start, and October came in [wetter / drier: fill in on 1 Nov]. After that, about normal. A lean, not a call.`],
   pointers: [
-    `Two problems, two forecasts`,
-    `Week: retrained every morning · give it the week's forecast → Jordan's flow → lake's change`,
-    `Year: monthly, after Copernicus · GRU reads last 2 weeks + weather ahead (average year, nudged) · no river forecast · every distance at once`,
-    `Re-run with every past winter, Copernicus-favoured count more → the fan`],
-  facts: `Checked by model-coach in code: the data refresh RETRAINS the two-stage GBR every morning, but the 7-day forecast runs ON DEMAND in the app (page 6) with whatever weather is loaded (the IMS week forecast via "Fetch from IMS", or typed values); never say the forecast is fed automatically. The fan is rebuilt BY HAND after Copernicus publishes on the 5th (the live one is from 15 Oct). The GRU's output covers 17 horizons; "station weather" includes rain intensity. The 7-day's tested score comes from folds trained from 2012 on. Confirmed by the results peer (final run cfc_monthly, 52fc2d2). The long-range model is the GRU direct model (cfc_tournament.py method B, --cell gru; branch fan-gru af70a5d): 14 days of history, a GRU encoder with 75 units (~21k weights), a 64-unit head, Huber loss, up to 80 epochs with early stopping (patience 10, the last 15% of training years as validation), learning rate 0.003, 3 seeds averaged, trained on what actually fell.
-• History, last 14 days: temperature (mean, max, min), humidity, wind, rain, rain intensity, sun, VPD, evaporation; season; Jordan inflow at Obstacle Bridge (past only); level, volume change, a "level was read" flag.
-• Ahead, per window: rain, evaporation and sun totals; temperature, humidity, wind and VPD means. 17 horizons: 7/13/26 days, every month to 12, plus 130/260.
-• Output: volume change → bathymetry curve → level.
-• Weather ahead: the training years' day-of-year average; rain × the SEAS5 monthly ratio, temperature + its anomaly, from the issue already out on the start day.
-• Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
-The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
-{ id: "s08", n: "10", q: "Which model won?", image: "charts/models_table.png",
+    `Copernicus = Europe's Earth-observation programme · forecast on the 5th, 51 runs, half a year ahead`,
+    `Graph: hollow = October forecast · solid = rain that fell · 100% = normal`,
+    `How good: hugs normal, reality swings · score ~0.5 (1 perfect, 0 guessing) · weak but real → THE RAIN SETS THE LIMIT`,
+    `How we use it: never its mm · vs its own earlier forecasts → "% wetter than usual" · matching past winters count more`,
+    `This winter: said a wet start · October came in [fill 1 Nov] · then normal · a lean, not a call`],
+  facts: `Checked by model-coach: 51 members in the live forecast (25 in the hindcasts); ECMWF runs 7 months, the product uses 6 (Oct–Mar from an October issue), so "half a year" is right for us. Each month is compared with SEAS5's own average for that start month and lead in earlier years, so its model bias cancels; rain × ratio, and temperature is nudged by its anomaly too (this winter +1 °C in Jan–Feb); past winters are weighted by their season rain only. October 2026 to the 16th: 8.8 mm at Tzemach vs a normal 2.1 mm for 1–17 Oct (the full-October normal is 11.6 mm): running wet, in line, but early. FILL IN on 1 Nov with model-coach. Chart: docs/talk/charts/seas5_vs_rain.png (Chartbuilder; method and data confirmed by model-coach). October issue, the one the fan uses for an autumn start. Oct–Mar season rain as % of each series' own normal.
+• Rain before July 2002: the same Tzemach gauge from the silver table (its rain record starts Feb 1998). Checked against ERA5: same agreement as later years (daily r 0.76, monthly 0.91, totals 0.97), and the 1998–2001 lows are the real drought.
+• Skill (n = 27 winters): Spearman 0.52, Pearson 0.57. Say "about 0.5, weak but real".
+• 2018–19: forecast 115% → fell 142%. 2024–25: forecast 92% → fell 57% ("leaned dry, never guessed how dry"). Also 1998–99: forecast 84% → fell 54%. Misses: 2019–22 (said normal or dry, came wet) and 2023–24 (102% → about 150%).
+• Copernicus's own raw 80% range held the real winter only about 2 winters in 3 (67%). Our fan doesn't use that spread; it weights past winters by SEAS5 with a shrunk slope, so the fan's 80% holds 77–84%.
+• This winter: 105% on this chart's method, 106% in the product. Say "leans slightly wet", no number.
+• Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
+{ id: "s08", n: "9", q: "Which model won?", image: "charts/models_table.png",
   design: `Big table (Chartbuilder), two rows: GBR ("Classic ML") and GRU ("Neural network"), with a Model type column. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Title "Prediction horizon"; "Prediction error (cm)" under the table; header "Week*" with "* weather known" bottom left. The lower error in each column in soft teal (Week: Trees; Month: both, a tie; 6 months and Year: GRU); the other cell plain black. A teal outline marks the model in use: Trees for the week, the GRU for the month, 6 months and year.`,
   script: [`Two models made it to the end: the same setup, the same years, the same test.`,
 `My first GRU, back in June, did no better than guessing: I'd set it up wrong, without the weather it needed. Set up fairly, it caught up.`,
@@ -285,7 +267,32 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test, so I shipped the GRU, a standard, well-known design." Never claim the GRU trains faster: re-timed 17 Oct, 53 s vs 75 s per backtest year, but slower in the from-today run; both noisy.` },
-{ id: "s11", n: "11", q: "So which winter is coming?", image: "charts/fan_today.png", frames: ["charts/fan_today_1.png", "charts/fan_today_2.png", "charts/fan_today_3.png", "charts/fan_today_4.png"],
+{ id: "s06", n: "10", q: "How did we set it up?", image: "charts/method_lanes.png",
+  design: `Method diagram (Chartbuilder): two lanes. Top, "Week ahead · retrained every morning": weather forecast, 7 days → [trees] Jordan's flow → [trees] lake's change → level, 7 days. Bottom, "Year ahead · monthly, after Copernicus": last 14 days (lake · river · weather) + weather ahead (nudged by Copernicus) → [GRU chain] → lake's change, week → year → fan (every past winter, weighted by Copernicus). Footer: "trained on station data from July 2002".`,
+  script: [`Two forecasts, built differently, because the two problems are different.`,
+`The week ahead learns again every morning from the newest data. Give it the week's weather forecast, and it works in two steps: first, how much the Jordan will bring; then, from that flow and the weather, how much the lake will rise or fall.`,
+`The year ahead is rebuilt every month, after Copernicus publishes. The GRU reads the lake's last two weeks: its level, the river, the weather. Then it's told the weather ahead: an average year, nudged by Copernicus. There's no river forecast here; the river enters only through what it has already done. And it forecasts the lake at every distance at once, from a week to a year.`,
+`Then I run it again with the weather of every past winter, and the ones Copernicus favours count more. That spread is the fan you'll see in a moment.`],
+  pointers: [
+    `Two problems, two forecasts`,
+    `Week: retrained every morning · give it the week's forecast → Jordan's flow → lake's change`,
+    `Year: monthly, after Copernicus · GRU reads last 2 weeks + weather ahead (average year, nudged) · no river forecast · every distance at once`,
+    `Re-run with every past winter, Copernicus-favoured count more → the fan`],
+  facts: `Checked by model-coach in code: the data refresh RETRAINS the two-stage GBR every morning, but the 7-day forecast runs ON DEMAND in the app (page 6) with whatever weather is loaded (the IMS week forecast via "Fetch from IMS", or typed values); never say the forecast is fed automatically. The fan is rebuilt BY HAND after Copernicus publishes on the 5th (the live one is from 15 Oct). The GRU's output covers 17 horizons; "station weather" includes rain intensity. The 7-day's tested score comes from folds trained from 2012 on. Confirmed by the results peer (final run cfc_monthly, 52fc2d2). The long-range model is the GRU direct model (cfc_tournament.py method B, --cell gru; branch fan-gru af70a5d): 14 days of history, a GRU encoder with 75 units (~21k weights), a 64-unit head, Huber loss, up to 80 epochs with early stopping (patience 10, the last 15% of training years as validation), learning rate 0.003, 3 seeds averaged, trained on what actually fell.
+• History, last 14 days: temperature (mean, max, min), humidity, wind, rain, rain intensity, sun, VPD, evaporation; season; Jordan inflow at Obstacle Bridge (past only); level, volume change, a "level was read" flag.
+• Ahead, per window: rain, evaporation and sun totals; temperature, humidity, wind and VPD means. 17 horizons: 7/13/26 days, every month to 12, plus 130/260.
+• Output: volume change → bathymetry curve → level.
+• Weather ahead: the training years' day-of-year average; rain × the SEAS5 monthly ratio, temperature + its anomaly, from the issue already out on the start day.
+• Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
+The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
+{ id: "s10r", n: "11", q: "Why can't you just tell us?", image: null,
+  design: `One photo, full bleed, no words: a rainbow over the lake after rain (the speaker's own photo).`,
+  script: [
+`Before I show you a forecast, one honest thing. Forecasting the rain here, a whole winter ahead, is hard, even for the best centres in the world. We sit between the sea and the desert, and a winter is decided by a handful of storms. And as the climate changes, the past is a weaker guide every year.`,
+`To see further, we'll need more: more measuring, more gathering, more sharing, and better models. Every link in that chain is in someone's hands, many of them in this room.`,
+`[pause]`],
+  facts: `Feels like a close on purpose; the next click is the fan. Evidence for "hard": Copernicus' October forecast matched the real winter's ranking only about half the time (Spearman 0.52, slide 8). Keep it general: no claim that the region is "the hardest" anywhere. Photo: the speaker's rainbow over the lake.` },
+{ id: "s11", n: "12", q: "So which winter is coming?", image: "charts/fan_today.png", frames: ["charts/fan_today_1.png", "charts/fan_today_2.png", "charts/fan_today_3.png", "charts/fan_today_4.png"],
   design: `Fan v4, built up in FOUR CLICKS (Chartbuilder; proposal agreed by script and coach, cuts pending the originator). Shape-preserving smoothing; dots stay on the real monthly points. Stamp "forecast made 15 Oct 2026 · October seasonal forecast".
 1. Today dot + red line + a grey line per past winter.
 2. + ONE band (80%), labelled "8 in 10" on that band; the replays fade out.
@@ -311,23 +318,16 @@ Cut from v3: the 50% and 90% bands, the error bars (one spoken sentence instead)
 • Lopsided misses: at 12 months the lake ended above the 80% top 16% of the time, below the bottom 7%; October starts' middle ran about 40 cm low; the 90% band held 95% for October starts. The best-case edge is under-covered (exceeded 11%); the worst-case edge was undercut only 1%.
 • Only 15 of 22 winters have complete weather at 12 months; the backtest uses the same rule.
 • App: the median, bands and odds match page 10 exactly; the three groups are NEW there. Say "on the slide we group the past winters…". Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
-{ id: "s12", n: "12", q: "What do I take home?", image: null,
-  design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass.`,
+{ id: "s12", n: "13", q: "What do I take home?", image: null,
+  design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass. Last click: the app's QR code, and the credit line (licence requirement): "Copernicus Climate Change Service information, 2026".`,
   script: [
 `Not a model. Three rules, and anyone here can use them, with an AI at their side.`,
 `Decide how you'll judge before you see the results.`,
 `Compare against the best you have, and against doing nothing.`,
 `When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a brilliant number, a network I nearly threw away.`,
-`Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.`],
+`Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.`,
+`An amateur with a laptop got this far. Imagine what all of us could see, together. Thank you.`],
   facts: `` },
-{ id: "s13", n: "13", q: "So how far did you get?", image: null,
-  design: `The app's fan card as a screenshot, with the QR code. Credits line (licence requirement, moved here from slide 5): "Copernicus Climate Change Service information, 2026".`,
-  script: [
-`I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it, updated every month when the new seasonal forecast comes out. Here it is.`,
-`What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.`,
-`An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.`,
-`Thank you.`],
-  facts: `The 7-day forecast updates every morning; the long-range fan updates monthly. The app's 6-month card must be fixed before the QR code is shown.` },
 { id: "bk06", n: "Q&A", flag: "backup", q: "Can you trust it?", image: null,
   design: `The short scoreboard, 0 to 1. Four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot at 0.77.`,
   script: [
