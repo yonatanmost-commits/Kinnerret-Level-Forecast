@@ -31,6 +31,7 @@ NAMES = {"A": "A · relay, 2 steps", "A1": "A1 · relay, 1 step", "B14": "B · d
          "B7": "B · direct, 7 d", "B7n": "B no level · 7 d", "B60n": "B no level · 60 d",
          "B7lstm": "B LSTM · 7 d", "B60lstm": "B LSTM · 60 d",
          "B7s": "B level only · 7 d", "B60s": "B level only · 60 d", "G": "GBR champion",
+         "B14gru": "GRU · direct, 14 d",
          "persistence": "no change", "clim_change": "average change"}
 
 
@@ -476,14 +477,14 @@ Partly: an LSTM does gain from 60 days over 7, which the CfC does not, but it on
 """
 
 
-def fan_chart(f, label, w=720, h=300):
+def fan_chart(f, label, w=720, h=300, red=None):
     """One start's forecast: median path and 50/80/90% ranges against what happened.
-    f: rows of one start (H, pred, obs, lo_*/hi_*) plus level0."""
+    f: rows of one start (H, pred, obs, lo_*/hi_*) plus level0. red: draw that level."""
     ml, mr, mt, mb = 76, 16, 14, 34
     f = f.sort_values("H")
     lv0 = float(f["level0"].iat[0])
     xs = [0] + f["H"].tolist()
-    vals = [lv0] + f[["lo_90", "hi_90", "obs"]].stack().dropna().tolist()
+    vals = [lv0] + f[["lo_90", "hi_90", "obs"]].stack().dropna().tolist() + ([red] if red is not None else [])
     lo, hi = min(vals), max(vals)
     pad = (hi - lo) * 0.08 + 0.05
     X = lin(0, 365, ml, w - mr)
@@ -510,6 +511,9 @@ def fan_chart(f, label, w=720, h=300):
     g.append('<path class="ln actual" d="' + " ".join(f"{'M' if i == 0 else 'L'}{X(x):.1f},{Y(y):.1f}"
                                                      for i, (x, y) in enumerate(ob)) + '"/>')
     g += [f'<circle class="actual" cx="{X(x):.1f}" cy="{Y(y):.1f}" r="3.6"/>' for x, y in ob[1:]]
+    if red is not None:
+        g.append(f'<line class="redline" x1="{ml}" x2="{w - mr}" y1="{Y(red):.1f}" y2="{Y(red):.1f}"/>'
+                 f'<text class="redlab" x="{w - mr - 4}" y="{Y(red) - 5:.1f}" text-anchor="end">red line {red:g} m</text>')
     return svg(w, h, "".join(g), label)
 
 
@@ -580,6 +584,155 @@ def why_section(d, mem):
                          "LSTM: same model, an LSTM in place of the CfC.")]
 
 
+
+# ── the station record: three models, the seasonal forecast, the fan, the red line ──
+
+STATION = T.parent / "cfc_ims_ext_seas5"
+FAN = T.parent / "cfc_fan_eval" / "fan.json"
+RED_LINE = -213.0
+TRIO = (("B14", "CfC"), ("B14gru", "GRU"), ("G", "GBR"))
+
+PROCESS = [
+    ("start", "GBR champion live at 7 days; GRU retired in June (R² ≈ 0); CfC relay 0.57 m at a year, but only given the real weather", ""),
+    ("bench", "one fair bench: 16 test years, 6 horizons, a start every week, average vs actual weather, winner rule fixed first", ""),
+    ("relay vs direct", "A relay 0.370 · A1 0.374 · B direct 0.366 · all inside each other's intervals", "kept B"),
+    ("continuous time", "decoder C 0.442, worse than 'average change'; a fair rerun worse again", "dropped"),
+    ("memory", "3 days ≈ 120 days; the model needs the lake's trend AND recent rain and inflow (tested both halves)", "kept 14 d"),
+    ("the limit", "a perfect weather forecast takes the year-ahead error from 0.93 to 0.55 m: the winter is the limit", ""),
+    ("honesty checks", "look-ahead bug found and fixed; 'quality beats quantity' tested and not supported", ""),
+    ("champion", "GBR on the same bench ties the CfC on ERA5", ""),
+    ("GRU, fairly", "set up like the CfC, the GRU matches it; June's failure was the setup", "kept"),
+    ("ranges", "error-only ranges held 61-72% of '80%'; past-winter scenarios + model error + self-correction hold ~80%", "kept"),
+    ("forecast the winter?", "climate indices |ρ| ≤ 0.33: no · Copernicus SEAS5 ρ 0.30-0.46: weak but real", "kept SEAS5"),
+    ("station record", "IMS Tzemach 2002-2025, 15 test years: year ahead CfC 0.72 = GRU 0.73, GBR 0.89", "kept CfC"),
+    ("seasonal forecast", "raw SEAS5 helps all three; month calibration lost half the gain, season calibration = raw", "kept raw"),
+    ("the fan", "past winters weighted by SEAS5: red-line odds better (interval clear of zero)", "kept"),
+]
+
+
+def process_section():
+    items = "".join(f'<li><b>{esc(a)}</b><span>{esc(b)}</span>{f"<i>{esc(c)}</i>" if c else ""}</li>'
+                    for a, b, c in PROCESS)
+    return [f'<section><h2>How we got here</h2><ol class="process">{items}</ol></section>']
+
+
+def value_bars(rows, label, w=720, h=250):
+    """rows: [(group, model, none, seas5, perfect)] year-ahead errors; three bars per model."""
+    ml, mr, mt, mb = 52, 10, 20, 46
+    top = max(v for r in rows for v in r[2:])
+    ymax, step = nice_max(top)
+    Y = lin(0, ymax, h - mb, mt)
+    groups = list(dict.fromkeys(r[0] for r in rows))
+    per = len(rows) // len(groups)
+    gw = (w - ml - mr) / len(rows)
+    g = []
+    for v in np.arange(0, ymax + 1e-9, step):
+        g.append(f'<line class="grid" x1="{ml}" x2="{w - mr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
+                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">{v:g}</text>')
+    for i, (grp, m, *vals) in enumerate(rows):
+        x0 = ml + i * gw + gw * 0.12
+        bw = gw * 0.76 / 3
+        for j, (v, cls) in enumerate(zip(vals, ("vnone", "vseas", "vperf"))):
+            x = x0 + j * bw
+            g.append(f'<rect class="{cls}" x="{x + 1:.1f}" y="{Y(v):.1f}" width="{bw - 2:.1f}" height="{Y(0) - Y(v):.1f}" rx="2"/>'
+                     f'<text class="num small" x="{x + bw / 2:.1f}" y="{Y(v) - 4:.1f}" text-anchor="middle">{v:.2f}</text>')
+        g.append(f'<text class="tick strong" x="{ml + i * gw + gw / 2:.1f}" y="{h - mb + 18}" text-anchor="middle">{esc(m)}</text>')
+    for k, grp in enumerate(groups):
+        g.append(f'<text class="axis" x="{ml + (k * per + per / 2) * gw:.1f}" y="{h - 8}" text-anchor="middle">{esc(grp)}</text>')
+    return svg(w, h, "".join(g), label)
+
+
+def reliability_chart(tables, label, w=420, h=360):
+    """tables: [(name, css var, rows of {said, happened, forecasts})]; diagonal = honest."""
+    ml, mr, mt, mb = 52, 16, 16, 42
+    X = lin(0, 1, ml, w - mr)
+    Y = lin(0, 1, h - mb, mt)
+    g = [f'<line class="refline ref1" x1="{X(0):.1f}" y1="{Y(0):.1f}" x2="{X(1):.1f}" y2="{Y(1):.1f}"/>']
+    for v in (0, 0.25, 0.5, 0.75, 1):
+        g.append(f'<line class="grid" x1="{ml}" x2="{w - mr}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
+                 f'<text class="tick" x="{ml - 8}" y="{Y(v) + 4:.1f}" text-anchor="end">{v:.0%}</text>'
+                 f'<text class="tick" x="{X(v):.1f}" y="{h - mb + 16}" text-anchor="middle">{v:.0%}</text>')
+    g.append(f'<text class="axis" x="{(ml + w - mr) / 2}" y="{h - 6}" text-anchor="middle">forecast chance</text>'
+             f'<text class="axis" x="14" y="{(mt + h - mb) / 2}" transform="rotate(-90 14 {(mt + h - mb) / 2})" '
+             f'text-anchor="middle">how often it happened</text>')
+    for k, (name, col, rows) in enumerate(tables):
+        pts = [(r["said"], r["happened"], r["forecasts"]) for r in rows if r["said"] is not None and r["forecasts"]]
+        g.append(f'<text class="lab" x="{ml + 12}" y="{mt + 16 + 16 * k}" style="fill:var({col})">{esc(name)}</text>')
+        d = " ".join(f"{'M' if i == 0 else 'L'}{X(a):.1f},{Y(b):.1f}" for i, (a, b, _) in enumerate(pts))
+        g.append(f'<path class="ln" style="stroke:var({col})" d="{d}"/>')
+        g += [f'<circle cx="{X(a):.1f}" cy="{Y(b):.1f}" r="{2.5 + 5 * np.sqrt(n / 1000):.1f}" '
+              f'style="fill:var({col});fill-opacity:.75"/>' for a, b, n in pts]
+    return svg(w, h, "".join(g), label)
+
+
+def station_section():
+    """Three models on the IMS station record with and without SEAS5; the SEAS5-weighted
+    fan and its red-line odds (cfc_fan_eval)."""
+    if not STATION.exists():
+        return []
+    d = load(STATION)
+    keys = [f"{m}/{w}" for m, _ in TRIO for w in ("clim", "seas5", "obs")]
+    c = common(d, keys + [f"{x}/-" for x in REFS])
+    yrs = f"{c['year'].min()}–{c['year'].max()}"
+    parts = [section(f"Station record {yrs} · three models, no weather forecast",
+                     horizon_chart(c, [f"{m}/clim" for m, _ in TRIO] + [f"{x}/-" for x in REFS],
+                                   "three models on the station record",
+                                   names={f"{m}/clim": n for m, n in TRIO}),
+                     note=f"{c['year'].nunique()} test years on IMS station data (Tzemach, from 2002). "
+                          "CfC and GRU tie; the GBR falls behind beyond a few months.")]
+    autumn = c[pd.to_datetime(c["start"]).dt.month.isin([9, 10, 11])]
+    rows = [("all starts", n, mae(c, f"{m}/clim", LONG), mae(c, f"{m}/seas5", LONG), mae(c, f"{m}/obs", LONG))
+            for m, n in TRIO]
+    rows += [("autumn starts", n, mae(autumn, f"{m}/clim", LONG), mae(autumn, f"{m}/seas5", LONG),
+              mae(autumn, f"{m}/obs", LONG)) for m, n in TRIO]
+    parts.append(section("What a seasonal forecast is worth · year ahead",
+                         value_bars(rows, "year-ahead error with no forecast, SEAS5 and a perfect forecast"),
+                         note='<i class="key sw vnone"></i>no forecast <i class="key sw vseas"></i>Copernicus SEAS5 '
+                              '<i class="key sw vperf"></i>perfect forecast (the ceiling) · mean error at 130–365 days, m'))
+    if not FAN.exists():
+        return parts
+    f = json.loads(FAN.read_text(encoding="utf-8"))
+    sc = {k: pd.DataFrame(v["scores"]).set_index("H") for k, v in f.items() if "scores" in v}
+    w = sc.get("B14/seas5")
+    if w is not None:
+        series = []
+        for col, name, var in (("cov80", "80% range", "--L2"), ("cov50", "50% range", "--L3")):
+            series.append((name, var, w[col].to_dict(), False))
+            series.append((f"promised {name[:3]}", var, {hh: (0.8 if col == "cov80" else 0.5) for hh in w.index}, True))
+        bss = [("winters equal", "--m-persistence", sc["B14/plain"]["red_bss"].to_dict(), True),
+               ("SEAS5-weighted", "--m-B14", w["red_bss"].to_dict(), False)]
+        rel = [("past winters equal", "--m-persistence", f["B14/plain"]["reliability_red"]),
+               ("weighted by SEAS5", "--m-B14", f["B14/seas5"]["reliability_red"])]
+        g = f.get("B14/gain", {}).get("br", (np.nan, np.nan, np.nan))
+        parts.append(section("The fan · do the ranges hold?",
+                             xy_chart(series, list(w.index), "days ahead", "fan calibration", ymin=0.4,
+                                      ylabel="outcomes inside the range", pct=True),
+                             note="CfC, past winters' weather weighted by the SEAS5 forecast, plus the model's own error, "
+                                  "self-correcting. Station record."))
+        parts.append(section(f"Red line {RED_LINE:g} m · the odds, tested",
+                             reliability_chart(rel, "red-line reliability", w=720, h=330),
+                             xy_chart(bss, list(w.index), "days ahead", "red-line skill", ylabel="skill vs the average odds"),
+                             note=f"Top: when the fan said X%, how often the lake really ended below {RED_LINE:g} m "
+                                  "(on the diagonal = honest; dot size = how many forecasts). Bottom: skill against always "
+                                  "quoting the average odds (0 = no better, 1 = perfect). Weighting by SEAS5: Brier "
+                                  f"{g[0]:+.3f} [{g[1]:+.3f}, {g[2]:+.3f}] at 130–365 d."))
+        ex = pd.DataFrame(f["B14/seas5"].get("examples", []))
+        if len(ex):
+            ex["t"] = pd.to_datetime(ex["start"])
+            figs = []
+            for yr, name in ((2018, "a record wet winter ahead"), (2020, "an ordinary winter ahead"),
+                             (2024, "a record dry winter ahead")):
+                e = ex[ex["t"].dt.year == yr]
+                if len(e) and e["lo_90"].notna().any():
+                    figs.append(f'<figure class="fan"><figcaption>start {esc(str(e["start"].iat[0])[:10])} · {esc(name)}'
+                                f'</figcaption>{fan_chart(e.dropna(subset=["lo_90"]), f"fan from {yr}", red=RED_LINE)}</figure>')
+            parts.append(section("The fan · three autumns on the station record", "".join(figs),
+                                 note='<i class="key sw b50"></i>50% <i class="key sw b80"></i>80% <i class="key sw b90"></i>90% '
+                                      '<i class="key line med"></i>forecast <i class="key dotk actual"></i>what happened '
+                                      f'<i class="key redk"></i>red line {RED_LINE:g} m'))
+    return parts
+
+
 # ── page ─────────────────────────────────────────────────────────────────────
 
 def section(title, *figs, note=""):
@@ -613,6 +766,7 @@ def build():
     parts.append(section("Tested", f'<div class="glyphs">{method_glyphs()}</div>', bench_strip(years),
                          note="Horizons 7 · 13 · 26 · 130 · 260 · 365 days. A start every 7 days. "
                               "Weather ahead = average for that day of year. 3 seeds each."))
+    parts += process_section()
     parts.append(ALGEBRA)
     parts.append(section("Round 1 · error by horizon",
                          horizon_chart(common(d, [f"{m}/clim" for m in r1] + [f"{w1}/obs"] + [f"{r}/-" for r in REFS]),
@@ -661,6 +815,7 @@ def build():
     parts += ims_section()
     parts += why_section(d, mem)
     parts += bands_section()
+    parts += station_section()
 
     # memory
     if len(mem):
@@ -722,7 +877,7 @@ PAGE = """<title>CfC Horizon Tournament</title>
 :root {{
   --bg:#f3f6f7; --panel:#ffffff; --fg:#122229; --muted:#5d717a; --grid:#d8e1e5;
   --m-A:#c26d1c; --m-A1:#d9a04b; --m-B14:#5fb0a8; --m-B60:#17716b; --m-C60:#6a56b8; --m-C60f:#a33d8f; --m-B14b:#2f5fa8;
-  --m-relay7:#7a6a58; --m-relay3:#a8977f; --m-B7s:#5b86c9; --m-B60s:#2f5fa8; --m-B7:#5fb0a8; --m-B7n:#d9a04b; --m-B60n:#c26d1c; --m-B7lstm:#a594ea; --m-B60lstm:#6a56b8;
+  --m-relay7:#7a6a58; --m-relay3:#a8977f; --m-G:#b0662b; --m-B14gru:#7b5bc2; --m-B7s:#5b86c9; --m-B60s:#2f5fa8; --m-B7:#5fb0a8; --m-B7n:#d9a04b; --m-B60n:#c26d1c; --m-B7lstm:#a594ea; --m-B60lstm:#6a56b8;
   --m-persistence:#8e9ca3; --m-clim_change:#b3bec3; --heat:#17716b;
   --L0:#a8d8d2; --L1:#5fb0a8; --L2:#17716b; --L3:#0d4c48; --L4:#6a56b8; --L5:#c26d1c;
   --sans:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
@@ -731,13 +886,13 @@ PAGE = """<title>CfC Horizon Tournament</title>
 @media (prefers-color-scheme: dark) {{ :root:not([data-theme="light"]) {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
   --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
-  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7s:#a9c3ee; --m-B60s:#7fa7e8; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-G:#e09a5e; --m-B14gru:#b49cf0; --m-B7s:#a9c3ee; --m-B60s:#7fa7e8; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }} }}
 :root[data-theme="dark"] {{
   --bg:#0e181c; --panel:#142228; --fg:#e2ebee; --muted:#8ea2aa; --grid:#26363d;
   --m-A:#e2934a; --m-A1:#efc27f; --m-B14:#80cdc4; --m-B60:#38b2a6; --m-C60:#a594ea; --m-C60f:#e07fc6; --m-B14b:#7fa7e8;
-  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-B7s:#a9c3ee; --m-B60s:#7fa7e8; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
+  --m-relay7:#bfae96; --m-relay3:#8e7f6a; --m-G:#e09a5e; --m-B14gru:#b49cf0; --m-B7s:#a9c3ee; --m-B60s:#7fa7e8; --m-B7:#80cdc4; --m-B7n:#efc27f; --m-B60n:#e2934a; --m-B7lstm:#c4b8f2; --m-B60lstm:#a594ea;
   --m-persistence:#6e8088; --m-clim_change:#55666d; --heat:#38b2a6;
   --L0:#2d5f5a; --L1:#3f9289; --L2:#62c4b9; --L3:#a8e6de; --L4:#a594ea; --L5:#e2934a; color-scheme:dark }}
 body {{ background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:15px; line-height:1.5 }}
@@ -793,7 +948,21 @@ footer {{ color:var(--muted); font-size:.72rem; font-family:var(--mono) }}
 circle.actual {{ fill:var(--m-A) }}
 i.key.sw.b50, i.key.sw.b80, i.key.sw.b90 {{ background:var(--L2) }} i.key.sw.b50 {{ opacity:.42 }}
 i.key.sw.b80 {{ opacity:.26 }} i.key.sw.b90 {{ opacity:.16 }}
-i.key.line {{ border-top:2px solid var(--L3) }} i.key.dotk {{ width:8px; height:8px; border:0; border-radius:50%; background:var(--m-A) }}
+i.key.line {{ border-top:2px solid var(--L3) }}
+.redline {{ stroke:#c0392b; stroke-width:1.6; stroke-dasharray:6 4 }} .redlab {{ fill:#c0392b; font-size:11px }}
+i.key.redk {{ border-top:2px dashed #c0392b }}
+.vnone {{ fill:var(--m-persistence) }} .vseas {{ fill:var(--m-B14) }} .vperf {{ fill:var(--grid) }}
+i.key.sw.vnone {{ background:var(--m-persistence) }} i.key.sw.vseas {{ background:var(--m-B14) }} i.key.sw.vperf {{ background:var(--grid) }}
+.pair {{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,3fr); gap:12px; align-items:start }}
+.pair svg {{ min-width:0 }}
+@media (max-width: 640px) {{ .pair {{ grid-template-columns:1fr }} }}
+ol.process {{ margin:0; padding:0; list-style:none; counter-reset:step; display:grid; gap:6px }}
+ol.process li {{ counter-increment:step; display:grid; grid-template-columns:2.2em 9.5em 1fr auto; gap:8px; align-items:baseline;
+  background:var(--panel); border:1px solid var(--grid); border-radius:8px; padding:7px 10px; font-size:.86rem }}
+ol.process li::before {{ content:counter(step); color:var(--muted); font-family:var(--mono); font-size:.78rem }}
+ol.process li b {{ font-weight:600 }} ol.process li span {{ color:var(--muted) }}
+ol.process li i {{ font-style:normal; font-family:var(--mono); font-size:.72rem; color:var(--m-B14); white-space:nowrap }}
+@media (max-width: 640px) {{ ol.process li {{ grid-template-columns:2em 1fr; }} ol.process li span, ol.process li i {{ grid-column:2 }} }} i.key.dotk {{ width:8px; height:8px; border:0; border-radius:50%; background:var(--m-A) }}
 @media (max-width: 560px) {{ h1 {{ font-size:1.35rem }} }}
 </style>
 <main>

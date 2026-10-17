@@ -147,3 +147,229 @@ average weather.
   head), it does as well or a few millimetres better. Safe line: "any good recurrent network
   matches the champion once it is set up right; the liquid network's edge is not accuracy
   alone." Don't claim the CfC beats the GRU.
+
+## 8. The three models on the longer IMS station record, 2011-2025 (sha d19384b)
+Gold rebuilt Tzemach-first from 2002-07 by the IMS session (branch tzemach-gold-1998 @ 81a2082,
+not on master/live yet). 15 test years, each trained on all earlier years.
+
+| model | weather ahead | 7 d | 26 d | 130 d | 260 d | 365 d | 130-365 d |
+|---|---|---|---|---|---|---|---|
+| CfC | average | 0.030 | 0.105 | 0.475 | 0.766 | 0.919 | **0.716** |
+| GRU | average | 0.029 | 0.103 | 0.456 | 0.765 | 0.972 | 0.727 |
+| GBR | average | 0.027 | 0.102 | 0.491 | 0.938 | 1.262 | 0.891 |
+| CfC | actual | 0.023 | 0.073 | 0.410 | 0.773 | 0.899 | 0.690 |
+| GRU | actual | 0.021 | 0.073 | 0.403 | 0.768 | 0.944 | 0.701 |
+| GBR | actual | 0.020 | 0.071 | 0.299 | 0.570 | 0.776 | **0.545** |
+| average change | - | 0.035 | 0.115 | 0.490 | 0.869 | 1.139 | 0.828 |
+
+- 7-26 d: a three-way tie (all within 3 mm).
+- 130-365 d, the real case (average weather ahead): the CfC and GRU tie; the GBR is clearly worse
+  (+0.20 m, 90% interval +0.04..+0.37) and even worse than "average change".
+- Given the ACTUAL weather, the GBR is best (0.55 vs 0.69). On this station data the networks
+  barely use the weather of the window ahead; the GBR does, but only pays off with a good forecast.
+- Talk: "with no forecast of the winter, the liquid network (and the GRU) give the best year-ahead
+  outlook; the gradient-boosting champion only wins if someone hands it the coming winter's weather."
+
+## 9. The PROCESS - how we got here, step by step (tactics, wrong turns, corrections)
+Errors are mean absolute lake-level errors in metres. "Year ahead" = mean of the 130/260/365-day
+horizons. "Average weather" = no forecast of the weather ahead; "actual weather" = a perfect one.
+
+**0. Starting point (before the tournament)**
+- The live champion: a two-stage gradient-boosting model (GBR), 7 days ahead, R² 0.77.
+- The June "model olympics": the GRU scored R² ≈ 0 and was retired.
+- A liquid network (CfC) relay on IMS station data, 2021-24: 365 days 0.57 m given the actual
+  weather, 0.92 with average weather. That 0.57 looked like the number to beat, but it assumed a
+  perfect weather forecast.
+
+**1. Build one fair bench.** IMS station data only started in 2012 (too few winters), so we built
+a 25-year ERA5 reanalysis table (2001-2025) and tested 16 years (2010-2025):
+- a forecast every 7 days, at 7/13/26/130/260/365 days ahead
+- every forecast run twice, with average and with actual weather
+- 3 seeds per network
+- the winner rule written down BEFORE any result
+- every comparison paired (same start days) with a 90% interval over test years
+
+**2. Round 1: how should a liquid network forecast far ahead?**
+- A = relay (predict tomorrow, feed it back, 365 times)
+- A1 = one-step relay
+- B = direct (read the recent past, predict all horizons at once)
+
+All-horizon errors: A 0.370, A1 0.374, B14 0.366 (winner), B60 0.368. All inside each other's
+intervals: the architecture barely matters.
+
+**3. Round 2: the elegant option fails.** C = a continuous-time decoder (the liquid network's
+"natural" form):
+- 0.442, worse than simply assuming an average year's change (0.423)
+- a fair rerun (trained like B) was worse again, so C was retired
+
+Lesson: the most elegant design was not the best one.
+
+**4. How much past does it need?** History tested from 1 to 120 days, plus "blanking" old days
+at test time:
+- 3 days is as good as 120 (year ahead 0.686-0.697); 1 day is a bit worse (0.703)
+- Why, tested rather than assumed: hiding the lake level/volume history costs 0.065 m, and a
+  history of ONLY level/volume costs as much. The model needs both the lake's recent trend and
+  the latest rain and river flow.
+- We first claimed "the level is its own memory", then corrected it (section 2).
+- An LSTM (an additive memory path) does use 60 days, but only reaches the 7-day CfC.
+
+**5. Where the error really comes from.**
+- Year-by-year errors track the coming winter's rain (Spearman 0.90 for autumn starts): record
+  wet 2018-19 under-called by 2.3 m, dry 2024-25 over-called by 1.8 m.
+- Given the actual weather, the year-ahead error drops from 0.93 to 0.55 at 365 days: 0.38 m of
+  the error is simply not knowing the winter. From then on the question was the weather, not
+  the network.
+
+**6. Honesty checks that changed things.**
+- Bug found and fixed: on the IMS table the relay could read the real future rain intensity
+  under "average weather". No published number used that path.
+- The "ERA5 costs 0.10 m" figure turned out to mix several differences.
+- T1 (same model, same years, only the data source differs) does NOT support "quality beats
+  quantity".
+
+**7. The champion on the same bench.** The GBR on the 16-year ERA5 bench ties both CfC variants
+at every horizon.
+
+**8. The GRU, given a fair setup.**
+- The June GRU predicted ONE day's change with no weather for that day.
+- Set up like the CfC, it ties or edges it: 7-26 days 4-5 mm better.
+- Lesson: the setup and the information decide, not the cell type.
+
+**9. Ranges you can trust.**
+- Ranges from past errors alone were too narrow: an "80%" range held only 61-72%.
+- Adding a self-correction helped at short range but ballooned to 4 m at a year.
+- Final method: run the past winters' weather through the model (one scenario per past winter),
+  widen by the model's own error, then self-correct. The 80% range holds 81/79/78/75/72% at
+  7/26/130/260/365 days, widths 5 cm .. 3.4 m.
+
+**10. Can anyone forecast the winter?**
+- Climate indices (ENSO, NAO, EA ...) from September-October: no (|rho| <= 0.33, 24 winters).
+- Copernicus/ECMWF SEAS5 seasonal forecast, issued in September-November: weak but real skill
+  (0.30-0.46). It picked 2018-19 wet and 2024-25 dry, and missed 2019-22.
+
+**11. The longer station record (IMS, Tzemach-based, 2002-2025; 15 test years)**
+- Week ahead: all three tie.
+- Year ahead with average weather: CfC 0.72 = GRU 0.73, both better than GBR 0.89.
+- With actual weather the GBR is best (0.55): the trees use the coming weather; the networks
+  lean on the lake's state and the season.
+- Dropping the humidity inputs (a station step in 2012-13) makes the networks 5 mm better at
+  short range and the GBR worse.
+
+**12. Using the seasonal forecast** (running; results 2026-10-16/17)
+- Raw SEAS5 into the CfC: year ahead 0.688 -> 0.665 (about 2 cm of a possible 24).
+- Calibration: SEAS5's monthly rain signal, fitted to what actually fell, should be SHRUNK
+  (trust about 0.9 in the first month, 0.3-0.6 after), not stretched.
+- GRU and GBR results to follow; the GBR is the one that might gain.
+
+**13. Plumbing that had to work for any of this to go live.** The 07:30 daily refresh was fixed
+on 2026-10-16 (two bugs, each pinned by a locked test), and live data is current again.
+
+**Tactics worth saying on stage**
+1. Write the winner rule before the results.
+2. Compare paired forecasts, with intervals over years, not single numbers.
+3. Bracket every result between "no forecast" (average weather) and "perfect forecast" (actual
+   weather).
+4. Use only what was knowable on the start day.
+5. Test the "why", don't assert it, and publish the corrections.
+6. Compare every idea against the champion and the GRU, not just against itself.
+
+## 10. The seasonal forecast on the station record, and the decision for the 6-month product (sha b944504)
+CfC, GRU and GBR on IMS 2011-2025 (15 test years), each with no forecast, raw Copernicus SEAS5,
+and a perfect forecast. Year ahead = mean error at 130/260/365 days.
+
+| model | no forecast | SEAS5 | perfect | autumn starts, SEAS5 |
+|---|---|---|---|---|
+| CfC | 0.718 | **0.701** | 0.688 | **0.854** |
+| GRU | 0.726 | 0.706 | 0.703 | 0.892 |
+| GBR | 0.891 | 0.860 | 0.545 | 0.956 |
+
+- SEAS5 helps all three. The GBR gains most (-3.2 cm, because it leans hardest on the weather),
+  but it still trails the CfC by 0.18 m (interval clear of zero). The CfC and GRU tie.
+- **Decision: the 6-month product is the CfC with the raw SEAS5 forecast.**
+- Calibrating SEAS5 did not beat raw. Month by month it lost half the gain; on the season total
+  it equals raw (SEAS5's season signal is already the right size). Calibration is parked.
+
+## 11. The fan and the red-line odds, tested (sha 1b95245, report v9)
+- The fan: run the past winters' weather through the CfC, widen by the model's own error, and
+  WEIGHT each past winter by how well it matches the SEAS5 forecast.
+- The 80% range holds 82/81/79/78/78% at 7/13/26/130/260 days and 73% at a year; 50% holds
+  about 50% everywhere.
+- Red line -213 m, "chance the lake is below it in N days", scored against what happened.
+  Skill against quoting the average odds (0 = no better, 1 = perfect):
+
+| | 7 d | 26 d | 130 d | 260 d | 365 d |
+|---|---|---|---|---|---|
+| past winters equally likely | 0.98 | 0.93 | 0.68 | 0.40 | 0.27 |
+| weighted by SEAS5 | 0.98 | 0.93 | **0.69** | **0.44** | **0.32** |
+
+- Weighting by SEAS5 improves the red-line odds with an interval clear of zero (CfC Brier -0.006
+  [-0.012, -0.001]; GRU the same). Honest at the ends: when it said under 10%, it happened 3% of
+  the time; over 90%, 100%. Weighting fixed the 70-90% bin (said 78%, happened 79%, vs 68%
+  unweighted). In the 30-50% bin it is too cautious (said 38%, happened 61%).
+- The upper red line (-208.8 m) was never crossed in 2011-2025, so it can't be scored.
+- Talk line: "we don't just say where the lake will be; we say how sure we are, and when we say
+  80%, it happens about 80% of the time. A week ahead we know the level to within 5 cm; at six
+  months the honest range is over a metre wide, and the seasonal forecast sharpens the odds of
+  crossing the red line."
+
+The report page (https://claude.ai/artifact/1WcstqPzV3bmoJHrhGwmnZ, v9) now opens with "How we
+got here", a 14-step timeline, and ends with these charts: the three models on the station record,
+what a seasonal forecast is worth, the fan calibration, the red-line reliability and skill, and
+three autumn fans with the red line drawn.
+
+## 12. A forecast from today - DRY RUN for the closing slide (2026-10-17)
+Product 2 as chosen: the CfC on the IMS station record (Tzemach gold @ 81a2082), trained on
+2002-2025, past winters' weather weighted by the October 2026 SEAS5 forecast. The latest weekly
+start is **8 Oct 2026, level -213.65 m**, already below the lower red line (-213 m). "6 months" is
+interpolated between the 130- and 260-day horizons. Refresh before 1 Nov.
+
+| from 8 Oct 2026 | median | 80% range | chance still below -213 m |
+|---|---|---|---|
+| in 6 months (early April 2027) | -212.5 | -213.3 .. -210.6 | 21% |
+| in 12 months (October 2027) | -212.7 | -214.2 .. -209.9 | **28%** (34% if every past winter counted equally) |
+
+If the coming winter is like:
+- **2018-19 (record wet):** about -211.0 m in 6 months, -210.5 m in 12 months
+- **2024-25 (record dry):** about -213.5 m in 6 months, -214.5 m in 12 months
+
+These two are single scenarios through the model, without its own error band.
+
+SEAS5 leans **slightly wet**: an Oct-Mar season rain ratio of 1.06, 25th of 34 Octobers since
+1993. Mostly early: October +57%, November +19%, December-February normal, March +14%. A weak
+lean, so it tilts the odds only a little: 28% instead of 34%.
+Plain phrase: "the seasonal forecast leans a little wetter than normal, mostly early in the winter."
+
+## 13. More forecasters: the C3S multi-model mean vs SEAS5 alone (sha 59796df, 2026-10-17)
+
+The question: does averaging 9 seasonal forecasts (8 C3S systems from Meteo-France, DWD, CMCC,
+NCEP, JMA, ECCC x2 and UKMO, plus ECMWF SEAS5) beat SEAS5 alone? Each system is measured
+against its own earlier-years mean first, then the systems are averaged, so one model's bias,
+or a model missing in some years (UKMO stops 2016, JMA 2020), cannot move the mean. The
+multi-model is published on the 13th, SEAS5 on the 5th; a start uses only what was out.
+IMS station record 2011-2025, all three models, SEAS5 and multi-model run on the SAME trained
+models (runs are not bit-for-bit repeatable, so only the paired comparison is fair).
+
+Central forecast, mean level error at 130-365 days, multi-model minus SEAS5 [90% over test years]:
+
+| model | SEAS5 vs average weather | multi-model vs average weather | multi-model vs SEAS5 |
+|---|---|---|---|
+| CfC | -1.3 cm [-3.0, +0.4] | -1.0 cm [-2.8, +0.6] | +0.25 cm [-0.3, +0.8] |
+| GRU | -2.1 cm [-4.3, +0.1] | -1.8 cm [-4.1, +0.3] | +0.26 cm [-0.3, +0.9] |
+| GBR | -2.9 cm [-4.9, -0.9] | -2.9 cm [-4.5, -1.3] | -0.05 cm [-1.4, +1.3] |
+
+The fan (past winters weighted by the forecast), CfC, 130/260/365 d:
+
+| weighting | red-line skill | 80% range holds at 365 d |
+|---|---|---|
+| none | 0.68 / 0.40 / 0.27 | 72% |
+| SEAS5 | 0.69 / 0.44 / 0.32 | 73% |
+| multi-model | 0.70 / 0.46 / 0.33 | 74% |
+
+Multi-model vs SEAS5 weighting, paired: red-line Brier -0.004 [-0.010, +0.001], quantile score
+-0.001 [-0.009, +0.006]. GRU the same lean.
+
+**Verdict: a tie.** Nine forecasters are no better than ECMWF alone for the central forecast,
+and only a small, not significant lean better for the odds. SEAS5 stays the seasonal input:
+one source, out 8 days earlier, as good. Plain phrase: "we also tried averaging nine of the
+world's seasonal forecasts; the European one alone did just as well."
+Talk use: one line in the process story (a check that came back flat is still an answer).

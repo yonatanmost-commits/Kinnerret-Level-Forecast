@@ -57,10 +57,27 @@ Why does a week of history suffice? (B only)
                   instead of the CfC. Label suffix lstm.
   --cell gru      the same with a GRU (75 units, ~21k weights). Label suffix gru.
 
+Environment: CFC_OUT (results folder), CFC_YEARS (comma list of test years), CFC_GOLD
+(the gold table --table ims reads; default Gold Data/kinneret_gold_features.csv),
+CFC_FUTURE=1 (also keep forecasts that reach past the table's last day, with obs None:
+a forecast from today rather than a backtest).
+
 Seasonal forecast
-  --seas5         adds weather "seas5": average weather with the ECMWF SEAS5 forecast
+  --seas5         adds weathers "seas5", "seas5c" (calibrated per lead month: SEAS5's rain
+                  ratio stretched or shrunk by how its earlier forecasts matched the rain
+                  that fell, earlier years only) and "seas5s" (calibrated on the season's
+                  total rain instead, one ratio per forecast; seas5.season_calibrate):
+                  average weather with the ECMWF SEAS5 forecast
                   months rescaled (rain x predicted ratio, temperature + anomaly; see
                   seas5.py). B, A, A1 and G. Needs Raw Data/SEAS5 (seas5_fetch.py).
+  --mm            adds weather "mm": the same with the C3S multi-model mean (8 C3S systems
+                  plus SEAS5, each against its own earlier-years mean; published on the
+                  13th; c3s.py). Needs Raw Data/C3S (c3s_fetch.py).
+
+Humidity check
+  --no-humidity   drop every input derived from humidity (humidity, VPD, ET0, ET0 sums and
+                  the rain-minus-ET0 balances), for B and the relay. The IMS stations'
+                  humidity steps in 2012-13. Label suffix h.
 
 Weather-source fight
   --table-from D  drop every row before date D (YYYY-MM-DD) from the table, so training,
@@ -82,9 +99,12 @@ from ncps.torch import CfC
 import liquid_nn_era5_long as L            # long ERA5 table + feature patching
 import liquid_nn_horizons as Hz            # method A machinery
 import seas5                               # SEAS5 seasonal forecast as weather ahead
+import c3s                                 # C3S multi-model seasonal forecast
 
 t08, lnc = L.t08, L.lnc
 OUT = Path(os.environ.get("CFC_OUT", t08.BASE_DIR / "docs" / "experiments" / "cfc_tournament"))
+if "CFC_GOLD" in os.environ:                 # --table ims from another gold file (e.g. a branch's worktree)
+    t08.GOLD_FILE = Path(os.environ["CFC_GOLD"])
 HORIZONS = [7, 13, 26, 130, 260, 365]
 HMAX = max(HORIZONS)
 TEST_YEARS = [int(y) for y in os.environ["CFC_YEARS"].split(",")] if "CFC_YEARS" in os.environ     else list(range(2010, 2026))
@@ -96,12 +116,29 @@ DM = ["temp_mean_C", "temp_max_C", "temp_min_C", "humidity_pct", "wind_speed_ms"
       "rainfall_mm", "radiation_MJm2", "vpd_kPa", "et0_mm"]
 SUM_COLS = ["rainfall_mm", "et0_mm", "radiation_MJm2"]           # window totals
 MEAN_COLS = ["temp_mean_C", "humidity_pct", "wind_speed_ms", "vpd_kPa"]   # window means
+HUMIDITY_INPUTS = ("humidity", "vpd", "et0", "moisture_balance")   # name prefixes, --no-humidity
+NO_HUMIDITY = False
+
+
+def drop_humidity():
+    """--no-humidity: drop every weather input derived from humidity."""
+    global DM, SUM_COLS, MEAN_COLS, NO_HUMIDITY
+    NO_HUMIDITY = True
+    keep = lambda cols: [c for c in cols if not c.startswith(HUMIDITY_INPUTS)]
+    DM, SUM_COLS, MEAN_COLS = keep(DM), keep(SUM_COLS), keep(MEAN_COLS)
+
+
+def relay_features(feats: list) -> list:
+    """The relay's (A, A1, G) feature list, less the humidity inputs under --no-humidity."""
+    return [f for f in feats if not (NO_HUMIDITY and f.startswith(HUMIDITY_INPUTS))]
 TABLE = "era5"                 # --table
 EXTRA_ENC = []                 # history-only inputs added by --table ims / --bucket
 HISTORY = "all"                # "all" | "weather" (--no-state) | "state" (--state-only)
 CELL = "cfc"                   # --cell
 TABLE_FROM = None              # --table-from
 SEAS5 = None                   # --seas5: the SEAS5 ensemble-mean table
+C3S = None                     # --mm: the C3S multi-model table (c3s.load)
+KEEP_FUTURE = os.environ.get("CFC_FUTURE") == "1"   # keep forecasts whose outcome is not known yet
 BUCKET_S_MAX = 150.0           # mm, as longrange_phaseb_eval / bucket_backport_eval
 torch.set_num_threads(8)
 
@@ -154,12 +191,13 @@ def records(method, year, base, anchors, preds: dict) -> list:
     for w, P in preds.items():
         for k, a in enumerate(anchors):
             for H in HORIZONS:
-                if a + H >= len(base) or np.isnan(lvl[a + H]) or np.isnan(P[k, H - 1]):
+                known = a + H < len(base) and not np.isnan(lvl[a + H])
+                if np.isnan(P[k, H - 1]) or not (known or (KEEP_FUTURE and a + H >= len(base))):
                     continue
                 out.append({"method": method, "weather": w, "year": year,
                             "start": str(base["date"].iat[a].date()), "H": H,
                             "level0": float(lvl[a]), "pred": float(P[k, H - 1]),
-                            "obs": float(lvl[a + H])})
+                            "obs": float(lvl[a + H]) if known else None})
     return out
 
 
@@ -194,10 +232,11 @@ def relay_met(table: str) -> list:
 
 
 def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14, kind="lnn"):
-    Hz.S1_FEATURES = lnc.S1_FEATURES                                     # set by L.set_features
+    Hz.S1_FEATURES = relay_features(lnc.S1_FEATURES)                     # set by L.set_features
     # A1 (one-step relay) drops the inflow step: volume change straight from weather
     # and lake state, so A1 vs B isolates relay vs direct, and A vs A1 the inflow step
-    Hz.S2_FEATURES = [f for f in lnc.S2_FEATURES if not (one_step and f == "predicted_inflow_m3")]
+    Hz.S2_FEATURES = [f for f in relay_features(lnc.S2_FEATURES)
+                      if not (one_step and f == "predicted_inflow_m3")]
     Hz.DAILY_MET = relay_met(TABLE)
     yrs = lagged["date"].dt.year.to_numpy()
     trm = yrs < year
@@ -206,17 +245,47 @@ def run_A(base, lagged, year, anchors, seeds, one_step=False, seq_len=14, kind="
     bathy = t08.fit_vol2level_poly()
     m = Hz.TwoStage(kind, "cfc", seeds, seq_len).fit(lagged, trm)
     out = {w: Hz.rollout(m, dfx, anchors, HMAX, w, clim, bathy) for w in ("obs", "clim")}
-    if SEAS5 is not None:                       # starts sharing a forecast roll out together
-        anom = seas5.anomalies(SEAS5, year)
-        days = lagged["date"].iloc[anchors]
-        group = np.array([seas5.init_for(d) for d in days])
+    days = lagged["date"].iloc[anchors]
+    for w in forecast_weathers():               # starts sharing a forecast roll out together
+        src, anom = source(w), forecast_anomalies(base, year, w)
+        group = np.array([src.init_for(d) for d in days])
         P = np.empty((len(anchors), HMAX))
         for g in np.unique(group):
             k = np.where(group == g)[0]          # adjusted from the group's first start
             P[k] = Hz.rollout(m, dfx, anchors[k], HMAX, "clim",
-                              seas5.adjust_clim(clim, days.iat[k[0]], anom), bathy)
-        out["seas5"] = P
+                              src.adjust_clim(clim, days.iat[k[0]], anom), bathy)
+        out[w] = P
     return out
+
+
+SEAS5_WEATHERS = ("seas5", "seas5c", "seas5s")
+
+
+def forecast_weathers():
+    """The seasonal-forecast weathers this run adds (--seas5, --mm)."""
+    return (SEAS5_WEATHERS if SEAS5 is not None else ()) + (("mm",) if C3S is not None else ())
+
+
+def source(weather):
+    """The module that says when a weather's forecast is published and how it adjusts."""
+    return c3s if weather == "mm" else seas5
+
+
+def forecast_anomalies(base, year, weather):
+    return c3s.anomalies(C3S, year) if weather == "mm" else seas5_anomalies(base, year, weather)
+
+
+def seas5_anomalies(base, year, weather="seas5"):
+    """SEAS5 anomalies for test year `year`: raw ("seas5"), calibrated month by month
+    ("seas5c") or on the season total ("seas5s"), against the bench table's own rain
+    (the weather the model was trained on), earlier years only."""
+    anom = seas5.anomalies(SEAS5, year)
+    rain = base.set_index("date")["rainfall_mm"]
+    if weather == "seas5c":
+        return seas5.calibrate(anom, seas5.calibration_slopes(anom, seas5.observed_ratio(rain, year), year))
+    if weather == "seas5s":
+        return seas5.season_calibrate(anom, rain, year)
+    return anom
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -270,14 +339,15 @@ def future_weather(base, anchors, weather, clim, n_days):
     W = np.full((len(anchors), n_days, len(DM)), np.nan)
     X = base[DM].to_numpy(float)
     d0 = base["date"].iloc[anchors].to_numpy()
-    anom = seas5.anomalies(SEAS5, pd.Timestamp(d0[0]).year) if weather == "seas5" else None
+    fc = weather not in ("obs", "clim")
+    anom = forecast_anomalies(base, pd.Timestamp(d0[0]).year, weather) if fc else None
     for k, a in enumerate(anchors):
         if weather == "obs":
             seg = X[a + 1:a + 1 + n_days]
             W[k, :len(seg)] = seg
         else:
             doy = pd.DatetimeIndex(d0[k] + np.arange(1, n_days + 1) * np.timedelta64(1, "D")).dayofyear
-            ck = seas5.adjust_clim(clim, pd.Timestamp(d0[k]), anom) if weather == "seas5" else clim
+            ck = source(weather).adjust_clim(clim, pd.Timestamp(d0[k]), anom) if fc else clim
             W[k] = ck.loc[doy, DM].to_numpy(float)
     return W
 
@@ -367,6 +437,7 @@ def window_summaries(W: np.ndarray) -> np.ndarray:
     """(A, n_days, DM) -> (A, 6 horizons x 7) totals and means of each horizon window."""
     si = [DM.index(c) for c in SUM_COLS]
     mi = [DM.index(c) for c in MEAN_COLS]
+    n = len(si) + len(mi)
     cs = np.nancumsum(W, axis=1)
     out = []
     for H in HORIZONS:
@@ -374,7 +445,7 @@ def window_summaries(W: np.ndarray) -> np.ndarray:
         out.append(cs[:, H - 1, mi] / H)
     S = np.concatenate(out, axis=1)
     for i, H in enumerate(HORIZONS):                          # obs weather ran out
-        S[np.isnan(W[:, :H]).any(axis=(1, 2)), i * 7:(i + 1) * 7] = np.nan
+        S[np.isnan(W[:, :H]).any(axis=(1, 2)), i * n:(i + 1) * n] = np.nan
     return S
 
 
@@ -428,12 +499,13 @@ def run_B(base, year, anchors, seeds, occlude=(), ensemble=False):
     clim = climatology(base, yrs < year)
     Xa = torch.tensor(windows(Ze, anchors, ENC_L))
     S_raw = {w: window_summaries(future_weather(base, anchors, w, clim, HMAX))
-             for w in ("obs", "clim") + (("seas5",) if SEAS5 is not None else ())}
+             for w in ("obs", "clim") + forecast_weathers()}
     if ensemble:
         S_raw.update({f"ens|{Y}": window_summaries(W)
                       for Y, W in member_weather(base, anchors, year, HMAX).items()})
     S_test = {w: torch.tensor(sc_s(S)) for w, S in S_raw.items()}
-    gone = {w: np.isnan(S[:, ::7]) for w, S in S_raw.items()}      # horizon windows with missing weather
+    gone = {w: np.isnan(S[:, ::S.shape[1] // len(HORIZONS)])        # horizon windows with missing weather
+            for w, S in S_raw.items()}
     preds = {(w, k): [] for k in (None, *occlude) for w in S_test}
     for s in range(seeds):
         net = fit_loop(DirectNet(Ze.shape[1], Xs.shape[1]), loss, len(tr), seed=s)
@@ -546,6 +618,7 @@ def run_method(method, seeds, a_seq=14, occlude=(), c_full=False, ensemble=False
     else:
         label = (f"{method}{ENC_L}" + ("f" if c_full else "") + ("b" if "bucket_S" in EXTRA_ENC else "")
                  + {"all": "", "weather": "n", "state": "s"}[HISTORY] + (CELL if CELL != "cfc" else ""))
+    label += "h" if NO_HUMIDITY else ""
     name = f"{label}_s{seeds}" + ("_occ" if occlude else "") + ("_ens" if ensemble else "")
     done = json.loads(ckpt(name).read_text(encoding="utf-8")) if ckpt(name).exists() else {}
     refs = json.loads(ckpt("references").read_text(encoding="utf-8")) if ckpt("references").exists() else {}
@@ -646,10 +719,12 @@ def main():
     ap.add_argument("--cell", choices=["cfc", "lstm", "gru"], default="cfc", help="B only: encoder cell")
     ap.add_argument("--table-from", default=None, help="drop table rows before this date")
     ap.add_argument("--seas5", action="store_true", help="add the SEAS5 seasonal-forecast weather")
+    ap.add_argument("--mm", action="store_true", help="add the C3S multi-model seasonal-forecast weather")
+    ap.add_argument("--no-humidity", action="store_true", help="drop humidity, VPD and ET0 inputs")
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--only", default="", help="comma list of methods to include in --summary")
     a = ap.parse_args()
-    global ENC_L, TABLE, TEST_YEARS, HISTORY, CELL, TABLE_FROM, SEAS5
+    global ENC_L, TABLE, TEST_YEARS, HISTORY, CELL, TABLE_FROM, SEAS5, C3S
     ENC_L = a.enc_len or 60
     TABLE = a.table
     if TABLE == "ims":
@@ -663,10 +738,16 @@ def main():
     HISTORY = "weather" if a.no_state else "state" if a.state_only else "all"
     CELL = a.cell
     TABLE_FROM = a.table_from
+    if a.no_humidity:
+        drop_humidity()
     if a.seas5:
         if a.method == "C":
             ap.error("--seas5 is for A, A1, B and G")
         SEAS5 = seas5.load()
+    if a.mm:
+        if a.method == "C":
+            ap.error("--mm is for A, A1, B and G")
+        C3S = c3s.load()
     occ = tuple(int(k) for k in a.occlude.split(",") if k)
     if occ and a.method not in ("B", "C"):
         ap.error("--occlude needs --method B or C")
