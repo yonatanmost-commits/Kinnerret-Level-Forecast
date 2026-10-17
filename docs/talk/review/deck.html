@@ -202,19 +202,18 @@ Under both lanes: "trained on station weather, 2002–2025".`,
 • Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
 The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
 { id: "s07", n: "7", q: "How did we choose it?", image: null,
-  design: `A ladder of real results, bottom to top, each rung one thing tried, its number, and a tick or cross:
-• Fancier models for the week ahead: worse ✗
-• Feeding back its own forecast vs all distances at once: 0.370 vs 0.366 m, no difference ✓ (simpler kept)
-• The "elegant" design: 0.44 m, worse than an ordinary year's 0.42 ✗
-• History: 3 days = 120 days ✓
-• Weather ahead, a year out: ordinary year 0.69 → Copernicus 0.67 → perfect winter 0.67 (!)
-• Eight more forecasters averaged vs Copernicus alone: tie ✓ (one kept)
-• Range: first try "80%" held 61–72% ✗ → past winters: 78–84% at every month ✓
-• My own bug: 6-month number 0.38 m low → fixed, said so ✓`,
-  script: [`I didn't get here in a straight line. Here's what I tried, and what each try scored.`,
-`Fancier models first: worse. Feeding the model its own forecast, day after day, or forecasting every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year. Out. How much past does it need? Three days was as good as four months.`,
-`Then the weather ahead. With an ordinary year, a year out, it's off by 69 centimetres on average. With Copernicus, 67. And here's the surprise: even a perfect forecast of the winter doesn't help this network any further. It leans on the lake itself. Averaging eight more forecasters didn't beat Copernicus either, so I kept one.`,
-`The range: my first one claimed eighty percent and caught as little as sixty. Built from past winters, it catches about eighty, every month out to a year. And when I found a bug of my own, a six-month number running almost forty centimetres low, I fixed it and said so.`,
+  design: `Five sliders (Chartbuilder), one per test that decided the method. Each one: the question on top, the two options at the ends with their numbers, the knob toward the winner, today's choice in teal.
+1. Week ahead: June neural net R² ≈ 0 vs two-stage boosting R² 0.77.
+2. Reaching a year ahead: day by day 0.37 vs all at once 0.37, a tie; a small struck-out mark for continuous-time 0.44, worse than an ordinary year (0.42).
+3. Where the error comes from: an ordinary year vs the real winter, a year out.
+4. With the seasonal forecast: the networks vs boosting, a year ahead, about 18 cm.
+5. The range: past errors (held 61–72%) vs past winters weighted by the forecast (held 78–84%).`,
+  script: [`I didn't get here in a straight line. Five tests decided it.`,
+`A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week.`,
+`A year ahead: feed the model its own forecast day after day, or forecast every distance at once? No difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
+`Then, where does the error come from? Hand the model the real winter's weather, and the error a year out drops from X to X. It wasn't the network. It was not knowing the winter. That sent me to the seasonal forecast.`,
+`With it, the two networks beat the trees a year ahead, by about eighteen centimetres. More on that in a moment.`,
+`And the range: run every past winter's weather through the model, let the winters the forecast favours count more, and it holds the outcome 78 to 84 percent of the time, every month out to a year.`,
 `Wherever I could, I wrote down how I'd judge before I saw the results.`],
   facts: `Final run cfc_monthly (52fc2d2, branch fan-monthly, NOT on master until you OK the push). IMS 2011–2025, 15 test years; "a year out" = mean of the 130/260/365-day errors.
 • Relay/direct and decoder rungs: the 25-year ERA5 bench (16 years). Say "on the reanalysis bench" if asked.

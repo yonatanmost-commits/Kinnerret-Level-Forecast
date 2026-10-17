@@ -1,17 +1,18 @@
 """
 cfc_track_record.py  -  "why should we believe you": the shipped fan's backtest, one row per autumn.
 
-Reads the SEAS5-weighted CfC fan backtest (cfc_fan_eval.py, fan_B14_seas5.csv) and writes:
+Reads the SEAS5-weighted CfC fan backtest at monthly horizons (CFC_HORIZONS=monthly,
+cfc_fan_eval.py, fan_monthly_B14_seas5.csv) and writes:
 
   track_record.csv     one row per test autumn 2011-2025: the first October start with a fan, the
                        6-month (182 d) and 12-month (365 d) median, 50% and 80% ranges and
                        P(below -213 m), the level that happened, inside-80% flags, and that
                        winter's Oct-Mar rain as % of normal. 2011-13 have no fan (too few
-                       earlier errors to pool; fan = False): median only. 182 d is interpolated linearly
-                       between the 130 d and 260 d bench horizons, as the app's card does
-                       (kinneret_app/fan_card.py _at); the actual level is the reading nearest that day (within 3 days).
+                       earlier errors to pool; fan = False): median only. 182 d and 365 d are bench
+                       horizons, read as forecast (never a line between horizons, as
+                       kinneret_app/fan_card.py _at); the actual level is the reading nearest that day (within 3 days).
   reliability_red.csv  P(level < -213 m) said vs happened per band, for each horizon and
-                       pooled over 130/260/365 d (cfc_fan_eval's table), with the number of
+                       pooled over 130-365 d (cfc_fan_eval's table), with the number of
                        forecasts and of distinct winters behind each band (weekly starts of
                        one winter are not independent).
 
@@ -25,21 +26,13 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-FAN = ROOT / "docs" / "experiments" / "cfc_fan_eval" / "fan_B14_seas5.csv"
+FAN = ROOT / "docs" / "experiments" / "cfc_fan_eval" / "fan_monthly_B14_seas5.csv"
 GOLD = ROOT / "Gold Data" / "kinneret_gold_features.csv"
 OUT = ROOT / "docs" / "experiments" / "cfc_fan_eval"
 RED = -213.0
 COLS = ["pred", "lo_50", "hi_50", "lo_80", "hi_80", "p_red"]
 BANDS = [0, .1, .3, .5, .7, .9, 1.0001]
 LABELS = ["0-10%", "10-30%", "30-50%", "50-70%", "70-90%", "90-100%"]
-
-
-def at(rows: pd.DataFrame, days: int) -> pd.Series:
-    """The fan at `days`, interpolated between bench horizons like the app's card."""
-    rows = rows.sort_values("H")
-    if len(rows) < 2 or rows[COLS[1:]].isna().all().all():          # no fan yet: median only
-        return pd.Series({c: float(np.interp(days, rows["H"], rows[c])) if c == "pred" else np.nan for c in COLS})
-    return pd.Series({c: float(np.interp(days, rows["H"], rows[c])) for c in COLS})
 
 
 def winter_rain(gold: pd.DataFrame) -> pd.Series:
@@ -57,14 +50,14 @@ def track_record(fan: pd.DataFrame, gold: pd.DataFrame) -> pd.DataFrame:
     rain = winter_rain(gold)
     out = []
     for y in sorted(fan["year"].unique()):
-        oct_ = fan[(fan.year == y) & (fan.start.dt.month == 10) & fan.H.isin([130, 260])]
+        oct_ = fan[(fan.year == y) & (fan.start.dt.month == 10) & fan.H.isin([182, 365])]
         full = oct_.dropna(subset=COLS).groupby("start").size()
         start = full[full == 2].index.min() if (full == 2).any() else oct_["start"].min()
-        g = fan[(fan.start == start) & fan.H.isin([130, 260, 365])]
+        g = fan[(fan.start == start) & fan.H.isin([182, 365])]
         row = {"autumn": int(y), "start": start.date(), "level_start": level(start),
                "fan": bool(g[COLS].notna().all(axis=1).any())}
         for days, tag in ((182, "6m"), (365, "12m")):
-            f = at(g[g.H.isin([130, 260])], days) if days != 365 else g[g.H == 365][COLS].iloc[0]
+            f = g[g.H == days][COLS].iloc[0]
             obs = level(start + pd.Timedelta(days=days))
             row.update({f"{tag}_date": (start + pd.Timedelta(days=days)).date(),
                         f"{tag}_median": f["pred"], f"{tag}_lo50": f["lo_50"], f"{tag}_hi50": f["hi_50"],
@@ -78,11 +71,11 @@ def track_record(fan: pd.DataFrame, gold: pd.DataFrame) -> pd.DataFrame:
 
 
 def reliability(fan: pd.DataFrame) -> pd.DataFrame:
-    o = fan[fan.H.isin([130, 260, 365])].dropna(subset=["p_red", "obs"]).copy()
+    o = fan[fan.H.between(130, 365)].dropna(subset=["p_red", "obs"]).copy()
     o["hit"] = o["obs"] < RED
     o["band"] = pd.cut(o["p_red"], BANDS, labels=LABELS, right=False)
     rows = []
-    for name, g in [("130-365 pooled", o)] + [(f"{h} d", o[o.H == h]) for h in (130, 260, 365)]:
+    for name, g in [("130-365 pooled", o)] + [(f"{h} d", o[o.H == h]) for h in (130, 182, 260, 365)]:
         for band, b in g.groupby("band", observed=True):
             rows.append({"horizon": name, "p_red": band, "forecasts": len(b), "winters": b["year"].nunique(),
                          "said": b["p_red"].mean(), "happened": b["hit"].mean()})
