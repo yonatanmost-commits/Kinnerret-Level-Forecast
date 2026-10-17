@@ -88,3 +88,37 @@ def test_self_correction_restores_coverage_when_errors_grow():
         o = cb.bands(df, levels=(0.8,), doy_window=45, min_years=3, gamma=g).dropna(subset=["lo_80"])
         return ((o.obs >= o.lo_80) & (o.obs <= o.hi_80)).mean()
     assert abs(cov(0.01) - 0.8) < abs(cov(0.0) - 0.8)
+
+
+def test_member_weights_tilt_the_band():
+    # two scenarios per forecast, -1 and +1; giving +1 all the weight moves the band up to it
+    base = recs(range(2010, 2015))
+    lo = base.assign(pred=base.pred - 1.0, weight=1e-9)
+    hi = base.assign(pred=base.pred + 1.0, weight=1.0)
+    errors = base.assign(obs=base.pred)                                    # model error 0
+    out = cb.bands(pd.concat([lo, hi]), levels=(0.8,), doy_window=30, min_years=3, errors=errors)
+    row = out[out.year == 2014].iloc[0]
+    assert abs(row.lo_80 - (row.obs + 1.0)) < 1e-6 and abs(row.hi_80 - (row.obs + 1.0)) < 1e-6
+    assert abs(row.pred - (row.obs + 1.0)) < 1e-6                         # weighted median
+
+
+def test_equal_weights_change_nothing():
+    base = recs(range(2010, 2015))
+    members = pd.concat([base.assign(pred=base.pred + d) for d in (-1.0, 0.0, 1.0)])
+    errors = base.assign(obs=base.pred + 0.1)
+    a = cb.bands(members, levels=(0.8,), errors=errors)
+    b = cb.bands(members.assign(weight=2.5), levels=(0.8,), errors=errors)
+    assert np.allclose(a.dropna().lo_80, b.dropna().lo_80) and np.allclose(a.dropna().hi_80, b.dropna().hi_80)
+
+
+def test_threshold_probabilities_come_from_the_weighted_scenarios():
+    # scenarios at -1, 0, +1 around pred with weights 1, 1, 2 and no model error:
+    # P(level < pred + 0.5) = (1 + 1) / 4
+    base = recs(range(2010, 2015))
+    members = pd.concat([base.assign(pred=base.pred + d, weight=w) for d, w in ((-1.0, 1.0), (0.0, 1.0), (1.0, 2.0))])
+    errors = base.assign(obs=base.pred)
+    row0 = base[base.year == 2014].iloc[0]
+    out = cb.bands(members, levels=(0.8,), doy_window=30, min_years=3, errors=errors,
+                   thresholds={"mid": row0.pred + 0.5, "low": row0.pred - 5, "high": row0.pred + 5})
+    row = out[(out.year == 2014) & (out.start == row0.start)].iloc[0]
+    assert abs(row.p_mid - 0.5) < 1e-9 and row.p_low == 0.0 and row.p_high == 1.0

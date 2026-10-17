@@ -54,3 +54,75 @@ def test_adjusted_weather_scales_only_forecast_months_after_the_start():
     jun = pd.Timestamp("2011-06-15").dayofyear          # past the 6-month reach (Oct-Mar)
     assert adj.loc[jan, "rainfall_mm"] == 3.0 and adj.loc[jan, "temp_max_C"] == 16.0
     assert adj.loc[jun, "rainfall_mm"] == 1.0 and adj.loc[jun, "temp_mean_C"] == 10.0
+
+
+def test_calibration_slope_from_earlier_years_only():
+    # each target month has one true signal r; every forecast of that month sees it (plus a
+    # little noise) and the observed ratio is 1 + 2 (r - 1) in 2000-2009. From 2010 the
+    # relation flips (a negative slope). The 2010 calibration must use 2000-2009 only: slope 2.
+    rng = np.random.default_rng(0)
+    months = pd.date_range("2000-01-01", "2012-06-01", freq="MS")
+    r = pd.Series(1 + rng.normal(scale=0.1, size=len(months)), index=months)
+    month_obs = pd.Series([1 + (2 if t.year < 2010 else -3) * (r[t] - 1) for t in months], index=months)
+    rows = []
+    for init in pd.date_range("2000-01-01", "2011-12-01", freq="MS"):
+        for lead in range(1, 7):
+            tgt = init + pd.DateOffset(months=lead - 1)
+            rows.append({"init": init, "lead": lead, "target": tgt,
+                         "rain_mm_day": 2.0 * (r[tgt] + rng.normal(scale=0.005)), "t2m_C": 20.0})
+    t = pd.DataFrame(rows)
+    slopes = seas5.calibration_slopes(seas5.anomalies(t, 2010), month_obs, test_year=2010)
+    assert set(slopes) == set(range(1, 7))
+    assert all(abs(s - 2.0) < 0.25 for s in slopes.values()), slopes
+
+
+def test_calibrated_ratio_applies_the_slope():
+    a = pd.DataFrame({"init": pd.Timestamp("2010-10-01"), "lead": [1, 2], "rain_ratio": [1.2, 0.9], "t2m_anom": 0.0})
+    out = seas5.calibrate(a, {1: 2.0, 2: 0.5})
+    assert np.allclose(out.rain_ratio, [1.4, 0.95])
+
+
+def _season_world(slope_before, slope_after, split=2010):
+    """Each month has one SEAS5 signal fc_m (small swing); every forecast covering that month
+    sees it. The month's real rain factor is 1 + slope (fc_m - 1), the slope changing at
+    `split`, so season totals relate to the forecast's season mean with that slope."""
+    rng = np.random.default_rng(3)
+    months = pd.date_range("1995-01-01", "2013-12-01", freq="MS")
+    fc_m = pd.Series(1 + rng.normal(scale=0.05, size=len(months)), index=months)
+    factor = {m: 1 + (slope_before if m.year < split else slope_after) * (fc_m[m] - 1) for m in months}
+    rows = []
+    for init in pd.date_range("1995-01-01", "2012-07-01", freq="MS"):
+        for lead in range(1, 7):
+            tgt = init + pd.DateOffset(months=lead - 1)
+            rows.append({"init": init, "lead": lead, "target": tgt, "rain_mm_day": 2.0 * fc_m[tgt], "t2m_C": 20.0})
+    days = pd.date_range("1995-01-01", "2013-12-31")
+    rain = pd.Series([factor[pd.Timestamp(d.year, d.month, 1)] for d in days], index=days)
+    return pd.DataFrame(rows), rain
+
+
+def test_season_calibration_uses_earlier_years_and_gives_one_ratio_per_forecast():
+    t, rain = _season_world(slope_before=3.0, slope_after=-3.0)
+    a = seas5.season_calibrate(seas5.anomalies(t, 2010), rain, test_year=2010)
+    f = a[a["init"] == pd.Timestamp("2010-10-01")]
+    assert f["rain_ratio"].nunique() == 1                       # one ratio for the whole season
+    raw = seas5.anomalies(t, 2010)
+    fc = raw[raw["init"] == pd.Timestamp("2010-10-01")]["rain_ratio"].mean()
+    assert abs((f["rain_ratio"].iat[0] - 1) - 3.0 * (fc - 1)) < 0.6 * abs(fc - 1) + 0.01   # slope ~3, not -3
+
+
+def test_member_weights_follow_a_skilful_forecast_and_stay_flat_for_a_useless_one():
+    # seasons: the true season ratio equals the forecast (perfect skill) before 2010
+    rng = np.random.default_rng(5)
+    years = range(1995, 2011)
+    fc = {y: 1 + rng.normal(scale=0.2) for y in years}
+    seasons = pd.DataFrame({"year": list(years), "fc": [fc[y] for y in years], "obs": [fc[y] for y in years]})
+    members = pd.Series({1999: 0.6, 2003: 1.0, 2007: 1.4})          # member years' season ratios
+    w = seas5.member_weights(forecast=1.4, member_ratio=members, seasons=seasons, test_year=2010)
+    assert w.idxmax() == 2007 and w[2007] > 5 * w[1999]
+    # no relation, over enough seasons that a chance correlation is small (with 15 seasons a
+    # chance r of 0.35 - SEAS5's real skill - is common, and is rightly given some weight)
+    many = range(1950, 2011)
+    useless = pd.DataFrame({"year": list(many), "fc": 1 + rng.normal(scale=0.2, size=len(many)),
+                            "obs": 1 + rng.normal(scale=0.2, size=len(many))})
+    w2 = seas5.member_weights(forecast=1.4, member_ratio=members, seasons=useless, test_year=2010)
+    assert w2.max() / w2.min() < 3
