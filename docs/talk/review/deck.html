@@ -128,7 +128,7 @@ textarea {
 <script>
 const SLIDES = [
 { id: "s01", n: "1", q: "Why should I care?", image: null,
-  design: `One continuous slide, two clicks. Opens on two lake years merging into one lake with two water lines. It holds there through "the driest?" and "Nobody knows". Click on "And it matters right now": zoom out to the map of Israel, the Mediterranean appears, then lake and sea together.`,
+  design: `Built from the lake-levels video (docs/talk/charts/lake_years.gif): the two lake years, side by side. Extra click on "And it matters right now": the two lakes unite back into one, then the map of Israel comes in with the Mediterranean.`,
   script: [
 `In my first year here at Kinneret, the lake was so low that I walked out to the island in front of the campus. By the time I graduated, the waves were flooding the Tiberias promenade, taking their toll on the wooden market stands. Today, those stands stand high above the water once again.`,
 `The lake's ups and downs aren't new. But today it sits below the red line, and it is our national backup.`,
@@ -143,7 +143,7 @@ const SLIDES = [
 • Hydrological Service + weather model: "tomorrow's rain → the Jordan's flow, days ahead"
 • Water Authority: "what-ifs: an average winter ends here, a dry one here"
 • Great Lakes (US Army Corps of Engineers): "the level itself, monthly, 6 months ahead, as a range"
-• Last row, highlighted: Most & Agbaria: "the Kinneret's level itself, daily, a week to a year ahead, as a range, checked against every year since 2011"`,
+No row for us: the gap is said, not shown.`,
   script: [
 `I'm not the first to ask. Researchers here at Kinneret built a physical model of the catchment: how rain soaks into the rock, feeds the springs, and becomes the Jordan. The Hydrological Service turns this winter's rain into next year's water, and it works well for the year as a whole, but not month by month. Later, they fed a weather forecast into that model, to see the Jordan's flow a few days ahead.`,
 `The Water Authority plans with what-ifs: if this winter is average, the lake ends up here. If it's dry, here. That's a plan, not a forecast: it doesn't say which winter is coming.`,
@@ -153,25 +153,31 @@ const SLIDES = [
 { id: "s03", n: "3", q: "How can an amateur do this?", image: null,
   design: `A centaur. On screen, one word: "Centaur".`,
   script: [
-`This is a centaur: half human, half horse. In 1997, Garry Kasparov, the world chess champion, sat down in New York against an IBM computer called Deep Blue. He lost. It made the front pages: the machine had beaten the best human alive.`,
-`Kasparov's answer was a new kind of chess: a human and a computer playing as one team. Centaur chess. In 2005, an online tournament let anyone enter, with any help they liked. Grandmasters came. Supercomputers came. The winners were two amateurs from New Hampshire, a database manager and a football coach, with three ordinary computers.`,
+`This is a centaur. In Greek mythology, it's half human, half horse. But in professional chess, a centaur is half human, half computer.`,
+`It started in 1997. Garry Kasparov, the world chess champion, sat down in New York against an IBM computer called Deep Blue. He lost. It made the front pages: the machine had beaten the best human alive.`,
+`Kasparov's answer was to join the machine: a human and a computer playing as one team. In 2005, an online tournament let anyone enter, with any help they liked. Grandmasters came. Supercomputers came. The winners were two amateurs from New Hampshire, a database manager and a football coach, with three ordinary computers.`,
 `Kasparov's verdict: a weak human, with a machine and a better way of working, beats a strong human with a machine and a worse one.`,
 `Keep them in mind. Because the person in front of you is one too.`],
   facts: `Deep Blue rematch, New York, May 1997. "Advanced chess" (Kasparov, 1998). PAL/CSS Freestyle, 2005, on Playchess.com: team "ZackS", Steven Cramton and Zackary Stephen, rated about 1685 and 1398, three PCs. The verdict paraphrases Kasparov's 2010 essay "The Chess Master and the Computer" (NYRB). Their jobs (database manager, football coach) are as widely reported. Verify before the slide is final.` },
 { id: "s04", n: "4", q: "What did you build?", image: null,
   design: `The app's front page.`,
   script: [
-`I'm a process engineer: I design wastewater treatment plants for TTT, of the WFI Group. And I owe this talk to my co-author, Adnan Agbaria, my lecturer in a data science course during my master's here at Kinneret. He gave us an open task, and I said: I'll forecast the Kinneret's level from weather data off the internet. One week ahead. How hard can it be?`,
+`I'm a process engineer: I design wastewater treatment plants for TTT, of the WFI Group. And I owe this talk to my co-author, Adnan Agbaria, my lecturer in a data science course during my master's here at Kinneret. He gave us an open task, and I said: I'll forecast the Kinneret's level, one week ahead. There's a weather forecast for the week, so it seemed possible.`,
 `This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since 2002 and compare the model with what happened. The link comes at the end.`],
   facts: `The history page runs the final model on all years: it shows the fit, not a test. Never call it a test.` },
 { id: "s05", n: "5", q: "Where does the data come from?", image: null,
-  design: `A dark forest. On "AI is the flashlight", a beam sweeps across and reveals the coverage chart: one bar per source with its start, gaps and changes. Station weather from 1994 (models use 2002 on), ERA5 from 2001, the seasonal forecast's record from 1993, a red notch on the 2023 rain.`,
-  script: [
-`Not from one place. When I started, I knew of exactly one source: the Meteorological Service's weather stations. It's a dark forest. Stations change names, every source has its own format, its own gaps. AI is the flashlight, but a flashlight only shows the next few steps. Every question I hit showed me the next path.`,
-`When the stations weren't enough, I found ERA5: Europe's reconstruction of the weather, every hour, everywhere, back to the 1940s. When I wanted to see the winter ahead, I found Copernicus: Europe's seasonal forecast, half a year ahead, renewed every month.`,
-`And the rivers took two months of emails, always "you can't get that data." Then Claude found a Facebook post with a link to a beta site, wrote a scraper, and the river data has come in every day since.`,
+  design: `The coverage chart, no metaphor. Years run across; one bar per source, each labelled with its name and, in a few words, what it answers. Bars appear one per sentence:
+• Lake level, daily: "where are we?"
+• Weather stations (Meteorological Service), from 1994; the models use 2002 on: "what fell, how hot"
+• Jordan and streams (Hydrological Service): "what's flowing in"
+• ERA5 (Europe's weather reconstruction), from 2001: "the weather between the stations"
+• Copernicus seasonal forecast, record from 1993: "the winter ahead"
+• Weekly weather forecast, live only: "the next seven days"
+A red notch on the stations bar at 2023, the rain gauge (it pays off on slide 6).`,
+  script: [`Six sources, each answering one question. The lake's level, every day: where are we? The Meteorological Service's stations around the lake: what fell, and how hot it was. The Jordan and its streams: what's flowing in. That one took two months of emails before it turned up on a beta website.`,
+`Then two from Europe. ERA5 is a reconstruction of the past weather, every hour, everywhere: it fills in between the stations. And Copernicus is Europe's seasonal forecast, half a year ahead, renewed every month, with a record going back to 1993. That's the only one that looks at a winter that hasn't come yet. For the coming week, the ordinary weather forecast.`,
 `Then I asked it to clean everything into one table, one row per day. It came back with tactics I'd never have thought of. But there was a catch hiding in there.`],
-  facts: `Start from docs/talk/charts/coverage_painted.png. Drop its title ("starts in 2012" is out of date).` },
+  facts: `Start from docs/talk/charts/coverage_painted.png. Drop its title ("starts in 2012" is out of date). To confirm: the start years for the lake level and Jordan bars; what ERA5 is used for ("fills in between the stations" is my reading, please correct); the weekly forecast source (Open-Meteo?). Copernicus "half a year": SEAS5 runs about 7 months.` },
 { id: "s06", n: "6", q: "Can you trust it?", image: null,
   design: `The short scoreboard, 0 to 1. Four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot at 0.77.`,
   script: [
