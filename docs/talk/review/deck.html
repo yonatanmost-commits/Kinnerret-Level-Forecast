@@ -141,7 +141,7 @@ const SLIDES = [
 `So which winter is coming? One like 2018–19, the biggest rise in twenty years? Or one like 2024–25, the driest? Nobody knows yet.`,
 `And it matters right now. This autumn, algae bloomed off our southern coast and choked the desalination plants. Keeping the water flowing meant hard choices. How hard depends on that same question: can the lake carry us next year? With better forecasts, we'd know how much room we have.`],
   facts: `2018–19 rose 3.47 m, the biggest since 2005–06. 2024–25 rose 0.19 m, the smallest, and was the driest (56% of normal rain). Not "the wettest": 2023–24 had more rain but fell on dry ground. Sensitive: no cause of the bloom, no plant or authority names.` },
-{ id: "s02", n: "2", q: "Hasn't anyone done this already?", image: null,
+{ id: "s02", n: "2", q: "Hasn't anyone done this already?", image: "charts/slide2_table.png", frames: ["charts/slide2_table_1.png", "charts/slide2_table_2.png", "charts/slide2_table_3.png", "charts/slide2_table_4.png"],
   design: `A short table, two columns: WHO (a logo) and HOW (a few words). Rows appear one per sentence:
 • Kinneret Limnological Laboratory: "a physical model of the catchment: rain → springs → Jordan"
 • Hydrological Service: "rain this winter → water next year, by statistics"
@@ -154,6 +154,11 @@ No row for us: the gap is said, not shown.`,
 `The Water Authority plans with what-ifs: if this winter is average, the lake ends up here. If it's dry, here. That's a plan, not a forecast: it doesn't say which winter is coming.`,
 `The Great Lakes in America have that: every month, an official forecast of the level itself, six months ahead, as a range.`,
 `For the Kinneret, I couldn't find one: a forecast of the level itself, from a week to a year ahead, with a range, checked against what actually happened. That's the small gap I happened to fall into. And by the end, I'll tell you honestly how far ahead I could see.`],
+  pointers: [
+    `Not the first · Limnological Lab: physical model, rain → springs → Jordan · Hydrological Service: this winter's rain → next year's water (year yes, month no) · + weather model: the Jordan, days ahead`,
+    `Water Authority: what-ifs · a plan, not a forecast`,
+    `Great Lakes: the level itself, monthly, 6 months, a range`,
+    `Kinneret: couldn't find one · week → year, with a range, checked · the small gap I fell into · "honestly how far"`],
   facts: `From your Related Work (4 Aug): Rimmer & Salingar 2006 (HYMKE); Shentsis & Ben Zvi 1994 plus later statistics ("efficient annually, reduces dramatically monthly and daily", via Rimmer & Gal 2014); Givati et al. 2012 (WRF → HYMKE). Great Lakes forecast: US Army Corps of Engineers, Detroit District. Verify before the slide is final. Logos: check each body is fine with its logo on a slide; text names are the safe fallback. Say "couldn't find", never "first". What's different is NOT "learned from data". It's the target (the level itself), the horizon (week → year, daily), the range, and the honest test.` },
 { id: "s03", n: "3", q: "How can an amateur do this?", image: "charts/centaur_slide.jpg",
   design: `The bronze centaur statue against an evening sky (images/centaur_photo.jpg), full bleed. One word in the empty sky, top left: "Centaur" (charts/centaur_slide.jpg).`,
