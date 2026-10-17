@@ -3,7 +3,7 @@
 07_build_gold_features.py  -  Gold Feature Engineering
 
 Merges all silver data sources and engineers model-ready features.
-Date range: 2012-09-01 onwards (earliest date with good multi-source coverage).
+Date range: 2002-07-01 onwards (first month with every weather input measured at Tzemach).
 
 Feature groups
 --------------
@@ -11,7 +11,7 @@ Feature groups
        sin/cos day-of-year encoding, solar declination, daylength,
        radial basis functions around the four seasonal pivot days.
 
-  B. Met / Weather  (lev_kinneret station priority; multi-station mean fallback)
+  B. Met / Weather  (tzamach station priority; multi-station mean fallback)
        Temperature, humidity, wind speed, radiation (tzamach only).
        Vapor pressure deficit (VPD), Penman-Monteith ET0.
        Precipitation rolling sums (7d, 14d infiltration proxy).
@@ -60,13 +60,18 @@ OUT_FILE    = GOLD_DIR / "kinneret_gold_features.csv"
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-START_DATE  = "2012-09-01"
+# First month with every input measured: Tzemach's archive serves temperature under its
+# wind channel until 2002-06, and Lev Kinneret starts 2003-11 (docs/experiments/ims_station_bias.md).
+START_DATE  = "2002-07-01"
 LATITUDE    = 32.82                  # degrees N, centre of Lake Kinneret
 ELEVATION   = -212.0                 # m (approximate mean lake level for atm. pressure)
 KINNERET_STATIONS = [
     "beit_tzaida", "kfar_nachum", "lev_kinneret", "tiberias", "tzamach"
 ]
-PRIORITY_STATION  = "lev_kinneret"
+# One station for every year, so the record never switches: Lev Kinneret (mid-lake) runs
+# +4.2 C warmer at night and +1.1 m/s windier than Tzemach (shore), and its gauge is
+# empty before 2012 (docs/experiments/ims_station_bias.md).
+PRIORITY_STATION  = "tzamach"
 RADIATION_STATION = "tzamach"        # only station with solar radiation sensor
 
 # RBF gamma: decays to ~0.05 at 45 days from centre (captures ~3-month season)
