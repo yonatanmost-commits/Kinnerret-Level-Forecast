@@ -217,27 +217,27 @@ No row for us: the gap is said, not shown.`,
   facts: `Diagrams drawn by Chartbuilder, not taken from the web (copyright). GBR = the two-stage gradient-boosting champion (scikit-learn GradientBoostingRegressor); GRU = gated recurrent unit, 75 units, 14 days of history, direct multi-horizon head. The tree questions are illustrative examples, not the model's actual splits.` },
 { id: "s07", n: "8", q: "How did we choose it?", image: "charts/choices_sliders.png",
   design: `Five full-width sliders (Chartbuilder), a one-word title above each. The end words are one or two words; the result sits in a rounded box toward the winner; teal marks what's in use.
-Week: June net · [R² 0.77] → Trees
-Year: Neural net ← [36 cm better] · Trees
+Week: GRU · [tie] · GBR (in use)
+Year: GRU ← [36 cm better] · GBR
 Reach: Relay · [tie] · Direct
 Forecast: Average year · [2 cm better] → Copernicus
 Range: Past errors · [holds 77–84%] → Past winters`,
   script: [`I didn't get here in a straight line. Five tests decided it.`,
-`A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week. A year ahead, it's the other way round: a neural network, set up properly this time, beats the trees by about a third of a metre. More on that in a moment.`,
+`A week ahead, the two tie: two millimetres apart. So the GBR, already running, keeps the week. A year ahead, the GRU wins, by about a third of a metre. More on that in a moment.`,
 `How to reach a year ahead? Feed the model its own forecast day after day, or forecast every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
 `Then the weather ahead. Nobody knows next winter, so the model starts from an average year. Copernicus nudges it, a little wetter or drier, a little warmer, month by month. It helped both models a little: about two centimetres a year out. Small, but real, so it stays.`,
 `And the range: run every past winter's weather through the model, let the winters the forecast favours count more, and it holds the outcome 77 to 84 percent of the time, every month out to a year.`,
 `Wherever I could, I wrote down how I'd judge before I saw the results.`],
   pointers: [
     `Not a straight line: five tests decided it`,
-    `Week: June neural net ≈ guessing · trees 0.77, still run the week`,
-    `Year: the other way round, a fair neural net beats trees by ~36 cm → slide 8`,
+    `Week: GBR = GRU, 2 mm apart → GBR keeps the week`,
+    `Year: GRU wins by ~36 cm → table`,
     `Reach: relay = direct → kept the simpler · elegant design < an ordinary year`,
     `Forecast: average year + Copernicus nudge → ~2 cm better for both → stays`,
     `Range from past winters: holds 77–84%, every month to a year`,
     `"Wherever I could, I wrote down how I'd judge first"`],
   facts: `Chart: docs/talk/charts/choices_sliders.png. PRODUCT SWAPPED TO THE GRU (17 Oct): every long-range number is being re-confirmed for the GRU with model-coach.
-1. Week: June neural net R² −0.026 vs two-stage GBR R² 0.769. Say "June": the fair GRU is a different setup.
+1. Week: final run, 7 d, GBR 2.7 vs GRU 2.9 cm, GRU−GBR +0.2 [−0.1, +0.5], a tie; the GBR keeps the week because it already runs the app's 7-day. (The June GRU, R² −0.026, was a wrong setup: one day's change, no weather for that day. Only on slide 10 as a story.)
 2. Year: GRU−GBR at 365 d −35.8 cm [−66.9, −8.6], clear (equal weight per year −37.2).
 3. Reach, ERA5 bench, 6-horizon mean: relay 0.370 vs direct 0.366, a tie. The continuous-time decoder 0.442 was worse than an ordinary year's 0.423. (These were CfC-cell tests; say "the network", not "the liquid network".)
 4. Forecast: the GRU at 365 d 0.873 → 0.851, −2.1 cm [−6.1, +1.6]; year-ahead mean 0.677 → 0.658, −1.9 cm [−4.5, +0.6], not clear (model-coach); the GBR −2.8 cm [−4.8, −0.9], clear. "Real" holds firmly for the trees.
@@ -264,12 +264,12 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 { id: "s08", n: "10", q: "Which model won?", image: "charts/models_table.png",
   design: `Big table (Chartbuilder), two rows: GBR ("Classic ML") and GRU ("Neural network"), with a Model type column. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Header: "Prediction error by time (cm)". The lower error in each column in soft teal (Week: Trees; Month: both, a tie; 6 months and Year: GRU); the other cell plain black. A teal outline marks the model in use: Trees for the week, the GRU for the month, 6 months and year.`,
   script: [`Two models made it to the end: the same setup, the same years, the same test.`,
-`The GRU is the same kind of network that failed back in June. Set up fairly, with the weather it needs, it caught up.`,
+`My first GRU, back in June, did no better than guessing: I'd set it up wrong, without the weather it needed. Set up fairly, it caught up.`,
 `For a week and a month, it hardly matters: they land within a few millimetres of each other. By six months the network is a little lower, and a year out it's about a third of a metre closer. That's the one clear win on this table. Hand them the real winter, and the trees pull ahead, though not by a margin I can prove. They use the weather best, if only someone could tell them.`,
 `So the week runs on the trees, and the year runs on the network. The name of the model mattered less than how fairly I compared them.`],
   pointers: [
     `Two models made it: same setup, same years, same test`,
-    `GRU = the June loser, set up fairly, caught up`,
+    `My June GRU was set up wrong · set up fairly, it caught up`,
     `Week, month: within millimetres · 6 months: network a little lower`,
     `Year: the network a third of a metre closer, the one clear win`,
     `Real winter: trees pull ahead, not provably`,
