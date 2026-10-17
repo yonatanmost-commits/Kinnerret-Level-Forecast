@@ -10,3 +10,4 @@ tests/test_cfc_relay_weather.py  # 2026-10-16
 tests/test_local_refresh_sync.py  # 2026-10-16
 tests/test_07b_keeps_cache.py  # 2026-10-16
 tests/test_fan_monthly.py  # 2026-10-17
+tests/test_fan_gru.py  # 2026-10-17
