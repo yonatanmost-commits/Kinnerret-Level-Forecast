@@ -205,22 +205,16 @@ No row for us: the gap is said, not shown.`,
 • Copernicus's own raw 80% range held the real winter only about 2 winters in 3 (67%). Our fan doesn't use that spread; it weights past winters by SEAS5 with a shrunk slope, so the fan's 80% holds 77–84%.
 • This winter: 105% on this chart's method, 106% in the product. Say "leans slightly wet", no number.
 • Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
-{ id: "s06", n: "7", q: "How did we set it up?", image: null,
-  design: `One diagram, two lanes, same inputs on the left.
-Top lane, "THE WEEK AHEAD", every morning: weather forecast → [1] the Jordan's flow → [2] the lake's change → level, 7 days.
-Bottom lane, "THE YEAR AHEAD", every month: the lake's last two weeks (level, river, weather, season) + the weather ahead (average year, nudged by Copernicus) → one network → the lake's change at a week, a month, four, eight and twelve months, all at once → a fan from past winters.
-Under both lanes: "trained on station weather, 2002–2025".`,
-  script: [`Two forecasts, built differently, because the two problems are different.`,
-`The week ahead runs every morning, in two steps. First, from the week's weather forecast, it predicts how much the Jordan will bring. Then, from that flow and the weather, how much the lake will rise or fall.`,
-`The year ahead runs every month. One model reads the lake's last two weeks: its level, the river, the weather, the season. Then it's told what weather to expect, month by month. Nobody knows next winter, so it starts from an average year on those dates, and nudges it by the Copernicus forecast: a little wetter, a little warmer. There's no river forecast here: the river enters only through what it's already done. From that, it forecasts the lake at every distance at once, from a week to a year.`,
-`And one forecast isn't enough a year out. So I run it again with the weather of every past winter, and the winters Copernicus thinks more likely count more. That spread is the range you'll see later.`],
-  facts: `Confirmed by the results peer (final run cfc_monthly, 52fc2d2). The long-range model is the GRU direct model (cfc_tournament.py method B, --cell gru; branch fan-gru af70a5d): 14 days of history, a GRU encoder with 75 units (~21k weights), a 64-unit head, Huber loss, up to 80 epochs with early stopping (patience 10, the last 15% of training years as validation), learning rate 0.003, 3 seeds averaged, trained on what actually fell.
-• History, last 14 days: temperature (mean, max, min), humidity, wind, rain, rain intensity, sun, VPD, evaporation; season; Jordan inflow at Obstacle Bridge (past only); level, volume change, a "level was read" flag.
-• Ahead, per window: rain, evaporation and sun totals; temperature, humidity, wind and VPD means. 17 horizons: 7/13/26 days, every month to 12, plus 130/260.
-• Output: volume change → bathymetry curve → level.
-• Weather ahead: the training years' day-of-year average; rain × the SEAS5 monthly ratio, temperature + its anomaly, from the issue already out on the start day.
-• Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
-The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
+{ id: "s07m", n: "7", q: "What are the two models?", image: null,
+  design: `Two halves split by a vertical line (Chartbuilder, pending). Left: "Classic ML · GBR", a row of small decision trees joined by "+" ending in "= forecast". Right: "Deep learning · GRU", a chain of cells from day 1 to today with a memory line running through. Our own drawings; very few words.`,
+  script: [`Two kinds of model made it to the end.`,
+`On the left, classic machine learning: gradient boosting, GBR for short. It grows hundreds of small decision trees. Each one asks a few yes-or-no questions, like: did more than twenty millimetres fall this week? Is it winter? Each new tree corrects what the ones before it got wrong, and the forecast is all of them added up.`,
+`On the right, deep learning: a GRU, a kind of neural network. It reads the days in order, one at a time, like reading a sentence, and carries a memory along. At every day, small gates decide what to keep and what to forget.`],
+  pointers: [
+    `Two kinds of model made it to the end`,
+    `Left, classic ML = GBR: hundreds of small trees, yes/no questions, each fixes the last, add them up`,
+    `Right, deep learning = GRU: reads the days in order, carries a memory, gates keep or forget`],
+  facts: `Diagrams drawn by Chartbuilder, not taken from the web (copyright). GBR = the two-stage gradient-boosting champion (scikit-learn GradientBoostingRegressor); GRU = gated recurrent unit, 75 units, 14 days of history, direct multi-horizon head. The tree questions are illustrative examples, not the model's actual splits.` },
 { id: "s07", n: "8", q: "How did we choose it?", image: "charts/choices_sliders.png",
   design: `Five full-width sliders (Chartbuilder), a one-word title above each. The end words are one or two words; the result sits in a rounded box toward the winner; teal marks what's in use.
 Week: June net · [R² 0.77] → Trees
@@ -249,15 +243,31 @@ Range: Past errors · [holds 77–84%] → Past winters`,
 4. Forecast: the GRU at 365 d 0.873 → 0.851, −2.1 cm [−6.1, +1.6]; year-ahead mean 0.677 → 0.658, −1.9 cm [−4.5, +0.6], not clear (model-coach); the GBR −2.8 cm [−4.8, −0.9], clear. "Real" holds firmly for the trees.
 5. Range, GRU fan: 80% held 77–84% across 17 horizons (the lowest 76.5% at 335 d; the app caption says 76–84%). "Past errors 61–72%" exists only for the CfC on the ERA5 bench: if asked, "an earlier bench".
 "Wherever I could": the winner rule was fixed before the tournament; the history length, station data and the bug fix were not rule-decided.` },
-{ id: "s08", n: "9", q: "Which model won?", image: "charts/models_table.png",
+{ id: "s06", n: "9", q: "How did we set it up?", image: null,
+  design: `One diagram, two lanes, same inputs on the left.
+Top lane, "THE WEEK AHEAD", every morning: weather forecast → [1] the Jordan's flow → [2] the lake's change → level, 7 days.
+Bottom lane, "THE YEAR AHEAD", every month: the lake's last two weeks (level, river, weather, season) + the weather ahead (average year, nudged by Copernicus) → one network → the lake's change at a week, a month, four, eight and twelve months, all at once → a fan from past winters.
+Under both lanes: "trained on station weather, 2002–2025".`,
+  script: [`Two forecasts, built differently, because the two problems are different.`,
+`The week ahead runs every morning, in two steps. First, from the week's weather forecast, it predicts how much the Jordan will bring. Then, from that flow and the weather, how much the lake will rise or fall.`,
+`The year ahead runs every month. One model reads the lake's last two weeks: its level, the river, the weather, the season. Then it's told what weather to expect, month by month. Nobody knows next winter, so it starts from an average year on those dates, and nudges it by the Copernicus forecast: a little wetter, a little warmer. There's no river forecast here: the river enters only through what it's already done. From that, it forecasts the lake at every distance at once, from a week to a year.`,
+`And one forecast isn't enough a year out. So I run it again with the weather of every past winter, and the winters Copernicus thinks more likely count more. That spread is the range you'll see later.`],
+  facts: `Confirmed by the results peer (final run cfc_monthly, 52fc2d2). The long-range model is the GRU direct model (cfc_tournament.py method B, --cell gru; branch fan-gru af70a5d): 14 days of history, a GRU encoder with 75 units (~21k weights), a 64-unit head, Huber loss, up to 80 epochs with early stopping (patience 10, the last 15% of training years as validation), learning rate 0.003, 3 seeds averaged, trained on what actually fell.
+• History, last 14 days: temperature (mean, max, min), humidity, wind, rain, rain intensity, sun, VPD, evaporation; season; Jordan inflow at Obstacle Bridge (past only); level, volume change, a "level was read" flag.
+• Ahead, per window: rain, evaporation and sun totals; temperature, humidity, wind and VPD means. 17 horizons: 7/13/26 days, every month to 12, plus 130/260.
+• Output: volume change → bathymetry curve → level.
+• Weather ahead: the training years' day-of-year average; rain × the SEAS5 monthly ratio, temperature + its anomaly, from the issue already out on the start day.
+• Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
+The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
+{ id: "s08", n: "10", q: "Which model won?", image: "charts/models_table.png",
   design: `Big table (Chartbuilder), two rows: GBR ("Classic ML") and GRU ("Neural network"), with a Model type column. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Header: "Prediction error by time (cm)". The lower error in each column in soft teal (Week: Trees; Month: both, a tie; 6 months and Year: GRU); the other cell plain black. A teal outline marks the model in use: Trees for the week, the GRU for the month, 6 months and year.`,
   script: [`Two models made it to the end: the same setup, the same years, the same test.`,
-`GBR, gradient boosting, is classic machine learning: hundreds of small decision trees, each one correcting the last. It's my old champion. The GRU is a neural network that reads the days in order and decides what to keep in mind. Yes, the same kind that failed back in June. Set up fairly, with the weather it needs, it caught up.`,
+`The GRU is the same kind of network that failed back in June. Set up fairly, with the weather it needs, it caught up.`,
 `For a week and a month, it hardly matters: they land within a few millimetres of each other. By six months the network is a little lower, and a year out it's about a third of a metre closer. That's the one clear win on this table. Hand them the real winter, and the trees pull ahead, though not by a margin I can prove. They use the weather best, if only someone could tell them.`,
 `So the week runs on the trees, and the year runs on the network. The name of the model mattered less than how fairly I compared them.`],
   pointers: [
     `Two models made it: same setup, same years, same test`,
-    `GBR = classic ML, many small trees, my old champion · GRU = neural network, reads days in order, the June loser set up fairly`,
+    `GRU = the June loser, set up fairly, caught up`,
     `Week, month: within millimetres · 6 months: network a little lower`,
     `Year: the network a third of a metre closer, the one clear win`,
     `Real winter: trees pull ahead, not provably`,
@@ -268,7 +278,7 @@ Range: Past errors · [holds 77–84%] → Past winters`,
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test. The GRU is a standard, well-known design, and it trained in about 7 minutes against 20, so I shipped it." (Timings from the 16 Oct bench, not re-timed.)` },
-{ id: "s11", n: "10", q: "So which winter is coming?", image: null,
+{ id: "s11", n: "11", q: "So which winter is coming?", image: null,
   design: `The fan from 15 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
   script: [
 `I can't tell you. But I can show you what each one would do.`,
@@ -282,13 +292,13 @@ Range: Past errors · [holds 77–84%] → Past winters`,
 • October SEAS5: season 1.06× normal (25th of 34); Oct 1.54×, Nov 1.18×, Dec–Feb ~1.0×, Mar 1.13×; Jan–Feb +1.0 to +1.2 °C. "Leans slightly wet, mostly early on" holds.
 • Autumn bias, GRU: October starts ended about 40 cm HIGHER than the middle forecast at 12 months (the CfC's was 33). Safe line: "in autumn our middle forecast has run about 40 cm low; the range still held the outcome 8 times in 10." So the red-line odds lean pessimistic: say "about".
 • Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
-{ id: "s11b", n: "11", q: "Why should we believe it?", image: null,
+{ id: "s11b", n: "12", q: "Why should we believe it?", image: null,
   design: `12 autumns, 2014–2025, one bar each: the 80% range forecast in October for a year later, with a dot for what happened. Inside = hit, hollow red outside = miss. Bars tinted by that winter's rain; 2018–19 and 2024–25 labelled. Footnote: the first three test years had no range yet.`,
   script: [
 `Here's every autumn I could test. The bar is what the forecast said in October. The dot is where the lake was a year later. An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it.`,
 `It tells you how sure it is, and mostly, it's right about that.`],
   facts: `9 of 12 held. Misses: 2018 above by 0.85 m, 2019 above by 0.31 m, 2024 below by 0.28 m. GRU (model-coach): 9 of 12 autumns inside the 80% range at both 6 and 12 months; misses 2018, 2019, 2024, the same three. The line holds.` },
-{ id: "s12", n: "12", q: "What do I take home?", image: null,
+{ id: "s12", n: "13", q: "What do I take home?", image: null,
   design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass.`,
   script: [
 `Not a model. Three rules, and anyone here can use them, with an AI at their side.`,
@@ -297,7 +307,7 @@ Range: Past errors · [holds 77–84%] → Past winters`,
 `When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a brilliant number, a network I nearly threw away.`,
 `Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.`],
   facts: `` },
-{ id: "s13", n: "13", q: "So how far did you get?", image: null,
+{ id: "s13", n: "14", q: "So how far did you get?", image: null,
   design: `The app's fan card as a screenshot, with the QR code. Credits line (licence requirement, moved here from slide 5): "Copernicus Climate Change Service information, 2026".`,
   script: [
 `I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it, updated every month when the new seasonal forecast comes out. Here it is.`,
