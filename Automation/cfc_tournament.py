@@ -60,7 +60,10 @@ Why does a week of history suffice? (B only)
 Environment: CFC_OUT (results folder), CFC_YEARS (comma list of test years), CFC_GOLD
 (the gold table --table ims reads; default Gold Data/kinneret_gold_features.csv),
 CFC_FUTURE=1 (also keep forecasts that reach past the table's last day, with obs None:
-a forecast from today rather than a backtest).
+a forecast from today rather than a backtest), CFC_HORIZONS (the days ahead forecast:
+"default" 7/13/26/130/260/365, "monthly" adds about every 30 days to 365 so the fan has a
+point each month, or a comma list; B's head has one output per horizon). Use a separate
+CFC_OUT per horizon set.
 
 Seasonal forecast
   --seas5         adds weathers "seas5", "seas5c" (calibrated per lead month: SEAS5's rain
@@ -105,7 +108,10 @@ t08, lnc = L.t08, L.lnc
 OUT = Path(os.environ.get("CFC_OUT", t08.BASE_DIR / "docs" / "experiments" / "cfc_tournament"))
 if "CFC_GOLD" in os.environ:                 # --table ims from another gold file (e.g. a branch's worktree)
     t08.GOLD_FILE = Path(os.environ["CFC_GOLD"])
-HORIZONS = [7, 13, 26, 130, 260, 365]
+HORIZON_SETS = {"default": [7, 13, 26, 130, 260, 365],
+                "monthly": [7, 13, 26, 30, 61, 91, 122, 130, 152, 182, 213, 243, 260, 274, 304, 335, 365]}
+_h = os.environ.get("CFC_HORIZONS", "default")
+HORIZONS = HORIZON_SETS[_h] if _h in HORIZON_SETS else sorted(int(x) for x in _h.split(","))
 HMAX = max(HORIZONS)
 TEST_YEARS = [int(y) for y in os.environ["CFC_YEARS"].split(",")] if "CFC_YEARS" in os.environ     else list(range(2010, 2026))
 EPOCH_CAP = int(os.environ.get("CFC_EPOCHS", 0))       # smoke tests only
@@ -434,7 +440,7 @@ def masked_huber(pred, y, mask):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def window_summaries(W: np.ndarray) -> np.ndarray:
-    """(A, n_days, DM) -> (A, 6 horizons x 7) totals and means of each horizon window."""
+    """(A, n_days, DM) -> (A, horizons x 7) totals and means of each horizon window."""
     si = [DM.index(c) for c in SUM_COLS]
     mi = [DM.index(c) for c in MEAN_COLS]
     n = len(si) + len(mi)
