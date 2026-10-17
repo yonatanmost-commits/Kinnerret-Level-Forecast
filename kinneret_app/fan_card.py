@@ -132,5 +132,5 @@ def render(history: pd.Series = None):
         f"through the model, weighted by how well it matches the seasonal forecast, plus the "
         f"model's own past errors.{lean} Chance still below {red:.0f} m in 12 months: **{p12:.0%}**.")
     st.caption(f"{fan['model']} · made {fan['made_on']} · refreshed monthly after the seasonal "
-               f"forecast (5th) · tested 2011-2025: the 80% range held the outcome 76-84% of the time "
+               f"forecast (5th) · tested 2011-2025: the 80% range held the outcome 77-84% of the time "
                f"at every month out to 12 months.")
