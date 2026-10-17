@@ -357,8 +357,8 @@ When you're wrong, find out why, and say so. I was, more than once: a rain gauge
 Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.
 
 ### 13. So how far did you get? [the lake video's last frame; the QR code; a small live fan]
-I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it. Here it is.
-(The long-range fan is NOT in the live app yet, bench only; "updated every morning" returns only if the originator ships it before the talk.)
+I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it, updated every morning. Here it is.
+(2026-10-17: the originator shipped the long-range fan to the app; "updated every morning" is true. How the app shows forecasts is still open, and the slide 11 chart must match it so the QR lands on a familiar picture.)
 What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
 An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.
 Thank you.
