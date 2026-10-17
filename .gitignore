@@ -65,6 +65,7 @@ Silver Data/Meteorological/met_data_wide.csv
 Models/*
 !Models/*.pkl
 !Models/model_metadata.json
+!Models/longrange_fan.json
 # The GRU was retired 2026-06-01 and would drag torch into the image.
 Models/gru_multitask.pt
 
