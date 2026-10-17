@@ -187,15 +187,18 @@ No row for us: the gap is said, not shown.`,
 • One-day score 0.69 → 0.76 with the rain fix and six others (backup slide).` },
 { id: "s10c", n: "6", q: "Can anyone forecast the winter?", image: "charts/seas5_vs_rain.png",
   design: `Copernicus against the real rain (Chartbuilder v3): winters 1998–99 to 2026–27 across the bottom (no rain dot for 2000–01: March incomplete), season rain as % of normal up the side, a dashed "normal" line. Hollow dots: the October forecast. Solid teal dots: the rain that fell, with 2018–19 green and 2024–25 orange. Direct labels instead of a legend; no range bars. The last column is "this winter": a bold ring.`,
-  script: [`One of those sources needs a closer look: the seasonal forecast. Here's every winter since 1998. The hollow dots are what Copernicus forecast each October. The solid dots are the rain that actually fell.`,
-`The forecasts hug normal. The real winters swing from half of normal to one and a half times. In our two winters it leaned the right way, but never guessed how far. And this winter, on the right? A slight lean wet. A lean, not a call.`,
-`That's the limit. A week ahead, the weather forecast is good, and we're within centimetres. A year ahead, the lake can only be forecast as well as the winter's rain. The rain sets the limit.`],
+  script: [`One of those sources needs a closer look. Copernicus is Europe's Earth-observation programme. Every month, on the fifth, its climate service publishes a seasonal forecast: the European weather centre runs its model fifty-one times, and looks half a year ahead.`,
+`Here's every winter since 1998. The hollow dots are what Copernicus forecast each October for the winter's rain. The solid dots are the rain that actually fell. A hundred percent is a normal winter.`,
+`How good is it? The forecasts hug normal, while the real winters swing from half to one and a half times. In our test, the wetter it said, the wetter it usually was, but loosely: a score of about 0.5, where 1 is perfect and 0 is no better than guessing. Weak, but real. And that's the limit: a year ahead, the lake can only be forecast as well as the winter's rain. The rain sets the limit.`,
+`We never use its millimetres. Its model rains differently from our gauge. We compare each forecast with what Copernicus itself said in earlier years for the same month: "twenty percent wetter than it usually says" becomes "twenty percent wetter than our normal". Then the past winters that fit that lean count a little more.`,
+`And this winter, on the right? A slight lean wet, mostly in October and November. A lean, not a call.`],
   pointers: [
-    `Every winter since 1998: hollow = Copernicus in October, solid = what fell`,
-    `Forecasts hug normal · real winters swing 50% → 150%`,
-    `Our two winters: leaned right, never guessed how far · this winter: slight lean wet, not a call`,
-    `Week: within centimetres · year: only as good as the winter's rain → THE RAIN SETS THE LIMIT`],
-  facts: `Chart: docs/talk/charts/seas5_vs_rain.png (Chartbuilder; method and data confirmed by model-coach). October issue, the one the fan uses for an autumn start. Oct–Mar season rain as % of each series' own normal.
+    `Copernicus = Europe's Earth-observation programme · forecast on the 5th, 51 runs, half a year ahead`,
+    `Graph: hollow = October forecast · solid = rain that fell · 100% = normal`,
+    `How good: hugs normal, reality swings · score ~0.5 (1 perfect, 0 guessing) · weak but real → THE RAIN SETS THE LIMIT`,
+    `How we use it: never its mm · vs its own earlier forecasts → "% wetter than usual" · matching past winters count more`,
+    `This winter: slight lean wet, Oct–Nov · a lean, not a call`],
+  facts: `TO VERIFY: SEAS5 runs 51 ensemble members and reaches about 7 months ("half a year"); the fan's weights are SEAS5's season rain ratio vs each past winter's ratio (seas5.member_weights), and temperature is shifted by its anomaly too. Chart: docs/talk/charts/seas5_vs_rain.png (Chartbuilder; method and data confirmed by model-coach). October issue, the one the fan uses for an autumn start. Oct–Mar season rain as % of each series' own normal.
 • Rain before July 2002: the same Tzemach gauge from the silver table (its rain record starts Feb 1998). Checked against ERA5: same agreement as later years (daily r 0.76, monthly 0.91, totals 0.97), and the 1998–2001 lows are the real drought.
 • Skill (n = 27 winters): Spearman 0.52, Pearson 0.57. Say "about 0.5, weak but real".
 • 2018–19: forecast 115% → fell 142%. 2024–25: forecast 92% → fell 57% ("leaned dry, never guessed how dry"). Also 1998–99: forecast 84% → fell 54%. Misses: 2019–22 (said normal or dry, came wet) and 2023–24 (102% → about 150%).
