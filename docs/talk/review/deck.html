@@ -230,20 +230,20 @@ Range: Past errors · [holds 77–84%] → Past winters`,
 5. Range, GRU fan: 80% held 77–84% across 17 horizons (the lowest 76.5% at 335 d; the app caption says 76–84%). "Past errors 61–72%" exists only for the CfC on the ERA5 bench: if asked, "an earlier bench".
 "Wherever I could": the winner rule was fixed before the tournament; the history length, station data and the bug fix were not rule-decided.` },
 { id: "s08", n: "8", q: "Which model won?", image: "charts/models_table.png",
-  design: `Big table (Chartbuilder), two rows: Trees and GRU. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Header: "Prediction error by time (cm)". Winners and ties in soft teal; the trees' 121 at a year in faint grey. A teal outline marks the model in use: Trees for the week, the GRU for the month, 6 months and year.`,
+  design: `Big table (Chartbuilder), two rows: Trees and GRU. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Header: "Prediction error by time (cm)". The lower error in each column in soft teal (Week: Trees; Month: both, a tie; 6 months and Year: GRU); the other cell plain black. A teal outline marks the model in use: Trees for the week, the GRU for the month, 6 months and year.`,
   script: [`Two models made it to the end: the same setup, the same years, the same test.`,
 `Gradient boosting is hundreds of small decision trees, each one correcting the last. It's my old champion. The GRU is a neural network that reads the days in order and decides what to keep in mind. Yes, the same kind that failed back in June. Set up fairly, with the weather it needs, it caught up.`,
-`For a week, a month, even six months, it hardly matters: they land within a few centimetres of each other. A year out, the network is about a third of a metre closer. That's the one clear win on this table. Hand them the real winter, and the trees pull ahead, though not by a margin I can prove. They use the weather best, if only someone could tell them.`,
+`For a week and a month, it hardly matters: they land within a few millimetres of each other. By six months the network is a little lower, and a year out it's about a third of a metre closer. That's the one clear win on this table. Hand them the real winter, and the trees pull ahead, though not by a margin I can prove. They use the weather best, if only someone could tell them.`,
 `So the week runs on the trees, and the year runs on the network. The name of the model mattered less than how fairly I compared them.`],
   pointers: [
     `Two models made it: same setup, same years, same test`,
     `Trees = many small trees, my old champion · GRU = reads days in order, the June loser, set up fairly`,
-    `Week, month, 6 months: within a few cm, either will do`,
+    `Week, month: within millimetres · 6 months: network a little lower`,
     `Year: the network a third of a metre closer, the one clear win`,
     `Real winter: trees pull ahead, not provably`,
     `Week = trees, year = network · the name mattered less than fair comparison`],
   facts: `Chart: docs/talk/charts/models_table.png, two rows; one big "cm" is the only unit. Ties: week GRU−GBR +0.2 [−0.1, +0.5], month +0.4 [−1.2, +1.9], 6 months −8.5 [−21.4, +4.0]. Final run cfc_monthly (52fc2d2), station record 2011–2025, 15 test years, seasonal forecast ahead, error in cm (Trees / GRU):
-• Week (7 d): 2.7 / 2.9, a tie. Month (30 d): 11.6 / 11.9, a tie. 6 months (182 d): 64 / 56, a tie (not clear).
+• The highlight shows the lower number, not a proven win: only the year is clear. Say "a little lower" for the week and 6 months, never "beats". Week (7 d): 2.7 / 2.9, a tie. Month (30 d): 11.6 / 11.9, a tie. 6 months (182 d): 64 / 56, a tie (not clear).
 • Year (365 d): 121 / 85. GRU−GBR −35.8 cm [−66.9, −8.6], clear. The only clear verdict.
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
