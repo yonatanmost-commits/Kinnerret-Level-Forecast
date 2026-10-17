@@ -3,10 +3,9 @@
 tests/test_jordan_flow.py  # 2026-10-10
 tests/test_talk_gates.py  # intent/kinneret-talk-deck A1-A7,A19, 2026-10-13
 tests/test_talk_opening.py  # intent/kinneret-talk-deck A20 (change to 31 May), 2026-10-13
-tests/test_talk_truth.py  # 2026-10-13
 tests/test_talk_coverage_inputs.py  # 2026-10-13
 tests/test_talk_redesign.py  # deck redesign acceptance (Claude Design import), 2026-10-14, 2026-10-14
-tests/test_talk_coverage.py  # 2026-10-14
 tests/test_talk_lake_animation.py  # opening animation refinement: narration sync, smooth motion, gauge, 2026-10-14
-tests/test_precip_intensity.py  # 2026-10-15
 tests/test_cfc_relay_weather.py  # 2026-10-16
+tests/test_local_refresh_sync.py  # 2026-10-16
+tests/test_07b_keeps_cache.py  # 2026-10-16
