@@ -104,7 +104,7 @@ textarea {
   <header class="top">
     <div class="titlebar">
       <h1>Kinneret Talk Deck</h1>
-      <span class="meta">Script v6 · 14 slides · ~1,600 words · ~15 min · 11 Nov 2026</span>
+      <span class="meta">Script v7 · 13 slides + 4 backup · ~1,900 words · ~16 min, needs trimming · 11 Nov 2026</span>
     </div>
     <div class="actions">
       <button id="dl" type="button">Download my review</button>
@@ -165,55 +165,63 @@ No row for us: the gap is said, not shown.`,
 `I'm a process engineer: I design wastewater treatment plants for TTT, of the WFI Group. And I owe this talk to my co-author, Adnan Agbaria, my lecturer in a data science course during my master's here at Kinneret. He gave us an open task, and I said: I'll forecast the Kinneret's level, one week ahead. There's a weather forecast for the week, so it seemed possible.`,
 `This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since 2002 and compare the model with what happened. The link comes at the end.`],
   facts: `The history page runs the final model on all years: it shows the fit, not a test. Never call it a test.` },
-{ id: "s05", n: "5", q: "Where does the data come from?", image: null,
-  design: `The coverage chart, no metaphor. Years run across; one bar per source, each labelled with its name and, in a few words, what it answers. Bars appear one per sentence:
-• Lake level, daily: "where are we?"
-• Weather stations (Meteorological Service), from 1994; the models use 2002 on: "what fell, how hot"
-• Jordan and streams (Hydrological Service): "what's flowing in"
-• ERA5 (Europe's weather reconstruction), from 2001: "the weather between the stations"
-• Copernicus seasonal forecast, record from 1993: "the winter ahead"
-• Weekly weather forecast, live only: "the next seven days"
-A red notch on the stations bar at 2023, the rain gauge (it pays off on slide 6).`,
-  script: [`Six sources, each answering one question. The lake's level, every day: where are we? The Meteorological Service's stations around the lake: what fell, and how hot it was. The Jordan and its streams: what's flowing in. That one took two months of emails before it turned up on a beta website.`,
-`Then two from Europe. ERA5 is a reconstruction of the past weather, every hour, everywhere: it fills in between the stations. And Copernicus is Europe's seasonal forecast, half a year ahead, renewed every month, with a record going back to 1993. That's the only one that looks at a winter that hasn't come yet. For the coming week, the ordinary weather forecast.`,
-`Then I asked it to clean everything into one table, one row per day. It came back with tactics I'd never have thought of. But there was a catch hiding in there.`],
-  facts: `Start from docs/talk/charts/coverage_painted.png. Drop its title ("starts in 2012" is out of date). To confirm: the start years for the lake level and Jordan bars; what ERA5 is used for ("fills in between the stations" is my reading, please correct); the weekly forecast source (Open-Meteo?). Copernicus "half a year": SEAS5 runs about 7 months.` },
-{ id: "s06", n: "6", q: "Can you trust it?", image: null,
-  design: `The short scoreboard, 0 to 1. Four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot at 0.77.`,
-  script: [
-`My first model scored 0.69, where one is perfect and zero is just guessing the average. Then I tried what everyone tries: fancier models. Worse. A neural network: seventy-one minutes of training, and worse than guessing.`,
-`The biggest step wasn't a model. I asked Claude to play an expert hydrologist and review my work. The newest oldest trick in the book. It noticed every model stumbled in the same year, and said: when every model fails the same way, it's the data.`,
-`A rain gauge had been offline, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, lifted it to 0.76. Today, 0.77. Not a bigger model. Better data.`],
-  facts: `One-day-ahead scores on volume change. The rain fix came together with six other fixes in one step. Never put the weekly 0.73 beside these.` },
-{ id: "s07", n: "7", q: "How far ahead can it see?", image: null,
-  design: `Click 1: "every year is a dot". Each test year's miss a year ahead, against that winter's rain. The dots climb from dry and over-called to wet and under-called, with 2018–19 and 2024–25 labelled. Click 2: a sun, and one summer replayed, the drying curve meeting the red line.`,
-  script: [
+{ id: "s05", n: "5", q: "What data did we use?", image: null,
+  design: `The coverage chart. Years run across, one bar per source with its logo, station names and years written on the chart (not in the script): lake level; Jordan and streams (Hydrological Service); weather stations (Meteorological Service, from 1994; the models use 2002 on); ERA5; Copernicus seasonal forecast (record from 1993); the weekly weather forecast. A red notch on the stations bar at 2023, the rain gauge.`,
+  script: [`Four things: the lake's level, the river flowing into it, the weather that fell, and the weather forecast. The logos on the chart are the people who measure them.`,
+`When I started, I knew of one source: the weather stations. The rivers took two months of emails, always "you can't get that data", until a link on a Facebook post led to a beta website. It has come in every day since.`,
+`Then the data played a trick on me. Every model I tried stumbled in the same year. I asked Claude to play an expert hydrologist and review my work, and it said: when every model fails the same way, it's the data. A rain gauge had been offline, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, did more than any model.`,
+`The last one I found when I wanted to see past the coming week: Copernicus, Europe's seasonal forecast, half a year ahead, renewed every month.`],
+  facts: `Start from docs/talk/charts/coverage_painted.png; drop its title ("starts in 2012" is out of date). One-day score 0.69 → 0.76 with the rain fix and six others (backup slide). To confirm: the start years for the level and Jordan bars, the weekly forecast source (Open-Meteo?), and whether ERA5 stays on the chart (it's only used in the process story; my suggestion: keep it, light grey, "used for testing").` },
+{ id: "s06", n: "6", q: "How did we set it up?", image: null,
+  design: `One diagram, two lanes, same inputs on the left.
+Top lane, "THE WEEK AHEAD", every morning: weather forecast → [1] the Jordan's flow → [2] the lake's change → level, 7 days.
+Bottom lane, "THE YEAR AHEAD", every month: the lake's last two weeks (level, river, weather, season) + the weather ahead (average year, nudged by Copernicus) → one network → the lake's change at a week, a month, four, eight and twelve months, all at once → a fan from past winters.
+Under both lanes: "trained on station weather, 2002–2025".`,
+  script: [`Two forecasts, built differently, because the two problems are different.`,
+`The week ahead runs every morning, in two steps. First, from the week's weather forecast, it predicts how much the Jordan will bring. Then, from that flow and the weather, how much the lake will rise or fall.`,
+`The year ahead runs every month. One model reads the lake's last two weeks: its level, the river, the weather, the season. Then it's told what weather to expect, month by month. Nobody knows next winter, so it starts from an average year on those dates, and nudges it by the Copernicus forecast: a little wetter, a little warmer. There's no river forecast here: the river enters only through what it's already done. From that, it forecasts the lake at every distance at once, from a week to a year.`,
+`And one forecast isn't enough a year out. So I run it again with the weather of every past winter, and the winters Copernicus thinks more likely count more. That spread is the range you'll see later.`],
+  facts: `Long range = the CfC direct model (cfc_tournament.py --method B --table ims --enc-len 14 --ensemble, 3 seeds averaged), trained on what actually fell. Inputs ahead: each window's rain, evaporation and sun totals, plus temperature, humidity and wind means. Output: volume change → level via the bathymetry curve. The week ahead is the two-stage GBR (stage 1 weather → Jordan inflow, stage 2 → volume change), so the river forecast IS in, for the week only. Training span and the 14-day history sent to the peer for confirmation.` },
+{ id: "s07", n: "7", q: "How did we choose it?", image: null,
+  design: `A ladder of real results, bottom to top, each rung one thing tried, with its number and a tick or cross. Error a year ahead, in metres. Rungs (numbers pending one consistent run from the results peer):
+• Fancier models for the week ahead: worse ✗
+• Relay vs all-at-once: no difference ✓ (simpler kept)
+• The "elegant" design: worse than an average year ✗
+• History: 3 days = 120 days ✓
+• Weather ahead: average X → Copernicus X → perfect X
+• Many forecasters averaged vs Copernicus alone: tie ✓ (one kept)
+• Range from past errors: "80%" held only X% ✗ → past winters: holds ~80% ✓`,
+  script: [`I didn't get here in a straight line. Here's what I tried, and what each try scored.`,
+`Fancier models first: worse. Feeding the model its own forecast, day after day, against forecasting every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year. Out.`,
+`How much past does it need? Three days was as good as four months.`,
+`Then the weather ahead. With an average year, the error a year out is X metres. With Copernicus, X. Even with a perfect forecast, X. Copernicus closes only a small part of that gap, but it's the only part anyone can close. Averaging eight more forecasters didn't beat it, so I kept one.`,
+`Last, the range. My first one claimed eighty percent and caught only X. Built from past winters, it catches about eighty.`,
+`Every rung was decided by a rule I wrote down before I saw the results.`],
+  facts: `PENDING: rungs and numbers from the results peer (message sent, one consistent IMS 2011–2025 run). Draft numbers from the log: relay 0.370 vs direct 0.366; C 0.442 vs average change 0.423; CfC year ahead 0.718 / 0.701 / 0.688; first ranges 61–72%. Some rungs are ERA5-bench only; to be confirmed.` },
+{ id: "s08", n: "8", q: "Which model won?", image: null,
+  design: `A table. Three rows, the winner's row highlighted. Columns: the model, what it is (a few words), a week ahead, a year ahead with Copernicus, a year ahead if the winter were known.
+• Gradient boosting: "hundreds of small decision trees, each fixing the last one's mistakes"
+• GRU: "a network that reads the days in order and chooses what to remember"
+• Liquid network (CfC): "the same, built from units that fill and drain like the lake itself"
+Numbers pending the final run.`,
+  script: [`Three models went through that same setup, the same years and the same test.`,
+`Gradient boosting is hundreds of small decision trees, each one correcting the last. It's my old champion. The GRU is a neural network that reads the days in order and decides what to keep in mind. The liquid network is a newer kind: its units fill and drain, a bit like the lake.`,
+`A week ahead, all three land together. A year ahead, with Copernicus, the two networks are better by about X centimetres, and the liquid network and the GRU tie. Hand them the real winter, and the old champion wins. It uses the weather best, if only someone could tell it.`,
+`I ship the liquid network. Not because it's magic. Because it was best at the job we actually have: a year ahead, without knowing the winter.`],
+  facts: `Draft from the log §10: year ahead with SEAS5, CfC 0.701, GRU 0.706, GBR 0.860; perfect, 0.688 / 0.703 / 0.545. The networks beat the GBR by ~0.16–0.18 m, interval clear of zero; CfC and GRU tie. Final cells pending from the peer. "Why the CfC over the GRU" when they tie: confirm the reason with the originator (the fan and red-line tests ran on the CfC?). How the CfC works, plus the worm, is in the Q&A backup.` },
+{ id: "s09", n: "9", q: "How good are the forecasts?", image: null,
+  design: `The checks, one per click, each a small chart.
+Click 1, the week: the forecast against what happened, a thin band. "about 3 cm".
+Click 2, the summer: one summer replayed, the drying curve meeting the red line. "within about 2 days, 8 of 8 crossings".
+Click 3, the year: "every year is a dot", each test year's miss against that winter's rain; dry years over-called, wet years under-called, 2018–19 and 2024–25 labelled.
+Click 4, the range: "said 80%, happened ~80%", the reliability bars by distance.`,
+  script: [`So how good is it? Every check here is on years the model never saw.`,
 `A week ahead, it's off by about three centimetres. That's less than half of what the lake itself moves in a typical week.`,
-`Adnan wanted more. A season. Past a few weeks, everything waits for the rain. Here's every year I tested, a year ahead. In wet winters, it guessed too low. In dry ones, too high. The further from an ordinary winter, the bigger the miss.`,
-`But in summer there's no rain to guess, only a lake drying in the sun. A month ahead, a simple drying curve named the day it would cross the red line, on average within about two days, across all eight crossings since 2008.`,
-`No rain, and we see far. Rain, and we go blind. The rain sets the limit.`],
-  facts: `Week: typical error 2.6–3.0 cm; the 80% range is about 5.5 cm wide, so keep the two apart. Dots: 12-month track record, 15 years. Summer: mean 1.8 days with 15–30 days' warning, 8 crossings.` },
-{ id: "s08", n: "8", q: "Could a smarter model see past the rain?", image: null,
-  design: `Animation: the lake as a bucket, which shrinks to one circle, then many circles become a network.`,
-  script: [
-`I couldn't let it go. So I tried a new kind of model: a liquid network.`,
-`Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.`,
-`A liquid network is made of little buckets like that. Each one fills and slowly drains: that's how it remembers, and how it forgets. And how fast it drains changes with what flows in. A storm and a dry spell move at different speeds.`,
-`So I'm forecasting a lake… with a network made of little lakes. A newer version, called CfC, found a shortcut, and it trains in minutes on an ordinary computer.`],
-  facts: `Never say it's faster than the GRU (it was about 3x slower here), and never "runs on a phone".` },
-{ id: "s09", n: "9", q: "Where did that idea come from?", image: null, flag: "may shrink",
-  design: `Photo: C. elegans under a microscope (licence to check).`,
-  script: [
-`Not from me. From Daniela Rus's lab at MIT, with researchers in Austria, and from this worm. About three hundred neurons, and it gets around just fine. Inspired by it, they built a network where nineteen neurons learned to steer a car. They've since started a company, Liquid AI. Worth following. And the tools are open: anyone can try them.`],
-  facts: `Still to verify: 302 neurons, the ncps licence, the photo licence.` },
-{ id: "s10", n: "10", q: "So which model is best?", image: null,
-  design: `One chart, a year ahead, on the station record. Three pairs of bars for the champion, the plain network and the liquid network. Light = no winter forecast (0.89 / 0.73 / 0.72), dark = the real winter (0.55 / 0.70 / 0.69). A dashed line at 0.83 for "doing nothing".`,
-  script: [
-`My first liquid result looked brilliant, until I saw it had been given the real winter's weather. No forecast has that. Without it, it was ordinary.`,
-`So I set the rules first: same years, same test, for everyone. And I gave the neural network that came last a second chance. I'd been asking it to forecast the lake without telling it the weather. Given the same information, it caught up.`,
-`A week ahead, all three land together. A year ahead, on the station record, with no idea which winter is coming, the two networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.`],
-  facts: `The networks beat the champion by about 0.18 m, interval clear of zero. The two networks tie. On the older ERA5 test all three tie, so always say "on the station record".` },
-{ id: "s11", n: "11", q: "So which winter is coming?", image: null,
+`In summer there's no rain to guess, only a lake drying in the sun. A month ahead, a simple drying curve named the day it would cross the red line, on average within about two days, across all eight crossings since 2008.`,
+`A year ahead, it's a different story. Here's every year I tested. In wet winters it guessed too low, in dry ones too high, and the further from an ordinary winter, the bigger the miss. No rain, and we see far. Rain, and we go blind. The rain sets the limit.`,
+`So it doesn't give one number. It gives a range, and the range is honest: when it says eighty percent, it happens about eighty percent of the time. A little less at a full year, when record winters still surprise it.`],
+  facts: `Week: typical error 2.6–3.0 cm; the 80% range is about 5.5 cm wide, so keep the two apart. Summer: mean 1.8 days with 15–30 days' warning, 8 crossings. Dots: 12-month track record, 15 years (Spearman 0.69). Range: 80% holds 82/81/79/78/78% at 7/13/26/130/260 d and 73% at 365 d (§11). Overlap with slide 11b (the autumn track record): decide whether 11b stays or folds in here.` },
+{ id: "s11", n: "10", q: "So which winter is coming?", image: null,
   design: `The fan from 8 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
   script: [
 `I can't tell you. But I can show you what each one would do.`,
@@ -221,7 +229,7 @@ A red notch on the stations bar at 2023, the rain gauge (it pays off on slide 6)
 `Can anyone forecast the winter? The European seasonal forecast helps a little. This year it leans slightly wet, mostly early on. A weak lean. So the chance the lake is still below the red line a year from now: about three in ten. And at a year ahead, forecasts like this one have, if anything, overstated the risk a little.`,
 `The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.`],
   facts: `Start −213.65 m. Median at 12 months −212.7, 80% range −214.2 to −209.9; 28% below −213. Never say "28%" or "unlikely". No 6-month numbers until the app fix. Not refreshed after 5 Nov.` },
-{ id: "s11b", n: "11b", q: "Why should we believe it?", image: null,
+{ id: "s11b", n: "11", q: "Why should we believe it?", image: null,
   design: `12 autumns, 2014–2025, one bar each: the 80% range forecast in October for a year later, with a dot for what happened. Inside = hit, hollow red outside = miss. Bars tinted by that winter's rain; 2018–19 and 2024–25 labelled. Footnote: the first three test years had no range yet.`,
   script: [
 `Here's every autumn I could test. The bar is what the forecast said in October. The dot is where the lake was a year later. An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it.`,
@@ -243,7 +251,34 @@ A red notch on the stations bar at 2023, the rain gauge (it pays off on slide 6)
 `What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.`,
 `An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.`,
 `Thank you.`],
-  facts: `The 7-day forecast updates every morning; the long-range fan updates monthly. The app's 6-month card must be fixed before the QR code is shown.` }
+  facts: `The 7-day forecast updates every morning; the long-range fan updates monthly. The app's 6-month card must be fixed before the QR code is shown.` },
+{ id: "bk06", n: "Q&A", flag: "backup", q: "Can you trust it?", image: null,
+  design: `The short scoreboard, 0 to 1. Four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot at 0.77.`,
+  script: [
+`My first model scored 0.69, where one is perfect and zero is just guessing the average. Then I tried what everyone tries: fancier models. Worse. A neural network: seventy-one minutes of training, and worse than guessing.`,
+`The biggest step wasn't a model. I asked Claude to play an expert hydrologist and review my work. The newest oldest trick in the book. It noticed every model stumbled in the same year, and said: when every model fails the same way, it's the data.`,
+`A rain gauge had been offline, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, lifted it to 0.76. Today, 0.77. Not a bigger model. Better data.`],
+  facts: `One-day-ahead scores on volume change. The rain fix came together with six other fixes in one step. Never put the weekly 0.73 beside these.` },
+{ id: "bk08", n: "Q&A", flag: "backup", q: "Could a smarter model see past the rain?", image: null,
+  design: `Animation: the lake as a bucket, which shrinks to one circle, then many circles become a network.`,
+  script: [
+`I couldn't let it go. So I tried a new kind of model: a liquid network.`,
+`Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.`,
+`A liquid network is made of little buckets like that. Each one fills and slowly drains: that's how it remembers, and how it forgets. And how fast it drains changes with what flows in. A storm and a dry spell move at different speeds.`,
+`So I'm forecasting a lake… with a network made of little lakes. A newer version, called CfC, found a shortcut, and it trains in minutes on an ordinary computer.`],
+  facts: `Never say it's faster than the GRU (it was about 3x slower here), and never "runs on a phone".` },
+{ id: "bk09", n: "Q&A", flag: "backup", q: "Where did that idea come from?", image: null,
+  design: `Photo: C. elegans under a microscope (licence to check).`,
+  script: [
+`Not from me. From Daniela Rus's lab at MIT, with researchers in Austria, and from this worm. About three hundred neurons, and it gets around just fine. Inspired by it, they built a network where nineteen neurons learned to steer a car. They've since started a company, Liquid AI. Worth following. And the tools are open: anyone can try them.`],
+  facts: `Still to verify: 302 neurons, the ncps licence, the photo licence.` },
+{ id: "bk10", n: "Q&A", flag: "backup", q: "So which model is best?", image: null,
+  design: `One chart, a year ahead, on the station record. Three pairs of bars for the champion, the plain network and the liquid network. Light = no winter forecast (0.89 / 0.73 / 0.72), dark = the real winter (0.55 / 0.70 / 0.69). A dashed line at 0.83 for "doing nothing".`,
+  script: [
+`My first liquid result looked brilliant, until I saw it had been given the real winter's weather. No forecast has that. Without it, it was ordinary.`,
+`So I set the rules first: same years, same test, for everyone. And I gave the neural network that came last a second chance. I'd been asking it to forecast the lake without telling it the weather. Given the same information, it caught up.`,
+`A week ahead, all three land together. A year ahead, on the station record, with no idea which winter is coming, the two networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.`],
+  facts: `The networks beat the champion by about 0.18 m, interval clear of zero. The two networks tie. On the older ERA5 test all three tie, so always say "on the station record".` }
 ];
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -372,7 +407,7 @@ allAreas().forEach(ta => {
 /* ---- review export ---- */
 function reviewText() {
   const today = new Date().toISOString().slice(0, 10);
-  const out = ["# Kinneret talk deck review, " + today, "", "Script v6. Each slide: the question, the script as it stands, then the comment.", ""];
+  const out = ["# Kinneret talk deck review, " + today, "", "Script v7. Each slide: the question, the script as it stands, then the comment.", ""];
   SLIDES.forEach(s => {
     const c = ($("#c-" + s.id).value || "").trim();
     out.push("## Slide " + s.n + ". " + s.q, "", "On screen: " + s.design, "", "Script:", "");
