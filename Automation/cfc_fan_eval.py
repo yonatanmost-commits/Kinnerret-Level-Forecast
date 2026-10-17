@@ -8,6 +8,7 @@ error), builds the fan with cfc_bands two ways and scores both:
   plain     every past winter equally likely
   seas5     each past winter weighted by how well its season's rain matches what the
             ECMWF SEAS5 forecast published by the start day said (seas5.member_weights)
+  mm        the same with the C3S multi-model mean (--source c3s; c3s.py, out on the 13th)
 
 Season rain ratio = the rain-weighted mean, over the months the SEAS5 forecast covers
 from the start's month on, of each month's rain over its normal. SEAS5's skill (the fit
@@ -22,6 +23,7 @@ Scores per model and horizon:
   happened, Brier skill against the test-period base rate, and a reliability table.
 
     CFC_GOLD=<gold.csv> python Automation/cfc_fan_eval.py docs/experiments/cfc_ims_ext_ens
+    ... --source c3s --out docs/experiments/cfc_fan_eval/fan_mm.json
 """
 import argparse
 import json
@@ -35,6 +37,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cfc_bands as cb                      # noqa: E402
 import cfc_tournament_report as r           # noqa: E402
+import c3s                                  # noqa: E402
 import seas5                                # noqa: E402
 
 LEVELS = tuple(round(x, 2) for x in np.arange(0.1, 0.91, 0.1))
@@ -60,17 +63,19 @@ def season_ratio(m: pd.Series, normal: pd.Series, months) -> float:
     return float(tot.sum() / normal.reindex(idx.month).sum())
 
 
-def weights_for(members: pd.DataFrame, S: pd.DataFrame, era_m: pd.Series, bench_m: pd.Series) -> pd.Series:
-    """Weight per member row (index-aligned), by SEAS5's season forecast at its start."""
+def weights_for(members: pd.DataFrame, S: pd.DataFrame, era_m: pd.Series, bench_m: pd.Series,
+                src=seas5) -> pd.Series:
+    """Weight per member row (index-aligned), by the seasonal forecast at its start
+    (src: seas5 or c3s, the module that publishes S)."""
     out = pd.Series(1.0, index=members.index)
     members = members.assign(_t=pd.to_datetime(members["start"]),
                              _y=members["weather"].str.split("|").str[1].astype(int))
     for T, mt in members.groupby("year"):
-        anom = seas5.anomalies(S, T)
+        anom = src.anomalies(S, T)
         n_era, n_bench = normals(era_m, T), normals(bench_m, T)
         fits = {}
         for t, g in mt.groupby("_t"):
-            init = seas5.init_for(t)
+            init = src.init_for(t)
             f = anom[(anom["init"] == init) & (anom["target"] >= pd.Timestamp(t.year, t.month, 1))]
             if f.empty:
                 continue
@@ -173,6 +178,7 @@ def main():
     ap.add_argument("folder")
     ap.add_argument("--models", default="B14,B14gru")
     ap.add_argument("--out", default="")
+    ap.add_argument("--source", choices=["seas5", "c3s"], default="seas5")
     a = ap.parse_args()
     import cfc_tournament as ct                              # reads CFC_GOLD for the bench table
     ct.TABLE = "ims"
@@ -180,15 +186,17 @@ def main():
     bench = ct.ims_table().set_index("date")["rainfall_mm"]
     ct.L.set_features(ct.L.NO_INTENSITY)
     era = ct.L.build_long_table().set_index("date")["rainfall_mm"]
-    S = seas5.load()
+    src = c3s if a.source == "c3s" else seas5
+    fc = "mm" if a.source == "c3s" else "seas5"             # the weighted fan's name
+    S = src.load()
     d = r.load(Path(a.folder))
     result, tables = {}, []
     for m in a.models.split(","):
         dm = d[d["method"] == m]
         mem, ob = dm[dm["weather"].str.startswith("ens|")], dm[dm["weather"] == "obs"]
-        w = weights_for(mem, S, monthly(era), monthly(bench))
+        w = weights_for(mem, S, monthly(era), monthly(bench), src)
         fans = {}
-        for name, members in (("plain", mem), ("seas5", mem.assign(weight=w))):
+        for name, members in (("plain", mem), (fc, mem.assign(weight=w))):
             o = cb.bands(members, levels=LEVELS, errors=ob, gamma=GAMMA, thresholds=RED)
             fans[name] = o
             s = score(o).assign(model=m, fan=name)
@@ -204,9 +212,9 @@ def main():
                 ex = o[o["start"].isin(pick)].assign(level0=lambda x: x["start"].map(lv0))
                 result[f"{m}/{name}"]["examples"] = ex.replace({np.nan: None}).to_dict("records")
         print(f"{m}: weights spread  median {w.median():.2f}  10-90% {w.quantile(0.1):.2f}..{w.quantile(0.9):.2f}")
-        g = paired_gain(fans["plain"], fans["seas5"])
+        g = paired_gain(fans["plain"], fans[fc])
         result[f"{m}/gain"] = g
-        print(f"{m}: SEAS5-weighted minus plain, 130-365 d [90% interval over test years]: " +
+        print(f"{m}: {fc}-weighted minus plain, 130-365 d [90% interval over test years]: " +
               "  ".join(f"{k} {v[0]:+.4f} [{v[1]:+.4f}, {v[2]:+.4f}]" for k, v in
                         (("quantile score", g["qs"]), ("median error", g["ae"]), ("red-line Brier", g["br"]))))
     t = pd.concat(tables)
@@ -214,7 +222,7 @@ def main():
     print(t[["model", "fan", "H", "n", "cov50", "cov80", "width80", "qscore", "median_err",
              "red_events", "red_brier", "red_bss", "upper_events", "upper_bss"]].round(3).to_string(index=False))
     for m in a.models.split(","):
-        for name in ("plain", "seas5"):
+        for name in ("plain", fc):
             print(f"\nreliability, P(level < -213 m) at 130-365 d, {m} {name}:")
             print(pd.DataFrame(result[f"{m}/{name}"]["reliability_red"]).round(2).to_string(index=False))
     if a.out:
