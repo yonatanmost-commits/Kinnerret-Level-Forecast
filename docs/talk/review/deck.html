@@ -205,8 +205,8 @@ No row for us: the gap is said, not shown.`,
 • Copernicus's own raw 80% range held the real winter only about 2 winters in 3 (67%). Our fan doesn't use that spread; it weights past winters by SEAS5 with a shrunk slope, so the fan's 80% holds 77–84%.
 • This winter: 105% on this chart's method, 106% in the product. Say "leans slightly wet", no number.
 • Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
-{ id: "s07m", n: "7", q: "What are the two models?", image: null,
-  design: `Two halves split by a vertical line (Chartbuilder, pending). Left: "Classic ML · GBR", a row of small decision trees joined by "+" ending in "= forecast". Right: "Deep learning · GRU", a chain of cells from day 1 to today with a memory line running through. Our own drawings; very few words.`,
+{ id: "s07m", n: "7", q: "What are the two models?", image: "charts/models_explained.png",
+  design: `Two halves split by a vertical line (Chartbuilder). Left: "Classic ML · GBR", a row of small decision trees joined by "+" ending in "= forecast". Right: "Deep learning · GRU", a chain of cells from day 1 to today with a memory line running through. Our own drawings; very few words.`,
   script: [`Two kinds of model made it to the end.`,
 `On the left, classic machine learning: gradient boosting, GBR for short. It grows hundreds of small decision trees. Each one asks a few yes-or-no questions, like: did more than twenty millimetres fall this week? Is it winter? Each new tree corrects what the ones before it got wrong, and the forecast is all of them added up.`,
 `On the right, deep learning: a GRU, a kind of neural network. It reads the days in order, one at a time, like reading a sentence, and carries a memory along. At every day, small gates decide what to keep and what to forget.`],
