@@ -1,0 +1,381 @@
+<title>Kinneret Talk Deck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a review desk. Each slide is a row: the 16:9 stage on the left, the spoken script and a comment box on the right; stacks on phones. */
+:root {
+  --bg: #eef3f2;
+  --surface: #ffffff;
+  --ink: #13232a;
+  --muted: #5a6b70;
+  --line: #d3dedd;
+  --lake: #0b6b70;
+  --lake-soft: #d8ebea;
+  --redline: #b8412e;
+  --stage: #e3ecea;
+  --font-display: "Literata", Georgia, "Times New Roman", serif;
+  --font-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1a1d; --surface: #16252a; --ink: #e4eeec; --muted: #9db0b2; --line: #2a3d42;
+    --lake: #5cc3c3; --lake-soft: #1d3a3d; --redline: #ec8b74; --stage: #1b2e33; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1a1d; --surface: #16252a; --ink: #e4eeec; --muted: #9db0b2; --line: #2a3d42;
+  --lake: #5cc3c3; --lake-soft: #1d3a3d; --redline: #ec8b74; --stage: #1b2e33; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 28px; }
+header.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  padding-block: 14px 12px; border-bottom: 1px solid var(--line);
+  display: grid; gap: 10px;
+}
+.titlebar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: 26px; margin: 0; text-wrap: balance; }
+.meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button {
+  font: 600 13px var(--font-body); border-radius: 6px; padding: 7px 12px; cursor: pointer;
+  border: 1px solid var(--lake); background: var(--lake); color: var(--surface);
+}
+button.ghost { background: transparent; color: var(--lake); }
+button:focus-visible, textarea:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--lake); outline-offset: 2px; }
+.status { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+nav.rail { display: flex; flex-wrap: wrap; gap: 6px; }
+nav.rail a {
+  font-family: var(--font-mono); font-size: 12px; text-decoration: none; color: var(--ink);
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 9px;
+  display: inline-flex; gap: 5px; align-items: center;
+}
+nav.rail a .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+nav.rail a.has-comment .dot { background: var(--lake); }
+nav.rail a.has-design { border-color: var(--lake); }
+.intro { max-width: 70ch; color: var(--muted); margin: 0; }
+section.slide {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px;
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 22px; scroll-margin-top: 150px;
+}
+@media (max-width: 860px) { section.slide { grid-template-columns: minmax(0, 1fr); } }
+.slide-head { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.num { font-family: var(--font-mono); font-size: 13px; color: var(--lake); font-weight: 500; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 21px; margin: 0; text-wrap: balance; }
+.flag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--redline); border: 1px solid currentColor; border-radius: 4px; padding: 1px 6px; }
+.stage {
+  aspect-ratio: 16 / 9; max-width: 100%; background: var(--stage); border-radius: 6px; overflow: hidden;
+  display: grid; place-items: center; padding: 18px; border: 1px dashed var(--line);
+}
+.stage.filled { padding: 0; border-style: solid; }
+.stage img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.stage .brief { font-family: var(--font-body); color: var(--muted); font-size: 14px; text-align: center; max-width: 52ch; }
+.stage .brief::before { content: "On screen  "; display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--lake); margin-bottom: 6px; }
+.left { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.right { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.script { font-family: var(--font-display); font-size: 17px; line-height: 1.6; display: grid; gap: 10px; }
+.script p { margin: 0; }
+details.notes > summary, details.facts > summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; color: var(--lake); }
+details.notes .script { margin-top: 10px; }
+details.facts p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.speak { justify-self: start; }
+label.cl { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+textarea {
+  width: 100%; min-height: 92px; resize: vertical; font: 15px/1.5 var(--font-body); color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px;
+}
+.comment { display: grid; gap: 5px; }
+.general { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 8px; }
+.general h2 { font-size: 19px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="titlebar">
+      <h1>Kinneret Talk Deck</h1>
+      <span class="meta">Script v6 · 14 slides · ~1,600 words · ~15 min · 11 Nov 2026</span>
+    </div>
+    <div class="actions">
+      <button id="dl" type="button">Download my review</button>
+      <button id="copy" type="button" class="ghost">Copy review</button>
+      <span class="status" id="status">Comments save as you type</span>
+    </div>
+    <nav class="rail" id="rail" aria-label="Slides"></nav>
+  </header>
+
+  <p class="intro">Each slide shows what will be on screen and the words you'll say. Write comments or other phrasings in the box under each one. They save automatically, and Claude can read them. When a slide's design arrives, its picture replaces the description and the script folds into speaker notes.</p>
+
+  <main id="slides" class="wrap" style="gap:22px"></main>
+
+  <section class="general">
+    <h2>General comments</h2>
+    <label class="cl" for="c-general">About the whole talk: order, length, tone</label>
+    <textarea id="c-general" data-id="general" placeholder="Anything that isn't about one slide"></textarea>
+  </section>
+</div>
+
+<script>
+const SLIDES = [
+{ id: "s01", n: "1", q: "Why should I care?", image: null,
+  design: `One continuous slide. Two lake years merge into one lake with two water lines. Zoom out to the map of Israel, the Mediterranean appears, then lake and sea together.`,
+  script: [
+`In my first year here at Kinneret, the lake was so low that I walked out to the island in front of the campus. By the time I graduated, the waves were flooding the Tiberias promenade, taking their toll on the wooden market stands. Today, those stands stand high above the water once again.`,
+`The lake's ups and downs aren't new. But today it sits below the red line, and it is our national backup.`,
+`So which winter is coming? One like 2018–19, the biggest rise in twenty years? Or one like 2024–25, the driest?`,
+`Nobody knows. Certainly not me. I'm not a forecaster. I scraped data together and ran models on an old computer that kept running out of memory. But if I could get any results this way, imagine what our best efforts could do.`,
+`And it matters right now. This autumn, algae bloomed off our southern coast and choked the desalination plants. Keeping the water flowing meant hard choices. How hard depends on that same question: can the lake carry us next year? With better forecasts, we'd know how much room we have.`],
+  facts: `2018–19 rose 3.47 m, the biggest since 2005–06. 2024–25 rose 0.19 m, the smallest, and was the driest (56% of normal rain). Not "the wettest": 2023–24 had more rain but fell on dry ground. Sensitive: no cause of the bloom, no plant or authority names.` },
+{ id: "s02", n: "2", q: "Hasn't anyone done this already?", image: null,
+  design: `The lake in the middle, with quiet labels around it: water balance, catchment models, scenario outlooks, lakes elsewhere. One empty spot: daily, learned from data.`,
+  script: [
+`I'm not the first to ask. Researchers here at Kinneret have spent decades on the lake's water balance: what flows in, what the sun takes, what a warmer climate will do. The Water Authority thinks in scenarios: an average winter ends here, a dry one here. The Great Lakes get an official forecast every month, six months ahead, as a range.`,
+`What I couldn't find was a daily forecast learned from data, from a week to a year ahead. That's the small gap I happened to fill. And by the end, I'll tell you honestly how far ahead I could see.`],
+  facts: `Draw on your own Related Work section (sent to Adnan 4 Aug). Say "couldn't find", never "first".` },
+{ id: "s03", n: "3", q: "How can an amateur do this?", image: null,
+  design: `A centaur. On screen, one word: "Centaur".`,
+  script: [
+`This is a centaur: half human, half horse. After Kasparov lost to a chess computer, players started teaming up with machines. In 2005, an open tournament let anyone enter, with any computer help they liked. The winners weren't grandmasters, and not the strongest machine. They were two amateurs with three ordinary computers, and a very good way of working with them.`,
+`Keep them in mind. Because the person in front of you is one too.`],
+  facts: `` },
+{ id: "s04", n: "4", q: "Who are you, and what did you build?", image: null,
+  design: `The app's front page.`,
+  script: [
+`I'm a process engineer: I design wastewater treatment plants for TTT, of the WFI Group. And I owe this talk to my co-author, Adnan Agbaria, my lecturer in a data science course during my master's here at Kinneret. He gave us an open task, and I said: I'll forecast the Kinneret's level from weather data off the internet. One week ahead. How hard can it be?`,
+`This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since 2002 and compare the model with what happened. The link comes at the end.`],
+  facts: `The history page runs the final model on all years: it shows the fit, not a test. Never call it a test.` },
+{ id: "s05", n: "5", q: "Where does the data come from?", image: null,
+  design: `A dark forest. On "AI is the flashlight", a beam sweeps across and reveals the coverage chart: one bar per source with its start, gaps and changes. Station weather from 1994 (models use 2002 on), ERA5 from 2001, the seasonal forecast's record from 1993, a red notch on the 2023 rain.`,
+  script: [
+`Not from one place. Stations change names, every source has its own format, its own gaps. It's a dark forest. AI is the flashlight. I pointed Claude at a website and said: find the API key. Minutes later, I had any weather station I wanted. The rivers took two months of emails, always "you can't get that data." Then Claude found a Facebook post with a link to a beta site, wrote a scraper, and the river data has come in every day since.`,
+`Then I asked it to clean everything into one table, one row per day. It came back with tactics I'd never have thought of. But there was a catch hiding in there.`],
+  facts: `Start from docs/talk/charts/coverage_painted.png. Drop its title ("starts in 2012" is out of date).` },
+{ id: "s06", n: "6", q: "Can you trust it?", image: null,
+  design: `The short scoreboard, 0 to 1. Four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot at 0.77.`,
+  script: [
+`My first model scored 0.69, where one is perfect and zero is just guessing the average. Then I tried what everyone tries: fancier models. Worse. A neural network: seventy-one minutes of training, and worse than guessing.`,
+`The biggest step wasn't a model. I asked Claude to play an expert hydrologist and review my work. The newest oldest trick in the book. It noticed every model stumbled in the same year, and said: when every model fails the same way, it's the data.`,
+`A rain gauge had been offline, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, lifted it to 0.76. Today, 0.77. Not a bigger model. Better data.`],
+  facts: `One-day-ahead scores on volume change. The rain fix came together with six other fixes in one step. Never put the weekly 0.73 beside these.` },
+{ id: "s07", n: "7", q: "How far ahead can it see?", image: null,
+  design: `Click 1: "every year is a dot". Each test year's miss a year ahead, against that winter's rain. The dots climb from dry and over-called to wet and under-called, with 2018–19 and 2024–25 labelled. Click 2: a sun, and one summer replayed, the drying curve meeting the red line.`,
+  script: [
+`A week ahead, it's off by about three centimetres. That's less than half of what the lake itself moves in a typical week.`,
+`Adnan wanted more. A season. Past a few weeks, everything waits for the rain. Here's every year I tested, a year ahead. In wet winters, it guessed too low. In dry ones, too high. The further from an ordinary winter, the bigger the miss.`,
+`But in summer there's no rain to guess, only a lake drying in the sun. A month ahead, a simple drying curve named the day it would cross the red line, on average within about two days, across all eight crossings since 2008.`,
+`No rain, and we see far. Rain, and we go blind. The rain sets the limit.`],
+  facts: `Week: typical error 2.6–3.0 cm; the 80% range is about 5.5 cm wide, so keep the two apart. Dots: 12-month track record, 15 years. Summer: mean 1.8 days with 15–30 days' warning, 8 crossings.` },
+{ id: "s08", n: "8", q: "Could a smarter model see past the rain?", image: null,
+  design: `Animation: the lake as a bucket, which shrinks to one circle, then many circles become a network.`,
+  script: [
+`I couldn't let it go. So I tried a new kind of model: a liquid network.`,
+`Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.`,
+`A liquid network is made of little buckets like that. Each one fills and slowly drains: that's how it remembers, and how it forgets. And how fast it drains changes with what flows in. A storm and a dry spell move at different speeds.`,
+`So I'm forecasting a lake… with a network made of little lakes. A newer version, called CfC, found a shortcut, and it trains in minutes on an ordinary computer.`],
+  facts: `Never say it's faster than the GRU (it was about 3x slower here), and never "runs on a phone".` },
+{ id: "s09", n: "9", q: "Where did that idea come from?", image: null, flag: "may shrink",
+  design: `Photo: C. elegans under a microscope (licence to check).`,
+  script: [
+`Not from me. From Daniela Rus's lab at MIT, with researchers in Austria, and from this worm. About three hundred neurons, and it gets around just fine. Inspired by it, they built a network where nineteen neurons learned to steer a car. They've since started a company, Liquid AI. Worth following. And the tools are open: anyone can try them.`],
+  facts: `Still to verify: 302 neurons, the ncps licence, the photo licence.` },
+{ id: "s10", n: "10", q: "So which model is best?", image: null,
+  design: `One chart, a year ahead, on the station record. Three pairs of bars for the champion, the plain network and the liquid network. Light = no winter forecast (0.89 / 0.73 / 0.72), dark = the real winter (0.55 / 0.70 / 0.69). A dashed line at 0.83 for "doing nothing".`,
+  script: [
+`My first liquid result looked brilliant, until I saw it had been given the real winter's weather. No forecast has that. Without it, it was ordinary.`,
+`So I set the rules first: same years, same test, for everyone. And I gave the neural network that came last a second chance. I'd been asking it to forecast the lake without telling it the weather. Given the same information, it caught up.`,
+`A week ahead, all three land together. A year ahead, on the station record, with no idea which winter is coming, the two networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.`],
+  facts: `The networks beat the champion by about 0.18 m, interval clear of zero. The two networks tie. On the older ERA5 test all three tie, so always say "on the station record".` },
+{ id: "s11", n: "11", q: "So which winter is coming?", image: null,
+  design: `The fan from 8 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
+  script: [
+`I can't tell you. But I can show you what each one would do.`,
+`This is the lake, as of this autumn. Every line is one past winter, run through the model. A winter like 2018–19 lifts it about three metres by next autumn, maybe more. A winter like 2024–25 leaves it almost a metre lower than today.`,
+`Can anyone forecast the winter? The European seasonal forecast helps a little. This year it leans slightly wet, mostly early on. A weak lean. So the chance the lake is still below the red line a year from now: about three in ten. And at a year ahead, forecasts like this one have, if anything, overstated the risk a little.`,
+`The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.`],
+  facts: `Start −213.65 m. Median at 12 months −212.7, 80% range −214.2 to −209.9; 28% below −213. Never say "28%" or "unlikely". No 6-month numbers until the app fix. Not refreshed after 5 Nov.` },
+{ id: "s11b", n: "11b", q: "Why should we believe it?", image: null,
+  design: `12 autumns, 2014–2025, one bar each: the 80% range forecast in October for a year later, with a dot for what happened. Inside = hit, hollow red outside = miss. Bars tinted by that winter's rain; 2018–19 and 2024–25 labelled. Footnote: the first three test years had no range yet.`,
+  script: [
+`Here's every autumn I could test. The bar is what the forecast said in October. The dot is where the lake was a year later. An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it.`,
+`It tells you how sure it is, and mostly, it's right about that.`],
+  facts: `9 of 12 held. Misses: 2018 above by 0.85 m, 2019 above by 0.31 m, 2024 below by 0.28 m.` },
+{ id: "s12", n: "12", q: "What do I take home?", image: null,
+  design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass.`,
+  script: [
+`Not a model. Three rules, and anyone here can use them, with an AI at their side.`,
+`Decide how you'll judge before you see the results.`,
+`Compare against the best you have, and against doing nothing.`,
+`When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a brilliant number, a network I nearly threw away.`,
+`Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.`],
+  facts: `` },
+{ id: "s13", n: "13", q: "So how far did you get?", image: null,
+  design: `The app's fan card as a screenshot, with the QR code.`,
+  script: [
+`I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it, updated every month when the new seasonal forecast comes out. Here it is.`,
+`What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.`,
+`An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.`,
+`Thank you.`],
+  facts: `The 7-day forecast updates every morning; the long-range fan updates monthly. The app's 6-month card must be fixed before the QR code is shown.` }
+];
+
+const $ = (s, el = document) => el.querySelector(s);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+function scriptBlock(lines) {
+  const d = el("div", "script");
+  lines.forEach(t => d.appendChild(el("p", null, t)));
+  return d;
+}
+
+function render() {
+  const main = $("#slides"), rail = $("#rail");
+  SLIDES.forEach(s => {
+    const a = el("a"); a.href = "#" + s.id; a.id = "r-" + s.id;
+    a.appendChild(el("span", "dot")); a.appendChild(document.createTextNode(s.n));
+    if (s.image) a.classList.add("has-design");
+    rail.appendChild(a);
+
+    const sec = el("section", "slide"); sec.id = s.id;
+    const head = el("div", "slide-head");
+    head.appendChild(el("span", "num", "Slide " + s.n));
+    head.appendChild(el("h2", null, s.q));
+    if (s.flag) head.appendChild(el("span", "flag", s.flag));
+    sec.appendChild(head);
+
+    const left = el("div", "left");
+    const stage = el("div", "stage" + (s.image ? " filled" : ""));
+    if (s.image) {
+      const img = el("img"); img.src = s.image; img.alt = s.design; stage.appendChild(img);
+    } else {
+      stage.appendChild(el("p", "brief", s.design));
+    }
+    left.appendChild(stage);
+    if (s.facts) {
+      const f = el("details", "facts"); f.appendChild(el("summary", null, "Fact notes"));
+      f.appendChild(el("p", null, s.facts)); left.appendChild(f);
+    }
+    sec.appendChild(left);
+
+    const right = el("div", "right");
+    if (s.image) {
+      const n = el("details", "notes"); n.appendChild(el("summary", null, "Speaker notes"));
+      n.appendChild(scriptBlock(s.script)); right.appendChild(n);
+    } else {
+      right.appendChild(scriptBlock(s.script));
+    }
+    if ("speechSynthesis" in window) {
+      const b = el("button", "ghost speak", "Read aloud"); b.type = "button";
+      b.addEventListener("click", () => {
+        try {
+          speechSynthesis.cancel();
+          if (b.dataset.on) { delete b.dataset.on; b.textContent = "Read aloud"; return; }
+          const u = new SpeechSynthesisUtterance(s.script.join(" "));
+          u.lang = "en-GB"; u.rate = 0.95;
+          u.onend = () => { delete b.dataset.on; b.textContent = "Read aloud"; };
+          b.dataset.on = "1"; b.textContent = "Stop"; speechSynthesis.speak(u);
+        } catch (e) {}
+      });
+      right.appendChild(b);
+    }
+    const c = el("div", "comment");
+    const lab = el("label", "cl", "Your comment or another phrasing"); lab.htmlFor = "c-" + s.id;
+    const ta = el("textarea"); ta.id = "c-" + s.id; ta.dataset.id = s.id;
+    ta.placeholder = "e.g. say it shorter, or try: …";
+    c.appendChild(lab); c.appendChild(ta); right.appendChild(c);
+    sec.appendChild(right);
+    main.appendChild(sec);
+  });
+}
+render();
+
+/* ---- comments: shared store when available, this browser otherwise ---- */
+const status = $("#status");
+const setStatus = t => { status.textContent = t; };
+let db = null;
+const timers = {}, chains = {};
+const LS = "kinneret-deck-review";
+function lsRead() { try { return JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) { return {}; } }
+function lsWrite(id, text) { try { const o = lsRead(); o[id] = text; localStorage.setItem(LS, JSON.stringify(o)); } catch (e) {} }
+
+function markRail(id, text) {
+  const a = document.getElementById("r-" + id);
+  if (a) a.classList.toggle("has-comment", !!(text && text.trim()));
+}
+function allAreas() { return Array.from(document.querySelectorAll("textarea[data-id]")); }
+
+const local = lsRead();
+allAreas().forEach(ta => { if (local[ta.dataset.id]) { ta.value = local[ta.dataset.id]; markRail(ta.dataset.id, ta.value); } });
+
+function save(id, text) {
+  lsWrite(id, text);
+  if (!db) { setStatus("Saved in this browser"); return; }
+  const prev = chains[id] || Promise.resolve();
+  chains[id] = prev.then(() => db.doc("comments/" + id).set({ slide: id, text, updatedAt: new Date().toISOString() }))
+    .then(() => setStatus("Saved"))
+    .catch(() => setStatus("Not saved to the shared store; kept in this browser"));
+}
+
+allAreas().forEach(ta => {
+  ta.addEventListener("input", () => {
+    const id = ta.dataset.id; markRail(id, ta.value); setStatus("Typing…");
+    clearTimeout(timers[id]); timers[id] = setTimeout(() => save(id, ta.value), 1200);
+  });
+  ta.addEventListener("blur", () => {
+    const id = ta.dataset.id;
+    if (timers[id]) { clearTimeout(timers[id]); delete timers[id]; save(id, ta.value); }
+  });
+});
+
+(async () => {
+  try { db = window.claude ? await window.claude.use("db") : null; } catch (e) { db = null; }
+  if (!db) { setStatus("Comments save in this browser; use Download to send them"); return; }
+  setStatus("Comments save as you type");
+  db.collection("comments").onSnapshot(snap => {
+    snap.docs.forEach(d => {
+      const body = d.data(); if (!body) return;
+      const ta = document.getElementById("c-" + d.id);
+      if (ta && document.activeElement !== ta && !timers[d.id] && ta.value !== body.text) {
+        ta.value = body.text || ""; markRail(d.id, ta.value); lsWrite(d.id, ta.value);
+      }
+    });
+  }, () => setStatus("Live sync stopped; comments still save in this browser"));
+})();
+
+/* ---- review export ---- */
+function reviewText() {
+  const today = new Date().toISOString().slice(0, 10);
+  const out = ["# Kinneret talk deck review, " + today, "", "Script v6. Each slide: the question, the script as it stands, then the comment.", ""];
+  SLIDES.forEach(s => {
+    const c = ($("#c-" + s.id).value || "").trim();
+    out.push("## Slide " + s.n + ". " + s.q, "", "On screen: " + s.design, "", "Script:", "");
+    s.script.forEach(p => out.push("> " + p, ">"));
+    out.pop(); out.push("", "Comment: " + (c || "(none)"), "");
+  });
+  out.push("## General comments", "", ($("#c-general").value || "").trim() || "(none)", "");
+  return out.join("\n");
+}
+$("#dl").addEventListener("click", async () => {
+  const name = "kinneret-deck-review-" + new Date().toISOString().slice(0, 10) + ".md";
+  let dl = null;
+  try { dl = window.claude ? await window.claude.use("downloads") : null; } catch (e) { dl = null; }
+  if (!dl) { setStatus("Download isn't available here; use Copy review"); return; }
+  try { await dl.save({ filename: name, data: reviewText() }); setStatus("Review downloaded"); }
+  catch (e) { setStatus(e && e.code === "declined" ? "Download cancelled" : "Download failed; use Copy review"); }
+});
+$("#copy").addEventListener("click", () => {
+  const t = reviewText();
+  try {
+    navigator.clipboard.writeText(t).then(() => setStatus("Review copied"), () => setStatus("Copying is blocked here; use Download"));
+  } catch (e) { setStatus("Copying is blocked here; use Download"); }
+});
+</script>

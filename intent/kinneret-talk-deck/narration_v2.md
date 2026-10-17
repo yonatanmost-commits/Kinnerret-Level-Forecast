@@ -413,7 +413,8 @@ No rain, and we see far. Rain, and we go blind. The rain sets the limit.
 I couldn't let it go. So I tried a new kind of model: a liquid network.
 Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.
 A liquid network is made of little buckets like that. Each one fills and slowly drains: that's how it remembers, and how it forgets. And how fast it drains changes with what flows in. A storm and a dry spell move at different speeds.
-So I'm forecasting a lake... with a network made of little lakes. The older versions wouldn't run on my computer. The newer one, called CfC, found a shortcut, and it trains in minutes on an ordinary computer.
+So I'm forecasting a lake... with a network made of little lakes. A newer version, called CfC, found a shortcut, and it trains in minutes on an ordinary computer.
+(Originator 2026-10-17: "wouldn't run on my computer" skipped, no record. Slide 9 may shrink, undecided. Refresh after 5 Nov not counted on: the slide stays "as of the October seasonal forecast". The 6-month app bug is being fixed.)
 (Measured 16 Oct, this computer: CfC 20 min, GRU 7, GBR 6 for 15 years x 3 seeds. NEVER say faster than the GRU or "runs on a phone". "Wouldn't run on my computer" is the originator's own memory, with no log record: confirm.)
 
 ### 9. Where did that idea come from? [photo: C. elegans under a microscope; licence to check]
