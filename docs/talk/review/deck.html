@@ -168,7 +168,7 @@ No row for us: the gap is said, not shown.`,
 `This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since 2002 and compare the model with what happened. The link comes at the end.`],
   facts: `The history page runs the final model on all years: it shows the fit, not a test. Never call it a test.` },
 { id: "s05", n: "5", q: "What data did we use?", image: "charts/sources_timeline.png",
-  design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. A "test years 2011–2025" bracket, and an amber outline at 2023 on the stations bar, "2023 gauge · fixed". v5: only the four sources the models use. The seasonal bar is light teal from 1993 to 2002, "its own track record" (the hindcasts that set Copernicus's "normal"), full teal after. The stations' 1994–2002 stays grey: the product doesn't use it.`,
+  design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. A "test years 2011–2025" bracket, and an amber outline at 2023 on the stations bar, "2023 gauge · fixed". v5: only the four sources the models use. Light teal = used to check, not to train: Copernicus's 1993–2002 (its own track record, which sets its "normal") and the stations' Oct 1998 – July 2002 (the rain used to check Copernicus on slide 6). The stations' 1994–1998 stays grey: Tzemach's rain record starts in Feb 1998.`,
   script: [`Four things: the lake's level, the river flowing into it, the weather that fell, and the seasonal forecast for the months ahead. Colour is what the models use; the logos are the people who measure it.`,
 `The seasonal forecast comes from Copernicus, Europe's climate service: half a year ahead, renewed every month. I went looking for it when I wanted to see past the coming week.`,
 `Then the data played a trick on me. Every model I tried stumbled in the same year. I asked Claude to play an expert hydrologist and review my work, and it said: when every model fails the same way, it's the data. A rain gauge had been offline all year, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Finding that and filling it in, along with six other fixes, did more than any model.`],
@@ -186,22 +186,21 @@ No row for us: the gap is said, not shown.`,
 • Footer attribution: "Copernicus Climate Change Service information, 2026".
 • One-day score 0.69 → 0.76 with the rain fix and six others (backup slide).` },
 { id: "s10c", n: "6", q: "Can anyone forecast the winter?", image: "charts/seas5_vs_rain.png",
-  design: `Copernicus against the real rain (Chartbuilder v3): winters 2002–03 to 2026–27 across the bottom, season rain as % of normal up the side, a dashed "normal" line. Hollow dots: the October forecast. Solid teal dots: the rain that fell, with 2018–19 green and 2024–25 orange. Direct labels instead of a legend; no range bars. The last column is "this winter": a bold ring.`,
-  script: [`One of those sources needs a closer look: the seasonal forecast. Here's every winter since 2002. The hollow dots are what Copernicus forecast each October. The solid dots are the rain that actually fell.`,
+  design: `Copernicus against the real rain (Chartbuilder v3): winters 1998–99 to 2026–27 across the bottom (no rain dot for 2000–01: March incomplete), season rain as % of normal up the side, a dashed "normal" line. Hollow dots: the October forecast. Solid teal dots: the rain that fell, with 2018–19 green and 2024–25 orange. Direct labels instead of a legend; no range bars. The last column is "this winter": a bold ring.`,
+  script: [`One of those sources needs a closer look: the seasonal forecast. Here's every winter since 1998. The hollow dots are what Copernicus forecast each October. The solid dots are the rain that actually fell.`,
 `The forecasts hug normal. The real winters swing from half of normal to one and a half times. In our two winters it leaned the right way, but never guessed how far. And this winter, on the right? A slight lean wet. A lean, not a call.`,
 `That's the limit. A week ahead, the weather forecast is good, and we're within centimetres. A year ahead, the lake can only be forecast as well as the winter's rain. The rain sets the limit.`],
   pointers: [
-    `Every winter since 2002: hollow = Copernicus in October, solid = what fell`,
+    `Every winter since 1998: hollow = Copernicus in October, solid = what fell`,
     `Forecasts hug normal · real winters swing 50% → 150%`,
     `Our two winters: leaned right, never guessed how far · this winter: slight lean wet, not a call`,
     `Week: within centimetres · year: only as good as the winter's rain → THE RAIN SETS THE LIMIT`],
-  facts: `Chart: docs/talk/charts/seas5_vs_rain.png; method confirmed by model-coach. October issue (the one the fan uses for an autumn start; out on the 5th). Oct–Mar season, % of each series' own normal; the actual rain is the gold table the model reads. The range is the 10th–90th percentile of the raw ensemble.
-• 2018–19: forecast 116% [79–145], fell 138%. Called wet, near the top of its range.
-• 2024–25: forecast 92% [65–122], fell 55%, BELOW its range. "Leaned dry" only; never "called it".
-• Misses: 2019–20 100→126, 2020–21 88→117, 2021–22 89→101, 2023–24 102→148.
-• Skill (final, model-coach and Chartbuilder agree): Spearman 0.46 (Pearson 0.54), 24 winters, normals from all years. Say "weak but real"; if one decimal is needed, 0.46.
-• Raw range honesty: the real winter fell inside Copernicus's own 80% range only about 2 winters in 3 (71% on the final version): overconfident. Our fan does NOT use that raw spread; it weights past winters by SEAS5 with a shrunk slope, which is why the fan's 80% holds 77–84%.
-• This winter on this chart's method: 105% [84–131]; the product's own figure is 106% (earlier-years normals). Don't quote either number next to the chart: say "leans slightly wet". The range straddles normal: a lean, not a call.
+  facts: `Chart: docs/talk/charts/seas5_vs_rain.png (Chartbuilder; method and data confirmed by model-coach). October issue, the one the fan uses for an autumn start. Oct–Mar season rain as % of each series' own normal.
+• Rain before July 2002: the same Tzemach gauge from the silver table (its rain record starts Feb 1998). Checked against ERA5: same agreement as later years (daily r 0.76, monthly 0.91, totals 0.97), and the 1998–2001 lows are the real drought.
+• Skill (n = 27 winters): Spearman 0.52, Pearson 0.57. Say "about 0.5, weak but real".
+• 2018–19: forecast 115% → fell 142%. 2024–25: forecast 92% → fell 57% ("leaned dry, never guessed how dry"). Also 1998–99: forecast 84% → fell 54%. Misses: 2019–22 (said normal or dry, came wet) and 2023–24 (102% → about 150%).
+• Copernicus's own raw 80% range held the real winter only about 2 winters in 3 (67%). Our fan doesn't use that spread; it weights past winters by SEAS5 with a shrunk slope, so the fan's 80% holds 77–84%.
+• This winter: 105% on this chart's method, 106% in the product. Say "leans slightly wet", no number.
 • Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
 { id: "s06", n: "7", q: "How did we set it up?", image: null,
   design: `One diagram, two lanes, same inputs on the left.
