@@ -3,9 +3,12 @@
 
 Acceptance (the fix for the silent freeze at 2026-04-25):
   * the committed cache has a value for every day 2026-01-01 .. 2026-10-14
-  * every value on or before 2026-04-25 is unchanged from the frozen cache
-    (commit 9e99eff), because the IMS feed reproduces the manual export exactly
   * the daily agent refreshes intensity BEFORE it builds gold, so gold reads today's cache
+
+Tzemach first (2026-10-16, docs/experiments/ims_station_bias.md): the gauge order changed
+from Lev Kinneret first to Tzemach first, the station gold takes first, and the cache was
+rebuilt from 2002-07, where gold starts. Values therefore differ from the frozen Lev-first
+cache (commit 9e99eff); only coverage and overall scale are checked against it.
 """
 import io
 import json
@@ -36,14 +39,22 @@ def test_cache_has_no_gap_through_2026_10_14():
     assert not missing, f"{len(missing)} days without intensity, first {missing[:5]}"
 
 
-def test_history_unchanged_from_frozen_cache():
+def test_cache_reaches_back_to_gold_start():
+    c = _cache()
+    assert c.index.min() <= "2002-07-01"
+    days = pd.date_range("2002-07-01", "2012-05-31").strftime("%Y-%m-%d")
+    assert c.reindex(days).notna().mean() >= 0.95
+
+
+def test_rebuilt_history_covers_and_keeps_the_scale_of_the_frozen_cache():
     old = pd.read_csv(io.StringIO(subprocess.run(
         ["git", "show", f"{FROZEN_SHA}:Silver Data/Meteorological/precip_intensity_daily.csv"],
         cwd=ROOT, capture_output=True, text=True, check=True).stdout)
     ).set_index("date")["precip_intensity_mm_hr"].dropna()
-    old = old[old.index <= "2026-04-25"]
     new = _cache().reindex(old.index)
-    assert np.allclose(new.to_numpy(), old.to_numpy(), atol=1e-9, equal_nan=False)
+    assert new.notna().mean() > 0.99
+    # a different gauge, not a different quantity: the mean peak hour stays within 30%
+    assert 0.7 < new.mean() / old[new.notna()].mean() < 1.3
 
 
 def test_agent_refreshes_intensity_before_building_gold():
@@ -61,20 +72,20 @@ def test_peak_hour_is_six_slot_sum_and_belongs_to_the_day_it_ends():
     idx = _grid("2026-03-01 23:00", 18)                 # 23:00 .. 01:50
     rain = pd.Series(0.0, index=idx)
     rain["2026-03-01 23:30":"2026-03-02 00:20"] = 1.0   # six wet slots straddling midnight
-    out = pi.daily_intensity(pd.DataFrame({"lev_kinneret": rain}))
+    out = pi.daily_intensity(pd.DataFrame({"tzamach": rain}))
     assert out["2026-03-02"] == pytest.approx(6.0)
     assert out["2026-03-01"] == pytest.approx(3.0)      # 23:30..23:50 is all day 1 sees
 
 
-def test_dead_lev_kinneret_falls_back_to_mean_of_other_gauges():
+def test_dead_tzemach_falls_back_to_mean_of_other_gauges():
     idx = _grid("2026-03-01 00:00", 6)
-    df = pd.DataFrame({"lev_kinneret": np.nan, "tzamach": 1.0, "tiberias": 3.0}, index=idx)
+    df = pd.DataFrame({"tzamach": np.nan, "lev_kinneret": 1.0, "tiberias": 3.0}, index=idx)
     assert pi.daily_intensity(df)["2026-03-01"] == pytest.approx(12.0)
 
 
-def test_live_lev_kinneret_wins_over_the_others():
+def test_live_tzemach_wins_over_the_others():
     idx = _grid("2026-03-01 00:00", 6)
-    df = pd.DataFrame({"lev_kinneret": 0.5, "tzamach": 9.0}, index=idx)
+    df = pd.DataFrame({"tzamach": 0.5, "lev_kinneret": 9.0}, index=idx)
     assert pi.daily_intensity(df)["2026-03-01"] == pytest.approx(3.0)
 
 
