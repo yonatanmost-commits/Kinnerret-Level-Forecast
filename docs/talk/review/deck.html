@@ -89,7 +89,8 @@ details.notes > summary, details.facts > summary { cursor: pointer; font-family:
 details.notes .script { margin-top: 10px; }
 .notes-label { margin: 0 0 6px; font-family: var(--font-mono); font-size: 12px; color: var(--lake); }
 .stepper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; }
-.step-label { font-family: var(--font-mono); font-size: 12px; color: var(--muted); min-width: 9ch; text-align: center; }
+.stepper button { font-size: 15px; padding: 6px 14px; }
+.step-label { font-family: var(--font-mono); font-size: 13px; color: var(--muted); min-width: 9ch; text-align: center; }
 [data-step].now { background: color-mix(in srgb, var(--lake) 14%, transparent); border-radius: 4px; }
 ul.pointers {margin: 0 0 14px; padding-left: 20px; font-family: var(--font-display); font-size: 18px; line-height: 1.5; display: grid; gap: 6px; }
 details.facts p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
@@ -393,7 +394,7 @@ function render() {
     if (s.frames && img) {
       // a click-by-click build: step through the frames, highlighting the matching cue and paragraph
       const bar = el("div", "stepper");
-      const prev = el("button", "ghost", "◀"), next = el("button", "ghost", "▶");
+      const prev = el("button", "ghost", "◀ back"), next = el("button", "ghost", "next ▶");
       prev.type = next.type = "button";
       const label = el("span", "step-label");
       let k = s.frames.length - 1;
@@ -402,11 +403,22 @@ function render() {
         label.textContent = "Click " + (k + 1) + " of " + s.frames.length;
         sec.querySelectorAll("[data-step]").forEach(n => n.classList.toggle("now", +n.dataset.step === k));
       };
-      prev.addEventListener("click", () => { k = (k + s.frames.length - 1) % s.frames.length; show(); });
-      next.addEventListener("click", () => { k = (k + 1) % s.frames.length; show(); });
+      const step = d => { k = (k + d + s.frames.length) % s.frames.length; show(); };
+      prev.addEventListener("click", () => step(-1));
+      next.addEventListener("click", () => step(1));
+      // clicking the chart advances, like a presenter click; arrow keys work while this slide is on screen
+      stage.style.cursor = "pointer"; stage.title = "Click for the next build step";
+      stage.addEventListener("click", () => step(1));
+      document.addEventListener("keydown", e => {
+        if (e.target.closest && e.target.closest("textarea, input")) return;
+        const r = sec.getBoundingClientRect();
+        if (r.top > innerHeight / 2 || r.bottom < innerHeight / 2) return;
+        if (e.key === "ArrowRight") step(1); else if (e.key === "ArrowLeft") step(-1);
+      });
+      sec.stepNow = () => k;
       bar.appendChild(prev); bar.appendChild(label); bar.appendChild(next);
       left.appendChild(bar);
-      requestAnimationFrame(show);
+      k = 0; requestAnimationFrame(show);
     }
     if (s.facts) {
       const f = el("details", "facts"); f.appendChild(el("summary", null, "Fact notes"));
@@ -433,7 +445,9 @@ function render() {
         try {
           speechSynthesis.cancel();
           if (b.dataset.on) { delete b.dataset.on; b.textContent = "Read aloud"; return; }
-          const u = new SpeechSynthesisUtterance(s.script.join(" "));
+          // a build slide reads only the current click's paragraph; step markers like "[3]" are never spoken
+          const lines = (s.frames && sec.stepNow) ? [s.script[sec.stepNow()] || ""] : s.script;
+          const u = new SpeechSynthesisUtterance(lines.join(" ").replace(/\[\d+\]\s*/g, ""));
           u.lang = "en-GB"; u.rate = 0.95;
           u.onend = () => { delete b.dataset.on; b.textContent = "Read aloud"; };
           b.dataset.on = "1"; b.textContent = "Stop"; speechSynthesis.speak(u);
