@@ -338,3 +338,38 @@ SEAS5 leans **slightly wet**: an Oct-Mar season rain ratio of 1.06, 25th of 34 O
 1993. Mostly early: October +57%, November +19%, December-February normal, March +14%. A weak
 lean, so it tilts the odds only a little: 28% instead of 34%.
 Plain phrase: "the seasonal forecast leans a little wetter than normal, mostly early in the winter."
+
+## 13. More forecasters: the C3S multi-model mean vs SEAS5 alone (sha 59796df, 2026-10-17)
+
+The question: does averaging 9 seasonal forecasts (8 C3S systems from Meteo-France, DWD, CMCC,
+NCEP, JMA, ECCC x2 and UKMO, plus ECMWF SEAS5) beat SEAS5 alone? Each system is measured
+against its own earlier-years mean first, then the systems are averaged, so one model's bias,
+or a model missing in some years (UKMO stops 2016, JMA 2020), cannot move the mean. The
+multi-model is published on the 13th, SEAS5 on the 5th; a start uses only what was out.
+IMS station record 2011-2025, all three models, SEAS5 and multi-model run on the SAME trained
+models (runs are not bit-for-bit repeatable, so only the paired comparison is fair).
+
+Central forecast, mean level error at 130-365 days, multi-model minus SEAS5 [90% over test years]:
+
+| model | SEAS5 vs average weather | multi-model vs average weather | multi-model vs SEAS5 |
+|---|---|---|---|
+| CfC | -1.3 cm [-3.0, +0.4] | -1.0 cm [-2.8, +0.6] | +0.25 cm [-0.3, +0.8] |
+| GRU | -2.1 cm [-4.3, +0.1] | -1.8 cm [-4.1, +0.3] | +0.26 cm [-0.3, +0.9] |
+| GBR | -2.9 cm [-4.9, -0.9] | -2.9 cm [-4.5, -1.3] | -0.05 cm [-1.4, +1.3] |
+
+The fan (past winters weighted by the forecast), CfC, 130/260/365 d:
+
+| weighting | red-line skill | 80% range holds at 365 d |
+|---|---|---|
+| none | 0.68 / 0.40 / 0.27 | 72% |
+| SEAS5 | 0.69 / 0.44 / 0.32 | 73% |
+| multi-model | 0.70 / 0.46 / 0.33 | 74% |
+
+Multi-model vs SEAS5 weighting, paired: red-line Brier -0.004 [-0.010, +0.001], quantile score
+-0.001 [-0.009, +0.006]. GRU the same lean.
+
+**Verdict: a tie.** Nine forecasters are no better than ECMWF alone for the central forecast,
+and only a small, not significant lean better for the odds. SEAS5 stays the seasonal input:
+one source, out 8 days earlier, as good. Plain phrase: "we also tried averaging nine of the
+world's seasonal forecasts; the European one alone did just as well."
+Talk use: one line in the process story (a check that came back flat is still an answer).
