@@ -281,16 +281,7 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test, so I shipped the GRU, a standard, well-known design." Never claim the GRU trains faster: re-timed 17 Oct, 53 s vs 75 s per backtest year, but slower in the from-today run; both noisy.` },
-{ id: "s11b", n: "11", q: "Why should we believe it?", image: "charts/fan_track.png",
-  design: `Track record (Chartbuilder): 12 autumns, 2014–2025. Grey bar = October's 80% range for a year later; dot = where the lake was. Teal = inside; hollow red = outside. 2018–19 and 2024–25 named; "9 of 12 inside" big in the corner.`,
-  script: [`Before this winter, here's how the forecast did every autumn I could test. The bar is what it said in October. The dot is where the lake was a year later.`,
-`An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it. But it tells you how sure it is, and mostly, it's right about that.`],
-  pointers: [
-    `Every autumn I could test: bar = October's range, dot = the lake a year later`,
-    `Honest 80% should miss 1 in 5 · missed 3 in 12: the biggest rise, the wet winter after, the driest`,
-    `Records still surprise it · it tells you how sure it is, and mostly it's right`],
-  facts: `Chart: docs/talk/charts/fan_track.png, from cfc_fan_eval/track_record.csv, the SHIPPED GRU fan (af70a5d). 9 of 12 inside at 12 months (and 9 of 12 at 6 months). GRU misses: 2018 ABOVE by 1.31 m, 2019 above by 0.51 m, 2024 BELOW by 0.23 m (the older CfC sizes 0.85/0.31/0.28 are superseded). The x-axis is the October the forecast was made: "18" = autumn 2018, outcome autumn 2019.` },
-{ id: "s11", n: "12", q: "So which winter is coming?", image: "charts/fan_today.png",
+{ id: "s11", n: "11", q: "So which winter is coming?", image: "charts/fan_today.png",
   design: `Fan (Chartbuilder) from 15 Oct 2026 to Oct 2027: the app's 80% band (SEAS5-weighted) in soft teal, a thin grey line per past winter through the GRU (2025–26 left out: its weather isn't complete), 2018–19 green and 2024–25 orange in bold, the dashed red line at −213 m, a black "today" dot, stamp "as of the October seasonal forecast". A few grey lines sit just outside the band (the driest, 2015–16, ends at −214.50): the lines are raw, the band is weighted and widened.`,
   script: [
 `I can't tell you. But I can show you what each one would do.`,
@@ -310,7 +301,7 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • October SEAS5: season 1.06× normal (25th of 34); Oct 1.54×, Nov 1.18×, Dec–Feb ~1.0×, Mar 1.13×; Jan–Feb +1.0 to +1.2 °C. "Leans slightly wet, mostly early on" holds.
 • Autumn bias, GRU: October starts ended about 40 cm HIGHER than the middle forecast at 12 months (the CfC's was 33). Safe line: "in autumn our middle forecast has run about 40 cm low; the range still held the outcome 8 times in 10." So the red-line odds lean pessimistic: say "about".
 • Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
-{ id: "s12", n: "13", q: "What do I take home?", image: null,
+{ id: "s12", n: "12", q: "What do I take home?", image: null,
   design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass.`,
   script: [
 `Not a model. Three rules, and anyone here can use them, with an AI at their side.`,
@@ -319,7 +310,7 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 `When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a brilliant number, a network I nearly threw away.`,
 `Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.`],
   facts: `` },
-{ id: "s13", n: "14", q: "So how far did you get?", image: null,
+{ id: "s13", n: "13", q: "So how far did you get?", image: null,
   design: `The app's fan card as a screenshot, with the QR code. Credits line (licence requirement, moved here from slide 5): "Copernicus Climate Change Service information, 2026".`,
   script: [
 `I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it, updated every month when the new seasonal forecast comes out. Here it is.`,
@@ -345,7 +336,16 @@ Click 4, the range: "said 80%, happened ~80%", the reliability bars by distance.
 `In summer there's no rain to guess, only a lake drying in the sun. A month ahead, a simple drying curve named the day it would cross the red line, on average within about two days, across all eight crossings since 2008.`,
 `A year ahead, it's a different story. Here's every year I tested. In wet winters it guessed too low, in dry ones too high, and the further from an ordinary winter, the bigger the miss. No rain, and we see far. Rain, and we go blind. The rain sets the limit.`,
 `So it doesn't give one number. It gives a range, and the range is honest: when it says eighty percent, it happens about eighty percent of the time, at every month out to a year.`],
-  facts: `Week: typical error 2.6–3.0 cm; the 80% range is about 5.5 cm wide, so keep the two apart. Summer: mean 1.8 days with 15–30 days' warning, 8 crossings. Dots: 12-month track record, 15 years (Spearman 0.69). Range, GRU fan: 80% held 84/82/82/81 … 77/77/77% from 7 to 365 days, i.e. 77–84% (the lowest 76.5% at 335 d). Red-line odds, GRU: skill at 365 d 0.23 equal vs 0.27 weighted; Brier −0.0085 [−0.0154, −0.0030], clear. Overlap with slide 11b (the autumn track record): decide whether 11b stays or folds in here.` }
+  facts: `Week: typical error 2.6–3.0 cm; the 80% range is about 5.5 cm wide, so keep the two apart. Summer: mean 1.8 days with 15–30 days' warning, 8 crossings. Dots: 12-month track record, 15 years (Spearman 0.69). Range, GRU fan: 80% held 84/82/82/81 … 77/77/77% from 7 to 365 days, i.e. 77–84% (the lowest 76.5% at 335 d). Red-line odds, GRU: skill at 365 d 0.23 equal vs 0.27 weighted; Brier −0.0085 [−0.0154, −0.0030], clear. Overlap with slide 11b (the autumn track record): decide whether 11b stays or folds in here.` },
+{ id: "s11b", n: "Q&A", flag: "backup", q: "Why should we believe it?", image: "charts/fan_track.png",
+  design: `Track record (Chartbuilder): 12 autumns, 2014–2025. Grey bar = October's 80% range for a year later; dot = where the lake was. Teal = inside; hollow red = outside. 2018–19 and 2024–25 named; "9 of 12 inside" big in the corner.`,
+  script: [`Before this winter, here's how the forecast did every autumn I could test. The bar is what it said in October. The dot is where the lake was a year later.`,
+`An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it. But it tells you how sure it is, and mostly, it's right about that.`],
+  pointers: [
+    `Every autumn I could test: bar = October's range, dot = the lake a year later`,
+    `Honest 80% should miss 1 in 5 · missed 3 in 12: the biggest rise, the wet winter after, the driest`,
+    `Records still surprise it · it tells you how sure it is, and mostly it's right`],
+  facts: `Chart: docs/talk/charts/fan_track.png, from cfc_fan_eval/track_record.csv, the SHIPPED GRU fan (af70a5d). 9 of 12 inside at 12 months (and 9 of 12 at 6 months). GRU misses: 2018 ABOVE by 1.31 m, 2019 above by 0.51 m, 2024 BELOW by 0.23 m (the older CfC sizes 0.85/0.31/0.28 are superseded). The x-axis is the October the forecast was made: "18" = autumn 2018, outcome autumn 2019.` }
 ];
 
 const $ = (s, el = document) => el.querySelector(s);
