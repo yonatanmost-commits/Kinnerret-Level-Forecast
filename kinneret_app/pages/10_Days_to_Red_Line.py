@@ -12,6 +12,7 @@ from app_utils import (
     LEVEL_LEGAL_MIN, LEVEL_LEGAL_MAX,
 )
 from theme import inject_theme, style_plotly, PALETTE
+import fan_card
 
 st.set_page_config(
     page_title="Days to Red Line · Kinneret",
@@ -233,6 +234,9 @@ fig.update_layout(
 )
 style_plotly(fig, height=420)
 st.plotly_chart(fig, width="stretch")
+
+# ── The next 12 months: the long-range fan (Models/longrange_fan.json) ─────────
+fan_card.render(hist[hist.index >= hist.index[-1] - pd.Timedelta(days=180)])
 
 # ── Method & the human wildcard ────────────────────────────────────────────────
 with st.expander("How this is calculated — and the one thing it can't see"):
