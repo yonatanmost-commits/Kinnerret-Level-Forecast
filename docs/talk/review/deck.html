@@ -281,13 +281,28 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test, so I shipped the GRU, a standard, well-known design." Never claim the GRU trains faster: re-timed 17 Oct, 53 s vs 75 s per backtest year, but slower in the from-today run; both noisy.` },
-{ id: "s11", n: "11", q: "So which winter is coming?", image: null,
-  design: `The fan from 15 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
+{ id: "s11b", n: "11", q: "Why should we believe it?", image: "charts/fan_track.png",
+  design: `Track record (Chartbuilder): 12 autumns, 2014–2025. Grey bar = October's 80% range for a year later; dot = where the lake was. Teal = inside; hollow red = outside. 2018–19 and 2024–25 named; "9 of 12 inside" big in the corner.`,
+  script: [`Before this winter, here's how the forecast did every autumn I could test. The bar is what it said in October. The dot is where the lake was a year later.`,
+`An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it. But it tells you how sure it is, and mostly, it's right about that.`],
+  pointers: [
+    `Every autumn I could test: bar = October's range, dot = the lake a year later`,
+    `Honest 80% should miss 1 in 5 · missed 3 in 12: the biggest rise, the wet winter after, the driest`,
+    `Records still surprise it · it tells you how sure it is, and mostly it's right`],
+  facts: `Chart: docs/talk/charts/fan_track.png, from cfc_fan_eval/track_record.csv, the SHIPPED GRU fan (af70a5d). 9 of 12 inside at 12 months (and 9 of 12 at 6 months). GRU misses: 2018 ABOVE by 1.31 m, 2019 above by 0.51 m, 2024 BELOW by 0.23 m (the older CfC sizes 0.85/0.31/0.28 are superseded). The x-axis is the October the forecast was made: "18" = autumn 2018, outcome autumn 2019.` },
+{ id: "s11", n: "12", q: "So which winter is coming?", image: "charts/fan_today.png",
+  design: `Fan (Chartbuilder) from 15 Oct 2026 to Oct 2027: the app's 80% band (SEAS5-weighted) in soft teal, a thin grey line per past winter through the GRU (2025–26 left out: its weather isn't complete), 2018–19 green and 2024–25 orange in bold, the dashed red line at −213 m, a black "today" dot, stamp "as of the October seasonal forecast". A few grey lines sit just outside the band (the driest, 2015–16, ends at −214.50): the lines are raw, the band is weighted and widened.`,
   script: [
 `I can't tell you. But I can show you what each one would do.`,
-`This is the lake, as of this autumn. Every line is one past winter, run through the model. A winter like 2018–19 lifts it about three metres by next autumn, maybe more. A winter like 2024–25 leaves it about half a metre lower than today.`,
+`This is the lake, as of this autumn. Every grey line is one past winter, run through the model. The shaded band is where the lake should land eight times in ten. A winter like 2018–19 lifts it about three metres by next autumn, maybe more. A winter like 2024–25 leaves it about half a metre lower than today.`,
 `Copernicus leans slightly wet this winter, remember. With that lean, the chance the lake is still below the red line a year from now: about one in three. And at a year ahead, forecasts like this one have, if anything, overstated the risk a little.`,
 `The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.`],
+  pointers: [
+    `Can't tell you, but I can show what each winter would do`,
+    `Grey = one past winter each · band = where it lands 8 in 10`,
+    `Like 2018–19: +3 m · like 2024–25: half a metre lower`,
+    `Copernicus leans wet → about one in three still below the red line · if anything, overstated`,
+    `One more voice beside the professionals', not instead`],
   facts: `GRU FAN, LIVE on the app's page 10 since 17 Oct (master 1d663f8); its caption says 76–84%. Start 15 Oct 2026, −213.68 m.
 • 12 months: most likely −212.56 m; 33% below −213 ("about one in three"); 80% range −214.40 to −210.06.
 • 6 months: −212.17 m, 9%; 80% range −212.98 to −209.87.
@@ -295,12 +310,6 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • October SEAS5: season 1.06× normal (25th of 34); Oct 1.54×, Nov 1.18×, Dec–Feb ~1.0×, Mar 1.13×; Jan–Feb +1.0 to +1.2 °C. "Leans slightly wet, mostly early on" holds.
 • Autumn bias, GRU: October starts ended about 40 cm HIGHER than the middle forecast at 12 months (the CfC's was 33). Safe line: "in autumn our middle forecast has run about 40 cm low; the range still held the outcome 8 times in 10." So the red-line odds lean pessimistic: say "about".
 • Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
-{ id: "s11b", n: "12", q: "Why should we believe it?", image: null,
-  design: `12 autumns, 2014–2025, one bar each: the 80% range forecast in October for a year later, with a dot for what happened. Inside = hit, hollow red outside = miss. Bars tinted by that winter's rain; 2018–19 and 2024–25 labelled. Footnote: the first three test years had no range yet.`,
-  script: [
-`Here's every autumn I could test. The bar is what the forecast said in October. The dot is where the lake was a year later. An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it.`,
-`It tells you how sure it is, and mostly, it's right about that.`],
-  facts: `9 of 12 held. Misses: 2018 above by 0.85 m, 2019 above by 0.31 m, 2024 below by 0.28 m. GRU (model-coach): 9 of 12 autumns inside the 80% range at both 6 and 12 months; misses 2018, 2019, 2024, the same three. The line holds.` },
 { id: "s12", n: "13", q: "What do I take home?", image: null,
   design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass.`,
   script: [
