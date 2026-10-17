@@ -366,3 +366,90 @@ Thank you.
 ### 11b. Why should we believe it? (NEW 2026-10-17, between 11 and 12) [one row of 15 autumns, 2011-2025: each year a vertical bar = the range forecast in October for the coming spring, a dot = where the lake got to; inside = hit, hollow red outside = miss; bars tinted by that winter's rain, dry to wet; 2018-19 and 2024-25 labelled]
 Here's every autumn since twenty eleven. The bar is what the forecast said in October. The dot is what the lake did by spring. Most dots land inside, in dry winters and wet ones. And these didn't: X. Record winters can still surprise it. It tells you how sure it is, and mostly, it's right about that.
 (Originator: struck "I'm an amateur, so don't take my word for it." X = the missed years, waiting on the peer's per-year autumn fans from the shipped product on the merged 1994+ gold. The said-vs-happened bins chart goes to backup. Check "three in ten" on slide 11 against the 10-30% band before it is said.)
+
+
+## SCRIPT v6: FILLED (2026-10-17; SUPERSEDES v5 and 11b above)
+All numbers checked with data-science-project-be in three turns (talk log sections 8-13, track record 67d9ad1). One run for everything: the IMS station-record bench (gold from 2002) and the forecast from 8 Oct 2026 with the October SEAS5. 12-MONTH numbers only: the app's 6-month card is biased low (interpolation under the spring peak; peer reporting the bug to the originator). [brackets] = slide design.
+
+### 1. Why should I care? [one continuous slide: two lake years merge into one lake with two water lines -> zoom out to the map -> the Mediterranean appears -> lake and sea together]
+In my first year here at Kinneret, the lake was so low that I walked out to the island in front of the campus. By the time I graduated, the waves were flooding the Tiberias promenade, taking their toll on the wooden market stands. Today, those stands stand high above the water once again.
+The lake's ups and downs aren't new. But today it sits below the red line, and it is our national backup.
+So which winter is coming? One like twenty eighteen to nineteen, the biggest rise in twenty years? Or one like twenty twenty-four to twenty-five, the driest?
+Nobody knows. Certainly not me. I'm not a forecaster. I scraped data together and ran models on an old computer that kept running out of memory. But if I could get any results this way, imagine what our best efforts could do.
+And it matters right now. This autumn, algae bloomed off our southern coast and choked the desalination plants. Keeping the water flowing meant hard choices. How hard depends on that same question: can the lake carry us next year? With better forecasts, we'd know how much room we have.
+(2018-19 rose +3.47 m, the biggest since 2005-06; 2024-25 rose +0.19 m, the smallest and the driest (56%). Not "the wettest": 2023-24 had more rain (148%) on dry ground.)
+
+### 2. Hasn't anyone done this already? [the lake in the middle, quiet labels around it: water balance, catchment models, scenario outlooks, lakes elsewhere; one empty spot: daily, learned from data]
+I'm not the first to ask. Researchers here at Kinneret have spent decades on the lake's water balance: what flows in, what the sun takes, what a warmer climate will do. The Water Authority thinks in scenarios: an average winter ends here, a dry one here. The Great Lakes get an official forecast every month, six months ahead, as a range.
+What I couldn't find was a daily forecast learned from data, from a week to a year ahead. That's the small gap I happened to fill. And by the end, I'll tell you honestly how far ahead I could see.
+
+### 3. How can an amateur do this? [a centaur; on screen: "Centaur"]
+This is a centaur: half human, half horse. After Kasparov lost to a chess computer, players started teaming up with machines. In two thousand and five, an open tournament let anyone enter, with any computer help they liked. The winners weren't grandmasters, and not the strongest machine. They were two amateurs with three ordinary computers, and a very good way of working with them.
+Keep them in mind. Because the person in front of you is one too.
+
+### 4. Who are you, and what did you build? [the app's front page]
+I'm a process engineer: I design wastewater treatment plants for TTT, of the WFI Group. And I owe this talk to my co-author, Adnan Agbaria, my lecturer in a data science course during my master's here at Kinneret. He gave us an open task, and I said: I'll forecast the Kinneret's level from weather data off the internet. One week ahead. How hard can it be?
+This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since two thousand and two and compare the model with what happened. The link comes at the end.
+(Page 5 runs the final model on all years: a fit, not a test. Never call it a test.)
+
+### 5. Where does the data come from? [the forest; on "AI is the flashlight" a beam sweeps across and reveals the coverage chart: one bar per source, its start, its gaps, where it changed; station weather from 1994 (models use 2002 on), ERA5 from 2001, the seasonal forecast's record from 1993; a red notch on the 2023 rain]
+Not from one place. Stations change names, every source has its own format, its own gaps. It's a dark forest. AI is the flashlight. I pointed Claude at a website and said: find the API key. Minutes later, I had any weather station I wanted. The rivers took two months of emails, always "you can't get that data." Then Claude found a Facebook post with a link to a beta site, wrote a scraper, and the river data has come in every day since.
+Then I asked it to clean everything into one table, one row per day. It came back with tactics I'd never have thought of. But there was a catch hiding in there.
+
+### 6. Can you trust it? [the short scoreboard, 0 to 1: four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot 0.77]
+My first model scored zero point six nine, where one is perfect and zero is just guessing the average. Then I tried what everyone tries: fancier models. Worse. A neural network: seventy-one minutes of training, and worse than guessing.
+The biggest step wasn't a model. I asked Claude to play an expert hydrologist and review my work. The newest oldest trick in the book. It noticed every model stumbled in the same year, and said: when every model fails the same way, it's the data.
+A rain gauge had been offline, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, lifted it to zero point seven six. Today, zero point seven seven. Not a bigger model. Better data.
+(0.694 c3a72b3; XGBoost 0.646; GRU -0.025, 71 vs 4 min (freeze ledger); 0.758 ac2ede5 = rain fix + six fixes in one step; today 0.769 on the merged gold. These are one-day-ahead scores on volume change; never put 0.73 (weekly) beside them.)
+
+### 7. How far ahead can it see? [click 1: "every year is a dot": each test year's 12-month miss (actual minus forecast) against that winter's rain; dots climb from dry-and-over-called to wet-and-under-called; 2018-19 and 2024-25 labelled. Click 2: a sun; one summer replayed, the drying curve meeting the red line]
+A week ahead, it's off by about three centimetres. That's less than half of what the lake itself moves in a typical week.
+Adnan wanted more. A season. Past a few weeks, everything waits for the rain. Here's every year I tested, a year ahead. In wet winters, it guessed too low. In dry ones, too high. The further from an ordinary winter, the bigger the miss.
+But in summer there's no rain to guess, only a lake drying in the sun. A month ahead, a simple drying curve named the day it would cross the red line, on average within about two days, across all eight crossings since two thousand and eight.
+No rain, and we see far. Rain, and we go blind. The rain sets the limit.
+(Week: 2.6-3.0 cm typical error; the 80% range is ~5.5 cm wide, keep them distinct. Dots: track_record.csv, 12 months, Spearman 0.69 signed error vs Oct-Mar rain, n = 15. Summer: numbers_check.md hindcast, mean 1.8 days at 15-30 days' warning, 112 forecasts, 8 crossings; level silver + ERA5. The 47 mm stays off the slide.)
+
+### 8. Could a smarter model see past the rain? [animation: the lake as a bucket -> one circle -> many circles = a network]
+I couldn't let it go. So I tried a new kind of model: a liquid network.
+Think of the lake as a bucket. Rain pours in, the sun and the pumps drain it. What's in it today depends on what came before.
+A liquid network is made of little buckets like that. Each one fills and slowly drains: that's how it remembers, and how it forgets. And how fast it drains changes with what flows in. A storm and a dry spell move at different speeds.
+So I'm forecasting a lake... with a network made of little lakes. The older versions wouldn't run on my computer. The newer one, called CfC, found a shortcut, and it trains in minutes on an ordinary computer.
+(Measured 16 Oct, this computer: CfC 20 min, GRU 7, GBR 6 for 15 years x 3 seeds. NEVER say faster than the GRU or "runs on a phone". "Wouldn't run on my computer" is the originator's own memory, with no log record: confirm.)
+
+### 9. Where did that idea come from? [photo: C. elegans under a microscope; licence to check]
+Not from me. From Daniela Rus's lab at MIT, with researchers in Austria, and from this worm. About three hundred neurons, and it gets around just fine. Inspired by it, they built a network where nineteen neurons learned to steer a car. They've since started a company, Liquid AI. Worth following. And the tools are open: anyone can try them.
+(Still to verify: 302 neurons, the ncps licence, the photo licence.)
+
+### 10. So which model is best? [one chart, a year ahead, station record: three pairs of bars (champion, plain network, liquid network); light = no winter forecast 0.89 / 0.73 / 0.72, dark = the real winter 0.55 / 0.70 / 0.69; dashed line "doing nothing" 0.83]
+My first liquid result looked brilliant, until I saw it had been given the real winter's weather. No forecast has that. Without it, it was ordinary.
+So I set the rules first: same years, same test, for everyone. And I gave the neural network that came last a second chance. I'd been asking it to forecast the lake without telling it the weather. Given the same information, it caught up.
+A week ahead, all three land together. A year ahead, on the station record, with no idea which winter is coming, the two networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.
+(Section 8/10, IMS 15 test years: networks beat the GBR by ~0.18 m, interval clear of zero; CfC = GRU, never say the CfC beats the GRU. On ERA5 all three tie: always "on the station record".)
+
+### 11. So which winter is coming? [the fan from 8 Oct 2026 out to 12 months: thin grey line per past winter, 80% band, 2018-19 and 2024-25 in colour, the red line dashed, today's dot; stamp: "as of the October seasonal forecast"]
+I can't tell you. But I can show you what each one would do.
+This is the lake, as of this autumn. Every line is one past winter, run through the model. A winter like twenty eighteen to nineteen lifts it about three metres by next autumn, maybe more. A winter like twenty twenty-four to twenty-five leaves it almost a metre lower than today.
+Can anyone forecast the winter? The European seasonal forecast helps a little. This year it leans slightly wet, mostly early on. A weak lean. So the chance the lake is still below the red line a year from now: about three in ten. And at a year ahead, forecasts like this one have, if anything, overstated the risk a little.
+The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.
+(Peer section 12, one run: start 8 Oct 2026 -213.65; 12 mo median -212.7, 80% -214.2..-209.9; wet -210.5 (+3.15; the real 2018-19 rose 3.47, under-called by 0.85), dry -214.5 (-0.85; weather only, not that year's pumping); P(below -213 at 12 mo) 28% (34% unweighted); SEAS5 Oct-Mar 1.06. Autumn medians ran 0.45 m low; the 10-30% band said 19, happened 12; above 30% the opposite (38 vs 61, 7 winters). Never "28%", never "unlikely". NO 6-month numbers. Refresh after the 5 Nov SEAS5 only if the originator decides; then switch EVERY number to that run.)
+
+### 11b. Why should we believe it? [12 autumns, 2014-2025, one bar each = the 80% range forecast in October for a year later; a dot = what happened; inside = hit, hollow red outside = miss; bars tinted by that winter's rain; 2018-19 and 2024-25 labelled; footnote: the first three test years had no range yet]
+Here's every autumn I could test. The bar is what the forecast said in October. The dot is where the lake was a year later. An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it.
+It tells you how sure it is, and mostly, it's right about that.
+(track_record.csv 67d9ad1: 9 of 12 held at 12 months; misses 2018 above by 0.85 m, 2019 above by 0.31, 2024 below by 0.28; both wet misses above, matching the cautious lean. Up to 260 d the 80% range holds 78-82%.)
+
+### 12. What do I take home? [three icons, no words: a sealed envelope, a balance scale, a magnifying glass]
+Not a model. Three rules, and anyone here can use them, with an AI at their side.
+Decide how you'll judge before you see the results.
+Compare against the best you have, and against doing nothing.
+When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a brilliant number, a network I nearly threw away.
+Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.
+
+### 13. So how far did you get? [the app's fan card (page 10) as a screenshot, the QR code]
+I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it, updated every month when the new seasonal forecast comes out. Here it is.
+What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
+An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.
+Thank you.
+(The fan file is rebuilt by hand after each SEAS5 release (the 5th). The 7-day forecast is the one updated every morning. The app card's 6-month number must be fixed before the QR is shown.)
+
+Backup / Q&A: nine seasonal forecasts averaged did no better than the European one alone; climate indices can't forecast the winter; the seasonal forecast's hits and misses; memory, a few days; the ERA5 bench where all three tie; the Jaffa benchmark (error propagation); the champion's 4 minutes vs the network's 71; the 47 mm summer result; the said-vs-happened bins chart.
