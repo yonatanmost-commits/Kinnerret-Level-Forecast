@@ -87,6 +87,8 @@ h2 { font-family: var(--font-display); font-weight: 600; font-size: 21px; margin
 .script p { margin: 0; }
 details.notes > summary, details.facts > summary { cursor: pointer; font-family: var(--font-mono); font-size: 12px; color: var(--lake); }
 details.notes .script { margin-top: 10px; }
+.notes-label { margin: 0 0 6px; font-family: var(--font-mono); font-size: 12px; color: var(--lake); }
+ul.pointers { margin: 0 0 14px; padding-left: 20px; font-family: var(--font-display); font-size: 18px; line-height: 1.5; display: grid; gap: 6px; }
 details.facts p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
 .speak { justify-self: start; }
 label.cl { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -166,11 +168,16 @@ No row for us: the gap is said, not shown.`,
 `This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since 2002 and compare the model with what happened. The link comes at the end.`],
   facts: `The history page runs the final model on all years: it shows the fit, not a test. Never call it a test.` },
 { id: "s05", n: "5", q: "What data did we use?", image: "charts/sources_timeline.png",
-  design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. Dashed outlines, "tested": ERA5 and 8 more forecasts. A "test years 2011–2025" bracket and a red notch at 2023 on the stations bar.`,
+  design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. A "test years 2011–2025" bracket, and an amber outline at 2023 on the stations bar, "2023 gauge · fixed". v3: only the four sources the models use.`,
   script: [`Four things: the lake's level, the river flowing into it, the weather that fell, and the seasonal forecast for the months ahead. Colour is what the models use; the logos are the people who measure it.`,
-`When I started, I knew of one source: the weather stations. The rivers took two months of emails, always "you can't get that data", until a link on a Facebook post led to a beta website. It has come in every day since.`,
-`Then the data played a trick on me. Every model I tried stumbled in the same year. I asked Claude to play an expert hydrologist and review my work, and it said: when every model fails the same way, it's the data. A rain gauge had been offline all year, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Finding that and filling it in, along with six other fixes, did more than any model.`,
-`The last one I found when I wanted to see past the coming week: Copernicus, Europe's seasonal forecast, half a year ahead, renewed every month.`],
+`The seasonal forecast comes from Copernicus, Europe's climate service: half a year ahead, renewed every month. I went looking for it when I wanted to see past the coming week.`,
+`Then the data played a trick on me. Every model I tried stumbled in the same year. I asked Claude to play an expert hydrologist and review my work, and it said: when every model fails the same way, it's the data. A rain gauge had been offline all year, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Finding that and filling it in, along with six other fixes, did more than any model.`],
+  pointers: [
+    `Four things: level · river · weather that fell · seasonal forecast`,
+    `Colour = what the models use · logos = who measures it`,
+    `Copernicus: half a year ahead, every month · found it looking past the week`,
+    `Every model stumbled in the same year → "when all fail the same way, it's the data"`,
+    `2023 gauge offline → zeros → a winter dry on paper → found, filled, + 6 fixes > any model`],
   facts: `Chart: docs/talk/charts/sources_timeline.png, from docs/talk/chart_sources.py, dates read from committed files and checked with model-coach.
 • Cut: 2002-07-01, the first month Tzemach measures every input. Lake level record from 1966; Jordan from 1970; Tzemach from 1994; Lev Kinneret 2003; Beit Tzaida and Kfar Nachum 2012; Tiberias 2024.
 • The 2023 notch is the Lev Kinneret gauge, offline all of 2023. The final models use the corrected data: never imply they still see zeros.
@@ -346,7 +353,13 @@ function render() {
 
     const right = el("div", "right");
     if (s.image) {
-      const n = el("details", "notes"); n.appendChild(el("summary", null, "Speaker notes"));
+      if (s.pointers) {
+        right.appendChild(el("p", "notes-label", "Speaker notes"));
+        const ul = el("ul", "pointers");
+        s.pointers.forEach(p => ul.appendChild(el("li", null, p)));
+        right.appendChild(ul);
+      }
+      const n = el("details", "notes"); n.appendChild(el("summary", null, s.pointers ? "Full script (what Read aloud says)" : "Speaker notes"));
       n.appendChild(scriptBlock(s.script)); right.appendChild(n);
     } else {
       right.appendChild(scriptBlock(s.script));
@@ -436,6 +449,7 @@ function reviewText() {
   SLIDES.forEach(s => {
     const c = ($("#c-" + s.id).value || "").trim();
     out.push("## Slide " + s.n + ". " + s.q, "", "On screen: " + s.design, "", "Script:", "");
+    if (s.pointers) { out.push("Speaker notes:", ""); s.pointers.forEach(p => out.push("- " + p)); out.push("", "Full script:", ""); }
     s.script.forEach(p => out.push("> " + p, ">"));
     out.pop(); out.push("", "Comment: " + (c || "(none)"), "");
   });
