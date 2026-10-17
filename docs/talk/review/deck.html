@@ -217,27 +217,27 @@ No row for us: the gap is said, not shown.`,
   facts: `Diagrams drawn by Chartbuilder, not taken from the web (copyright). GBR = the two-stage gradient-boosting champion (scikit-learn GradientBoostingRegressor); GRU = gated recurrent unit, 75 units, 14 days of history, direct multi-horizon head. The tree questions are illustrative examples, not the model's actual splits.` },
 { id: "s07", n: "8", q: "How did we choose it?", image: "charts/choices_sliders.png",
   design: `Five full-width sliders (Chartbuilder), a one-word title above each. The end words are one or two words; the result sits in a rounded box toward the winner; teal marks what's in use.
-Week: GRU · [tie] · GBR (in use)
+Week: GRU · [0.6 cm better] → GBR (in use), with the week's weather known
 Year: GRU ← [36 cm better] · GBR
 Reach: Relay · [tie] · Direct
 Forecast: Average year · [2 cm better] → Copernicus
 Range: Past errors · [holds 77–84%] → Past winters`,
   script: [`I didn't get here in a straight line. Five tests decided it.`,
-`A week ahead, the two tie: two millimetres apart. So the GBR, already running, keeps the week. A year ahead, the GRU wins, by about a third of a metre. More on that in a moment.`,
+`A week ahead, when the week's weather forecast is good, the GBR is clearly better: two centimetres off against two and a half. So the GBR keeps the week. A year ahead, the GRU wins, by about a third of a metre. More on that in a moment.`,
 `How to reach a year ahead? Feed the model its own forecast day after day, or forecast every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
 `Then the weather ahead. Nobody knows next winter, so the model starts from an average year. Copernicus nudges it, a little wetter or drier, a little warmer, month by month. It helped both models a little: about two centimetres a year out. Small, but real, so it stays.`,
 `And the range: run every past winter's weather through the model, let the winters the forecast favours count more, and it holds the outcome 77 to 84 percent of the time, every month out to a year.`,
 `Wherever I could, I wrote down how I'd judge before I saw the results.`],
   pointers: [
     `Not a straight line: five tests decided it`,
-    `Week: GBR = GRU, 2 mm apart → GBR keeps the week`,
+    `Week: with the week's weather, GBR 2.0 vs GRU 2.6 cm → GBR keeps the week`,
     `Year: GRU wins by ~36 cm → table`,
     `Reach: relay = direct → kept the simpler · elegant design < an ordinary year`,
     `Forecast: average year + Copernicus nudge → ~2 cm better for both → stays`,
     `Range from past winters: holds 77–84%, every month to a year`,
     `"Wherever I could, I wrote down how I'd judge first"`],
   facts: `Chart: docs/talk/charts/choices_sliders.png. PRODUCT SWAPPED TO THE GRU (17 Oct): every long-range number is being re-confirmed for the GRU with model-coach.
-1. Week: final run, 7 d, GBR 2.7 vs GRU 2.9 cm, GRU−GBR +0.2 [−0.1, +0.5], a tie; the GBR keeps the week because it already runs the app's 7-day. (The June GRU, R² −0.026, was a wrong setup: one day's change, no weather for that day. Only on slide 10 as a story.)
+1. Week (model-coach, 17 Oct): with the week's weather known (perfect prognosis, close to a good 7-day forecast), final run, GBR 2.0 vs GRU 2.6 cm, clear, and the gap holds to 30 d. With only an average or seasonal year ahead they tie (2.7 vs 2.9, the table's week column). That's why the table shows a tie at a week while the slider shows GBR: the table uses the long-range setup. The June GRU (R² −0.026) was a wrong setup; it only appears on slide 10 as a story.
 2. Year: GRU−GBR at 365 d −35.8 cm [−66.9, −8.6], clear (equal weight per year −37.2).
 3. Reach, ERA5 bench, 6-horizon mean: relay 0.370 vs direct 0.366, a tie. The continuous-time decoder 0.442 was worse than an ordinary year's 0.423. (These were CfC-cell tests; say "the network", not "the liquid network".)
 4. Forecast: the GRU at 365 d 0.873 → 0.851, −2.1 cm [−6.1, +1.6]; year-ahead mean 0.677 → 0.658, −1.9 cm [−4.5, +0.6], not clear (model-coach); the GBR −2.8 cm [−4.8, −0.9], clear. "Real" holds firmly for the trees.
@@ -279,7 +279,7 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • Year (365 d): 121 / 85. GRU−GBR −35.8 cm [−66.9, −8.6], clear. The only clear verdict.
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
-• Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test. The GRU is a standard, well-known design, and it trained in about 7 minutes against 20, so I shipped it." (Timings from the 16 Oct bench, not re-timed.)` },
+• Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test, so I shipped the GRU, a standard, well-known design." Never claim the GRU trains faster: re-timed 17 Oct, 53 s vs 75 s per backtest year, but slower in the from-today run; both noisy.` },
 { id: "s11", n: "11", q: "So which winter is coming?", image: null,
   design: `The fan from 15 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
   script: [
