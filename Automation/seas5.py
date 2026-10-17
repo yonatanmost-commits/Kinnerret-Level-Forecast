@@ -49,9 +49,9 @@ def load(folder: Path = RAW) -> pd.DataFrame:
     return t
 
 
-def init_for(day: pd.Timestamp) -> pd.Timestamp:
+def init_for(day: pd.Timestamp, release_day: int = RELEASE_DAY) -> pd.Timestamp:
     first = pd.Timestamp(day.year, day.month, 1)
-    return first if day.day > RELEASE_DAY else first - pd.DateOffset(months=1)
+    return first if day.day > release_day else first - pd.DateOffset(months=1)
 
 
 def anomalies(t: pd.DataFrame, test_year: int) -> pd.DataFrame:
@@ -145,8 +145,9 @@ def member_weights(forecast: float, member_ratio: pd.Series, seasons: pd.DataFra
     return w / w.mean()
 
 
-def adjust_clim(clim: pd.DataFrame, start: pd.Timestamp, anom: pd.DataFrame) -> pd.DataFrame:
-    init = init_for(start)
+def adjust_clim(clim: pd.DataFrame, start: pd.Timestamp, anom: pd.DataFrame,
+                release_day: int = RELEASE_DAY) -> pd.DataFrame:
+    init = init_for(start, release_day)
     f = anom[anom["init"] == init]
     out = clim.copy()
     if f.empty:
