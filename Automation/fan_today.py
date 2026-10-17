@@ -2,7 +2,7 @@
 fan_today.py  -  the long-range forecast fan and red-line odds for the app.
 
 Takes a past-winters ensemble made from today (one scenario per earlier winter's weather,
-the CfC on the station record) and writes Models/longrange_fan.json, which page 10 of the
+the GRU on the station record; --method B14 for the CfC) and writes Models/longrange_fan.json, which page 10 of the
 app draws (kinneret_app/fan_card.py):
 
   build(members, errors, weights, start, seasonal)  -> the file's content (a dict)
@@ -17,7 +17,7 @@ Monthly refresh, after SEAS5 comes out on the 5th:
 
   cd Automation
   CFC_HORIZONS=monthly CFC_FUTURE=1 CFC_YEARS=<this year> CFC_OUT=../docs/experiments/cfc_today_monthly \\
-      python cfc_tournament.py --method B --enc-len 14 --ensemble --seeds 3
+      python cfc_tournament.py --table ims --method B --enc-len 14 --cell gru --ensemble --seeds 3
   python fan_today.py                      # latest start in cfc_today_monthly -> Models/longrange_fan.json
 
 The backtest (--back, cfc_monthly) must have the same horizons: 7/13/26 d, every month to
@@ -41,11 +41,13 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "Models" / "longrange_fan.json"
 LINES = {"red": -213.0, "upper": -208.8}
 LEVELS = (0.5, 0.8, 0.9)
-MODEL = "CfC liquid network on the IMS station record, past winters weighted by SEAS5"
+MODELS = {"B14gru": "GRU network on the IMS station record, past winters weighted by SEAS5",
+          "B14": "CfC liquid network on the IMS station record, past winters weighted by SEAS5"}
+METHOD = "B14gru"           # the app's fan since 2026-10-17: the GRU ties the CfC and trains in a third of the time
 
 
 def build(members: pd.DataFrame, errors: pd.DataFrame, weights: pd.Series, start: str,
-          seasonal: dict, made_on: str = None) -> dict:
+          seasonal: dict, made_on: str = None, method: str = METHOD) -> dict:
     m = members[members["start"] == start]
     o = cb.bands(m.assign(weight=weights.loc[m.index]), levels=LEVELS, errors=errors,
                  thresholds=LINES).set_index("H").sort_index()
@@ -60,7 +62,7 @@ def build(members: pd.DataFrame, errors: pd.DataFrame, weights: pd.Series, start
                   "path": [{"H": int(H), "level": float(v)} for H, v in paths.loc[Y].items()]}
                  for kind, Y in (("wettest", int(end.idxmax())), ("driest", int(end.idxmin())))]
     return {"made_on": made_on or str(date.today()), "start": start, "level0": float(m["level0"].iloc[0]),
-            "model": MODEL, "seasonal": seasonal, "lines": dict(LINES), "horizons": horizons,
+            "model": MODELS[method], "seasonal": seasonal, "lines": dict(LINES), "horizons": horizons,
             "scenarios": scenarios}
 
 
@@ -101,7 +103,7 @@ def main():
     ap.add_argument("--today", default=str(ROOT / "docs" / "experiments" / "cfc_today_monthly"))
     ap.add_argument("--back", default=str(ROOT / "docs" / "experiments" / "cfc_monthly"),
                     help="backtest ensemble folder: the model's earlier errors")
-    ap.add_argument("--method", default="B14")
+    ap.add_argument("--method", default=METHOD, choices=sorted(MODELS))
     ap.add_argument("--start", default=None, help="default: the latest start in --today")
     ap.add_argument("--out", default=str(OUT))
     a = ap.parse_args()
@@ -123,7 +125,8 @@ def main():
     mem = today[today["weather"].str.startswith("ens|") & (today["start"] == start)]
     errors = pd.concat([back[back["weather"] == "obs"], today[today["weather"] == "obs"]])
     w = fe.weights_for(mem, S, fe.monthly(era), fe.monthly(bench))
-    fan = build(mem, errors, w, start, seasonal_lean(S, fe.monthly(era), pd.Timestamp(start)))
+    fan = build(mem, errors, w, start, seasonal_lean(S, fe.monthly(era), pd.Timestamp(start)),
+                method=a.method)
     write(fan, Path(a.out))
     h = {x["H"]: x for x in fan["horizons"]}
     print(f"fan from {start} (level {fan['level0']:.2f}) -> {a.out}")
