@@ -1,7 +1,7 @@
 """
 cfc_track_record.py  -  "why should we believe you": the shipped fan's backtest, one row per autumn.
 
-Reads the SEAS5-weighted CfC fan backtest at monthly horizons (CFC_HORIZONS=monthly,
+Reads the SEAS5-weighted GRU fan backtest (the app's fan model) at monthly horizons (CFC_HORIZONS=monthly,
 cfc_fan_eval.py, fan_monthly_B14_seas5.csv) and writes:
 
   track_record.csv     one row per test autumn 2011-2025: the first October start with a fan, the
@@ -26,7 +26,7 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-FAN = ROOT / "docs" / "experiments" / "cfc_fan_eval" / "fan_monthly_B14_seas5.csv"
+FAN = ROOT / "docs" / "experiments" / "cfc_fan_eval" / "fan_monthly_B14gru_seas5.csv"
 GOLD = ROOT / "Gold Data" / "kinneret_gold_features.csv"
 OUT = ROOT / "docs" / "experiments" / "cfc_fan_eval"
 RED = -213.0
