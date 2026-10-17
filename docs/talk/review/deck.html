@@ -281,26 +281,29 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test, so I shipped the GRU, a standard, well-known design." Never claim the GRU trains faster: re-timed 17 Oct, 53 s vs 75 s per backtest year, but slower in the from-today run; both noisy.` },
-{ id: "s11", n: "11", q: "So which winter is coming?", image: "charts/fan_today.png",
-  design: `Fan (Chartbuilder) from 15 Oct 2026 to Oct 2027: the app's 80% band (SEAS5-weighted) in soft teal, a thin grey line per past winter through the GRU (2025–26 left out: its weather isn't complete), 2018–19 green and 2024–25 orange in bold, the dashed red line at −213 m, a black "today" dot, stamp "as of the October seasonal forecast". A few grey lines sit just outside the band (the driest, 2015–16, ends at −214.50): the lines are raw, the band is weighted and widened.`,
-  script: [
-`I can't tell you. But I can show you what each one would do.`,
-`This is the lake, as of this autumn. Every grey line is one past winter, run through the model. The shaded band is where the lake should land eight times in ten. A winter like 2018–19 lifts it about three metres by next autumn, maybe more. A winter like 2024–25 leaves it about half a metre lower than today.`,
-`Copernicus leans slightly wet this winter, remember. With that lean, the chance the lake is still below the red line a year from now: about one in three. And at a year ahead, forecasts like this one have, if anything, overstated the risk a little.`,
+{ id: "s11", n: "11", q: "So which winter is coming?", image: null,
+  design: `Fan v2 (Chartbuilder, pending; design by model-coach): from 15 Oct 2026 to Oct 2027. A bold "most likely" line (the fan's median). Nested bands: 50% dark, 80% mid, 90% light. Three coloured scenario lines, wet / normal / dry, each labelled with its chance this year next to the usual share (wet 46% vs 36%, normal 32% vs 32%, dry 22% vs 32%). Thin grey replays "like 2018–19" (highest) and "like 2015–16" (lowest). Dashed red line at −213 m, a "today" dot, stamp "as of the October seasonal forecast".`,
+  script: [`So which winter is coming? I can't tell you. But I can tell you what's most likely, and how sure I am.`,
+`The bold line is the most likely path: about a metre higher than today by next autumn. The dark band is where the lake lands half the time. The lighter one, eight times in ten: anywhere from three-quarters of a metre lower to three and a half metres higher.`,
+`Now split the past winters into wet, normal and dry. A wet one lifts it almost two metres; a dry one leaves it half a metre lower than today. This October tilts the odds a little toward wet: almost one in two, where an ordinary year would say one in three.`,
+`So the chance the lake is still below the red line a year from now: about one in three. And when I've been wrong, the lake came in higher, not lower.`,
 `The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.`],
   pointers: [
-    `Can't tell you, but I can show what each winter would do`,
-    `Grey = one past winter each · band = where it lands 8 in 10`,
-    `Like 2018–19: +3 m · like 2024–25: half a metre lower`,
-    `Copernicus leans wet → about one in three still below the red line · if anything, overstated`,
+    `Can't tell you which winter · can tell you most likely, and how sure`,
+    `Bold = most likely: ~1 m up by next autumn · dark = half the time · light = 8 in 10: −¾ m to +3½ m`,
+    `Wet: almost +2 m · dry: −½ m · this October tilts toward wet: ~1 in 2 vs the usual 1 in 3`,
+    `Still below the red line in a year: ~1 in 3 · when wrong, the lake came in higher`,
     `One more voice beside the professionals', not instead`],
-  facts: `GRU FAN, LIVE on the app's page 10 since 17 Oct (master 1d663f8); its caption says 76–84%. Start 15 Oct 2026, −213.68 m.
-• 12 months: most likely −212.56 m; 33% below −213 ("about one in three"); 80% range −214.40 to −210.06.
-• 6 months: −212.17 m, 9%; 80% range −212.98 to −209.87.
-• A 2018–19 winter: −210.48 at 12 months (+3.2 m); −210.07 at 6. A 2024–25 winter: −214.21 (0.5 m below today), so "about half a metre lower". The lowest past winter on the GRU is 2015–16 (−214.50, 0.8 m below), and the app card's "driest" scenario shows 2015–16. The script keeps 2024–25 because slide 1 sets it up.
-• October SEAS5: season 1.06× normal (25th of 34); Oct 1.54×, Nov 1.18×, Dec–Feb ~1.0×, Mar 1.13×; Jan–Feb +1.0 to +1.2 °C. "Leans slightly wet, mostly early on" holds.
-• Autumn bias, GRU: October starts ended about 40 cm HIGHER than the middle forecast at 12 months (the CfC's was 33). Safe line: "in autumn our middle forecast has run about 40 cm low; the range still held the outcome 8 times in 10." So the red-line odds lean pessimistic: say "about".
-• Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
+  facts: `All from the LIVE app file (Models/longrange_fan.json, GRU, start 15 Oct 2026, −213.68 m); design and checks by model-coach (backtest = the final GRU fan, 2014–2025).
+• Most likely: 6 months −212.17; 12 months −212.56 (+1.1 m).
+• Bands at 12 months: 50% −213.31 … −211.12; 80% −214.40 … −210.06 (−0.72 … +3.62 m); 90% −214.87 … −209.30. At 6 months: 50% −212.42 … −210.66; 80% −212.98 … −209.87; 90% −213.23 … −209.33. Backtest held 52/77/88% at 12 months and 52/79/89% at 6. No 95% band: never tested.
+• Not "median ± 85 cm": 85 cm is the average miss, and ±0.85 would hold only about half.
+• Scenarios = the SEAS5-weighted average path of each third of past winters by Oct–Mar rain (22 winters 2002–03 … 2025–26; 2006–07 and 2008–09 out for weather gaps). Wet 391–544 mm: −211.94 at 12 months (+1.74 m), chance 46% (36% unweighted). Normal 291–382 mm: −212.79, 32% (32%). Dry 188–286 mm: −214.21 (−0.53 m), 22% (32%).
+• Replays: like 2018–19 −210.48 (highest); like 2015–16 −214.50 (lowest). 2015–16 is NOT the driest (270 mm; 2024–25 had 189 mm and ends −214.21). The app's "wettest/driest" label is wrong: the originator is deciding a fix ("highest / lowest by next autumn").
+• Chance below −213: 9% at 6 months, 33% at 12 months.
+• Lopsided misses: at 12 months the lake ended above the 80% top 16% of the time, below the bottom 7%; October starts' middle ran about 40 cm low; the 90% band held 95% for October starts. The best-case edge is under-covered (exceeded 11%); the worst-case edge was undercut only 1%.
+• Only 15 of 22 winters have complete weather at 12 months; the backtest uses the same rule.
+• App: the median, bands and odds match page 10 exactly; the three groups are NEW there. Say "on the slide we group the past winters…". Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
 { id: "s12", n: "12", q: "What do I take home?", image: null,
   design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass.`,
   script: [
