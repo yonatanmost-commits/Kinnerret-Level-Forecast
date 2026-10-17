@@ -215,7 +215,7 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 `Fancier models first: worse. Feeding the model its own forecast, day after day, or forecasting every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year. Out. How much past does it need? Three days was as good as four months.`,
 `Then the weather ahead. With an ordinary year, a year out, it's off by 69 centimetres on average. With Copernicus, 67. And here's the surprise: even a perfect forecast of the winter doesn't help this network any further. It leans on the lake itself. Averaging eight more forecasters didn't beat Copernicus either, so I kept one.`,
 `The range: my first one claimed eighty percent and caught as little as sixty. Built from past winters, it catches about eighty, every month out to a year. And when I found a bug of my own, a six-month number running almost forty centimetres low, I fixed it and said so.`,
-`Every rung was decided by a rule I wrote down before I saw the results.`],
+`Wherever I could, I wrote down how I'd judge before I saw the results.`],
   facts: `Final run cfc_monthly (52fc2d2, branch fan-monthly, NOT on master until you OK the push). IMS 2011–2025, 15 test years; "a year out" = mean of the 130/260/365-day errors.
 • Relay/direct and decoder rungs: the 25-year ERA5 bench (16 years). Say "on the reanalysis bench" if asked.
 • Copernicus gain for the CfC: −2.2 cm [−4.6, +0.2], just short of clear, so say "a little better", never "proven".
@@ -224,7 +224,8 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 • First ranges, 61–72%: ERA5 bench. Final fan 80% held 82/83/80/80/78/79% at 7/26/130/182/260/365 days.
 • The bug: a straight line from 130 to 260 days, October starts.
 • Not on the ladder: the soil bucket (helps long range, hurt the week, so not adopted) and dropping humidity (not adopted).
-• Choosing station data over ERA5 was a choice (the app's own daily feed, 15 test years), not a test result.` },
+• Choosing station data over ERA5 was a choice (the app's own daily feed, 15 test years), not a test result.
+• "Wherever I could": the winner rule was fixed in writing before the tournament (lowest average error, average weather ahead). But the 14-day history was kept from round 1, station data was a choice, and the bug was a correction. Never say "every rung".` },
 { id: "s08", n: "8", q: "Which model won?", image: null,
   design: `A table. Columns: model | what it is | a week ahead | a year ahead, with Copernicus | a year ahead, if the winter were known.
 • Gradient boosting | "hundreds of small decision trees, each fixing the last one's mistakes" | 2.7 cm | 85 cm | 56 cm (best)
