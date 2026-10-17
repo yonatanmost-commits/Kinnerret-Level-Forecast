@@ -265,17 +265,17 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
   design: `Big table (Chartbuilder), two rows: GBR ("Classic ML") and GRU ("Neural network"), with a Model type column. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Header: "Prediction error by time (cm)". The lower error in each column in soft teal (Week: Trees; Month: both, a tie; 6 months and Year: GRU); the other cell plain black. A teal outline marks the model in use: Trees for the week, the GRU for the month, 6 months and year.`,
   script: [`Two models made it to the end: the same setup, the same years, the same test.`,
 `My first GRU, back in June, did no better than guessing: I'd set it up wrong, without the weather it needed. Set up fairly, it caught up.`,
-`For a week and a month, it hardly matters: they land within a few millimetres of each other. By six months the network is a little lower, and a year out it's about a third of a metre closer. That's the one clear win on this table. Hand them the real winter, and the trees pull ahead, though not by a margin I can prove. They use the weather best, if only someone could tell them.`,
+`A week ahead, with the week's forecast, the GBR is better. At a month they tie. By six months the network is a little lower, and a year out it's about a third of a metre closer. Hand them the real winter, and the trees pull ahead, though not by a margin I can prove. They use the weather best, if only someone could tell them.`,
 `So the week runs on the trees, and the year runs on the network. The name of the model mattered less than how fairly I compared them.`],
   pointers: [
     `Two models made it: same setup, same years, same test`,
     `My June GRU was set up wrong · set up fairly, it caught up`,
-    `Week, month: within millimetres · 6 months: network a little lower`,
-    `Year: the network a third of a metre closer, the one clear win`,
+    `Week: GBR better · month: tie · 6 months: network a little lower`,
+    `Year: the network a third of a metre closer`,
     `Real winter: trees pull ahead, not provably`,
     `Week = trees, year = network · the name mattered less than fair comparison`],
   facts: `Chart: docs/talk/charts/models_table.png, two rows; one big "cm" is the only unit. Ties: week GRU−GBR +0.2 [−0.1, +0.5], month +0.4 [−1.2, +1.9], 6 months −8.5 [−21.4, +4.0]. Final run cfc_monthly (52fc2d2), station record 2011–2025, 15 test years, seasonal forecast ahead, error in cm (Trees / GRU):
-• The highlight shows the lower number, not a proven win: only the year is clear. Say "a little lower" for the week and 6 months, never "beats". Week (7 d): 2.7 / 2.9, a tie. Month (30 d): 11.6 / 11.9, a tie. 6 months (182 d): 64 / 56, a tie (not clear).
+• Each column uses the weather you'd actually have at that range: Week = the week's weather known (a good 7-day forecast), GBR 2.0 vs GRU 2.6, GRU−GBR +0.58 [+0.26, +0.89], CLEAR; Month, 6 months, Year = the seasonal forecast ahead. Clear wins: the week (GBR) and the year (GRU). The month is a tie (11.6 / 11.9); 6 months GRU 56 vs GBR 64 is not clear: say "a little lower".
 • Year (365 d): 121 / 85. GRU−GBR −35.8 cm [−66.9, −8.6], clear. The only clear verdict.
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
