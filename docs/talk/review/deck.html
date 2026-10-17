@@ -168,7 +168,7 @@ No row for us: the gap is said, not shown.`,
 `This is what came out of it. An app that runs every morning on my own computer. It pulls the lake's level, the Jordan's flow and the weather, both what fell and the forecast for the week, and forecasts the lake. You can play: take this week's forecast, or go back to any week since 2002 and compare the model with what happened. The link comes at the end.`],
   facts: `The history page runs the final model on all years: it shows the fit, not a test. Never call it a test.` },
 { id: "s05", n: "5", q: "What data did we use?", image: "charts/sources_timeline.png",
-  design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. A "test years 2011–2025" bracket, and an amber outline at 2023 on the stations bar, "2023 gauge · fixed". v3: only the four sources the models use.`,
+  design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. A "test years 2011–2025" bracket, and an amber outline at 2023 on the stations bar, "2023 gauge · fixed". v5: only the four sources the models use. The seasonal bar is light teal from 1993 to 2002, "its own track record" (the hindcasts that set Copernicus's "normal"), full teal after. The stations' 1994–2002 stays grey: the product doesn't use it.`,
   script: [`Four things: the lake's level, the river flowing into it, the weather that fell, and the seasonal forecast for the months ahead. Colour is what the models use; the logos are the people who measure it.`,
 `The seasonal forecast comes from Copernicus, Europe's climate service: half a year ahead, renewed every month. I went looking for it when I wanted to see past the coming week.`,
 `Then the data played a trick on me. Every model I tried stumbled in the same year. I asked Claude to play an expert hydrologist and review my work, and it said: when every model fails the same way, it's the data. A rain gauge had been offline all year, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Finding that and filling it in, along with six other fixes, did more than any model.`],
@@ -201,7 +201,7 @@ Under both lanes: "trained on station weather, 2002–2025".`,
 • Weather ahead: the training years' day-of-year average; rain × the SEAS5 monthly ratio, temperature + its anomaly, from the issue already out on the start day.
 • Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
 The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
-{ id: "s07", n: "7", q: "How did we choose it?", image: null,
+{ id: "s07", n: "7", q: "How did we choose it?", image: "charts/choices_sliders.png",
   design: `Five sliders (Chartbuilder), one per test that decided the method. Each one: the question on top, the two options at the ends with their numbers, the knob toward the winner, today's choice in teal.
 1. Week ahead: June neural net R² ≈ 0 vs two-stage boosting R² 0.77.
 2. Reaching a year ahead: day by day 0.37 vs all at once 0.37, a tie; a small struck-out mark for continuous-time 0.44, worse than an ordinary year (0.42).
@@ -211,20 +211,26 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
   script: [`I didn't get here in a straight line. Five tests decided it.`,
 `A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week.`,
 `A year ahead: feed the model its own forecast day after day, or forecast every distance at once? No difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
-`Then, where does the error come from? Hand the model the real winter's weather, and the error a year out drops from X to X. It wasn't the network. It was not knowing the winter. That sent me to the seasonal forecast.`,
+`Then, where does the error come from? Hand the model the real winter's weather, and the error a year out drops from 69 centimetres to 45. It wasn't the network. It was not knowing the winter. That sent me to the seasonal forecast.`,
 `With it, the two networks beat the trees a year ahead, by about eighteen centimetres. More on that in a moment.`,
 `And the range: run every past winter's weather through the model, let the winters the forecast favours count more, and it holds the outcome 78 to 84 percent of the time, every month out to a year.`,
 `Wherever I could, I wrote down how I'd judge before I saw the results.`],
-  facts: `Final run cfc_monthly (52fc2d2, branch fan-monthly, NOT on master until you OK the push). IMS 2011–2025, 15 test years; "a year out" = mean of the 130/260/365-day errors.
-• Relay/direct and decoder rungs: the 25-year ERA5 bench (16 years). Say "on the reanalysis bench" if asked.
-• Copernicus gain for the CfC: −2.2 cm [−4.6, +0.2], just short of clear, so say "a little better", never "proven".
-• Perfect vs Copernicus for the CfC: no gain (0.673 vs 0.672). Only the trees gain clearly from a perfect winter (−32 cm).
-• Calibrated Copernicus: no better than raw.
-• First ranges, 61–72%: ERA5 bench. Final fan 80% held 82/83/80/80/78/79% at 7/26/130/182/260/365 days.
-• The bug: a straight line from 130 to 260 days, October starts.
-• Not on the ladder: the soil bucket (helps long range, hurt the week, so not adopted) and dropping humidity (not adopted).
-• Choosing station data over ERA5 was a choice (the app's own daily feed, 15 test years), not a test result.
-• "Wherever I could": the winner rule was fixed in writing before the tournament (lowest average error, average weather ahead). But the 14-day history was kept from round 1, station data was a choice, and the bug was a correction. Never say "every rung".` },
+  pointers: [
+    `Not a straight line: five tests decided it`,
+    `Week: June neural net ≈ guessing · two-stage trees 0.77, still run the week`,
+    `Year: day by day = all at once → kept the simpler · elegant design < an ordinary year`,
+    `Real winter: 69 → 45 cm → not the network, the winter → the seasonal forecast`,
+    `With it: networks beat trees by ~18 cm → more on slide 8`,
+    `Range from past winters: holds 78–84%, every month to a year`,
+    `"Wherever I could, I wrote down how I'd judge first"`],
+  facts: `Chart: docs/talk/charts/choices_sliders.png (Chartbuilder). Numbers confirmed by model-coach. Only what's in use is teal.
+1. Week: June neural net R² −0.026 vs two-stage GBR R² 0.769, 7-day, 4 test years. Say "June": a GRU set up fairly ties the CfC (slide 8).
+2. ERA5 bench, 6-horizon mean: relay 0.370 vs direct 0.366, a tie. Continuous-time decoder 0.442 vs an ordinary year's change 0.423; direct minus decoder −0.079 m [−0.109, −0.052], clear.
+3. ERA5 bench, B14, year ahead (130–365 days): no forecast 0.688 vs the real winter 0.446. At 365 days, 0.93 → 0.55. Q&A CAVEAT: in the final station run the CfC gains almost nothing from perfect weather (0.694 vs 0.673, not significant). It leans on the lake's state and the season. On that run, the GBR shows the winter effect (0.89 → 0.55).
+4. Final run, year ahead with SEAS5: GRU 0.658, CfC 0.672, GBR 0.852. CfC minus GBR −18.1 cm [−34.9, −2.0]; GRU vs CfC a tie.
+5. Past errors 61–72% (ERA5) vs past winters 78–84% (final run, all monthly horizons).
+"Wherever I could": the winner rule was fixed before the tournament. The 14-day history, station data and the bug fix were not rule-decided. Never say "every".
+The 6-month bug line is out of this slide; it could move to 11b or 12.` },
 { id: "s08", n: "8", q: "Which model won?", image: null,
   design: `A table. Columns: model | what it is | a week ahead | a year ahead, with Copernicus | a year ahead, if the winter were known.
 • Gradient boosting | "hundreds of small decision trees, each fixing the last one's mistakes" | 2.7 cm | 85 cm | 56 cm (best)
