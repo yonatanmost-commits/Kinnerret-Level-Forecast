@@ -203,7 +203,7 @@ Under both lanes: "trained on station weather, 2002–2025".`,
 The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
 { id: "s07", n: "7", q: "How did we choose it?", image: "charts/choices_sliders.png",
   design: `Five full-width sliders (Chartbuilder), a one-word title above each. The end words are one or two words; the result sits in a rounded box toward the winner; teal marks what's in use.
-Week: Neural net · [R² 0.77] → Trees
+Week: June net · [R² 0.77] → Trees
 Year: Neural net ← [36 cm better] · Trees
 Reach: Relay · [tie] · Direct
 Forecast: Average year · [2 cm better] → Copernicus
@@ -226,10 +226,10 @@ Range: Past errors · [holds 78–84%] → Past winters`,
 1. Week: June neural net R² −0.026 vs two-stage GBR R² 0.769. Say "June": the fair GRU is a different setup.
 2. Year: GRU−GBR at 365 d −35.8 cm [−66.9, −8.6], clear (to confirm).
 3. Reach, ERA5 bench, 6-horizon mean: relay 0.370 vs direct 0.366, a tie. The continuous-time decoder 0.442 was worse than an ordinary year's 0.423. (These were CfC-cell tests; say "the network", not "the liquid network".)
-4. Forecast: the GRU year ahead 0.677 → 0.658 (−1.9 cm), interval to confirm; the GBR −2.8 cm [−4.8, −0.9], clear. "Real" holds firmly for the trees.
+4. Forecast: the GRU at 365 d 0.873 → 0.851, −2.1 cm [−6.1, +1.6] (Chartbuilder, from the run files; sent to model-coach as a check); year-ahead mean 0.677 → 0.658; the GBR −2.8 cm [−4.8, −0.9], clear. "Real" holds firmly for the trees.
 5. Range: the CfC fan held 78–84%. The GRU twin is PENDING.
 "Wherever I could": the winner rule was fixed before the tournament; the history length, station data and the bug fix were not rule-decided.` },
-{ id: "s08", n: "8", q: "Which model won?", image: null,
+{ id: "s08", n: "8", q: "Which model won?", image: "charts/models_table.png",
   design: `Big table (Chartbuilder), two rows: Trees and GRU. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Winners and ties in soft teal; the trees' 121 at a year in faint grey. No small text.`,
   script: [`Two models made it to the end: the same setup, the same years, the same test.`,
 `Gradient boosting is hundreds of small decision trees, each one correcting the last. It's my old champion. The GRU is a neural network that reads the days in order and decides what to keep in mind. Yes, the same kind that failed back in June. Set up fairly, with the weather it needs, it caught up.`,
@@ -242,7 +242,7 @@ Range: Past errors · [holds 78–84%] → Past winters`,
     `Year: the network a third of a metre closer, the one clear win`,
     `Real winter: trees pull ahead, not provably`,
     `Week = trees, year = network · the name mattered less than fair comparison`],
-  facts: `Chart: docs/talk/charts/models_table.png (two-row version pending). Final run cfc_monthly (52fc2d2), station record 2011–2025, 15 test years, seasonal forecast ahead, error in cm (Trees / GRU):
+  facts: `Chart: docs/talk/charts/models_table.png, two rows; one big "cm" is the only unit. Ties: week GRU−GBR +0.2 [−0.1, +0.5], month +0.4 [−1.2, +1.9], 6 months −8.5 [−21.4, +4.0]. Final run cfc_monthly (52fc2d2), station record 2011–2025, 15 test years, seasonal forecast ahead, error in cm (Trees / GRU):
 • Week (7 d): 2.7 / 2.9, a tie. Month (30 d): 11.6 / 11.9, a tie. 6 months (182 d): 64 / 56, a tie (not clear).
 • Year (365 d): 121 / 85. GRU−GBR −35.8 cm [−66.9, −8.6], clear. The only clear verdict.
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
@@ -284,7 +284,7 @@ Click 4, the range: "said 80%, happened ~80%", the reliability bars by distance.
 `Rules like these let someone who isn't a programmer build data with AI and test ideas honestly. And honest forecasts give the people who decide more room to decide well.`],
   facts: `` },
 { id: "s13", n: "13", q: "So how far did you get?", image: null,
-  design: `The app's fan card as a screenshot, with the QR code.`,
+  design: `The app's fan card as a screenshot, with the QR code. Credits line (licence requirement, moved here from slide 5): "Copernicus Climate Change Service information, 2026".`,
   script: [
 `I promised to tell you honestly. A week: a few centimetres. A month, in summer. Next winter: a range, and how sure I am of it, updated every month when the new seasonal forecast comes out. Here it is.`,
 `What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.`,
