@@ -204,12 +204,12 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 { id: "s07", n: "7", q: "How did we choose it?", image: "charts/choices_sliders.png",
   design: `Five full-width sliders (Chartbuilder), a one-word title above each. The end words are one or two words; the result sits in a rounded box toward the winner; teal marks what's in use.
 Week: Neural net · [R² 0.77] → Trees
-Year: Networks ← [18 cm better] · Trees
+Year: Networks ← [33 cm better] · Trees
 Reach: Relay · [tie] · Direct
 Forecast: Average year · [2 cm better] → Copernicus
 Range: Past errors · [holds 78–84%] → Past winters`,
   script: [`I didn't get here in a straight line. Five tests decided it.`,
-`A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week. A year ahead, it's the other way round: the networks beat the trees by about eighteen centimetres. More on that in a moment.`,
+`A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week. A year ahead, it's the other way round: the networks beat the trees by about a third of a metre. More on that in a moment.`,
 `How to reach a year ahead? Feed the model its own forecast day after day, or forecast every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
 `Then the weather ahead. Nobody knows next winter, so the model starts from an average year. Copernicus nudges it, a little wetter or drier, a little warmer, month by month. It helped all three models a little: about two centimetres a year out. Small, but real, so it stays.`,
 `And the range: run every past winter's weather through the model, let the winters the forecast favours count more, and it holds the outcome 78 to 84 percent of the time, every month out to a year.`,
@@ -217,7 +217,7 @@ Range: Past errors · [holds 78–84%] → Past winters`,
   pointers: [
     `Not a straight line: five tests decided it`,
     `Week: June neural net ≈ guessing · trees 0.77, still run the week`,
-    `Year: the other way round, networks beat trees by ~18 cm → slide 8`,
+    `Year: the other way round, networks beat trees by ~33 cm → slide 8`,
     `Reach: relay = direct → kept the simpler · elegant design < an ordinary year`,
     `Forecast: average year + Copernicus nudge → ~2 cm better for all three → stays`,
     `Range from past winters: holds 78–84%, every month to a year`,
@@ -230,22 +230,27 @@ Range: Past errors · [holds 78–84%] → Past winters`,
 5. Past errors 61–72% (ERA5) vs past winters 78–84% (final run, all monthly horizons).
 "Wherever I could": the winner rule was fixed before the tournament. The 14-day history, station data and the bug fix were not rule-decided. Never say "every".
 The 6-month bug line is out of this slide; it could move to 11b or 12.` },
-{ id: "s08", n: "8", q: "Which model won?", image: null,
-  design: `A table. Columns: model | what it is | a week ahead | a year ahead, with Copernicus | a year ahead, if the winter were known.
-• Gradient boosting | "hundreds of small decision trees, each fixing the last one's mistakes" | 2.7 cm | 85 cm | 56 cm (best)
-• GRU | "a network that reads the days in order and chooses what to remember" | 2.9 cm | 66 cm | 65 cm
-• Liquid network (CfC) | "the same, built from units that fill and drain like the lake itself" | 3.0 cm | 67 cm | 67 cm
-The two network rows share one highlight ("tie"), with a small "shipped" tag on the CfC. The "a year ahead, with Copernicus" column is the one that's boxed.`,
+{ id: "s08", n: "8", q: "Which model won?", image: "charts/models_table.png",
+  design: `Big table (Chartbuilder): three rows, Trees / GRU / Liquid network, each with a five-word grey description. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Winners and ties in soft teal, losers faint grey: everything is teal except the trees' 121 at a year. Tags: "the app's 7-day method" under Trees·Week, "the app's fan" under Liquid·Month–Year.`,
   script: [`Three models went through that same setup, the same years and the same test.`,
 `Gradient boosting is hundreds of small decision trees, each one correcting the last. It's my old champion. The GRU is a neural network that reads the days in order and decides what to keep in mind. The liquid network is a newer kind: its units fill and drain, a bit like the lake.`,
-`A week ahead, all three land within a few millimetres of each other, about three centimetres off. A year ahead, with Copernicus, the two networks are about eighteen centimetres closer than the trees, and more than thirty at a full year. The two networks tie. Hand them the real winter, and the old champion wins. It uses the weather best, if only someone could tell it.`,
+`For a week, a month, even six months, it hardly matters: they land within a few centimetres of each other. A year out, the two networks are about a third of a metre closer than the trees. That's the one clear win on this table. Hand them the real winter, and the trees pull ahead, though not by a margin I can prove. They use the weather best, if only someone could tell them.`,
 `I ship the liquid network. Not because it's magic. Because it was best at the job we actually have: a year ahead, without knowing the winter.`],
-  facts: `Final run cfc_monthly (52fc2d2), IMS 2011–2025, 15 test years; a year ahead = mean of 130/260/365 days.
-• With SEAS5: 7 d 0.030 / 0.029 / 0.027; year ahead 0.672 / 0.658 / 0.852; 365 d 0.875 / 0.851 / 1.209 (CfC / GRU / GBR). Perfect winter, year ahead: 0.673 / 0.651 / 0.559.
-• CfC minus GBR, year ahead: −18.1 cm [−34.9, −2.0]; at 365 days −33.4 cm [−59.9, −7.9]. Both clear.
-• CfC minus GRU: +1.4 cm [−1.4, +4.2], a tie, with the GRU nominally ahead. Never say the CfC beats the GRU.
-• Week, CfC minus GBR: +0.3 cm, a tie.
-STILL OPEN: the real reason for shipping the CfC over the GRU. How the CfC works, plus the worm, is in the Q&A backup.` },
+  pointers: [
+    `Same setup, same years, same test`,
+    `Trees = many small trees, my old champion · GRU = reads days in order · Liquid = fills and drains like the lake`,
+    `Week, month, 6 months: all within a few cm, any will do`,
+    `Year: networks a third of a metre closer, the one clear win`,
+    `Real winter: trees pull ahead, not provably, they use weather best`,
+    `I ship the liquid network: best at the real job (reason TBC)`],
+  facts: `Chart: docs/talk/charts/models_table.png. Final run cfc_monthly (52fc2d2), station record 2011–2025, 15 test years, seasonal forecast ahead, error in cm (Trees / GRU / CfC):
+• Week (7 d): 2.7 / 2.9 / 3.0, a three-way tie (CfC−GBR +0.4 [0.0, +0.7]; never "the trees are better").
+• Month (30 d): 11.6 / 11.9 / 11.4, tie.
+• 6 months (182 d): 64 / 56 / 56, tie (trees 8 cm worse, not clear [−21, +3.5]).
+• Year (365 d): 121 / 85 / 88. The networks tie (CfC−GRU +2.4 [−2.3, +7.0]); both beat the trees by 33–36 cm (CfC−GBR −33.4 [−62.7, −8.3]). The ONLY clear verdict.
+• Perfect winter: the trees lean ahead (365 d 78 vs 85/86; mean 0.547 vs 0.673, +12.7 [−0.6, +27.0]), not clear. Clear: the trees gain most from it (0.88 → 0.55).
+• "the app's 7-day method": the 2.7 cm is a bench number; the app's own yardstick is R² 0.77.
+STILL OPEN: the real reason for shipping the CfC over the GRU (they tie). How the CfC works, plus the worm: Q&A backup.` },
 { id: "s09", n: "9", q: "How good are the forecasts?", image: null,
   design: `The checks, one per click, each a small chart.
 Click 1, the week: the forecast against what happened, a thin band. "about 3 cm".
@@ -259,13 +264,13 @@ Click 4, the range: "said 80%, happened ~80%", the reliability bars by distance.
 `So it doesn't give one number. It gives a range, and the range is honest: when it says eighty percent, it happens about eighty percent of the time, at every month out to a year.`],
   facts: `Week: typical error 2.6–3.0 cm; the 80% range is about 5.5 cm wide, so keep the two apart. Summer: mean 1.8 days with 15–30 days' warning, 8 crossings. Dots: 12-month track record, 15 years (Spearman 0.69). Range, final run (cfc_monthly): 80% holds 82/83/80/80/78/79% at 7/26/130/182/260/365 days; the old "73% at a year" is superseded. Overlap with slide 11b (the autumn track record): decide whether 11b stays or folds in here.` },
 { id: "s11", n: "10", q: "So which winter is coming?", image: null,
-  design: `The fan from 8 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
+  design: `The fan from 15 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
   script: [
 `I can't tell you. But I can show you what each one would do.`,
 `This is the lake, as of this autumn. Every line is one past winter, run through the model. A winter like 2018–19 lifts it about three metres by next autumn, maybe more. A winter like 2024–25 leaves it almost a metre lower than today.`,
-`Can anyone forecast the winter? The European seasonal forecast helps a little. This year it leans slightly wet, mostly early on. A weak lean. So the chance the lake is still below the red line a year from now: about three in ten. And at a year ahead, forecasts like this one have, if anything, overstated the risk a little.`,
+`Can anyone forecast the winter? The European seasonal forecast helps a little. This year it leans slightly wet, mostly early on. A weak lean. So the chance the lake is still below the red line a year from now: about one in three. And at a year ahead, forecasts like this one have, if anything, overstated the risk a little.`,
 `The professionals already think in scenarios. I just ran all of them. One more voice beside theirs, not instead of them.`],
-  facts: `Start −213.65 m. Median at 12 months −212.7, 80% range −214.2 to −209.9; 28% below −213. DEPENDS ON WHICH FILE IS LIVE AT TALK TIME: the live app says 28% ("about three in ten", most likely −212.71 m); the final run on branch fan-monthly, waiting on your push OK, says 36% ("about one in three", −212.55 m). If you push, change the line. Never say "28%" or "unlikely". No 6-month numbers until the app fix. Not refreshed after 5 Nov. Model-coach, 17 Oct: over all 15 test autumns (70 October starts, 2011–2025), the lake ended about 30 cm HIGHER than the middle forecast (+0.32/+0.38/+0.33/+0.33 m at 130/182/260/365 days), likely the 2018–20 wet winters (untested), while the 80% range still held 78–84% of the time. So the autumn red-line odds lean pessimistic: say "about", never exact. Safe line if asked: "in autumn our middle forecast has run about 30 cm low; the range still held the outcome 8 times in 10." Drop the old 21% six-month figure (it came from the interpolation bug; the real 6-month value is 11%), and never say the fan "is not biased".` },
+  facts: `LIVE ON THE APP since 17 Oct (final run, pushed): start 15 Oct, −213.68 m. 12 months: most likely −212.55 m, 36% below −213 ("about one in three"). 6 months: −212.20 m, 11%. TO CONFIRM with model-coach on this run: the 2018–19 and 2024–25 scenario levels (the spoken "about three metres" and "almost a metre lower" came from the 8 Oct dry run: −210.5 and −214.5), and the 80% range. Never say "36%" or "unlikely". Not refreshed after 5 Nov. Model-coach, 17 Oct: over all 15 test autumns (70 October starts, 2011–2025), the lake ended about 30 cm HIGHER than the middle forecast (+0.32/+0.38/+0.33/+0.33 m at 130/182/260/365 days), likely the 2018–20 wet winters (untested), while the 80% range still held 78–84% of the time. So the autumn red-line odds lean pessimistic: say "about", never exact. Safe line if asked: "in autumn our middle forecast has run about 30 cm low; the range still held the outcome 8 times in 10." Drop the old 21% six-month figure (it came from the interpolation bug; the real 6-month value is 11%), and never say the fan "is not biased".` },
 { id: "s11b", n: "11", q: "Why should we believe it?", image: null,
   design: `12 autumns, 2014–2025, one bar each: the 80% range forecast in October for a year later, with a dot for what happened. Inside = hit, hollow red outside = miss. Bars tinted by that winter's rain; 2018–19 and 2024–25 labelled. Footnote: the first three test years had no range yet.`,
   script: [
@@ -314,7 +319,7 @@ Click 4, the range: "said 80%, happened ~80%", the reliability bars by distance.
   script: [
 `My first liquid result looked brilliant, until I saw it had been given the real winter's weather. No forecast has that. Without it, it was ordinary.`,
 `So I set the rules first: same years, same test, for everyone. And I gave the neural network that came last a second chance. I'd been asking it to forecast the lake without telling it the weather. Given the same information, it caught up.`,
-`A week ahead, all three land together. A year ahead, on the station record, with no idea which winter is coming, the two networks guess better. Hand them the real winter, and my old champion wins. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.`],
+`A week ahead, all three land together. A year ahead, on the station record, with no idea which winter is coming, the two networks guess better. Hand them the real winter, and my old champion pulls ahead, though not provably. Different tools for different jobs. The name of the model mattered less than how fairly I compared them.`],
   facts: `The networks beat the champion by about 0.18 m, interval clear of zero. The two networks tie. On the older ERA5 test all three tie, so always say "on the station record".` }
 ];
 
