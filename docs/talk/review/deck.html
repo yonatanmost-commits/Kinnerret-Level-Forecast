@@ -206,12 +206,12 @@ The week ahead is the two-stage GBR (weather → Jordan inflow → volume change
 Week: Neural net · [R² 0.77] → Trees
 Year: Networks ← [18 cm better] · Trees
 Reach: Relay · [tie] · Direct
-Error: No forecast · [−24 cm] → Real winter (grey: a diagnosis)
+Forecast: Average year · [2 cm better] → Copernicus
 Range: Past errors · [holds 78–84%] → Past winters`,
   script: [`I didn't get here in a straight line. Five tests decided it.`,
 `A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week. A year ahead, it's the other way round: the networks beat the trees by about eighteen centimetres. More on that in a moment.`,
 `How to reach a year ahead? Feed the model its own forecast day after day, or forecast every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
-`Then, where does the error come from? Hand the model the real winter's weather, and the error a year out drops from 69 centimetres to 45. It wasn't the network. It was not knowing the winter. That sent me to the seasonal forecast.`,
+`Then the weather ahead. Nobody knows next winter, so the model starts from an average year. Copernicus nudges it, a little wetter or drier, a little warmer, month by month. It helped all three models a little: about two centimetres a year out. Small, but real, so it stays.`,
 `And the range: run every past winter's weather through the model, let the winters the forecast favours count more, and it holds the outcome 78 to 84 percent of the time, every month out to a year.`,
 `Wherever I could, I wrote down how I'd judge before I saw the results.`],
   pointers: [
@@ -219,13 +219,13 @@ Range: Past errors · [holds 78–84%] → Past winters`,
     `Week: June neural net ≈ guessing · trees 0.77, still run the week`,
     `Year: the other way round, networks beat trees by ~18 cm → slide 8`,
     `Reach: relay = direct → kept the simpler · elegant design < an ordinary year`,
-    `Error: real winter 69 → 45 cm → not the network, the winter → seasonal forecast`,
+    `Forecast: average year + Copernicus nudge → ~2 cm better for all three → stays`,
     `Range from past winters: holds 78–84%, every month to a year`,
     `"Wherever I could, I wrote down how I'd judge first"`],
   facts: `Chart: docs/talk/charts/choices_sliders.png (Chartbuilder). Numbers confirmed by model-coach. Only what's in use is teal.
 1. Week: June neural net R² −0.026 vs two-stage GBR R² 0.769, 7-day, 4 test years. Say "June": a GRU set up fairly ties the CfC (slide 8).
 2. ERA5 bench, 6-horizon mean: relay 0.370 vs direct 0.366, a tie. Continuous-time decoder 0.442 vs an ordinary year's change 0.423; direct minus decoder −0.079 m [−0.109, −0.052], clear.
-3. ERA5 bench, B14, year ahead (130–365 days): no forecast 0.688 vs the real winter 0.446. At 365 days, 0.93 → 0.55. Q&A CAVEAT: in the final station run the CfC gains almost nothing from perfect weather (0.694 vs 0.673, not significant). It leans on the lake's state and the season. On that run, the GBR shows the winter effect (0.89 → 0.55).
+3. (swapped out) The Error slider rested on the ERA5 test, which conflicts with the final run. Forecast slider: final run, year ahead, average year vs + SEAS5 (rain × monthly ratio, temperature + anomaly). CfC 0.694 → 0.672, −2.2 cm [−4.6, +0.2], just short of clear; GBR −2.8 cm [−4.8, −0.9], clear; GRU about −2 cm. "Real" holds firmly for the trees; for the CfC it's just short. Calibrated SEAS5 is no better than raw; the 9-system average ties.
 4. Final run, year ahead with SEAS5: GRU 0.658, CfC 0.672, GBR 0.852. CfC minus GBR −18.1 cm [−34.9, −2.0]; GRU vs CfC a tie.
 5. Past errors 61–72% (ERA5) vs past winters 78–84% (final run, all monthly horizons).
 "Wherever I could": the winner rule was fixed before the tournament. The 14-day history, station data and the bug fix were not rule-decided. Never say "every".
