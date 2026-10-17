@@ -248,12 +248,23 @@ Range: Past errors · [holds 77–84%] → Past winters`,
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test. The GRU is a standard, well-known design, and it trained in about 7 minutes against 20, so I shipped it." (Timings from the 16 Oct bench, not re-timed.)` },
-{ id: "s10c", n: "9", q: "Can anyone forecast the winter?", image: null,
-  design: `Copernicus against the real rain (Chartbuilder, pending). Winters across the bottom; season rain as % of normal up the side; a 100% "normal" line. For each winter: the October seasonal forecast with its 80% range, and what actually fell in a different colour. 2018–19 and 2024–25 highlighted: it called both.`,
-  script: [`Remember the two winters I started with? Here's every winter I could check. In colour, what Copernicus forecast each October, and how sure it was. In black, the rain that actually fell.`,
-`Most years it barely leans either way, and often it's wrong. But look at these two. It called 2018–19 wet, and 2024–25 dry.`,
+{ id: "s10c", n: "9", q: "Can anyone forecast the winter?", image: "charts/seas5_vs_rain.png",
+  design: `Copernicus against the real rain (Chartbuilder): winters 2002–03 to 2025–26 across the bottom, season rain as % of normal up the side, a dashed "normal" line. Hollow dot and grey bar: the October forecast and its own 80% range. Solid teal dot: the rain that fell. 2018–19 (green) and 2024–25 (orange) highlighted.`,
+  script: [`Remember the two winters I started with? Here's every winter since 2002. The hollow dots are what Copernicus forecast each October, with its range. The solid dots are the rain that actually fell.`,
+`See how the forecasts hug the middle, while the real winters swing from half of normal to one and a half times. Most years it barely leans, and often the wrong way. But in our two winters it leaned the right way: wet in 2018–19, dry in 2024–25. It just never guessed how dry.`,
 `That's the limit. A week ahead, the weather forecast is good, and we're within centimetres. A year ahead, the lake can only be forecast as well as the winter's rain. The rain sets the limit.`],
-  facts: `PENDING the Chartbuilder chart and numbers: which forecast issue, the 80% range source (ensemble spread or the product's calibration), the start year, and the forecast vs actual for 2018–19 and 2024–25. Log: SEAS5 issued Sept–Nov shows weak but real skill (correlation 0.30–0.46); it picked 2018–19 wet and 2024–25 dry and missed 2019–22. Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
+  pointers: [
+    `Every winter since 2002: hollow = Copernicus in October, solid = what fell`,
+    `Forecasts hug the middle · real winters swing 50% → 150%`,
+    `Our two winters: leaned the right way, wet 2018–19, dry 2024–25, never guessed how dry`,
+    `Week: within centimetres · year: only as good as the winter's rain → THE RAIN SETS THE LIMIT`],
+  facts: `Chart: docs/talk/charts/seas5_vs_rain.png; method confirmed by model-coach. October issue (the one the fan uses for an autumn start; out on the 5th). Oct–Mar season, % of each series' own normal; the actual rain is the gold table the model reads. The range is the 10th–90th percentile of the raw ensemble.
+• 2018–19: forecast 116% [79–145], fell 138%. Called wet, near the top of its range.
+• 2024–25: forecast 92% [65–122], fell 55%, BELOW its range. "Leaned dry" only; never "called it".
+• Misses: 2019–20 100→126, 2020–21 88→117, 2021–22 89→101, 2023–24 102→148.
+• Skill: rank correlation about 0.4–0.5 over 24 winters (model-coach 0.43, Chartbuilder 0.46, being reconciled): say "weak but real", no decimal.
+• Raw range honesty: the real winter fell inside Copernicus's own 80% range only about 2 winters in 3 (65–71%): overconfident. Our fan does NOT use that raw spread; it weights past winters by SEAS5 with a shrunk slope, which is why the fan's 80% holds 77–84%.
+• Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
 { id: "s11", n: "10", q: "So which winter is coming?", image: null,
   design: `The fan from 15 Oct 2026, out to 12 months: a thin grey line per past winter, the 80% band, 2018–19 and 2024–25 in colour, the red line dashed, today's dot. Stamp: "as of the October seasonal forecast".`,
   script: [
