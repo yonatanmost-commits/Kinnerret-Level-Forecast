@@ -362,3 +362,7 @@ I promised to tell you honestly. A week: a few centimetres. A month, in summer. 
 What stops us from seeing further? Partly the winter. And partly the chain: measuring, gathering, cleaning, sharing. Every link is in someone's hands, many of them in this room. And the tools I used are in everyone's hands now.
 An amateur with a laptop got this far. Imagine what all of us could see, together. Maybe not today. Maybe tomorrow.
 Thank you.
+
+### 11b. Why should we believe it? (NEW 2026-10-17, between 11 and 12) [one row of 15 autumns, 2011-2025: each year a vertical bar = the range forecast in October for the coming spring, a dot = where the lake got to; inside = hit, hollow red outside = miss; bars tinted by that winter's rain, dry to wet; 2018-19 and 2024-25 labelled]
+Here's every autumn since twenty eleven. The bar is what the forecast said in October. The dot is what the lake did by spring. Most dots land inside, in dry winters and wet ones. And these didn't: X. Record winters can still surprise it. It tells you how sure it is, and mostly, it's right about that.
+(Originator: struck "I'm an amateur, so don't take my word for it." X = the missed years, waiting on the peer's per-year autumn fans from the shipped product on the merged 1994+ gold. The said-vs-happened bins chart goes to backup. Check "three in ten" on slide 11 against the 10-30% band before it is said.)
