@@ -202,25 +202,24 @@ Under both lanes: "trained on station weather, 2002–2025".`,
 • Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
 The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
 { id: "s07", n: "7", q: "How did we choose it?", image: "charts/choices_sliders.png",
-  design: `Five sliders (Chartbuilder), one per test that decided the method. Each one: the question on top, the two options at the ends with their numbers, the knob toward the winner, today's choice in teal.
-1. Week ahead: June neural net R² ≈ 0 vs two-stage boosting R² 0.77.
-2. Reaching a year ahead: day by day 0.37 vs all at once 0.37, a tie; a small struck-out mark for continuous-time 0.44, worse than an ordinary year (0.42).
-3. Where the error comes from: an ordinary year vs the real winter, a year out.
-4. With the seasonal forecast: the networks vs boosting, a year ahead, about 18 cm.
-5. The range: past errors (held 61–72%) vs past winters weighted by the forecast (held 78–84%).`,
+  design: `Five full-width sliders (Chartbuilder), a one-word title above each. The end words are one or two words; the result sits in a rounded box toward the winner; teal marks what's in use.
+Week: Neural net · [R² 0.77] → Trees
+Year: Networks ← [18 cm better] · Trees
+Reach: Relay · [tie] · Direct
+Error: No forecast · [−24 cm] → Real winter (grey: a diagnosis)
+Range: Past errors · [holds 78–84%] → Past winters`,
   script: [`I didn't get here in a straight line. Five tests decided it.`,
-`A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week.`,
-`A year ahead: feed the model its own forecast day after day, or forecast every distance at once? No difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
+`A week ahead, my first neural network, back in June, did no better than guessing the average. The two-stage boosted trees scored 0.77, and they still run the week. A year ahead, it's the other way round: the networks beat the trees by about eighteen centimetres. More on that in a moment.`,
+`How to reach a year ahead? Feed the model its own forecast day after day, or forecast every distance at once: no difference, so I kept the simpler one. The most elegant design of all did worse than just assuming an ordinary year.`,
 `Then, where does the error come from? Hand the model the real winter's weather, and the error a year out drops from 69 centimetres to 45. It wasn't the network. It was not knowing the winter. That sent me to the seasonal forecast.`,
-`With it, the two networks beat the trees a year ahead, by about eighteen centimetres. More on that in a moment.`,
 `And the range: run every past winter's weather through the model, let the winters the forecast favours count more, and it holds the outcome 78 to 84 percent of the time, every month out to a year.`,
 `Wherever I could, I wrote down how I'd judge before I saw the results.`],
   pointers: [
     `Not a straight line: five tests decided it`,
-    `Week: June neural net ≈ guessing · two-stage trees 0.77, still run the week`,
-    `Year: day by day = all at once → kept the simpler · elegant design < an ordinary year`,
-    `Real winter: 69 → 45 cm → not the network, the winter → the seasonal forecast`,
-    `With it: networks beat trees by ~18 cm → more on slide 8`,
+    `Week: June neural net ≈ guessing · trees 0.77, still run the week`,
+    `Year: the other way round, networks beat trees by ~18 cm → slide 8`,
+    `Reach: relay = direct → kept the simpler · elegant design < an ordinary year`,
+    `Error: real winter 69 → 45 cm → not the network, the winter → seasonal forecast`,
     `Range from past winters: holds 78–84%, every month to a year`,
     `"Wherever I could, I wrote down how I'd judge first"`],
   facts: `Chart: docs/talk/charts/choices_sliders.png (Chartbuilder). Numbers confirmed by model-coach. Only what's in use is teal.
