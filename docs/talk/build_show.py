@@ -74,7 +74,8 @@ def segments() -> list[dict]:
             pauses = sum(p == "[pause]" for p in ps)
             text = " ".join(p for p in ps if p != "[pause]")
             segs.append({"id": f"s{int(s['n']):02d}_c{k}", "n": s["n"], "q": s["q"], "click": k,
-                         "clicks": len(groups), "image": img[0], "text": text, "pause": pauses * PAUSE_S})
+                         "clicks": len(groups), "image": img[0], "text": text, "pause": pauses * PAUSE_S,
+                         "title": s.get("title")})
     return segs
 
 
@@ -98,6 +99,8 @@ def narrate(standin: bool = False) -> None:
     for g in segments():
         txt, mp3 = AUDIO / f"{g['id']}.txt", AUDIO / f"{g['id']}.mp3"
         mark = mp3.with_suffix(".standin")
+        if not g["text"]:                                        # nothing to say yet
+            continue
         same = mp3.exists() and txt.exists() and txt.read_text(encoding="utf-8") == g["text"]
         if same and (standin or not mark.exists()):
             continue
@@ -207,10 +210,21 @@ def compose(grp: list[dict]) -> Path:
     return out
 
 
+TITLE_X, TITLE_Y, TITLE_PT = 45, 22, 40      # points on a 960 x 540 slide: top left, the theme's title spot
+EMPTY_S = 10.0                               # how long an empty slide stays up
+CREDIT = "Copernicus Climate Change Service information, 2026"   # its licence wants it in the deck
+
+
+def style_text(rng, pt: float, bold: bool, bgr: int) -> None:
+    rng.Font.Name = "Segoe UI Semibold" if bold else "Segoe UI Semilight"
+    rng.Font.Size = pt
+    rng.Font.Color.RGB = bgr                                     # PowerPoint colours are BGR
+
+
 def build() -> None:
     import win32com.client
     segs = segments()
-    missing = [g["id"] for g in segs if not (AUDIO / f"{g['id']}.mp3").exists()]
+    missing = [g["id"] for g in segs if g["text"] and not (AUDIO / f"{g['id']}.mp3").exists()]
     if missing:
         sys.exit(f"no narration yet for {missing}: run 'narrate' first")
     W, H = 960, 540                                              # points, 16:9
@@ -224,10 +238,19 @@ def build() -> None:
         sl = pres.Slides.Add(i, 12)                              # ppLayoutBlank
         sl.FollowMasterBackground = False
         sl.Background.Fill.ForeColor.RGB = 0xF7FAFB              # theme SURFACE #FBFAF7 as BGR
+        snd = None
         if g["image"] in VIDEOS:                                 # the animation, voice mixed in
             media = compose(grp)
             snd = sl.Shapes.AddMediaObject2(str(media), False, True, 0, 0, W, H)
             secs = duration(media) + GAP_S
+        elif not g["text"]:                                      # an empty slide for the speaker to fill
+            box = sl.Shapes.AddTextbox(1, TITLE_X, 140, W - 2 * TITLE_X, 300)
+            box.TextFrame.TextRange.Text = "Write the takeaways here"
+            style_text(box.TextFrame.TextRange, 32, False, 0x575D5F)
+            note = sl.Shapes.AddTextbox(1, TITLE_X, H - 40, W - 2 * TITLE_X, 24)
+            note.TextFrame.TextRange.Text = CREDIT
+            style_text(note.TextFrame.TextRange, 11, False, 0x575D5F)
+            secs = EMPTY_S
         else:
             img = fill(HERE / g["image"], g["id"]) if g["image"] else card(g)
             sl.Shapes.AddPicture(str(img), False, True, 0, 0, W, H)
@@ -236,7 +259,13 @@ def build() -> None:
             snd.Left, snd.Top = -100, -100                       # off the slide: the icon never shows
             snd.AnimationSettings.PlaySettings.HideWhileNotPlaying = True
             secs = duration(media) + g["pause"] + GAP_S
-        snd.AnimationSettings.PlaySettings.PlayOnEntry = True
+        if snd is not None:
+            snd.AnimationSettings.PlaySettings.PlayOnEntry = True
+        if g["title"]:                                           # the boldest, biggest thing on the slide
+            t = sl.Shapes.AddTextbox(1, TITLE_X, TITLE_Y, W - 2 * TITLE_X, 60)
+            t.TextFrame.TextRange.Text = g["title"]
+            t.TextFrame.WordWrap = False
+            style_text(t.TextFrame.TextRange, TITLE_PT, True, 0x1B1D1D)
         total += secs
         tr = sl.SlideShowTransition
         tr.EntryEffect = 3849 if g["click"] > 1 else 1793        # fade smoothly within a slide, fade between

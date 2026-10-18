@@ -141,7 +141,7 @@ const SLIDES = [
 `So where will it be a year from now? After a winter like 2018–19, almost three metres higher. After one like 2024–25, two metres lower. Five metres apart. Which winter is coming? Nobody knows yet.`,
 `And it matters right now. This autumn, algae bloomed off our southern coast and choked the desalination plants. Keeping the water flowing meant hard choices. How hard depends on that same question: can the lake carry us next year? With better forecasts, we'd know how much room we have.`],
   facts: `V3 (18 Oct, originator: "too slow, too little; hook material, not blabber"): the animation's years play 2x, the split at its own pace (about 35 s). The voice follows the picture: 2018 the island, 2020 the promenade, the 11 Nov 2026 stop below the red line, then the split. "Almost three metres higher / two lower / five apart" = the animation's own labels, 11 Nov to 11 Nov: like 2018/19 +2.82 m, like 2024/25 −2.13 m (4.95 m apart). "160 million cubic metres a metre": the bathymetric curve (Raw Data/Kinneret_Level) ends at −213.0 m, where the lake is 161.4 km², and −212.5 → −213.0 holds 80 million m³; today's level is just below the curve's end, so say "around this level". 2018–19 rose 3.47 m, the biggest since 2005–06. 2024–25 rose 0.19 m, the smallest, and was the driest (56% of normal rain). Not "the wettest": 2023–24 had more rain but fell on dry ground. Sensitive: no cause of the bloom, no plant or authority names.` },
-{ id: "s02", n: "2", q: "Hasn't anyone done this already?", image: "charts/slide2_table.png", frames: ["charts/slide2_table_1.png", "charts/slide2_table_2.png", "charts/slide2_table_3.png", "charts/slide2_table_4.png"],
+{ id: "s02", n: "2", q: "Hasn't anyone done this already?", title: "The gap", image: "charts/slide2_table.png", frames: ["charts/slide2_table_1.png", "charts/slide2_table_2.png", "charts/slide2_table_3.png", "charts/slide2_table_4.png"],
   design: `A short table, two columns: WHO (a logo) and HOW (a few words). Rows appear one per sentence:
 • Kinneret Limnological Laboratory: "a physical model of the catchment: rain → springs → Jordan"
 • Hydrological Service: "rain this winter → water next year, by statistics"
@@ -175,17 +175,17 @@ No row for us: the gap is said, not shown.`,
     `Verdict: weak human + machine + better way of working > strong human + worse one`,
     `Me: no institute, a process engineer (TTT, WFI Group) · just me and Claude Code · it's the way of working`],
   facts: `Deep Blue rematch, New York, May 1997. "Advanced chess" (Kasparov, 1998). PAL/CSS Freestyle, 2005, on Playchess.com: team "ZackS", Steven Cramton and Zackary Stephen, rated about 1685 and 1398, three PCs. The verdict paraphrases Kasparov's 2010 essay "The Chess Master and the Computer" (NYRB). Their jobs (database manager, football coach) are as widely reported. Verify before the slide is final.` },
-{ id: "s04", n: "4", q: "What did you build?", image: null,
+{ id: "s04", n: "4", q: "What did you build?", title: "The app", image: null,
   design: `The app's front page.`,
   script: [
 `It started in a data science course here at Kinneret, with my co-author, Adnan Agbaria, my lecturer during my master's. He gave us an open task, and I said: I'll forecast the Kinneret's level, one week ahead. There's a weather forecast for the week, so it seemed possible.`,
 `That's machine learning: instead of writing down the physics of the lake, you show the computer twenty years of it, and it learns how the lake answers the rain, the river and the sun.`,
 `It grew into two forecasts: the week ahead, and later, the year ahead. Both live in an app. Every morning it pulls the lake's level, the Jordan's flow and the weather, and learns again. The link comes at the end.`],
   facts: `The history page runs the final model on all years: it shows the fit, not a test. Never call it a test.` },
-{ id: "s05", n: "5", q: "What data did we use?", image: "charts/sources_timeline.png",
+{ id: "s05", n: "5", q: "What data did we use?", title: "The sources", image: "charts/sources_timeline.png",
   design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. A "test years 2011–2025" bracket, and an amber outline at 2023 on the stations bar, "2023 gauge · fixed". v5: only the four sources the models use. Light teal = used to check, not to train: Copernicus's 1993–2002 (its own track record, which sets its "normal") and the stations' Oct 1998 – July 2002 (the rain used to check Copernicus on slide 6). The stations' 1994–1998 stays grey: Tzemach's rain record starts in Feb 1998.`,
   script: [
-`None of this works without data, and none of it is mine. The lake's level, the river flowing into it, the weather that fell, and the forecasts: the week's, and the season's. Colour is what the models use. The logos are the people who measure it, day after day, and some of you are in this room. Thank you. Some of the names from the beginning are back here: they don't only forecast, they measure. I didn't replace their work. I combined it.`,
+`None of this works without data, and none of it is mine. The lake's level, the river flowing into it, the weather that fell, and the forecasts: the week's, and the season's. Colour is what the models use. The logos are the people who measure it, day after day, and some of you are in this room. Thank you. Some of the names from the beginning are back here: they don't only forecast, they measure. I didn't replace their work. I combined it. One thing I asked for and couldn't get: how much water is pumped from the lake. They said no, and I understand why.`,
 `The season's forecast comes from Copernicus, Europe's climate service. I went looking for it when I wanted to see past the coming week. We'll come back to it.`,
 `Then the data played a trick on me. Every model I tried stumbled in the same year. So I asked Claude to play an expert hydrologist and review my work, and it said: when every model fails the same way, it's the data. A rain gauge had been offline for a year, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, was the biggest single step.`],
   pointers: [
@@ -201,7 +201,7 @@ No row for us: the gap is said, not shown.`,
 • The 7-day app's weekly forecast is the IMS city forecast for Tiberias. It's not on this chart, so "forecast" here means the seasonal one.
 • Footer attribution: "Copernicus Climate Change Service information, 2026".
 • One-day score 0.69 → 0.76 with the rain fix and six others (backup slide).` },
-{ id: "s07m", n: "6", q: "What are the two models?", image: "charts/models_explained.png",
+{ id: "s07m", n: "6", q: "What are the two models?", title: "The models", image: "charts/models_explained.png",
   design: `Two halves split by a vertical line (Chartbuilder). Left: "Classic ML · GBR", a row of small decision trees joined by "+" ending in "= forecast". Right: "Deep learning · GRU", a chain of cells from day 1 to today with a memory line running through. Our own drawings; very few words.`,
   script: [
 `Now the machine. Two families of model made it to the end.`,
@@ -212,7 +212,7 @@ No row for us: the gap is said, not shown.`,
 `Left, classic ML = GBR: hundreds of small trees, yes/no questions, each fixes the last, add them up`,
 `Right, deep learning = GRU: reads the days in order, carries a memory, gates keep or forget`],
   facts: `Diagrams drawn by Chartbuilder, not taken from the web (copyright). GBR = the two-stage gradient-boosting champion (scikit-learn GradientBoostingRegressor); GRU = gated recurrent unit, 75 units, 14 days of history, direct multi-horizon head. The tree questions are illustrative examples, not the model's actual splits.` },
-{ id: "s07", n: "7", q: "How did we choose it?", image: "charts/choices_sliders.png",
+{ id: "s07", n: "7", q: "How did we choose it?", title: "The decisions", image: "charts/choices_sliders.png",
   design: `Four full-width sliders (Chartbuilder), a one-word title above each; the result in a rounded box toward the winner; teal marks what's in use. Week: GRU · [0.6 cm better] → GBR, with the week's weather known. Year: GRU ← [36 cm better] · GBR. Reach: Relay · [tie] · Direct. Forecast: Average year · [2 cm better] → Copernicus. The Range slider left on 18 Oct (it gave away slide 12's 8 in 10).`,
   script: [
 `I didn't get here in a straight line. I got here by a series of comparisons: train the model two ways, test both on years it never saw, and keep the one that fits better. Wherever I could, I wrote down how I'd judge before I saw the results.`,
@@ -232,7 +232,7 @@ Chart: docs/talk/charts/choices_sliders.png. PRODUCT SWAPPED TO THE GRU (17 Oct)
 4. Forecast: the GRU at 365 d 0.873 → 0.851, −2.1 cm [−6.1, +1.6]; year-ahead mean 0.677 → 0.658, −1.9 cm [−4.5, +0.6], not clear (model-coach); the GBR −2.8 cm [−4.8, −0.9], clear. "Real" holds firmly for the trees.
 5. Range, GRU fan: 80% held 77–84% across 17 horizons (the lowest 76.5% at 335 d; the app caption says 76–84%). "Past errors 61–72%" exists only for the CfC on the ERA5 bench: if asked, "an earlier bench".
 "Wherever I could": the winner rule was fixed before the tournament; the history length, station data and the bug fix were not rule-decided.` },
-{ id: "s10c", n: "8", q: "Can we trust the seasonal forecast?", image: "charts/seas5_track.png", frames: ["charts/seas5_track_1.png", "charts/seas5_track_2.png", "charts/seas5_track_3.png", "charts/seas5_track.png"],
+{ id: "s10c", n: "8", q: "Can we trust the seasonal forecast?", title: "The forecast", image: "charts/seas5_track.png", frames: ["charts/seas5_track_1.png", "charts/seas5_track_2.png", "charts/seas5_track_3.png", "charts/seas5_track.png"],
   design: `Seas5_track v3, built in FOUR CLICKS on one axis (chart_seas5.draw_track, seas5_track_1..4.png; labels sit where the final frame puts them, so nothing jumps). 1: hollow grey rings, Copernicus's lean per winter 2012–13 … 2026–27, around the dashed "average winter" line; this winter larger. 2: + the rain that fell, dark dots; 2018–19 and 2024–25 named. 3: + the teal dash, our forecast: the lean stretched. 4: + the rounded grey 8-in-10 bars; dots outside turn into hollow red rings; "9 of 14 inside"; a "?" on this winter's bar. Legend top right grows one line per click.`,
   script: [
 `Here's every October forecast since 2012. Copernicus forecasts its own model's rain, not our rain gauge, so we never take its millimetres. We only ask one thing: is it saying more rain than it usually does, or less? That's each grey ring. This October: about six percent more.`,
@@ -254,7 +254,7 @@ Checked by model-coach: 51 members in the live forecast (25 in the hindcasts); E
 • Copernicus's own raw 80% range held the real winter only about 2 winters in 3 (67%). Our fan doesn't use that spread; it weights past winters by SEAS5 with a shrunk slope, so the fan's 80% holds 77–84%.
 • This winter: 105% on this chart's method, 106% in the product. Say "leans slightly wet", no number.
 • Climate indices (ENSO, NAO …) can't forecast the winter (|rho| ≤ 0.33): Q&A.` },
-{ id: "s06", n: "9", q: "How does it work?", image: "charts/method_lanes.png",
+{ id: "s06", n: "9", q: "How does it work?", title: "The method", image: "charts/method_lanes.png",
   design: `Method diagram (Chartbuilder), two lanes. Top, "Week ahead · retrained every morning": weather forecast, 7 days → [trees] Jordan's flow → [trees] lake's change → level, 7 days. Bottom, "Year ahead · one run per past winter" (18 Oct, what the app's forecast actually runs): last 14 days (lake · river · weather) + weather ahead from each past winter → [GRU] → one future per winter → forecast, winters weighted by Copernicus. Footer: "trained on station data from July 2002".`,
   script: [
 `Let me put it all together, simply.`,
@@ -272,7 +272,7 @@ Checked by model-coach in code: the data refresh RETRAINS the two-stage GBR ever
 • Weather ahead: the training years' day-of-year average; rain × the SEAS5 monthly ratio, temperature + its anomaly, from the issue already out on the start day.
 • Data: the gold table from Jul 2002. Each test year is trained only on the years before it. Today's forecast uses 2002 to Oct 2026.
 The week ahead is the two-stage GBR (weather → Jordan inflow → volume change), so the river forecast IS in, for the week only. "14 days" is round 1's setting, not a tested optimum; 3 days does as well.` },
-{ id: "s08", n: "10", q: "Which model won?", image: "charts/models_table.png",
+{ id: "s08", n: "10", q: "Which model won?", title: "The errors", image: "charts/models_table.png",
   design: `Big table (Chartbuilder), two rows: GBR ("Classic ML") and GRU ("Neural network"), with a Model type column. Columns: Week, Month, 6 months, Year, the typical error in cm with the seasonal forecast ahead. Title "Prediction horizon"; "Prediction error (cm)" under the table; header "Week*" with "* weather known" bottom left. The lower error in each column in soft teal (Week: Trees; Month: both, a tie; 6 months and Year: GRU); the other cell plain black. A teal outline marks the model in use: Trees for the week, the GRU for the month, 6 months and year.`,
   script: [
 `And the result. Same years, same test, the typical miss in centimetres.`,
@@ -289,14 +289,20 @@ Chart: docs/talk/charts/models_table.png, two rows; one big "cm" is the only uni
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test, so I shipped the GRU, a standard, well-known design." Never claim the GRU trains faster: re-timed 17 Oct, 53 s vs 75 s per backtest year, but slower in the from-today run; both noisy.` },
-{ id: "s10r", n: "11", q: "Why can't you just tell us?", image: null,
-  design: `One photo, full bleed, no words: a rainbow over the lake after rain (the speaker's own photo).`,
+{ id: "s10r", n: "11", q: "Why can't you just tell us?", title: "The limiting factor", image: "charts/barrel.png",
+  design: `Liebig's barrel, no words (originator, 18 Oct: "a metaphor for limiting factors"): a wooden barrel with staves of uneven height, two of them short and amber; the water stands at the shortest stave and spills over it. Generated in Gemini from a prompt (charts/barrel.png).`,
   script: [
-`Rain. Everything in this talk comes back to it. A week ahead, we can see it coming. A whole winter ahead, nobody can say for sure, not even the best forecasting centres in the world. We sit between the sea and the desert, and a winter often comes down to a handful of storms. And as the climate changes, the past is a weaker guide every year.`,
-`To see further, it'll take more measuring, more gathering, more sharing, and better models than mine.`,
-`[pause]`],
-  facts: `Feels like a close on purpose; the next click is the fan. Evidence for "hard": Copernicus' October forecast matched the real winter's ranking only about half the time (Spearman 0.52, slide 8). Keep it general: no claim that the region is "the hardest" anywhere. Photo: the speaker's rainbow over the lake.` },
-{ id: "s11", n: "12", q: "So which winter is coming?", image: "charts/fan_today.png", frames: ["charts/fan_today_1.png", "charts/fan_today_2.png", "charts/fan_today_3.png", "charts/fan_today_4.png"],
+`Why can't I just tell you? Think of a barrel. It holds only as much water as its shortest stave. My forecast has two short staves.`,
+`The first is the rain. A week ahead, we can see it coming. A whole winter ahead, nobody can say for sure, not even the best forecasting centres in the world.`,
+`The second is the pumping: how much water we take from the lake. Someone measures it, but my model never sees it. And it's the one part of the lake that people decide. With it, a model could do more than forecast: it could test a choice, like pumping less this year. Even with perfect weather, my forecast is still about a metre off a year ahead, and some of that may be the pumping it can't see.`,
+`To see further, it'll take more measuring, more sharing, and better models than mine.`],
+  pointers: [
+`Why can't I just tell you? · a barrel holds only up to its shortest stave · mine has two`,
+`1 · Rain: a week, we see it coming · a winter, nobody can say, not even the best centres`,
+`2 · Pumping: someone measures it, the model never sees it · the one part people decide · could test "pump less" · ~1 m off even with perfect weather, some of that MAY be pumping`,
+`To see further: more measuring, more sharing, better models than mine`],
+  facts: `18 OCT (originator): the barrel replaces the rainbow photo (not found). Pumping and human use: the most critical missing data; the slide 5 line ("I asked, they said no, I understand why") sets it up; no trend claims, no numbers on pumping. "The one part people decide": dam releases are human decisions too, so it's "the part people decide", never "the only factor". "About a metre off with perfect weather": the GRU's own error given the actual weather, 12 months from an autumn start (see slide 12's facts); "some of that MAY be the pumping" is a possibility, not measured. Evidence for "hard": Copernicus' October forecast matched the real winter's ranking only about half the time (Spearman 0.52, slide 8).` },
+{ id: "s11", n: "12", q: "So which winter is coming?", title: "The horizon", image: "charts/fan_today.png", frames: ["charts/fan_today_1.png", "charts/fan_today_2.png", "charts/fan_today_3.png", "charts/fan_today_4.png"],
   design: `Fan v4, built up in FOUR CLICKS (Chartbuilder; proposal agreed by script and coach, cuts pending the originator). Shape-preserving smoothing; dots stay on the real monthly points. Stamp "forecast made 15 Oct 2026 · October seasonal forecast".
 1. Today dot + red line + a grey line per past winter.
 2. + ONE band (80%), labelled "8 in 10" on that band; the replays fade out.
@@ -304,12 +310,12 @@ Chart: docs/talk/charts/models_table.png, two rows; one big "cm" is the only uni
 4. + big "1 in 3: still below the red line, Oct 2027"; "misses: mostly up here" with an arrow above the band; the part of the band BELOW the red line turns light red (Chartbuilder's addition: at Oct 2027 about a third of the band's height sits below the line, matching the 1 in 3).
 Cut from v3: the 50% and 90% bands, the error bars (one spoken sentence instead), the average-winter line, the extra crossing dots, the on-chart 2018 callout (spoken instead).`,
   script: [
-`[1] So which winter is coming? Honestly? I don't know. Nobody does. But here's the next best thing. This dot is the lake today. Each grey line is one of those past winters, its weather handed to the model day by day, from today's lake. What if this winter is like 2018–19? Like 2015–16? A time machine that runs on old weather.`,
+`[1] So, which winter is coming? You know my answer by now. But here's the next best thing. This dot is the lake today. Each grey line is one of those past winters, its weather handed to the model day by day, from today's lake. What if this winter is like 2018–19? Like 2015–16? A time machine that runs on old weather.`,
 `[2] The model makes mistakes too, so I blur each line by the mistakes it made before. And Copernicus gets a small vote: this year it leans a little wet, so the wet winters count a bit more. That gives this band. Eight times in ten, the lake should land inside it. That's not my promise: it's what happened when I tried this every autumn since 2014.`,
 `[3] The dots are the middle of it all. If the winter goes the middle way, the lake climbs back over the red line around late February, and ends next autumn about a metre higher than today. A wet winter: almost two metres. A dry one pops over the line in March and slips back under by June.`,
 `[4] So, a year from now, about one chance in three that the lake is still under the red line. And when it said one in three before, it happened about one time in three. Call it an honest shrug, with numbers. It only knows winters it has seen: in 2018 it hadn't seen one that wet, and the lake beat its range by more than a metre. I wouldn't mind being wrong that way again. The professionals already think in scenarios. I just ran all of them.`],
   pointers: [
-`[1] Honestly? Don't know, nobody does · today's dot · grey line = one past winter's weather through the model, from today's lake · "a time machine that runs on old weather"`,
+`[1] You know my answer by now · today's dot · grey line = one past winter's weather through the model, from today's lake · "a time machine that runs on old weather"`,
 `[2] Blur each line by past mistakes · Copernicus a small vote, leans wet → wet winters count a bit more · band = 8 in 10 · not a promise, a track record since 2014`,
 `[3] Dots = the middle · over the line ~late Feb · +1 m next autumn · wet ~+2 m · dry: over in March, under by June`,
 `[4] ~1 in 3 still under · said 1 in 3, happened 1 in 3 · "an honest shrug, with numbers" · only knows winters it has seen: 2018 beat it by >1 m · wouldn't mind that miss again · scenarios: I ran all of them`],
@@ -323,21 +329,10 @@ Cut from v3: the 50% and 90% bands, the error bars (one spoken sentence instead)
 • Lopsided misses: at 12 months the lake ended above the 80% top 16% of the time, below the bottom 7%; October starts' middle ran about 40 cm low; the 90% band held 95% for October starts. The best-case edge is under-covered (exceeded 11%); the worst-case edge was undercut only 1%.
 • Only 15 of 22 winters have complete weather at 12 months; the backtest uses the same rule.
 • App: the median, bands and odds match page 10 exactly; the three groups are NEW there. Say "on the slide we group the past winters…". Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
-{ id: "s12", n: "13", q: "What do I take home?", image: "charts/takeaways_5.png", frames: ["charts/takeaways_1.png", "charts/takeaways_2.png", "charts/takeaways_3.png", "charts/takeaways_4.png", "charts/takeaways_5.png"],
-  design: `Plain text, takeaway style (originator, 18 Oct: "one line per takeaway, 2-7 words, appears per click"; chart_takeaways.py). Click 1: "Take home". Clicks 2-4: one rule each, a teal number beside it: "Decide how you'll judge, first" · "Compare with the best, and nothing" · "Wrong? Find out why. Say so." Click 5: the app's QR code top right, and the credit line (licence requirement): "Copernicus Climate Change Service information, 2026".`,
-  script: [
-`Not a model. Three rules, and anyone here can use them, with an AI at their side.`,
-`Decide how you'll judge before you see the results.`,
-`Compare against the best you have, and against doing nothing.`,
-`When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a network I nearly threw away, a winter the model had never seen.`,
-`That's the centaur's better way of working. It let someone who isn't a programmer build this, and test it honestly. And honest forecasts give the people who decide more room to decide well. An amateur with a laptop got this far. The app is on the screen. Imagine what all of us could see, together. Thank you.`],
-  pointers: [
-`Take home: not a model, three rules · anyone can use them, with an AI at their side`,
-`1 · Decide how you'll judge before the results`,
-`2 · Compare with the best you have, and with doing nothing`,
-`3 · Wrong? Find out why, say so · a rain gauge, a network nearly thrown away, a winter never seen`,
-`The centaur's way · a non-programmer built and tested it · room to decide well · an amateur with a laptop · app on screen (QR) · imagine together · thank you`],
-  facts: `The slide lines are short versions of the spoken rules; the spoken words carry the full sentences. The QR (images/qr.png) opens the live app. The Copernicus credit line is required by its licence: keep it on the last click.` },
+{ id: "s12", n: "13", q: "What do I take home?", title: "The takeaway", image: null,
+  design: `Empty for now (originator, 18 Oct: "scratch them off, an empty slide with a text box, I'll write them in when I'm ready"). The show draws the title and an empty text box, and the Copernicus credit line its licence requires: "Copernicus Climate Change Service information, 2026".`,
+  script: [],
+  facts: `Takeaways to come from the originator. Earlier drafts (not used): the three method rules (judge first, compare fairly, say when wrong); "Forecasting matters / Limited, but worth it / Gather, clean and share data / Together, we see further"; "Limited forecasts still help decide / Test fairly, show the range / Better data beats bigger models / Share the data, pumping included".` },
 { id: "bk06", n: "Q&A", flag: "backup", q: "Can you trust it?", image: null,
   design: `The short scoreboard, 0 to 1. Four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot at 0.77.`,
   script: [
