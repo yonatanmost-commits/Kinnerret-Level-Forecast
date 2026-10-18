@@ -8,11 +8,16 @@ paragraph; a slide without frames gets one PowerPoint slide narrated by all its 
 slide with no picture yet (image: null) gets a plain card with its question, marked "picture to
 come". "[n]" step markers are never read; "[pause]" becomes two seconds of silence.
 
-Narration: Gemini TTS through the TTL skill (~/.claude/skills/TTL/tts.py), one MP3 per click in
-show/audio/. A clip is only re-made when its text changed (the text sits beside it as .txt).
+Narration: one MP3 per click in show/audio/, one voice for the whole talk. Default: Microsoft's
+online neural voices (edge-tts, no key, no quota; en-US-AndrewNeural). Also: Gemini TTS through the
+TTL skill (free tier: about a dozen clips a day), or Windows' built-in voice. A clip is re-made
+when its text or its engine:voice changed (.txt and .voice beside it).
 
-Run:  python docs/talk/build_show.py narrate      # make the missing or changed MP3s
+Run:  python docs/talk/build_show.py narrate      # Edge voice: missing or changed MP3s
+      python docs/talk/build_show.py narrate edge en-GB-RyanNeural   # another voice (re-voices all)
+      python docs/talk/build_show.py narrate gemini                  # Gemini (daily quota)
       python docs/talk/build_show.py build        # -> docs/talk/Kinneret_Talk_Show.pptx (PowerPoint, COM)
+      python docs/talk/build_show.py video        # -> Kinneret_Talk.mp4 + Kinneret_Talk_narration.mp3
       python docs/talk/build_show.py text         # print the segments and word counts, no API call
 """
 from __future__ import annotations
@@ -31,7 +36,9 @@ AUDIO = SHOW / "audio"
 CARDS = SHOW / "cards"
 OUT = HERE / os.environ.get("SHOW_OUT", "Kinneret_Talk_Show.pptx")
 TTS = Path.home() / ".claude" / "skills" / "TTL" / "tts.py"
-VOICE = "Charon"
+VOICE = "Charon"                  # Gemini
+EDGE_VOICE = "en-US-AndrewNeural"  # Microsoft (originator, 18 Oct: option 1; samples in show/samples)
+EDGE_RATE = "-5%"
 STYLE = "Read this aloud as a speaker giving a calm, warm conference talk, at a natural pace:"
 VIDS = SHOW / "video"
 # An animated picture is shown as its video, with the voice mixed in: the frames of a slide that
@@ -91,30 +98,51 @@ def offline(txt: Path, mp3: Path) -> None:
     mp3.with_suffix(".standin").touch()
 
 
-def narrate(standin: bool = False) -> None:
-    """Gemini for every missing or changed clip, and for stand-ins. With standin=True, the built-in
-    voice fills whatever Gemini can't (its free tier stops after a dozen or so clips a day)."""
+def edge(txt: Path, mp3: Path, voice: str) -> None:
+    """Microsoft's online neural voices through the edge-tts package: no key, no daily quota."""
+    import asyncio
+    import edge_tts
+    for attempt in range(3):                                     # the service drops a request now and then
+        try:
+            asyncio.run(edge_tts.Communicate(txt.read_text(encoding="utf-8"), voice, rate=EDGE_RATE).save(str(mp3)))
+            return
+        except edge_tts.exceptions.NoAudioReceived:
+            if attempt == 2:
+                raise
+
+
+def gemini(txt: Path, mp3: Path, voice: str) -> None:
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    r = subprocess.run([sys.executable, str(TTS), str(txt), "-o", str(mp3), "--voice", voice,
+                        "--style", STYLE], env=env, cwd=HERE.parent.parent)
+    if r.returncode:
+        sys.exit("Gemini TTS failed (quota?): rerun later, or narrate with the edge engine")
+
+
+ENGINES = {"edge": (edge, EDGE_VOICE), "gemini": (gemini, VOICE),
+           "standin": (lambda txt, mp3, voice: offline(txt, mp3), "windows")}
+
+
+def narrate(engine: str = "edge", voice: str | None = None) -> None:
+    """One voice for the whole talk: a clip is re-made when its text changed or when it was voiced
+    by another engine or voice (the engine:voice tag sits beside it as .voice)."""
     AUDIO.mkdir(parents=True, exist_ok=True)
-    gemini = not standin
+    make, default = ENGINES[engine]
+    voice = voice or default
+    tag = f"{engine}:{voice}"
     for g in segments():
-        txt, mp3 = AUDIO / f"{g['id']}.txt", AUDIO / f"{g['id']}.mp3"
-        mark = mp3.with_suffix(".standin")
         if not g["text"]:                                        # nothing to say yet
             continue
-        same = mp3.exists() and txt.exists() and txt.read_text(encoding="utf-8") == g["text"]
-        if same and (standin or not mark.exists()):
+        txt, mp3, vt = (AUDIO / f"{g['id']}{ext}" for ext in (".txt", ".mp3", ".voice"))
+        same = (mp3.exists() and txt.exists() and txt.read_text(encoding="utf-8") == g["text"]
+                and vt.exists() and vt.read_text(encoding="utf-8") == tag)
+        if same:
             continue
         txt.write_text(g["text"], encoding="utf-8")
-        print(f"narrating {g['id']} ({len(g['text'].split())} words)", flush=True)
-        if gemini:
-            env = dict(os.environ, PYTHONIOENCODING="utf-8")
-            r = subprocess.run([sys.executable, str(TTS), str(txt), "-o", str(mp3), "--voice", VOICE,
-                                "--style", STYLE], env=env, cwd=HERE.parent.parent)
-            if r.returncode == 0:
-                mark.unlink(missing_ok=True)
-                continue
-            sys.exit("Gemini TTS failed (quota?): rerun later, or 'narrate --standin' for the built-in voice")
-        offline(txt, mp3)
+        print(f"narrating {g['id']} ({len(g['text'].split())} words, {tag})", flush=True)
+        make(txt, mp3, voice)
+        vt.write_text(tag, encoding="utf-8")
+        mp3.with_suffix(".standin").unlink(missing_ok=True)
 
 
 def duration(mp3: Path) -> float:
@@ -282,6 +310,29 @@ def build() -> None:
     print(f"saved {OUT.name}: {len(slides_)} PowerPoint slides, {total / 60:.1f} min")
 
 
+VIDEO = HERE / "Kinneret_Talk.mp4"
+NARRATION = HERE / "Kinneret_Talk_narration.mp3"
+
+
+def video() -> None:
+    """The built show as a 1080p video with PowerPoint's own renderer (timings and narration), and
+    its sound track as one MP3."""
+    import time
+    import win32com.client
+    app = win32com.client.Dispatch("PowerPoint.Application")
+    pres = app.Presentations.Open(str(OUT), ReadOnly=True, WithWindow=False)
+    pres.CreateVideo(str(VIDEO), True, 5, 1080, 30, 90)
+    while pres.CreateVideoStatus == 1:                           # ppMediaTaskStatusInProgress
+        time.sleep(5)
+    status = pres.CreateVideoStatus
+    pres.Close()
+    if status != 3:                                              # ppMediaTaskStatusDone
+        sys.exit(f"PowerPoint could not make the video (status {status})")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(VIDEO), "-vn", "-ac", "1",
+                    "-b:a", "96k", str(NARRATION)], check=True)
+    print(f"saved {VIDEO.name} and {NARRATION.name}: {duration(VIDEO) / 60:.1f} min")
+
+
 def text() -> None:
     w = 0
     for g in segments():
@@ -294,6 +345,7 @@ def text() -> None:
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "text"
     if cmd == "narrate":
-        narrate(standin="--standin" in sys.argv)
+        args = sys.argv[2:]
+        narrate(args[0] if args else "edge", args[1] if len(args) > 1 else None)
     else:
-        {"build": build, "text": text}[cmd]()
+        {"build": build, "video": video, "text": text}[cmd]()
