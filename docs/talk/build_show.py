@@ -36,13 +36,14 @@ STYLE = "Read this aloud as a speaker giving a calm, warm conference talk, at a 
 VIDS = SHOW / "video"
 # An animated picture is shown as its video, with the voice mixed in: the frames of a slide that
 # share one animation become ONE PowerPoint slide, and each paragraph starts at its beat in the
-# (played) video. Optional (speed, until): play the video that much faster up to that second.
+# (played) video; a beat ("end", t) instead ENDS that paragraph at t (never before the one ahead
+# of it is done). Optional (speed, until): play the video that much faster up to that second.
 # The lake (originator, 2026-10-18): the animation runs on to the split, and the one click is the
-# map. Its year-by-year part (to 53 s, where the lake splits) plays 1.4x so the shorter script
-# has no long silence; the split plays at its own pace. Beats on the played video: the island
-# from the start; "today it sits below the red line" ending on the 11 Nov 2026 stop (52 s / 1.4);
-# "which winter is coming?" as the lake splits (53 s / 1.4).
-VIDEOS = {"charts/lake_years.gif": ("charts/lake_years.mp4", (2.0, 29.4, 38.0), (1.4, 53.0)),
+# map. v3, "too slow, too little": its year-by-year part (to 53 s, where the lake splits) plays
+# 2x, the split at its own pace, about 35 s in all. Beats on the played video: 2018 and the
+# island from the start; "below the red line again" ending on the 11 Nov 2026 stop (52 s / 2);
+# "a year from now?" as the lake splits (53 s / 2).
+VIDEOS = {"charts/lake_years.gif": ("charts/lake_years.mp4", (1.0, ("end", 26.0), 26.6), (2.0, 53.0)),
           "charts/slide1_map.gif": ("charts/slide1_map.mp4", (0.5,), None)}
 PAUSE_S = 2.0                     # a "[pause]" in the script
 GAP_S = 0.6                       # silence after each clip before the show moves on
@@ -177,6 +178,13 @@ def compose(grp: list[dict]) -> Path:
         sys.exit(f"{video}: {len(cues)} beats for {len(clips)} paragraphs")
     VIDS.mkdir(parents=True, exist_ok=True)
     out = VIDS / f"{grp[0]['id']}.mp4"
+    starts, free = [], 0.0
+    for c, m in zip(cues, clips):
+        s = c[1] - duration(m) if isinstance(c, (tuple, list)) else c
+        s = max(s, free)
+        starts.append(s)
+        free = s + duration(m) + 0.4
+    cues = starts
     end = max(c + duration(m) for c, m in zip(cues, clips)) + 0.3
     vdur = duration(HERE / video)
     if speed:
