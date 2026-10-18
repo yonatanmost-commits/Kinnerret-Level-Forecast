@@ -185,15 +185,13 @@ No row for us: the gap is said, not shown.`,
 { id: "s05", n: "5", q: "What data did we use?", title: "The sources", image: "charts/sources_timeline.png",
   design: `Sources timeline (Chartbuilder v1). Sideways bars from 1966 to today. In colour from July 2002 (the red dashed cut): lake level (Kinneret Authority logo), River Jordan at Obstacle Bridge (Hydrological Service), weather stations "Tzemach and four more" (IMS), and the seasonal forecast, SEAS5 (Copernicus/ECMWF, coloured from 1993). Grey: the older records nobody uses. A "test years 2011–2025" bracket, and an amber outline at 2023 on the stations bar, "2023 gauge · fixed". v5: only the four sources the models use. Light teal = used to check, not to train: Copernicus's 1993–2002 (its own track record, which sets its "normal") and the stations' Oct 1998 – July 2002 (the rain used to check Copernicus on slide 6). The stations' 1994–1998 stays grey: Tzemach's rain record starts in Feb 1998.`,
   script: [
-`None of this works without data, and none of it is mine. The lake's level, the river flowing into it, the weather that fell, and the forecasts: the week's, and the season's. Colour is what the models use. The logos are the people who measure it, day after day, and some of you are in this room. Thank you. Some of the names from the beginning are back here: they don't only forecast, they measure. I didn't replace their work. I combined it. One thing I asked for and couldn't get: how much water is pumped from the lake. They said no, and I understand why.`,
-`The season's forecast comes from Copernicus, Europe's climate service. I went looking for it when I wanted to see past the coming week. We'll come back to it.`,
-`Then the data played a trick on me. Every model I tried stumbled in the same year. So I asked Claude to play an expert hydrologist and review my work, and it said: when every model fails the same way, it's the data. A rain gauge had been offline for a year, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, was the biggest single step.`],
+`None of this works without data, and none of it is mine. The lake's level, the river, the weather, and the season's forecast. The logos are the people who measure it, day after day, and some of you are in this room. Thank you. I didn't replace their work, I combined it. One thing I asked for and couldn't get: how much water is pumped from the lake. They said no, and I understand why.`,
+`The season's forecast comes from Copernicus, Europe's climate service. We'll come back to it.`,
+`Then the data played a trick on me. Every model I tried stumbled in the same year. I asked Claude to play an expert hydrologist, and it said: when every model fails the same way, it's the data. A rain gauge had been offline for a year, and every missing reading had become a zero. A whole winter, dry on paper. Fixing that, with six smaller problems, was the biggest single step.`],
   pointers: [
-`None of it is mine: level · river · weather that fell · forecasts (week, season)`,
-`Colour = what the models use · logos = who measures it · some of you are here: thank you · names from slide 2 are back: they measure too · combined, not replaced`,
-`Copernicus: found it looking past the week · we'll come back to it`,
-`Every model stumbled in the same year → Claude as hydrologist: "it's the data"`,
-`Gauge offline a year → zeros → a winter dry on paper · fixed, + 6 more = the biggest single step`],
+`None of it is mine: level · river · weather · season's forecast · logos = who measures · some of you here: thank you · combined, not replaced · pumping: asked, they said no, I understand why`,
+`Copernicus, Europe's climate service · we'll come back to it`,
+`Every model stumbled in the same year → Claude as hydrologist: "it's the data" · gauge offline a year → zeros → a winter dry on paper · fixed + 6 more = the biggest single step`],
   facts: `Chart: docs/talk/charts/sources_timeline.png, from docs/talk/chart_sources.py, dates read from committed files and checked with model-coach.
 • Cut: 2002-07-01, the first month Tzemach measures every input. Lake level record from 1966; Jordan from 1970; Tzemach from 1994; Lev Kinneret 2003; Beit Tzaida and Kfar Nachum 2012; Tiberias 2024.
 • The 2023 notch is the Lev Kinneret gauge, offline all of 2023. The final models use the corrected data: never imply they still see zeros.
@@ -289,7 +287,7 @@ Chart: docs/talk/charts/models_table.png, two rows; one big "cm" is the only uni
 • Perfect winter: the trees lean ahead, not clearly; the trees gain most from it (0.88 → 0.55).
 • The June GRU predicted one day's change with no weather for that day; the final GRU reads 14 days and is told the weather ahead (settings to confirm with model-coach).
 • Q&A only, if asked about the liquid network in the abstract: "I tried a liquid neural network too. The two tied on every test, so I shipped the GRU, a standard, well-known design." Never claim the GRU trains faster: re-timed 17 Oct, 53 s vs 75 s per backtest year, but slower in the from-today run; both noisy.` },
-{ id: "s10r", n: "11", q: "Why can't you just tell us?", title: "The limiting factor", image: "charts/degania_print.png",
+{ id: "s10r", n: "11", q: "Why can't you just tell us?", title: "The limiting factor", image: "charts/degania_full.png",
   design: `The Degania Dam under construction, as a framed print (make_print.py), with the credit under it: "Degania Dam, on the Jordan where it leaves the lake · Photo: JNF Photo Archive". Replaces Liebig's barrel (originator, 18 Oct: "instead of the barrel").`,
   script: [
 `Why can't I just tell you? Two things limit what I can see. The first is the rain. A week ahead, we see it coming. A whole winter ahead, nobody can say for sure, not even the best forecasting centres in the world.`,
