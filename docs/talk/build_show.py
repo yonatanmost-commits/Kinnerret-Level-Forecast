@@ -322,7 +322,7 @@ def video() -> None:
     app = win32com.client.Dispatch("PowerPoint.Application")
     pres = app.Presentations.Open(str(OUT), ReadOnly=True, WithWindow=False)
     pres.CreateVideo(str(VIDEO), True, 5, 1080, 30, 90)
-    while pres.CreateVideoStatus == 1:                           # ppMediaTaskStatusInProgress
+    while pres.CreateVideoStatus in (1, 2):                      # in progress, or queued
         time.sleep(5)
     status = pres.CreateVideoStatus
     pres.Close()
