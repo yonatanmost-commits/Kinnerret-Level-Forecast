@@ -63,8 +63,13 @@ def draw_full(path: Path = FULL) -> Path:
     w, h = im.size
     nh = round(w * 9 / 16)
     top = int((h - nh) * 0.35)                                   # keep the dam and the men, lose some sky
-    im = im.crop((0, top, w, top + nh)).resize((T.W, T.H), Image.LANCZOS)
-    im = im.filter(F.UnsharpMask(radius=2, percent=60, threshold=2))
+    from PIL import ImageOps
+    im = im.crop((0, top, w, top + nh)).convert("L")
+    im = ImageOps.autocontrast(im, cutoff=0.1)                   # a faded print: a touch more of the grey range
+    im = im.resize((im.width * 2, im.height * 2), Image.LANCZOS) # enlarge in two steps, sharpening between
+    im = im.filter(F.UnsharpMask(radius=1.0, percent=110, threshold=4))
+    im = im.resize((T.W, T.H), Image.LANCZOS)
+    im = im.filter(F.UnsharpMask(radius=1.6, percent=70, threshold=4)).convert("RGB")
     fade = Image.new("L", (T.W, T.H), 0)
     d = ImageDraw.Draw(fade)
     band = 300
