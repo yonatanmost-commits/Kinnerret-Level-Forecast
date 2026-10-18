@@ -323,16 +323,21 @@ Cut from v3: the 50% and 90% bands, the error bars (one spoken sentence instead)
 • Lopsided misses: at 12 months the lake ended above the 80% top 16% of the time, below the bottom 7%; October starts' middle ran about 40 cm low; the 90% band held 95% for October starts. The best-case edge is under-covered (exceeded 11%); the worst-case edge was undercut only 1%.
 • Only 15 of 22 winters have complete weather at 12 months; the backtest uses the same rule.
 • App: the median, bands and odds match page 10 exactly; the three groups are NEW there. Say "on the slide we group the past winters…". Never say "33%" or "unlikely". Not refreshed after 5 Nov.` },
-{ id: "s12", n: "13", q: "What do I take home?", image: null,
-  design: `Three icons, no words: a sealed envelope, a balance scale, a magnifying glass. Last click: the app's QR code, and the credit line (licence requirement): "Copernicus Climate Change Service information, 2026".`,
+{ id: "s12", n: "13", q: "What do I take home?", image: "charts/takeaways_5.png", frames: ["charts/takeaways_1.png", "charts/takeaways_2.png", "charts/takeaways_3.png", "charts/takeaways_4.png", "charts/takeaways_5.png"],
+  design: `Plain text, takeaway style (originator, 18 Oct: "one line per takeaway, 2-7 words, appears per click"; chart_takeaways.py). Click 1: "Take home". Clicks 2-4: one rule each, a teal number beside it: "Decide how you'll judge, first" · "Compare with the best, and nothing" · "Wrong? Find out why. Say so." Click 5: the app's QR code top right, and the credit line (licence requirement): "Copernicus Climate Change Service information, 2026".`,
   script: [
 `Not a model. Three rules, and anyone here can use them, with an AI at their side.`,
 `Decide how you'll judge before you see the results.`,
 `Compare against the best you have, and against doing nothing.`,
 `When you're wrong, find out why, and say so. I was, more than once: a rain gauge, a network I nearly threw away, a winter the model had never seen.`,
-`That's the centaur's better way of working. It let someone who isn't a programmer build this, and test it honestly. And honest forecasts give the people who decide more room to decide well.`,
-`An amateur with a laptop got this far. The app is on the screen. Imagine what all of us could see, together. Thank you.`],
-  facts: `` },
+`That's the centaur's better way of working. It let someone who isn't a programmer build this, and test it honestly. And honest forecasts give the people who decide more room to decide well. An amateur with a laptop got this far. The app is on the screen. Imagine what all of us could see, together. Thank you.`],
+  pointers: [
+`Take home: not a model, three rules · anyone can use them, with an AI at their side`,
+`1 · Decide how you'll judge before the results`,
+`2 · Compare with the best you have, and with doing nothing`,
+`3 · Wrong? Find out why, say so · a rain gauge, a network nearly thrown away, a winter never seen`,
+`The centaur's way · a non-programmer built and tested it · room to decide well · an amateur with a laptop · app on screen (QR) · imagine together · thank you`],
+  facts: `The slide lines are short versions of the spoken rules; the spoken words carry the full sentences. The QR (images/qr.png) opens the live app. The Copernicus credit line is required by its licence: keep it on the last click.` },
 { id: "bk06", n: "Q&A", flag: "backup", q: "Can you trust it?", image: null,
   design: `The short scoreboard, 0 to 1. Four dots: first model 0.69; grey dots for the fancy models, the neural network below zero; the jump to 0.76 with a rain-gauge icon; today's dot at 0.77.`,
   script: [
