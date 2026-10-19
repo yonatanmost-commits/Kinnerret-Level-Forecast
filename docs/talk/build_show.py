@@ -79,7 +79,7 @@ def segments() -> list[dict]:
             groups = [([s.get("image")], paras)]
         for k, (img, ps) in enumerate(groups, 1):
             pauses = sum(p == "[pause]" for p in ps)
-            text = " ".join(p for p in ps if p != "[pause]")
+            text = "\n\n".join(p for p in ps if p != "[pause]")   # paragraphs stay paragraphs in the notes
             segs.append({"id": f"s{int(s['n']):02d}_c{k}", "n": s["n"], "q": s["q"], "click": k,
                          "clicks": len(groups), "image": img[0], "text": text, "pause": pauses * PAUSE_S,
                          "title": s.get("title")})
@@ -239,8 +239,6 @@ def compose(grp: list[dict]) -> Path:
 
 
 TITLE_X, TITLE_Y, TITLE_PT = 45, 22, 40      # points on a 960 x 540 slide: top left, the theme's title spot
-EMPTY_S = 10.0                               # how long an empty slide stays up
-CREDIT = "Copernicus Climate Change Service information, 2026"   # its licence wants it in the deck
 
 
 def style_text(rng, pt: float, bold: bool, bgr: int) -> None:
@@ -271,14 +269,6 @@ def build() -> None:
             media = compose(grp)
             snd = sl.Shapes.AddMediaObject2(str(media), False, True, 0, 0, W, H)
             secs = duration(media) + GAP_S
-        elif not g["text"]:                                      # an empty slide for the speaker to fill
-            box = sl.Shapes.AddTextbox(1, TITLE_X, 140, W - 2 * TITLE_X, 300)
-            box.TextFrame.TextRange.Text = "Write the takeaways here"
-            style_text(box.TextFrame.TextRange, 32, False, 0x575D5F)
-            note = sl.Shapes.AddTextbox(1, TITLE_X, H - 40, W - 2 * TITLE_X, 24)
-            note.TextFrame.TextRange.Text = CREDIT
-            style_text(note.TextFrame.TextRange, 11, False, 0x575D5F)
-            secs = EMPTY_S
         else:
             img = fill(HERE / g["image"], g["id"]) if g["image"] else card(g)
             sl.Shapes.AddPicture(str(img), False, True, 0, 0, W, H)

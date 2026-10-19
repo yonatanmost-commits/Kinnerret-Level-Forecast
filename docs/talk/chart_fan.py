@@ -38,6 +38,8 @@ FAN11_META = HERE / "data" / "slide11_fan_meta.json"   # (built by data/slide11_
 FAN11_DOTS = HERE / "data" / "slide11_dots.csv"         # monthly most-likely dots + model error bars
 FAN11_CROSS = HERE / "data" / "slide11_crossings.json"  # red-line crossing dates (interpolated)
 RED_LINE = -213.0
+QR = HERE / "images" / "qr.png"                         # the live app (make_images.py)
+CREDIT = "Copernicus Climate Change Service information, 2026"   # its licence wants it in the deck
 NAMED = {2018: ("2018–19", T.GOOD), 2024: ("2024–25", T.BAD)}       # the lake animation's colours
 
 
@@ -253,8 +255,16 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     ax.set_yticks([-215, -214, -213, -212, -211, -210, -209])
     ax.set_yticklabels([f"−{abs(v)} m" for v in (-215, -214, -213, -212, -211, -210, -209)])
     style(ax)
-    fig.text(0.95, 0.90, "forecast made 15 Oct 2026  ·  October seasonal forecast", ha="right", va="center",
-             color=T.INK_2, fontproperties=T.font(False, 28))
+    fig.text(0.95, 0.90, "example run  ·  from the lake on 15 Oct 2026  ·  October seasonal forecast", ha="right",
+             va="center", color=T.INK_2, fontproperties=T.font(False, 28))
+    if frame >= 4:                                               # the last frame of the talk (the takeaway slide is gone)
+        from PIL import Image
+        qr = fig.add_axes([0.865, 0.615, 0.085, 0.085 * T.W / T.H])   # top right, clear of the band and labels
+        qr.imshow(Image.open(QR))
+        qr.axis("off")
+        fig.text(0.9075, 0.605, "Between Flood\n& Drought", ha="center", va="top", color=T.INK,
+                 fontproperties=T.font(True, 19), linespacing=1.1)
+        fig.text(0.10, 0.03, CREDIT, ha="left", va="center", color=T.INK_2, fontproperties=T.font(False, 20))
     return save(fig, path)
 
 
