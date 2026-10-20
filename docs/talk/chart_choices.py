@@ -83,10 +83,12 @@ def draw_slider(ax, s: Slider) -> None:
 
 def draw(path: Path = OUT) -> Path:
     fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
-    top, bottom = 0.86, 0.04                                   # leave the top band for the question
+    # between the title rule and the bottom rule (originator, 20 Oct: "space it"), on the margins
+    top, bottom = 1 - (T.TITLE_BAND + 25) / T.H, 1 - (T.BOTTOM_RULE["y"] - 40) / T.H
     h = (top - bottom) / len(SLIDERS)
+    m = T.MARGIN_X / T.W
     for i, s in enumerate(SLIDERS):
-        ax = fig.add_axes([0.05, top - (i + 1) * h, 0.90, h * 0.95])
+        ax = fig.add_axes([m, top - (i + 1) * h, 1 - 2 * m, h * 0.92])
         draw_slider(ax, s)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)

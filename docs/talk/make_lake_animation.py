@@ -46,10 +46,12 @@ from app_utils import (LEVEL_LEGAL_MAX, LEVEL_LEGAL_MIN, LEVEL_MAX, LEVEL_MIN,  
 OUT = HERE / "charts" / "lake_years.mp4"
 NARRATED = HERE / "charts" / "lake_years_narrated.mp4"
 W, H, FPS, SS = 1920, 1080, 60, 2             # SS: drawn at twice the size, then scaled down
-SURFACE, INK, INK_2, FAINT = "#FBFAF7", "#1D1D1B", "#5F5D57", "#B9B5AB"
-EMPTY_BASIN, OUTLINE, SURFACE_LINE = "#E6E1D6", "#2BD9C4", "#1BA898"
-SPILL, RED = "#4C9A4F", "#D2542F"             # upper and lower red lines, sober enough to name
-BEST, WORST = "#1F8A70", "#C2410C"            # the two 2027 scenario lakes
+sys.path.insert(0, str(HERE))
+import theme as T                             # noqa: E402  the deck's colours, one place
+SURFACE, INK, INK_2, FAINT = T.SURFACE, T.INK, T.INK_2, T.FAINT
+EMPTY_BASIN, OUTLINE, SURFACE_LINE = T.UNUSED, T.USED, T.USED
+SPILL, RED = T.SPILL, T.RED                   # upper and lower red lines
+BEST, WORST = T.USED_TEXT, T.RED              # the two 2027 scenario lakes
 FONT = "C:/Windows/Fonts/"
 
 # The lake in SVG user units: the viewBox we render, and build_lake_svg's level -> y mapping
@@ -59,11 +61,11 @@ LAKE_TOP_Y, LAKE_BOTTOM_Y = 73.50, 194.85
 LINE_X1, LINE_X2 = 52, 141                    # dashed lines span the lake body
 
 # Where the lake sits: one centred lake, then two smaller ones (left = best, right = worst)
-SCALE_1, TOP_1 = 4.4, 110                     # px per unit -> lake ~ 880 px tall
-SCALE_2, TOP_2 = 3.3, 150
+SCALE_1, TOP_1 = 3.5, 285                     # px per unit -> lake ~ 700 px tall, its gauge under the subtitle
+SCALE_2, TOP_2 = 3.0, 250
 CX_1, CX_LEFT, CX_RIGHT = W / 2, W * 0.26, W * 0.74
 LABEL_GAP = 20                                # label column starts this far right of the lake
-GAUGE_X = 630                                 # the level staff's line
+GAUGE_X = 700                                 # the level staff's line
 GAUGE_FROM, GAUGE_TO = -215, -208             # one tick per metre
 
 FIRST_YEAR = 2018
@@ -276,7 +278,7 @@ def render(body: str, scale: float) -> Image.Image:
     import resvg_py
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{VB_X} {VB_Y} {VB_W} {VB_H}">'
            f'<defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">'
-           f'<stop offset="0%" stop-color="#67F2DE"/><stop offset="100%" stop-color="#0B6E6B"/>'
+           f'<stop offset="0%" stop-color="{T.USED_LIGHT}"/><stop offset="100%" stop-color="{T.USED_DEEP}"/>'
            f'</linearGradient></defs>{body}</svg>')
     png = resvg_py.svg_to_bytes(svg_string=svg, width=round(VB_W * scale * SS))
     return Image.open(BytesIO(bytes(png))).convert("RGBA")
@@ -297,14 +299,14 @@ def _context(S: list[dict], info: dict) -> dict:
                                    f'stroke-width="0.8"/>', scale))
         f = lambda name, size: ImageFont.truetype(FONT + name, round(s(size)))  # noqa: E731
         _CTX.update(S=S, info=info, layers=layers, F={
-            "title": f("seguisb.ttf", 40), "sub": f("segoeuisl.ttf", 28),
-            "month": f("seguisb.ttf", 28), "year": f("seguisb.ttf", 96),
-            "date": f("segoeuisl.ttf", 30), "val": f("segoeuisl.ttf", 34),
-            "val_b": f("seguisb.ttf", 40), "note": f("segoeuisl.ttf", 24),
-            "tick": f("segoeuisl.ttf", 26), "line": f("segoeuisl.ttf", 22),
-            "foot": f("segoeuisl.ttf", 22), "q": f("seguisb.ttf", 260),
-            "q_date": f("seguisb.ttf", 60), "scen": f("seguisb.ttf", 72),
-            "scen_note": f("segoeuisl.ttf", 28)})
+            # the deck's type scale (originator, 20 Oct): the title is the show's own; px at 1920
+            "sub": f("segoeuisl.ttf", T.SUBTITLE_PT * T.DPI / 72),
+            "date": f("segoeuisl.ttf", 34), "val": f("segoeuisl.ttf", 36),
+            "val_b": f("seguisb.ttf", 40), "note": f("segoeuisl.ttf", 30),
+            "tick": f("segoeuisl.ttf", 30), "line": f("segoeuisl.ttf", 30),
+            "foot": f("segoeuisl.ttf", T.CREDIT_PT * T.DPI / 72), "q": f("seguisb.ttf", 260),
+            "q_date": f("seguisb.ttf", 60), "scen": f("seguisb.ttf", 56),
+            "scen_note": f("segoeuisl.ttf", 40)})
     return _CTX
 
 
@@ -359,11 +361,9 @@ def draw_lake(img: Image.Image, layers, at: Place, water_level: float, base_scal
 
 
 def frame_chrome(d, F, a: float) -> None:
-    """Title and source: the same on every frame."""
-    text(d, (90, 60), "Lake Kinneret", F["title"], _rgba(INK, a))
-    text(d, (90, 112), "Level on 11 November, each year", F["sub"], _rgba(INK_2, a))
-    text(d, (90, H - 56), "Level: Kinneret Authority, kineret.org.il",
-         F["foot"], _rgba(INK_2, a))
+    """Subtitle and source, the same on every frame (the title "Lake Kinneret" is the show's)."""
+    text(d, T.SUBTITLE_XY, "Level on 11 November, each year", F["sub"], _rgba(INK_2, a))
+    text(d, T.CREDIT_XY, "Level: Kinneret Authority, kineret.org.il", F["foot"], _rgba(INK_2, a), "ls")
 
 
 def gauge(d, F, at: Place, a: float) -> None:
@@ -375,9 +375,9 @@ def gauge(d, F, at: Place, a: float) -> None:
         y = at.y(v, clamp=False)
         d.line([(s(GAUGE_X - 12), s(y)), (s(GAUGE_X), s(y))], fill=_rgba(FAINT, a),
                width=round(s(2)))
-        text(d, (GAUGE_X - 22, y), f"{v:.0f}".replace("-", "\u2212"), F["tick"],
+        unit = " m" if v == ticks[-1] else ""                  # the unit on the top value
+        text(d, (GAUGE_X - 22, y), f"{v:.0f}{unit}".replace("-", "\u2212"), F["tick"],
              _rgba(INK_2, a), "rm")
-    text(d, (GAUGE_X - 22, y0 - 40), "m", F["tick"], _rgba(INK_2, a), "rm")
     for lvl, col, name in ((LEVEL_LEGAL_MAX, SPILL, "upper red line"),
                            (LEVEL_LEGAL_MIN, RED, "lower red line")):
         y = at.y(lvl)
@@ -403,7 +403,6 @@ def draw_years(f: Frame, C: dict) -> Image.Image:
         draw_lake(img, C["layers"]["home"], p, f.level, SCALE_1)
     frame_chrome(d, F, 1.0)
     gauge(d, F, places[0], fade)
-    clock(d, F, f, fade)
     at = places[0]
     x_end = at.x(VB_X + VB_W) + 6
     for k, alpha in f.shown:
@@ -443,7 +442,7 @@ def draw_split(f: Frame, C: dict) -> Image.Image:
             base = TOP_2 + VB_H * SCALE_2 + 34
             text(d, (at.cx, base), f"like {year - 1}/{str(year)[2:]}", F["scen"],
                  _rgba(color, f.label_a), "mm")
-            text(d, (at.cx, base + 62), f"{dl:+.2f} m in a year".replace("-", "\u2212"),
+            text(d, (at.cx, base + 64), f"{dl:+.2f} m in a year".replace("-", "\u2212"),
                  F["scen_note"], _rgba(INK_2, f.label_a), "mm")
     frame_chrome(d, F, 1.0)
     text(d, (W / 2, H * 0.64), "11.11.2027", F["q_date"], _rgba(INK), "mm")

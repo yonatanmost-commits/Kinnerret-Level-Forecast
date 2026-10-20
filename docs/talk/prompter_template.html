@@ -1,0 +1,325 @@
+<title>Kinneret Talk Prompter</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: a dark prompting stage (the convention for reading off a screen) in the deck's own
+   colours and face; slide-by-slide practice by default, a full-run scroll as the second mode. */
+:root {
+  --stage: #141B1A; --panel: #1C2523; --line: #2C3835;
+  --ink: #F2EFE8; --ink-2: #A9B3AE; --ink-3: #6F7B76;
+  --teal: #1BA898; --teal-soft: #1BA89833; --red: #E0592A; --amber: #D69A3A; --good: #4CC3A6;
+  --face: "Segoe UI", "Segoe UI Variable", system-ui, sans-serif;
+  --size: 34px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--stage); color: var(--ink); font-family: var(--face); }
+button, select { font: inherit; color: inherit; }
+button { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--ink-3); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+button.on { background: var(--teal-soft); border-color: var(--teal); }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--stage); border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--stage); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding-block: 10px; }
+.brand { font-weight: 600; letter-spacing: .02em; margin-right: auto; }
+.brand small { color: var(--ink-3); font-weight: 400; margin-left: 6px; }
+.group { display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding-block: 0 10px; }
+.chip { min-width: 40px; padding: 4px 8px; font-variant-numeric: tabular-nums; font-size: 14px; position: relative; }
+.chip .done { position: absolute; right: 3px; top: 1px; width: 6px; height: 6px; border-radius: 50%; background: var(--teal); }
+
+/* slide mode */
+main.slide { max-width: 1180px; margin: 0 auto; padding-block: 22px 140px; }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-bottom: 18px; }
+.head h1 { margin: 0; font-size: 34px; font-weight: 600; text-wrap: balance; }
+.head .q { color: var(--ink-2); font-size: 18px; }
+.head .target { margin-left: auto; color: var(--ink-2); font-size: 15px; font-variant-numeric: tabular-nums; }
+.step { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 22px; padding-block: 16px; border-top: 1px solid var(--line); }
+.step img { width: 100%; border-radius: 4px; display: block; }
+.step .click { color: var(--teal); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin-top: 8px; }
+.step .click span { color: var(--ink-3); text-transform: none; letter-spacing: 0; margin-left: 6px; }
+.text { font-size: var(--size); line-height: 1.45; max-width: 34em; }
+.text p { margin: 0 0 .6em; }
+.text .brk { display: inline-block; color: var(--amber); font-size: .5em; letter-spacing: .1em; text-transform: uppercase; vertical-align: middle; border: 1px solid var(--amber); border-radius: 4px; padding: 1px 6px; margin: 0 4px; }
+.cue { font-size: calc(var(--size) * .8); line-height: 1.4; color: var(--ink); }
+.cue li { margin-bottom: .4em; }
+
+/* recorder + feedback */
+.dock { position: fixed; left: 0; right: 0; bottom: 0; background: linear-gradient(transparent, var(--stage) 30%); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.dock .bar { justify-content: center; padding-block: 26px 16px; }
+.rec { font-size: 18px; padding: 12px 26px; border-radius: 999px; border-color: var(--red); display: flex; align-items: center; gap: 10px; }
+.rec .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--red); }
+.rec.live { background: #E0592A26; }
+.rec.live .dot { animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .rec.live .dot { animation: none; } }
+.clock { font-variant-numeric: tabular-nums; font-size: 22px; min-width: 130px; text-align: center; }
+.clock small { color: var(--ink-3); font-size: 15px; }
+.note { color: var(--ink-3); font-size: 14px; }
+
+.feedback { margin-top: 26px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; display: grid; gap: 14px; }
+.feedback h2 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.stat { border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.stat b { display: block; font-size: 20px; font-weight: 600; }
+.stat.ok { border-color: var(--good); } .stat.warn { border-color: var(--amber); }
+.praise { font-size: 19px; line-height: 1.5; color: var(--ink); }
+.tips { margin: 0; padding-left: 1.2em; font-size: 17px; line-height: 1.5; display: grid; gap: 6px; }
+.keep { color: var(--teal); font-size: 17px; }
+.small { color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+.small b { color: var(--ink); font-weight: 600; }
+.history { color: var(--ink-2); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+/* run mode: the classic scroll */
+main.run { position: relative; }
+.stage { height: calc(100vh - 120px); overflow: hidden; position: relative; }
+.reel { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+.reel .inner { max-width: 1100px; margin: 0 auto; padding-block: 40vh 70vh; font-size: calc(var(--size) * 1.35); line-height: 1.5; }
+.reel h3 { font-size: .55em; color: var(--teal); letter-spacing: .06em; text-transform: uppercase; margin: 1.6em 0 .6em; font-weight: 600; }
+.reel .clickmark { display: block; color: var(--ink-3); font-size: .45em; letter-spacing: .1em; text-transform: uppercase; margin: .6em 0 .2em; }
+.readline { position: absolute; left: 0; right: 0; top: 35%; height: 0; border-top: 2px solid var(--teal); opacity: .55; pointer-events: none; }
+.readline::before { content: ""; position: absolute; left: 8px; top: -9px; border: 8px solid transparent; border-left-color: var(--teal); }
+.mirror .reel { transform-origin: center; }
+.mirror .reel .inner { transform: scaleX(-1); }
+
+@media (max-width: 700px) {
+  .step { grid-template-columns: minmax(0, 1fr); }
+  .step img { max-width: 320px; }
+  :root { --size: 24px; }
+}
+</style>
+
+<header class="wrap">
+  <div class="bar">
+    <div class="brand">Kinneret talk <small id="sub">practice</small></div>
+    <div class="group"><button id="m-slide" class="on">By slide</button><button id="m-run">Full run</button></div>
+    <div class="group"><button id="cue" title="Show the key points instead of the full script">Cue cards</button></div>
+    <div class="group">Text <button id="sz-" aria-label="Smaller text">A−</button><button id="sz+" aria-label="Bigger text">A+</button></div>
+    <div class="group" id="run-ctl" hidden>Pace <button id="w-" aria-label="Slower">−</button><span id="wpm">130</span> wpm<button id="w+" aria-label="Faster">+</button><button id="mir">Mirror</button></div>
+  </div>
+  <div class="chips" id="chips"></div>
+</header>
+
+<main id="main" class="wrap slide"></main>
+
+<div class="dock wrap" id="dock">
+  <div class="bar">
+    <button class="rec" id="rec" hidden><span class="dot"></span><span id="rec-label">Record this slide</span></button>
+    <button id="play" hidden>Play</button>
+    <div class="clock" id="clock"></div>
+    <div class="note" id="note"></div>
+  </div>
+</div>
+
+<script>
+const TALK = /*__TALK__*/[];
+const $ = (id) => document.getElementById(id);
+const fmt = (s) => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+const words = (t) => (t.match(/[A-Za-z0-9']+/g) || []).length;
+const esc = (t) => t.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("kp-" + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("kp-" + k, JSON.stringify(v)); } catch {} },
+};
+const S = {
+  mode: "slide", i: store.get("slide", 0), cue: false, size: store.get("size", 34), wpm: store.get("wpm", 130),
+  mirror: false, coach: false, history: {}, rec: null, recStart: 0, last: {}, playing: false, y: 0,
+};
+S.i = Math.min(Math.max(0, S.i), TALK.length - 1);
+
+function applySize() { document.documentElement.style.setProperty("--size", S.size + "px"); store.set("size", S.size); }
+
+function paragraphHTML(text) {
+  return text.split(/\n\n+/).map((p) => "<p>" + esc(p).replace(/\[pause\]/g, '<span class="brk">pause</span>') + "</p>").join("");
+}
+
+function chips() {
+  $("chips").innerHTML = TALK.map((s, k) => {
+    const done = (S.history[s.n] || []).length ? '<span class="done" title="practised"></span>' : "";
+    return `<button class="chip${S.mode === "slide" && k === S.i ? " on" : ""}" data-k="${k}" title="${esc(s.title || s.q)}">${s.n}${done}</button>`;
+  }).join("");
+  $("chips").querySelectorAll(".chip").forEach((b) => b.onclick = () => goSlide(+b.dataset.k));
+}
+
+function historyLine(n) {
+  const h = S.history[n] || [];
+  if (!h.length) return "";
+  const t = h.slice(-6).map((x) => fmt(x.seconds)).join(" → ");
+  return `<div class="history">Your takes: ${t}</div>`;
+}
+
+function renderSlide() {
+  const s = TALK[S.i];
+  const target = s.clicks.reduce((a, c) => a + c.secs, 0);
+  const body = S.cue
+    ? `<div class="step"><img src="${s.clicks[0].thumb}" alt="Slide ${s.n}"><ul class="cue">${s.pointers.map((p) => "<li>" + esc(p) + "</li>").join("")}</ul></div>`
+    : s.clicks.map((c, k) => `<div class="step"><div><img src="${c.thumb}" alt="Slide ${s.n}, click ${k + 1}">
+        <div class="click">Click ${k + 1} of ${s.clicks.length}<span>${fmt(c.secs)}</span></div></div>
+        <div class="text">${paragraphHTML(c.text)}</div></div>`).join("");
+  $("main").className = "wrap slide";
+  $("main").innerHTML = `<div class="head"><h1>${s.n} · ${esc(s.title || "Opening")}</h1><span class="q">${esc(s.q)}</span>
+      <span class="target">${words(s.clicks.map((c) => c.text).join(" "))} words · about ${fmt(target)} at the narrated pace</span></div>
+      ${body}${historyLine(s.n)}<div id="fb">${S.last[s.n] || ""}</div>`;
+  $("clock").innerHTML = `0:00 <small>/ ${fmt(target)}</small>`;
+  $("rec-label").textContent = "Record this slide";
+  store.set("slide", S.i);
+  chips();
+}
+
+/* ---------- full run ---------- */
+let reelH = 0, totalWords = 0, raf = 0, lastT = 0, runStart = 0, runElapsed = 0;
+function renderRun() {
+  $("main").className = "run" + (S.mirror ? " mirror" : "");
+  const html = TALK.map((s) => `<h3>${s.n} · ${esc(s.title || "Opening")}</h3>` + s.clicks.map((c, k) =>
+    (s.clicks.length > 1 ? `<span class="clickmark">click ${k + 1}</span>` : "") + paragraphHTML(c.text)).join("")).join("");
+  $("main").innerHTML = `<div class="stage" id="stage"><div class="reel" id="reel"><div class="inner wrap">${html}</div></div><div class="readline"></div></div>`;
+  totalWords = TALK.reduce((a, s) => a + s.clicks.reduce((b, c) => b + words(c.text), 0), 0);
+  requestAnimationFrame(() => { reelH = $("reel").scrollHeight; setY(S.y); });
+  chips();
+}
+function setY(y) {
+  const stage = $("stage"); if (!stage) return;
+  const max = reelH - stage.clientHeight * 0.75;
+  S.y = Math.max(0, Math.min(y, max));
+  $("reel").style.transform = `translateY(${-S.y}px)`;
+  const total = TALK.reduce((a, s) => a + s.clicks.reduce((b, c) => b + c.secs, 0), 0);
+  const frac = max > 0 ? S.y / max : 0;
+  $("clock").innerHTML = `${fmt(runElapsed)} <small>/ ${fmt(total * frac)} narrated</small>`;
+}
+function tick(t) {
+  if (!S.playing) return;
+  const dt = lastT ? (t - lastT) / 1000 : 0; lastT = t;
+  runElapsed += dt;
+  const pxPerWord = (reelH * 0.62) / totalWords;          // the text block is about 62% of the reel
+  setY(S.y + dt * (S.wpm / 60) * pxPerWord);
+  raf = requestAnimationFrame(tick);
+}
+function play(on) {
+  S.playing = on; $("play").textContent = on ? "Pause" : "Play"; lastT = 0;
+  if (on) raf = requestAnimationFrame(tick); else cancelAnimationFrame(raf);
+}
+
+/* ---------- recording + coach ---------- */
+async function startRec() {
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch { $("note").textContent = "The microphone is blocked. Allow it for localhost in the browser's site settings."; return; }
+  const chunks = [];
+  const mr = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+  mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+  mr.onstop = () => { stream.getTracks().forEach((t) => t.stop()); send(new Blob(chunks, { type: "audio/webm" })); };
+  mr.start(1000);
+  S.rec = mr; S.recStart = performance.now();
+  $("rec").classList.add("live"); $("rec-label").textContent = "Stop";
+  $("note").textContent = S.mode === "run" ? "Recording the whole run" : "Recording. Take your time.";
+  if (S.mode === "run") { runElapsed = 0; play(true); }
+  recClock();
+}
+function recClock() {
+  if (!S.rec) return;
+  const el = (performance.now() - S.recStart) / 1000;
+  if (S.mode === "slide") {
+    const target = TALK[S.i].clicks.reduce((a, c) => a + c.secs, 0);
+    $("clock").innerHTML = `${fmt(el)} <small>/ ${fmt(target)}</small>`;
+  }
+  requestAnimationFrame(recClock);
+}
+function stopRec() {
+  if (!S.rec) return;
+  S.rec.stop(); S.rec = null;
+  $("rec").classList.remove("live");
+  $("rec-label").textContent = S.mode === "run" ? "Record the whole run" : "Record this slide";
+  if (S.mode === "run") play(false);
+}
+async function send(blob) {
+  const n = S.mode === "run" ? 0 : +TALK[S.i].n;
+  $("note").textContent = "Listening back: transcribing, then asking Claude for tips…";
+  $("rec").disabled = true;
+  try {
+    const r = await fetch(`/api/take?slide=${n}`, { method: "POST", body: blob });
+    const j = await r.json();
+    S.history = j.history || S.history;
+    const html = feedbackHTML(j.metrics, j.coach);
+    S.last[n] = html;
+    if (S.mode === "slide") renderSlide(); else showRunFeedback(html);
+    $("note").textContent = "Done. Read it, then try one more take.";
+  } catch {
+    $("note").textContent = "The coach didn't answer. Is coach.py still running?";
+  }
+  $("rec").disabled = false;
+}
+function feedbackHTML(m, c) {
+  if (!m.heard) return `<div class="feedback"><h2>Feedback</h2><div class="praise">${esc(c.error || "No speech heard.")}</div></div>`;
+  const ratio = m.seconds / m.target;
+  const fill = Object.entries(m.fillers || {}).map(([k, v]) => `${k} ×${v}`).join(", ");
+  const nf = Object.values(m.fillers || {}).reduce((a, b) => a + b, 0);
+  const stat = (label, val, cls) => `<div class="stat ${cls || ""}"><b>${val}</b>${label}</div>`;
+  return `<div class="feedback"><h2>Feedback on this take</h2>
+    <div class="stats">
+      ${stat("time, target " + fmt(m.target), fmt(m.seconds), Math.abs(ratio - 1) <= 0.15 ? "ok" : "warn")}
+      ${stat("words a minute", m.wpm, m.wpm >= 115 && m.wpm <= 155 ? "ok" : "warn")}
+      ${stat("of the script said", Math.round(m.coverage * 100) + "%", m.coverage >= 0.8 ? "ok" : "")}
+      ${stat("pauses over 1.2 s", m.pauses)}
+      ${stat("fillers", nf, nf <= 2 ? "ok" : "warn")}
+      ${stat("dB of light and shade", m.energy_db, m.energy_db >= 7 ? "ok" : "warn")}
+    </div>
+    ${c.praise ? `<div class="praise">${esc(c.praise)}</div>` : ""}
+    ${c.tips && c.tips.length ? `<ol class="tips">${c.tips.map((t) => "<li>" + esc(t) + "</li>").join("")}</ol>` : ""}
+    ${c.next_take ? `<div class="keep">Next take: ${esc(c.next_take)}</div>` : ""}
+    ${c.error ? `<div class="small">${esc(c.error)} The numbers above still stand.</div>` : ""}
+    ${m.missed && m.missed.length ? `<div class="small"><b>Left out:</b> ${m.missed.map(esc).join(" · ")}</div>` : ""}
+    ${fill ? `<div class="small"><b>Fillers:</b> ${esc(fill)}</div>` : ""}
+    ${m.unclear && m.unclear.length ? `<div class="small"><b>Words the transcriber wasn't sure of:</b> ${m.unclear.map(esc).join(", ")}</div>` : ""}
+    <details class="small"><summary>What it heard</summary>${esc(m.transcript)}</details></div>`;
+}
+function showRunFeedback(html) {
+  const d = document.createElement("div"); d.className = "wrap"; d.style.maxWidth = "1100px"; d.style.margin = "0 auto"; d.innerHTML = html;
+  $("main").appendChild(d); d.scrollIntoView({ behavior: "smooth" });
+}
+
+/* ---------- modes, keys ---------- */
+function goSlide(k) { if (S.rec) return; S.mode === "run" ? setMode("slide") : null; S.i = Math.max(0, Math.min(TALK.length - 1, k)); renderSlide(); window.scrollTo(0, 0); }
+function setMode(m) {
+  if (S.rec) return;
+  S.mode = m; play(false);
+  $("m-slide").classList.toggle("on", m === "slide"); $("m-run").classList.toggle("on", m === "run");
+  $("run-ctl").hidden = m !== "run"; $("play").hidden = m !== "run"; $("cue").hidden = m === "run";
+  $("rec-label").textContent = m === "run" ? "Record the whole run" : "Record this slide";
+  m === "run" ? renderRun() : renderSlide();
+}
+$("m-slide").onclick = () => setMode("slide");
+$("m-run").onclick = () => setMode("run");
+$("cue").onclick = () => { S.cue = !S.cue; $("cue").classList.toggle("on", S.cue); renderSlide(); };
+$("sz-").onclick = () => { S.size = Math.max(18, S.size - 3); applySize(); };
+$("sz+").onclick = () => { S.size = Math.min(72, S.size + 3); applySize(); };
+$("w-").onclick = () => { S.wpm = Math.max(80, S.wpm - 5); $("wpm").textContent = S.wpm; store.set("wpm", S.wpm); };
+$("w+").onclick = () => { S.wpm = Math.min(200, S.wpm + 5); $("wpm").textContent = S.wpm; store.set("wpm", S.wpm); };
+$("mir").onclick = () => { S.mirror = !S.mirror; $("mir").classList.toggle("on", S.mirror); renderRun(); };
+$("play").onclick = () => play(!S.playing);
+$("rec").onclick = () => S.rec ? stopRec() : startRec();
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input,select,textarea")) return;
+  if (e.code === "Space") { e.preventDefault(); if (S.coach) { S.rec ? stopRec() : startRec(); } else if (S.mode === "run") play(!S.playing); }
+  else if (e.key === "ArrowRight" && S.mode === "slide") goSlide(S.i + 1);
+  else if (e.key === "ArrowLeft" && S.mode === "slide") goSlide(S.i - 1);
+  else if (S.mode === "run" && e.key === "ArrowUp") setY(S.y - 120);
+  else if (S.mode === "run" && e.key === "ArrowDown") setY(S.y + 120);
+});
+window.addEventListener("wheel", (e) => { if (S.mode === "run") setY(S.y + e.deltaY); }, { passive: true });
+window.addEventListener("resize", () => { if (S.mode === "run") { reelH = $("reel").scrollHeight; setY(S.y); } });
+
+$("wpm").textContent = S.wpm;
+applySize();
+renderSlide();
+fetch("/api/ping").then((r) => r.json()).then((j) => {
+  S.coach = true; S.history = j.history || {};
+  $("rec").hidden = false; $("sub").textContent = "coach";
+  $("note").textContent = "Space starts and stops a take. ← → change slides.";
+  renderSlide();
+}).catch(() => { $("note").textContent = "Teleprompter only. Run coach.py to record and get feedback."; });
+try { navigator.wakeLock && navigator.wakeLock.request("screen").catch(() => {}); } catch {}
+</script>

@@ -22,6 +22,7 @@ Run:  python docs/talk/build_show.py narrate      # Edge voice: missing or chang
 """
 from __future__ import annotations
 
+import functools
 import json
 import os
 import re
@@ -51,7 +52,9 @@ VIDS = SHOW / "video"
 # island from the start; "below the red line again" ending on the 11 Nov 2026 stop (52 s / 2);
 # "a year from now?" as the lake splits (53 s / 2).
 VIDEOS = {"charts/lake_years.gif": ("charts/lake_years.mp4", (1.0, ("end", 26.0), 26.6), (2.0, 53.0)),
-          "charts/slide1_map.gif": ("charts/slide1_map.mp4", (0.5,), None)}
+          "charts/slide1_map.gif": ("charts/slide1_map.mp4", (0.5,), None),
+          # slide 4 (originator, 20 Oct): the app full screen, light, scrolling slowly under the title
+          "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), None)}
 PAUSE_S = 2.0                     # a "[pause]" in the script
 GAP_S = 0.6                       # silence after each clip before the show moves on
 
@@ -74,7 +77,12 @@ def segments() -> list[dict]:
         paras = [re.sub(r"^\[\d+\]\s*", "", p).strip() for p in s["script"]]
         frames = s.get("frames")
         if frames:
-            groups = [([f], [p]) for f, p in zip(frames, paras)]
+            groups = []
+            for f, p in zip(frames, paras):                      # a frame identical to the one before
+                if groups and same_picture(groups[-1][0][0], f):  # is no click (slide 2's last two, 20 Oct)
+                    groups[-1][1].append(p)
+                else:
+                    groups.append(([f], [p]))
         else:
             groups = [([s.get("image")], paras)]
         for k, (img, ps) in enumerate(groups, 1):
@@ -84,6 +92,10 @@ def segments() -> list[dict]:
                          "clicks": len(groups), "image": img[0], "text": text, "pause": pauses * PAUSE_S,
                          "title": s.get("title")})
     return segs
+
+
+def same_picture(a: str, b: str) -> bool:
+    return a == b and a not in VIDEOS or (a != b and (HERE / a).read_bytes() == (HERE / b).read_bytes())
 
 
 def offline(txt: Path, mp3: Path) -> None:
@@ -238,7 +250,86 @@ def compose(grp: list[dict]) -> Path:
     return out
 
 
-TITLE_X, TITLE_Y, TITLE_PT = 45, 22, 40      # points on a 960 x 540 slide: top left, the theme's title spot
+TITLE_X, TITLE_Y, TITLE_PT = 45, 18, 40      # points on a 960 x 540 slide: top left, the theme's title spot
+PT = 0.5                                     # slide points per px of the 1920 x 1080 pictures
+
+
+# The lake icon fills over the talk (originator, 20 Oct): it starts at the red line on slide 1
+# and rises in equal steps to the upper line on slide 12, a full lake by the end.
+ICON_FROM, ICON_TO, ICON_SLIDES = -213.0, -208.9, 12          # the lower and upper red lines, m
+
+
+def icon_levels() -> dict[int, float]:
+    """Talk slide number -> the icon's water level."""
+    step = (ICON_TO - ICON_FROM) / (ICON_SLIDES - 1)
+    return {n: ICON_FROM + step * (n - 1) for n in range(1, ICON_SLIDES + 1)}
+
+
+@functools.cache
+def lake_icon(level: float) -> Path:
+    """The small lake at the end of the bottom rule: the app's outline, water up to `level`."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib.patches import Polygon, Rectangle
+    sys.path.insert(0, str(HERE))
+    import theme as T
+    from chart_fan import lake_outline
+    out = CARDS / f"lake_icon_{level:.2f}.png"
+    CARDS.mkdir(parents=True, exist_ok=True)
+    x, lvl, units = lake_outline()
+    h = T.LAKE_ICON["h"]
+    w = h * (x.max() - x.min()) / ((lvl.max() - lvl.min()) * units)
+    fig = plt.figure(figsize=(w * 4 / 100, h * 4 / 100), dpi=100)          # drawn at 4x
+    ax = fig.add_axes([0.04, 0.03, 0.92, 0.94])
+    ax.set_xlim(x.min(), x.max())
+    ax.set_ylim(lvl.min(), lvl.max())
+    ax.axis("off")
+    lake = Polygon(np.c_[x, lvl], closed=True, fc=T.UNUSED, ec="none")
+    ax.add_patch(lake)
+    water = Rectangle((x.min(), lvl.min()), x.max() - x.min(), level - lvl.min(), fc=T.USED, ec="none")
+    ax.add_patch(water)
+    water.set_clip_path(lake)
+    ax.plot(x, lvl, color=T.USED, lw=5)
+    fig.savefig(out, transparent=True)
+    plt.close(fig)
+    return out
+
+
+@functools.cache
+def rules() -> Path:
+    """The two rules, as one transparent picture (the staff-gauge ticks were tried and dropped, 20 Oct)."""
+    from PIL import Image, ImageDraw
+    sys.path.insert(0, str(HERE))
+    import theme as T
+    out = CARDS / "frame_rules.png"
+    CARDS.mkdir(parents=True, exist_ok=True)
+    k = 2                                                         # drawn at twice the size
+    im = Image.new("RGBA", (T.W * k, T.H * k), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    for r in (T.TITLE_RULE, T.BOTTOM_RULE):
+        y, w = r["y"], r["width"]
+        d.rectangle([r["x0"] * k, (y - w / 2) * k, r["x1"] * k, (y + w / 2) * k], fill=T.USED)
+    im.resize((T.W, T.H), Image.LANCZOS).save(out)
+    return out
+
+
+def frame(sl, n: int) -> None:
+    """The theme's frame: the gauge rules, and the lake at the bottom rule's end at slide n's level."""
+    sys.path.insert(0, str(HERE))
+    import theme as T
+    sl.Shapes.AddPicture(str(rules()), False, True, 0, 0, T.W * PT, T.H * PT).Name = "!!rules"
+    k = T.LAKE_ICON
+    icon = sl.Shapes.AddPicture(str(lake_icon(round(icon_levels()[n], 2))), False, True, k["x"] * PT, k["y"] * PT)
+    icon.LockAspectRatio = True
+    icon.Height = k["h"] * PT
+    icon.Name = "!!lake"                                          # Morph pairs the "!!" names across slides
+
+
+def bgr(hex_: str) -> int:
+    r, g, b = (int(hex_[i:i + 2], 16) for i in (1, 3, 5))
+    return r + (g << 8) + (b << 16)
 
 
 def style_text(rng, pt: float, bold: bool, bgr: int) -> None:
@@ -247,7 +338,36 @@ def style_text(rng, pt: float, bold: bool, bgr: int) -> None:
     rng.Font.Color.RGB = bgr                                     # PowerPoint colours are BGR
 
 
+FADE_IN, WITH_PREVIOUS, AFTER_PREVIOUS, MEDIA_PLAY = 10, 2, 3, 83   # PowerPoint animation constants
+MORPH = 3954                                                     # ppEffectMorphByObject (3953 is an Origami, 20 Oct)
+
+
+def join_videos(steps: list[list[dict]]) -> list[list[dict]]:
+    """Back-to-back animations of one slide as ONE video (slide 1: the lake, then the map). Two
+    videos jump: PowerPoint snaps the first back to its opening frame before the second fades in."""
+    out = []
+    for grp in steps:
+        prev = out[-1] if out else None
+        if prev and grp[0]["image"] in VIDEOS and (prev[0].get("video") or prev[0]["image"] in VIDEOS):
+            a = prev[0].get("video") or compose(prev)
+            b = compose(grp)
+            joined = VIDS / f"{prev[0]['id']}_joined.mp4"
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(a), "-i", str(b), "-filter_complex",
+                            "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
+                            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-c:a", "aac", "-b:a", "128k",
+                            str(joined)], check=True)
+            out[-1] = [dict(prev[0], video=joined)] + prev[1:] + grp
+        else:
+            out.append(grp)
+    return out
+
+
 def build() -> None:
+    """One PowerPoint slide per talk slide (originator, 20 Oct: no duplicated slides for clicks).
+    Each click is a timed step inside the slide: its picture fades in over the last one and its
+    narration plays; an animation is one video with the voice mixed in. The steps hang off the
+    slide's start (the first after the transition, the rest with it, each at its own delay).
+    Title, rules and lake sit on top of everything."""
     import win32com.client
     segs = segments()
     missing = [g["id"] for g in segs if g["text"] and not (AUDIO / f"{g['id']}.mp3").exists()]
@@ -258,46 +378,65 @@ def build() -> None:
     pres = app.Presentations.Add(WithWindow=False)
     pres.PageSetup.SlideWidth, pres.PageSetup.SlideHeight = W, H
     total = 0.0
-    slides_ = groups(segs)
-    for i, grp in enumerate(slides_, 1):
-        g = grp[0]
+    talk = []                                                    # the steps, grouped by talk slide
+    for grp in groups(segs):
+        if talk and talk[-1][0][0]["n"] == grp[0]["n"]:
+            talk[-1].append(grp)
+        else:
+            talk.append([grp])
+    for i, steps in enumerate(talk, 1):
+        steps = join_videos(steps)
+        g = steps[0][0]
         sl = pres.Slides.Add(i, 12)                              # ppLayoutBlank
         sl.FollowMasterBackground = False
         sl.Background.Fill.ForeColor.RGB = 0xF7FAFB              # theme SURFACE #FBFAF7 as BGR
-        snd = None
-        if g["image"] in VIDEOS:                                 # the animation, voice mixed in
-            media = compose(grp)
-            snd = sl.Shapes.AddMediaObject2(str(media), False, True, 0, 0, W, H)
-            secs = duration(media) + GAP_S
-        else:
-            img = fill(HERE / g["image"], g["id"]) if g["image"] else card(g)
-            sl.Shapes.AddPicture(str(img), False, True, 0, 0, W, H)
-            media = AUDIO / f"{g['id']}.mp3"
-            snd = sl.Shapes.AddMediaObject2(str(media), False, True, 0, 0, 32, 32)
-            snd.Left, snd.Top = -100, -100                       # off the slide: the icon never shows
-            snd.AnimationSettings.PlaySettings.HideWhileNotPlaying = True
-            secs = duration(media) + g["pause"] + GAP_S
-        if snd is not None:
-            snd.AnimationSettings.PlaySettings.PlayOnEntry = True
+        seq = sl.TimeLine.MainSequence
+        t = 0.0
+        for k, grp in enumerate(steps):
+            s0 = grp[0]
+            if s0.get("video") or s0["image"] in VIDEOS:         # the animation, voice mixed in
+                media = s0.get("video") or compose(grp)
+                shape = player = sl.Shapes.AddMediaObject2(str(media), False, True, 0, 0, W, H)
+                secs = duration(media) + GAP_S
+            else:
+                img = fill(HERE / s0["image"], s0["id"]) if s0["image"] else card(s0)
+                shape = sl.Shapes.AddPicture(str(img), False, True, 0, 0, W, H)
+                clip = AUDIO / f"{s0['id']}.mp3"
+                player = sl.Shapes.AddMediaObject2(str(clip), False, True, 0, 0, 32, 32)
+                player.Left, player.Top = -100, -100             # off the slide: the icon never shows
+                # (no PlaySettings here: touching them adds PowerPoint's own play effect to the
+                # sequence and every later delay slips, measured 20 Oct)
+                secs = duration(clip) + s0["pause"] + GAP_S
+            if k:                                                # the new picture fades in over the last
+                e = seq.AddEffect(shape, FADE_IN, 0, WITH_PREVIOUS)
+                e.Timing.Duration = 0.4
+                e.Timing.TriggerDelayTime = round(t, 2)
+            e = seq.AddEffect(player, MEDIA_PLAY, 0, WITH_PREVIOUS if k else AFTER_PREVIOUS)
+            e.Timing.TriggerDelayTime = round(t, 2)
+            t += secs
         if g["title"]:                                           # the boldest, biggest thing on the slide
-            t = sl.Shapes.AddTextbox(1, TITLE_X, TITLE_Y, W - 2 * TITLE_X, 60)
-            t.TextFrame.TextRange.Text = g["title"]
-            t.TextFrame.WordWrap = False
-            style_text(t.TextFrame.TextRange, TITLE_PT, True, 0x1B1D1D)
-        total += secs
+            tb = sl.Shapes.AddTextbox(1, TITLE_X, TITLE_Y, W - 2 * TITLE_X, 60)
+            tb.Name = "!!title"
+            tf = tb.TextFrame
+            tf.MarginLeft = tf.MarginTop = tf.MarginRight = tf.MarginBottom = 0   # the text edge IS the margin
+            tf.TextRange.Text = g["title"]
+            tf.WordWrap = False
+            style_text(tf.TextRange, TITLE_PT, True, 0x1B1D1D)
+            frame(sl, int(g["n"]))
+        total += t
         tr = sl.SlideShowTransition
-        tr.EntryEffect = 3849 if g["click"] > 1 else 1793        # fade smoothly within a slide, fade between
-        tr.Duration = 0.4 if g["click"] > 1 else 0.7
+        tr.EntryEffect = MORPH                                   # between slides (originator, 20 Oct)
+        tr.Duration = 1.0
         tr.AdvanceOnClick = True
         tr.AdvanceOnTime = True
-        tr.AdvanceTime = round(secs, 1)
-        clicks = f"click {g['click']}" + (f"-{grp[-1]['click']}" if len(grp) > 1 else "")
+        tr.AdvanceTime = round(t, 1)
+        clicks = [x for grp in steps for x in grp]
         sl.NotesPage.Shapes.Placeholders(2).TextFrame.TextRange.Text = (
-            f"Slide {g['n']} · {g['q']} · {clicks} of {g['clicks']}\n\n" + "\n\n".join(x["text"] for x in grp))
-        print(f"{g['id']:8s} {secs:5.1f} s", flush=True)
+            f"Slide {g['n']} · {g['q']} · {len(clicks)} click(s)\n\n" + "\n\n".join(x["text"] for x in clicks))
+        print(f"slide {g['n']:>2s}: {len(steps)} step(s), {t:5.1f} s", flush=True)
     pres.SaveAs(str(OUT))
     pres.Close()
-    print(f"saved {OUT.name}: {len(slides_)} PowerPoint slides, {total / 60:.1f} min")
+    print(f"saved {OUT.name}: {len(talk)} PowerPoint slides, {total / 60:.1f} min")
 
 
 VIDEO = HERE / "Kinneret_Talk.mp4"

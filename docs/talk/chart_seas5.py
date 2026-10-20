@@ -248,7 +248,7 @@ def draw_track(step: int = TRACK_STEPS, path: Path | None = None) -> Path:
     rain, dash, bars = step >= 2, step >= 3, step >= 4
 
     fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
-    ax = fig.add_axes([0.10, 0.13, 0.80, 0.64], facecolor=T.SURFACE)
+    ax = fig.add_axes([0.10, 0.12, 0.80, 0.60], facecolor=T.SURFACE)   # under the two-row key
     ax.plot([d.index.min() - 0.7, now + 0.5], [100, 100], color=T.FAINT, lw=2, ls=(0, (6, 5)), zorder=0)
     ax.text(now + 0.62, 100, "average\nwinter", ha="left", va="center", color=T.INK_2,
             fontproperties=T.font(False, 26), linespacing=1.0)
@@ -300,23 +300,23 @@ def draw_track(step: int = TRACK_STEPS, path: Path | None = None) -> Path:
     ax.set_yticklabels(["50%", "100%", "150%"])
     style(ax)
 
-    # legend, top right, one line per click, in click order (the title spot stays free); px, y down
+    # legend under the title rule, two rows of two, one entry per click in click order; px, y down
     lg = fig.add_axes([0, 0, 1, 1], facecolor="none")
     lg.set_xlim(0, T.W)
     lg.set_ylim(T.H, 0)
     lg.axis("off")
-    kx, rows = 960, [40, 94, 148, 202]
-    marks = (lambda y: lg.plot([kx], [y], "o", ms=16, mfc="none", mec=T.INK_2, mew=3.5),
-             lambda y: lg.plot([kx], [y], "o", ms=17, color=T.INK),
-             lambda y: lg.plot([kx - 16, kx + 16], [y] * 2, color=T.USED, lw=7, solid_capstyle="round"),
-             lambda y: lg.plot([kx, kx], [y - 18, y + 18], color=T.UNUSED, lw=24, solid_capstyle="round"))
+    spots = [(T.MARGIN_X + 18, 205), (1120, 205), (T.MARGIN_X + 18, 255), (1120, 255)]
+    marks = (lambda x, y: lg.plot([x], [y], "o", ms=16, mfc="none", mec=T.INK_2, mew=3.5),
+             lambda x, y: lg.plot([x], [y], "o", ms=17, color=T.INK),
+             lambda x, y: lg.plot([x - 16, x + 16], [y] * 2, color=T.USED, lw=7, solid_capstyle="round"),
+             lambda x, y: lg.plot([x, x], [y - 18, y + 18], color=T.UNUSED, lw=24, solid_capstyle="round"))
     words = ("Copernicus: wetter or drier than it usually says", "the rain that fell",
              "our forecast: its lean, stretched", "our 8-in-10 range")
-    for k, (y, mark, w, col, bold) in enumerate(zip(rows, marks, words, (T.INK_2, T.INK, T.USED, T.INK_2),
-                                                    (False, True, True, False))):
+    for k, ((x, y), mark, w, col, bold) in enumerate(zip(spots, marks, words, (T.INK_2, T.INK, T.USED_TEXT, T.INK_2),
+                                                         (False, True, True, False))):
         if k < step:
-            mark(y)
-            T.text_centered(lg, kx + 34, y, w, 26, bold, col, ha="left")
+            mark(x, y)
+            T.text_centered(lg, x + 34, y, w, 26, bold, col, ha="left")
     return save(fig, path)
 
 

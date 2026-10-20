@@ -178,7 +178,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     d, red, last, m12 = t["date"], meta["red_line"], t.iloc[-1], dots.iloc[-1]
     endx = d.iloc[-1] + pd.Timedelta(days=10)
     fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
-    ax = fig.add_axes([0.10, 0.13, 0.70, 0.70], facecolor=T.SURFACE)
+    ax = fig.add_axes([0.10, 0.16, 0.70, 0.66], facecolor=T.SURFACE)   # its dates clear of the credit line
     S = {c: _smooth(d, t[c]) for c in t.columns if c not in ("H", "date")}
     xs, lo, hi = S["lo_80"][0], S["lo_80"][1], S["hi_80"][1]
     at = lambda day: int(np.argmin(np.abs(np.array([x.timestamp() for x in xs]) - pd.Timestamp(day).timestamp())))
@@ -238,7 +238,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
         # the lake itself next autumn, in the empty sky top left (originator, 18 Oct)
         # on its own card, so nobody reads it against the chart's axis (its scale is the app's gauge)
         from matplotlib.patches import FancyBboxPatch
-        card = [0.135, 0.46, 0.165, 0.39]
+        card = [0.135, 0.48, 0.165, 0.33]                        # under the title rule, over the "red line" label
         fig.patches.append(FancyBboxPatch((card[0], card[1]), card[2], card[3], transform=fig.transFigure,
                                           boxstyle="round,pad=0.006,rounding_size=0.015", fc="white",
                                           ec=T.FAINT, lw=1.5, zorder=0))
@@ -255,8 +255,8 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     ax.set_yticks([-215, -214, -213, -212, -211, -210, -209])
     ax.set_yticklabels([f"−{abs(v)} m" for v in (-215, -214, -213, -212, -211, -210, -209)])
     style(ax)
-    fig.text(0.95, 0.90, "example run  ·  from the lake on 15 Oct 2026  ·  October seasonal forecast", ha="right",
-             va="center", color=T.INK_2, fontproperties=T.font(False, 28))
+    fig.text(0.95, 0.905, "example run  ·  from the lake on 15 Oct 2026  ·  October seasonal forecast", ha="right",
+             va="center", color=T.INK_2, fontproperties=T.font(False, 22))   # right of the title, clear of it
     if frame >= 4:                                               # the last frame of the talk (the takeaway slide is gone)
         from PIL import Image
         qr = fig.add_axes([0.865, 0.615, 0.085, 0.085 * T.W / T.H])   # top right, clear of the band and labels
@@ -264,7 +264,8 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
         qr.axis("off")
         fig.text(0.9075, 0.605, "Between Flood\n& Drought", ha="center", va="top", color=T.INK,
                  fontproperties=T.font(True, 19), linespacing=1.1)
-        fig.text(0.10, 0.03, CREDIT, ha="left", va="center", color=T.INK_2, fontproperties=T.font(False, 20))
+        fig.text(T.CREDIT_XY[0] / T.W, 1 - T.CREDIT_XY[1] / T.H, CREDIT, ha="left", va="baseline", color=T.INK_2,
+                 fontproperties=T.font(False, T.CREDIT_PT))
     return save(fig, path)
 
 
