@@ -73,8 +73,9 @@ def draw(click: int, path: Path) -> Path:
     ax.set_ylim(T.H, 0)
     ax.axis("off")
 
-    T.text_centered(ax, X0 + 24, TOP + 30, "WHO", HEAD_PT, True, T.INK_2, ha="left")
-    T.text_centered(ax, X_HOW, TOP + 30, "HOW", HEAD_PT, True, T.INK_2, ha="left")
+    L = T.Labels()                                               # the words are native text in the show
+    L.centered(ax, "who", X0 + 24, TOP + 30, "WHO", HEAD_PT, True, T.INK_2, ha="left")
+    L.centered(ax, "how", X_HOW, TOP + 30, "HOW", HEAD_PT, True, T.INK_2, ha="left")
     y = TOP + 70
     ax.plot([X0, X1], [y, y], color=T.INK_2, lw=2)
     for i, (logo, who, who2, how) in enumerate(ROWS):
@@ -88,16 +89,17 @@ def draw(click: int, path: Path) -> Path:
                                             boxstyle="round,pad=0,rounding_size=20",
                                             facecolor=T.USED_SOFT, edgecolor="none", alpha=0.45))
             top = y + h / 2 - (n - 1) * LINE / 2
-            for k, (words, bold) in enumerate(who_lines):
-                T.text_centered(ax, X_WHO, top + k * LINE, words, PT, bold, T.INK, ha="left")
+            bold = [w for w, b in who_lines if b]
+            L.lines(ax, f"who.{i + 1}", X_WHO, top, bold, LINE, PT, True, T.INK)
+            if who2:
+                L.centered(ax, f"who.{i + 1}.sub", X_WHO, top + len(bold) * LINE, who2, PT, False, T.INK, ha="left")
             put_logo(ax, logo, X0 + 24 + LOGO_W / 2, y + h / 2)
-            for k, words in enumerate(how_lines):
-                T.text_centered(ax, X_HOW, top + k * LINE, words, PT, False, T.INK, ha="left")
+            L.lines(ax, f"how.{i + 1}", X_HOW, top, how_lines, LINE, PT, False, T.INK)
             if i < SHOWN[click] - 1 and i + 1 != ACCENT:
                 ax.plot([X0, X1], [y + h] * 2, color=T.FAINT, lw=1.5)
         y += h
 
-    fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
+    L.save(fig, path)
     plt.close(fig)
     print(f"saved {path.name}  (table ends at y={y:.0f})")
     return path

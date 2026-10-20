@@ -67,3 +67,74 @@ def text_centered(ax, x: float, y: float, words: str, size: float, bold: bool, c
     cap = 0.70 * size * DPI / 72                       # Segoe UI cap height ~0.70 em, in px
     ax.text(x, y + cap / 2, words, ha=ha, va="baseline", color=color,
             fontproperties=font(bold, size), **kw)
+
+
+class Labels:
+    """A chart's words that the show sets as native PowerPoint text (originator, 20 Oct: "so i can
+    design some of it by hand"). Draw them through here instead of ax.text; save() writes the full
+    picture as before (the review page), the picture without them in bare/, and their words,
+    boxes and styles in bare/<stem>.labels.json for build_show.py."""
+
+    def __init__(self):
+        self.items = []                                           # (name, artist, bold, colour)
+
+    def text(self, ax, name: str, x: float, y: float, words: str, size: float, bold: bool, color: str, **kw):
+        a = ax.text(x, y, words, color=color, fontproperties=font(bold, size), **kw)
+        self.items.append((name, a, bold, color))
+        return a
+
+    def centered(self, ax, name: str, x: float, y: float, words: str, size: float, bold: bool, color: str,
+                 ha: str = "center", **kw):
+        cap = 0.70 * size * DPI / 72                              # as text_centered
+        return self.text(ax, name, x, y + cap / 2, words, size, bold, color, ha=ha, va="baseline", **kw)
+
+    def lines(self, ax, name: str, x: float, y: float, rows: list[str], pitch: float, size: float, bold: bool,
+              color: str, ha: str = "left", **kw):
+        """Several lines as ONE label (one box to design by hand): line k's cap height centred on
+        y + k * pitch px, as text_centered line by line would put it."""
+        cap = 0.70 * size * DPI / 72
+        a = self.text(ax, name, x, y + cap / 2 + (len(rows) - 1) * pitch, "\n".join(rows), size, bold, color,
+                      ha=ha, va="baseline", **kw)                  # matplotlib anchors the LAST line's baseline
+        if len(rows) > 1:                                          # the pitch is linear in linespacing: solve it
+            r = ax.figure.canvas.get_renderer()
+
+            def at(ls: float) -> float:
+                a.set_linespacing(ls)
+                ys = [v for *_, v in a._get_layout(r)[1]]
+                return abs(ys[0] - ys[1])
+            p1, p2 = at(1.0), at(2.0)
+            a.set_linespacing(1.0 + (pitch - p1) / (p2 - p1))
+        return a
+
+    def save(self, fig, path: Path, **kw) -> Path:
+        import json
+        names = [n for n, *_ in self.items]
+        dup = {n for n in names if names.count(n) > 1}
+        if dup:
+            raise ValueError(f"{path.name}: label names used twice: {sorted(dup)}")
+        kw.setdefault("dpi", DPI)
+        kw.setdefault("facecolor", SURFACE)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, **kw)
+        r = fig.canvas.get_renderer()
+        labels = []
+        for name, a, bold, color in self.items:
+            if not a.get_visible() or not a.get_text():
+                continue
+            b = a.get_window_extent(r)                            # display px, y up
+            labels.append({"name": name, "text": a.get_text(),
+                           "box": [round(b.x0, 1), round(H - b.y1, 1), round(b.x1, 1), round(H - b.y0, 1)],
+                           "ha": a.get_horizontalalignment(), "pt": round(a.get_fontsize() * DPI / 72 * 0.5, 2),
+                           "bold": bold, "color": color, "lines": a.get_text().count("\n") + 1})
+            if labels[-1]["lines"] > 1:                           # the line pitch, slide points
+                ys = [y for *_, y in a._get_layout(r)[1]]
+                labels[-1]["pitch"] = round(abs(ys[0] - ys[1]) * 0.5, 2)
+            a.set_visible(False)
+        bare = path.parent / "bare"
+        bare.mkdir(exist_ok=True)
+        fig.savefig(bare / path.name, **kw)
+        for _, a, *_ in self.items:
+            a.set_visible(True)
+        (bare / f"{path.stem}.labels.json").write_text(json.dumps({"labels": labels}, indent=1, ensure_ascii=False),
+                                                       encoding="utf-8")
+        return path

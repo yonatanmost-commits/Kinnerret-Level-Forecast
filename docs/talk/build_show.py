@@ -229,7 +229,8 @@ def compose(grp: list[dict]) -> Path:
         free = s + duration(m) + 0.4
     cues = starts
     end = max(c + duration(m) for c, m in zip(cues, clips)) + 0.3
-    vdur = duration(HERE / video)
+    src = native(HERE / video)[0]                                # without its native words
+    vdur = duration(src)
     if speed:
         k, until = speed
         play = (f"[0:v]trim=0:{until},setpts=(PTS-STARTPTS)/{k}[v1];"
@@ -240,7 +241,7 @@ def compose(grp: list[dict]) -> Path:
     hold = max(0.0, end - vdur)
     mix = "".join(f"[{i + 1}]adelay={int(c * 1000)}[a{i}];" for i, c in enumerate(cues))
     mix += "".join(f"[a{i}]" for i in range(len(clips))) + f"amix=inputs={len(clips)}:normalize=0[a]"
-    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(HERE / video)]
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(src)]
     for m in clips:
         cmd += ["-i", str(m)]
     cmd += ["-filter_complex", f"{play}[vs]tpad=stop_mode=clone:stop_duration={hold:.2f}[v];{mix}",
@@ -319,12 +320,15 @@ def frame(sl, n: int) -> None:
     """The theme's frame: the gauge rules, and the lake at the bottom rule's end at slide n's level."""
     sys.path.insert(0, str(HERE))
     import theme as T
-    sl.Shapes.AddPicture(str(rules()), False, True, 0, 0, T.W * PT, T.H * PT).Name = "!!rules"
+    r = sl.Shapes.AddPicture(str(rules()), False, True, 0, 0, T.W * PT, T.H * PT)
+    r.Name = "!!rules"
+    r.Tags.Add("owner", "build")
     k = T.LAKE_ICON
     icon = sl.Shapes.AddPicture(str(lake_icon(round(icon_levels()[n], 2))), False, True, k["x"] * PT, k["y"] * PT)
     icon.LockAspectRatio = True
     icon.Height = k["h"] * PT
     icon.Name = "!!lake"                                          # Morph pairs the "!!" names across slides
+    icon.Tags.Add("owner", "build")
 
 
 def bgr(hex_: str) -> int:
@@ -342,9 +346,26 @@ FADE_IN, WITH_PREVIOUS, AFTER_PREVIOUS, MEDIA_PLAY = 10, 2, 3, 83   # PowerPoint
 MORPH = 3954                                                     # ppEffectMorphByObject (3953 is an Origami, 20 Oct)
 
 
+def native(path: Path) -> tuple[Path, list[dict]]:
+    """The picture (or video) without its native words, and those words, when the chart made them
+    (theme.Labels: bare/<name> + bare/<stem>.labels.json); otherwise the picture as it is."""
+    bare = path.parent / "bare" / path.name
+    meta = path.parent / "bare" / f"{path.stem}.labels.json"
+    if bare.exists() and meta.exists():
+        return bare, json.loads(meta.read_text(encoding="utf-8"))["labels"]
+    return path, []
+
+
+def labels_of(image: str | None) -> list[dict]:
+    if not image:
+        return []
+    return native(HERE / (VIDEOS[image][0] if image in VIDEOS else image))[1]
+
+
 def join_videos(steps: list[list[dict]]) -> list[list[dict]]:
     """Back-to-back animations of one slide as ONE video (slide 1: the lake, then the map). Two
-    videos jump: PowerPoint snaps the first back to its opening frame before the second fades in."""
+    videos jump: PowerPoint snaps the first back to its opening frame before the second fades in.
+    The joined step keeps each part's words and the second it starts at ("parts")."""
     out = []
     for grp in steps:
         prev = out[-1] if out else None
@@ -356,87 +377,238 @@ def join_videos(steps: list[list[dict]]) -> list[list[dict]]:
                             "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
                             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-c:a", "aac", "-b:a", "128k",
                             str(joined)], check=True)
-            out[-1] = [dict(prev[0], video=joined)] + prev[1:] + grp
+            parts = prev[0].get("parts") or [(labels_of(prev[0]["image"]), 0.0)]
+            parts = parts + [(labels_of(grp[0]["image"]), duration(a))]
+            out[-1] = [dict(prev[0], video=joined, parts=parts)] + prev[1:] + grp
         else:
             out.append(grp)
     return out
 
 
-def build() -> None:
+# Native text (originator, 20 Oct: "so i can design some of it by hand"). The build owns what it
+# tags "build" (pictures, sound, frame) and remakes it every time. A text box it tags "label" is
+# shared: its place, size and look are the hand's; its words follow the chart unless they were
+# changed by hand. Anything untagged is the hand's alone and is left as it is.
+OWNER, SRC, GEOM, TALK_TAG = "owner", "src", "geom", "talk"
+ALIGN = {"left": 1, "center": 2, "right": 3}                 # ppAlignLeft / Center / Right
+ANCHOR = {"top": 1, "middle": 3}                             # msoAnchorTop / Middle
+
+
+def title_spec(words: str, W: float) -> dict:
+    return {"name": "!!title", "text": words, "geom": [TITLE_X, TITLE_Y, W - 2 * TITLE_X, 60], "ha": "left",
+            "va": "top", "pt": TITLE_PT, "bold": True, "color": "#1D1D1B", "lines": 1}
+
+
+def geom(spec: dict) -> list[float]:
+    """Left, top, width, height in points: a chart's box (px on the 1920 x 1080 picture) or as given."""
+    if "geom" in spec:
+        return [round(v, 1) for v in spec["geom"]]
+    x0, y0, x1, y1 = spec["box"]
+    return [round(v * PT, 1) for v in (x0, y0, x1 - x0, y1 - y0)]
+
+
+def words_of(shape) -> str:
+    return shape.TextFrame.TextRange.Text.replace("\r", "\n").replace("\x0b", "\n")
+
+
+def new_box(sl, spec: dict):
+    l, t, w, h = geom(spec)
+    tb = sl.Shapes.AddTextbox(1, l, t, w, h)
+    tb.Name = spec["name"]
+    tf = tb.TextFrame
+    tf.MarginLeft = tf.MarginTop = tf.MarginRight = tf.MarginBottom = 0   # the text edge IS the box
+    tf.WordWrap = False
+    tf.AutoSize = 0                                          # ppAutoSizeNone: the box stays where it is put
+    tf.VerticalAnchor = ANCHOR[spec.get("va", "middle")]
+    tf.TextRange.Text = spec["text"].replace("\n", "\r")
+    style_text(tf.TextRange, spec["pt"], spec["bold"], bgr(spec["color"]))
+    p = tf.TextRange.ParagraphFormat
+    p.Alignment = ALIGN[spec["ha"]]
+    if spec.get("lines", 1) > 1:                             # the chart's line pitch
+        p.LineRuleWithin = 0
+        p.SpaceWithin = spec.get("pitch", round(spec["pt"] * 1.2, 1))
+    tb.Left, tb.Top, tb.Width, tb.Height = l, t, w, h        # typing may have resized it
+    return tb
+
+
+def merge_box(shape, spec: dict, where: str, warnings: list[str]) -> None:
+    """A label box from the last build: the chart's new words and place, unless set by hand."""
+    old_src, new = shape.Tags(SRC), spec["text"]
+    if words_of(shape) == old_src:
+        if new != old_src:
+            shape.TextFrame.TextRange.Text = new.replace("\n", "\r")
+    elif new != old_src:
+        warnings.append(f"{where} '{spec['name']}': kept your words {words_of(shape)!r}; "
+                        f"the chart now says {new!r}")
+    now = [shape.Left, shape.Top, shape.Width, shape.Height]
+    placed = [float(v) for v in shape.Tags(GEOM).split(",")]
+    if all(abs(a - b) < 0.5 for a, b in zip(now, placed)):  # not moved by hand: follow the chart
+        shape.Left, shape.Top, shape.Width, shape.Height = geom(spec)
+
+
+def tag(shape, **kv) -> None:
+    for k, v in kv.items():
+        shape.Tags.Add(k, v)
+
+
+def spans(shown: list[tuple[float, list[dict]]]) -> dict[str, list]:
+    """name -> [label, second it appears, second it goes (None: stays)], from (second, labels) steps."""
+    out, prev = {}, set()
+    for t, labels in shown:
+        names = {d["name"] for d in labels}
+        for d in labels:
+            out.setdefault(d["name"], [d, t, None])
+        for nm in prev - names:
+            if out[nm][2] is None:
+                out[nm][2] = t
+        prev = names
+    return out
+
+
+def open_show(app, out: Path, W: float, H: float):
+    """The last build of the show, to update; or a new one. A show the build never tagged (before
+    20 Oct) is started afresh: nothing in it was placed by hand."""
+    if out.exists():
+        if out.with_name("~$" + out.name).exists():
+            sys.exit(f"{out.name} is open in PowerPoint (or its lock file ~${out.name} was left behind): "
+                     f"close it first, or build to another file with SHOW_OUT")
+        pres = app.Presentations.Open(str(out), WithWindow=False)
+        if any(sl.Tags(TALK_TAG) for sl in pres.Slides):
+            return pres, True
+        pres.Close()
+        print(f"{out.name} was made before native text: building it afresh")
+    pres = app.Presentations.Add(WithWindow=False)
+    pres.PageSetup.SlideWidth, pres.PageSetup.SlideHeight = W, H
+    return pres, False
+
+
+def build(out: Path = OUT, segs: list[dict] | None = None, audio: Path = AUDIO) -> list[str]:
     """One PowerPoint slide per talk slide (originator, 20 Oct: no duplicated slides for clicks).
     Each click is a timed step inside the slide: its picture fades in over the last one and its
     narration plays; an animation is one video with the voice mixed in. The steps hang off the
     slide's start (the first after the transition, the rest with it, each at its own delay).
-    Title, rules and lake sit on top of everything."""
+    A chart's native words are text boxes that fade in and out with the pictures that carry them,
+    and hand edits to them survive a rebuild (see OWNER above). Title, rules and lake sit on top.
+    Returns the warnings: hand-set words the chart has since changed."""
     import win32com.client
-    segs = segments()
-    missing = [g["id"] for g in segs if g["text"] and not (AUDIO / f"{g['id']}.mp3").exists()]
+    segs = segs if segs is not None else segments()
+    missing = [g["id"] for g in segs if g["text"] and not (audio / f"{g['id']}.mp3").exists()]
     if missing:
         sys.exit(f"no narration yet for {missing}: run 'narrate' first")
     W, H = 960, 540                                              # points, 16:9
     app = win32com.client.Dispatch("PowerPoint.Application")
-    pres = app.Presentations.Add(WithWindow=False)
-    pres.PageSetup.SlideWidth, pres.PageSetup.SlideHeight = W, H
-    total = 0.0
-    talk = []                                                    # the steps, grouped by talk slide
-    for grp in groups(segs):
-        if talk and talk[-1][0][0]["n"] == grp[0]["n"]:
-            talk[-1].append(grp)
-        else:
-            talk.append([grp])
-    for i, steps in enumerate(talk, 1):
-        steps = join_videos(steps)
-        g = steps[0][0]
-        sl = pres.Slides.Add(i, 12)                              # ppLayoutBlank
-        sl.FollowMasterBackground = False
-        sl.Background.Fill.ForeColor.RGB = 0xF7FAFB              # theme SURFACE #FBFAF7 as BGR
-        seq = sl.TimeLine.MainSequence
-        t = 0.0
-        for k, grp in enumerate(steps):
-            s0 = grp[0]
-            if s0.get("video") or s0["image"] in VIDEOS:         # the animation, voice mixed in
-                media = s0.get("video") or compose(grp)
-                shape = player = sl.Shapes.AddMediaObject2(str(media), False, True, 0, 0, W, H)
-                secs = duration(media) + GAP_S
+    pres, update = open_show(app, out, W, H)
+    warnings: list[str] = []
+    try:
+        total = 0.0
+        talk = []                                                # the steps, grouped by talk slide
+        for grp in groups(segs):
+            if talk and talk[-1][0][0]["n"] == grp[0]["n"]:
+                talk[-1].append(grp)
             else:
-                img = fill(HERE / s0["image"], s0["id"]) if s0["image"] else card(s0)
-                shape = sl.Shapes.AddPicture(str(img), False, True, 0, 0, W, H)
-                clip = AUDIO / f"{s0['id']}.mp3"
-                player = sl.Shapes.AddMediaObject2(str(clip), False, True, 0, 0, 32, 32)
-                player.Left, player.Top = -100, -100             # off the slide: the icon never shows
-                # (no PlaySettings here: touching them adds PowerPoint's own play effect to the
-                # sequence and every later delay slips, measured 20 Oct)
-                secs = duration(clip) + s0["pause"] + GAP_S
-            if k:                                                # the new picture fades in over the last
-                e = seq.AddEffect(shape, FADE_IN, 0, WITH_PREVIOUS)
-                e.Timing.Duration = 0.4
+                talk.append([grp])
+        ns = {s[0][0]["n"] for s in talk}
+        mine = {}
+        for sl in list(pres.Slides):
+            n = sl.Tags(TALK_TAG)
+            if n and n not in ns:                                # a talk slide that left the talk
+                sl.Delete()
+            elif n:
+                mine[n] = sl
+        for i, steps in enumerate(talk, 1):
+            steps = join_videos(steps)
+            g = steps[0][0]
+            sl = mine.get(g["n"])
+            if sl is None:
+                sl = pres.Slides.Add(min(i, pres.Slides.Count + 1), 12)   # ppLayoutBlank
+                tag(sl, **{TALK_TAG: g["n"]})
+            sl.MoveTo(min(i, pres.Slides.Count))
+            sl.FollowMasterBackground = False
+            sl.Background.Fill.ForeColor.RGB = 0xF7FAFB          # theme SURFACE #FBFAF7 as BGR
+            seq = sl.TimeLine.MainSequence
+            for k in range(seq.Count, 0, -1):                    # the timing is rebuilt
+                seq.Item(k).Delete()
+            for sh in [sh for sh in sl.Shapes if sh.Tags(OWNER) == "build"]:
+                sh.Delete()
+            boxes = {sh.Name: sh for sh in sl.Shapes if sh.Tags(OWNER) == "label"}
+            t = 0.0
+            shown = []                                           # (second, labels) per step
+            for k, grp in enumerate(steps):
+                s0 = grp[0]
+                if s0.get("video") or s0["image"] in VIDEOS:     # the animation, voice mixed in
+                    media = s0.get("video") or compose(grp)
+                    shape = player = sl.Shapes.AddMediaObject2(str(media), False, True, 0, 0, W, H)
+                    tag(shape, **{OWNER: "build"})
+                    secs = duration(media) + GAP_S
+                else:
+                    img = fill(native(HERE / s0["image"])[0], s0["id"]) if s0["image"] else card(s0)
+                    shape = sl.Shapes.AddPicture(str(img), False, True, 0, 0, W, H)
+                    clip = audio / f"{s0['id']}.mp3"
+                    player = sl.Shapes.AddMediaObject2(str(clip), False, True, 0, 0, 32, 32)
+                    player.Left, player.Top = -100, -100         # off the slide: the icon never shows
+                    # (no PlaySettings here: touching them adds PowerPoint's own play effect to the
+                    # sequence and every later delay slips, measured 20 Oct)
+                    tag(shape, **{OWNER: "build"})
+                    tag(player, **{OWNER: "build"})
+                    secs = duration(clip) + s0["pause"] + GAP_S
+                if k:                                            # the new picture fades in over the last
+                    e = seq.AddEffect(shape, FADE_IN, 0, WITH_PREVIOUS)
+                    e.Timing.Duration = 0.4
+                    e.Timing.TriggerDelayTime = round(t, 2)
+                e = seq.AddEffect(player, MEDIA_PLAY, 0, WITH_PREVIOUS if k else AFTER_PREVIOUS)
                 e.Timing.TriggerDelayTime = round(t, 2)
-            e = seq.AddEffect(player, MEDIA_PLAY, 0, WITH_PREVIOUS if k else AFTER_PREVIOUS)
-            e.Timing.TriggerDelayTime = round(t, 2)
-            t += secs
-        if g["title"]:                                           # the boldest, biggest thing on the slide
-            tb = sl.Shapes.AddTextbox(1, TITLE_X, TITLE_Y, W - 2 * TITLE_X, 60)
-            tb.Name = "!!title"
-            tf = tb.TextFrame
-            tf.MarginLeft = tf.MarginTop = tf.MarginRight = tf.MarginBottom = 0   # the text edge IS the margin
-            tf.TextRange.Text = g["title"]
-            tf.WordWrap = False
-            style_text(tf.TextRange, TITLE_PT, True, 0x1B1D1D)
-            frame(sl, int(g["n"]))
-        total += t
-        tr = sl.SlideShowTransition
-        tr.EntryEffect = MORPH                                   # between slides (originator, 20 Oct)
-        tr.Duration = 1.0
-        tr.AdvanceOnClick = True
-        tr.AdvanceOnTime = True
-        tr.AdvanceTime = round(t, 1)
-        clicks = [x for grp in steps for x in grp]
-        sl.NotesPage.Shapes.Placeholders(2).TextFrame.TextRange.Text = (
-            f"Slide {g['n']} · {g['q']} · {len(clicks)} click(s)\n\n" + "\n\n".join(x["text"] for x in clicks))
-        print(f"slide {g['n']:>2s}: {len(steps)} step(s), {t:5.1f} s", flush=True)
-    pres.SaveAs(str(OUT))
-    pres.Close()
-    print(f"saved {OUT.name}: {len(talk)} PowerPoint slides, {total / 60:.1f} min")
+                for labels, off in s0.get("parts") or [(labels_of(s0["image"]), 0.0)]:
+                    shown.append((t + off, labels))
+                t += secs
+            want = spans(shown)
+            if g["title"]:                                       # the boldest, biggest thing on the slide
+                want["!!title"] = [title_spec(g["title"], W), 0.0, None]
+            where = f"slide {g['n']}"
+            for name, sh in list(boxes.items()):                 # words the chart no longer has
+                if name not in want:
+                    if words_of(sh) != sh.Tags(SRC):
+                        warnings.append(f"{where} '{name}': the chart dropped it, and your words "
+                                        f"{words_of(sh)!r} with it")
+                    sh.Delete()
+                    del boxes[name]
+            for name, (spec, t_in, t_out) in want.items():
+                if name in boxes:
+                    sh = boxes[name]
+                    merge_box(sh, spec, where, warnings)
+                else:
+                    sh = new_box(sl, spec)
+                tag(sh, **{OWNER: "label", SRC: spec["text"], GEOM: ",".join(str(v) for v in geom(spec))})
+                for at, leave in ((t_in, False), (t_out, True)):
+                    if at:                                       # 0 / None: there from the start / to the end
+                        e = seq.AddEffect(sh, FADE_IN, 0, WITH_PREVIOUS)
+                        e.Exit = -1 if leave else 0              # msoTrue: fade out
+                        e.Timing.Duration = 0.4
+                        e.Timing.TriggerDelayTime = round(at, 2)
+            for sh in [sh for sh in sl.Shapes if sh.Tags(OWNER) != "build"]:
+                sh.ZOrder(0)                                     # msoBringToFront: words above the pictures
+            if g["title"]:
+                frame(sl, int(g["n"]))
+            total += t
+            tr = sl.SlideShowTransition
+            tr.EntryEffect = MORPH                               # between slides (originator, 20 Oct)
+            tr.Duration = 1.0
+            tr.AdvanceOnClick = True
+            tr.AdvanceOnTime = True
+            tr.AdvanceTime = round(t, 1)
+            clicks = [x for grp in steps for x in grp]
+            sl.NotesPage.Shapes.Placeholders(2).TextFrame.TextRange.Text = (
+                f"Slide {g['n']} · {g['q']} · {len(clicks)} click(s)\n\n" + "\n\n".join(x["text"] for x in clicks))
+            print(f"slide {g['n']:>2s}: {len(steps)} step(s), {len(want)} text box(es), {t:5.1f} s", flush=True)
+        if update:
+            pres.Save()
+        else:
+            pres.SaveAs(str(out))
+    finally:
+        pres.Close()
+    for w in warnings:
+        print("WARNING", w)
+    print(f"saved {out.name}: {len(talk)} PowerPoint slides, {total / 60:.1f} min")
+    return warnings
 
 
 VIDEO = HERE / "Kinneret_Talk.mp4"
