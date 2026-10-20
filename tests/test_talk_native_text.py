@@ -64,7 +64,7 @@ def test_labels_writes_full_picture_bare_picture_and_their_words(tmp_path):
     assert c["text"] == "Photo: Someone, CC BY 2.0" and c["ha"] == "left" and not c["bold"]
     assert c["pt"] == pytest.approx(18 / 1.2, abs=0.01)           # 1920 px = 960 pt
     x0, y0, x1, y1 = c["box"]
-    assert 85 <= x0 <= 95 and y1 <= 1030 and y0 >= 990 and x1 > x0 + 300
+    assert 85 <= x0 <= 95 and 1018 < y1 <= 1030 and 975 <= y0 < 1018 and x1 > x0 + 300   # the font's line box round the baseline
     assert labels["head"]["lines"] == 2 and labels["head"]["bold"] and labels["head"]["ha"] == "center"
     a, b = (np.asarray(Image.open(p).convert("RGB"), int) for p in (full, bare))
     X0, Y0, X1, Y1 = (round(v) for v in c["box"])
@@ -208,6 +208,6 @@ def test_the_show_has_the_agreed_native_text_and_still_runs_12_minutes():
         assert not missing, f"slide {n}: no native text for {sorted(missing)}"
     secs = 0.0
     for sl in prs.slides:
-        t = sl._element.xpath("./p:transition/@advTm")
+        t = sl._element.xpath(".//p:transition/@advTm")              # Morph sits in mc:AlternateContent
         secs += int(t[0]) / 1000 if t else 0
     assert 11.5 * 60 <= secs <= 13 * 60

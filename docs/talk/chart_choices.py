@@ -57,12 +57,11 @@ TRACK = 0.31         # half-length of a track, in slider-axes units (axes span -
 KNOB_REACH = 0.58    # a winner's box sits this share of the way out, clear of the end stops
 
 
-def draw_slider(ax, s: Slider) -> None:
+def draw_slider(ax, s: Slider, L: T.Labels, i: int) -> None:
     ax.set_xlim(-0.5, 0.5)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    ax.text(-0.5, 0.88, s.title, ha="left", va="center", color=T.INK,
-            fontproperties=T.font(True, 30))
+    L.text(ax, f"row.{i}", -0.5, 0.88, s.title, 30, True, T.INK, ha="left", va="center")
     y = 0.38
     ax.plot([-TRACK, TRACK], [y, y], color=T.UNUSED, lw=10, solid_capstyle="round", zorder=1)
     kx = s.knob * KNOB_REACH * TRACK
@@ -74,8 +73,8 @@ def draw_slider(ax, s: Slider) -> None:
         col = T.USED if used else T.INK_2
         x = side * TRACK
         ax.plot([x], [y], "o", ms=18 if used else 10, color=col if used else T.FAINT, zorder=2)
-        ax.text(x + side * 0.025, y, label, ha="right" if side == -1 else "left", va="center",
-                color=col, fontproperties=T.font(used, 28))
+        L.text(ax, f"row.{i}.{'left' if side == -1 else 'right'}", x + side * 0.025, y, label, 28, used, col,
+               ha="right" if side == -1 else "left", va="center")
     ax.text(kx, y, s.result, ha="center", va="center", color=T.INK, zorder=4,
             fontproperties=T.font(True, 28),
             bbox=dict(boxstyle="round,pad=0.45,rounding_size=0.7", fc=T.SURFACE, ec=edge, lw=3.5))
@@ -87,11 +86,11 @@ def draw(path: Path = OUT) -> Path:
     top, bottom = 1 - (T.TITLE_BAND + 25) / T.H, 1 - (T.BOTTOM_RULE["y"] - 40) / T.H
     h = (top - bottom) / len(SLIDERS)
     m = T.MARGIN_X / T.W
+    L = T.Labels()                                             # row names and end words are native text
     for i, s in enumerate(SLIDERS):
         ax = fig.add_axes([m, top - (i + 1) * h, 1 - 2 * m, h * 0.92])
-        draw_slider(ax, s)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
+        draw_slider(ax, s, L, i + 1)
+    L.save(fig, path)
     plt.close(fig)
     print(f"saved {path.relative_to(ROOT)} ({T.W} x {T.H})")
     return path

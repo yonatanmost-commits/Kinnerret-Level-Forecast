@@ -183,8 +183,13 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     xs, lo, hi = S["lo_80"][0], S["lo_80"][1], S["hi_80"][1]
     at = lambda day: int(np.argmin(np.abs(np.array([x.timestamp() for x in xs]) - pd.Timestamp(day).timestamp())))
 
-    def right(y, words, colour, bold=True, size=28):
-        ax.text(endx, y, words, ha="left", va="center", color=colour, fontproperties=T.font(bold, size))
+    L = T.Labels()                                               # stamp, credit, app and the verdicts are native text
+
+    def right(y, words, colour, bold=True, size=28, name=None):
+        if name:
+            L.text(ax, name, endx, y, words, size, bold, colour, ha="left", va="center")
+        else:
+            ax.text(endx, y, words, ha="left", va="center", color=colour, fontproperties=T.font(bold, size))
 
     def mark(day, colour):
         ax.plot([pd.Timestamp(day)], [red], "o", ms=18, color=colour, mec=T.SURFACE, mew=2.5, zorder=7)
@@ -221,14 +226,14 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
         date_label(cross["median"][0]["date"], 22)
         for col, word, colour, dy in (("wet_group", "wet", T.GOOD, 0.0), ("dry_group", "dry", T.BAD, 0.08)):
             ax.plot(*S[col], color=colour, lw=4.5, zorder=3)
-            right(last[col] + dy, f"{word}  {round(meta['groups'][word]['chance_seas5'] * 100)}%", colour)
+            right(last[col] + dy, f"{word}  {round(meta['groups'][word]['chance_seas5'] * 100)}%", colour, name=word)
         down = [c for c in cross["dry_group"] if c["direction"] == "down"][0]["date"]
         mark(down, T.RED)
         date_label(down, 0)
     if frame >= 4:
-        ax.text(pd.Timestamp("2027-05-01"), -214.6,
-                f"{round(last['p_red'] * 3)} in 3: still below the red line, Oct 2027",
-                ha="center", va="center", color=T.RED, fontproperties=T.font(True, 32), zorder=8)
+        L.text(ax, "below", pd.Timestamp("2027-05-01"), -214.6,
+               f"{round(last['p_red'] * 3)} in 3: still below the red line, Oct 2027", 32, True, T.RED,
+               ha="center", va="center", zorder=8)
         k = at("2027-06-20")
         y0 = hi[k] + 0.10
         ax.annotate("", xy=(xs[k], y0 + 0.6), xytext=(xs[k], y0), annotation_clip=False,
@@ -255,23 +260,27 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     ax.set_yticks([-215, -214, -213, -212, -211, -210, -209])
     ax.set_yticklabels([f"−{abs(v)} m" for v in (-215, -214, -213, -212, -211, -210, -209)])
     style(ax)
-    fig.text(0.95, 0.905, "example run  ·  from the lake on 15 Oct 2026  ·  October seasonal forecast", ha="right",
-             va="center", color=T.INK_2, fontproperties=T.font(False, 22))   # right of the title, clear of it
+    L.text(fig, "stamp", 0.95, 0.905, "example run  ·  from the lake on 15 Oct 2026  ·  October seasonal forecast",
+           22, False, T.INK_2, ha="right", va="center")          # right of the title, clear of it
     if frame >= 4:                                               # the last frame of the talk (the takeaway slide is gone)
         from PIL import Image
         qr = fig.add_axes([0.865, 0.615, 0.085, 0.085 * T.W / T.H])   # top right, clear of the band and labels
         qr.imshow(Image.open(QR))
         qr.axis("off")
-        fig.text(0.9075, 0.605, "Between Flood\n& Drought", ha="center", va="top", color=T.INK,
-                 fontproperties=T.font(True, 19), linespacing=1.1)
-        fig.text(T.CREDIT_XY[0] / T.W, 1 - T.CREDIT_XY[1] / T.H, CREDIT, ha="left", va="baseline", color=T.INK_2,
-                 fontproperties=T.font(False, T.CREDIT_PT))
-    return save(fig, path)
+        L.text(fig, "app", 0.9075, 0.605, "Between Flood\n& Drought", 19, True, T.INK, ha="center", va="top",
+               linespacing=1.1)
+        L.text(fig, "credit", T.CREDIT_XY[0] / T.W, 1 - T.CREDIT_XY[1] / T.H, CREDIT, T.CREDIT_PT, False, T.INK_2,
+               ha="left", va="baseline")
+    return save(fig, path, L)
 
 
-def save(fig, path: Path) -> Path:
+def save(fig, path: Path, L: T.Labels | None = None) -> Path:
+    """The picture; with L, also its bare twin and native words (theme.Labels)."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
+    if L:
+        L.save(fig, path)
+    else:
+        fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
     plt.close(fig)
     print(f"saved {path.relative_to(ROOT)} ({T.W} x {T.H})")
     return path

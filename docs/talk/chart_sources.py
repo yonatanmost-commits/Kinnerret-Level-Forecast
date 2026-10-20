@@ -109,7 +109,8 @@ def draw(path: Path = OUT) -> Path:
                                     boxstyle="round,pad=0,rounding_size=0.12", mutation_aspect=1 / 6,
                                     facecolor=face, edgecolor=edge or face, linewidth=2, linestyle=ls))
 
-    for r, y in zip(data, ys):
+    L = T.Labels()                                               # row names and the two notes are native text
+    for i, (r, y) in enumerate(zip(data, ys), 1):
         s, e = yr(r.start), yr(r.end)
         if r.used_from is None:
             bar(y, s, e, T.SURFACE, edge=T.FAINT, ls=(0, (4, 3)))
@@ -131,10 +132,9 @@ def draw(path: Path = OUT) -> Path:
         # row name and detail, left of the axis
         fig_y = ax.transData.transform((0, y))[1] / T.H
         col = T.INK if r.used_from else T.INK_2
-        fig.text(0.275, fig_y + 0.012, r.name, ha="right", va="bottom", color=col,
-                 fontproperties=T.font(True, 30 if r.used_from else 23))   # 30: the longest clears the margin
-        fig.text(0.275, fig_y + 0.004, r.detail, ha="right", va="top", color=T.INK_2,
-                 fontproperties=T.font(False, 27))
+        L.text(fig, f"row.{i}", 0.275, fig_y + 0.012, r.name, 30 if r.used_from else 23, True, col,
+               ha="right", va="bottom")                         # 30: the longest clears the margin
+        L.text(fig, f"row.{i}.sub", 0.275, fig_y + 0.004, r.detail, 27, False, T.INK_2, ha="right", va="top")
         # logo (or its text stand-in) just past the bar's end
         if r.logo:
             img = load_logo(r.logo, LOGO_H.get(r.logo, 120))
@@ -149,14 +149,14 @@ def draw(path: Path = OUT) -> Path:
     yb = max(ys) + 0.62
     ax.plot([TEST_FIRST, TEST_FIRST, TEST_LAST + 1, TEST_LAST + 1], [yb - 0.12, yb, yb, yb - 0.12],
             color=T.INK_2, lw=1.6, clip_on=False)
-    ax.text((TEST_FIRST + TEST_LAST + 1) / 2, yb + 0.06, f"test years {TEST_FIRST}–{TEST_LAST}",
-            ha="center", va="bottom", color=T.INK_2, fontproperties=T.font(False, 26), clip_on=False)
+    L.text(ax, "test_years", (TEST_FIRST + TEST_LAST + 1) / 2, yb + 0.06, f"test years {TEST_FIRST}–{TEST_LAST}",
+           26, False, T.INK_2, ha="center", va="bottom", clip_on=False)
 
     # the cut: from here on every input is measured
     xc = yr(cut)
     ax.axvline(xc, color=T.RED, lw=2.4, ls=(0, (5, 4)), zorder=3)
-    ax.text(xc - 0.5, max(ys) + 0.55, "models start · " + cut.strftime("%B %Y"), ha="right", va="bottom", color=T.RED,
-            fontproperties=T.font(True, 28))
+    L.text(ax, "models_start", xc - 0.5, max(ys) + 0.55, "models start · " + cut.strftime("%B %Y"), 28, True, T.RED,
+           ha="right", va="bottom")
 
     ax.set_yticks([])
     ax.set_xticks(range(1970, 2030, 10))
@@ -169,8 +169,7 @@ def draw(path: Path = OUT) -> Path:
     for x in range(1970, 2030, 10):
         ax.axvline(x, color=T.UNUSED, lw=1, zorder=0)
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
+    L.save(fig, path)
     plt.close(fig)
     print(f"saved {path.relative_to(ROOT)} ({T.W} x {T.H})")
     return path

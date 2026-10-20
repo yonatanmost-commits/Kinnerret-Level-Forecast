@@ -404,7 +404,11 @@ def geom(spec: dict) -> list[float]:
     if "geom" in spec:
         return [round(v, 1) for v in spec["geom"]]
     x0, y0, x1, y1 = spec["box"]
+    y0 += NUDGE_PX                                           # PowerPoint sets Segoe UI a touch higher than matplotlib
     return [round(v * PT, 1) for v in (x0, y0, x1 - x0, y1 - y0)]
+
+
+NUDGE_PX = 2                                                 # measured on slide 2, 20 Oct: every label 2 px high
 
 
 def words_of(shape) -> str:
@@ -427,6 +431,13 @@ def new_box(sl, spec: dict):
     if spec.get("lines", 1) > 1:                             # the chart's line pitch
         p.LineRuleWithin = 0
         p.SpaceWithin = spec.get("pitch", round(spec["pt"] * 1.2, 1))
+    if spec.get("shadow"):                                   # light words on a photo (slide 11's credit)
+        sh = tb.TextFrame2.TextRange.Font.Shadow
+        sh.Visible = -1
+        sh.ForeColor.RGB = bgr(spec["shadow"])
+        sh.OffsetX = sh.OffsetY = 1.0
+        sh.Blur = 0
+        sh.Transparency = 0
     tb.Left, tb.Top, tb.Width, tb.Height = l, t, w, h        # typing may have resized it
     return tb
 

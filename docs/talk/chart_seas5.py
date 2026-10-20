@@ -246,6 +246,7 @@ def draw_track(step: int = TRACK_STEPS, path: Path | None = None) -> Path:
     now = d.index.max()
     inside = (past["actual_station"] >= past["ours_lo80"]) & (past["actual_station"] <= past["ours_hi80"])
     rain, dash, bars = step >= 2, step >= 3, step >= 4
+    L = T.Labels()                                               # the key and the verdict are native text
 
     fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
     ax = fig.add_axes([0.10, 0.12, 0.80, 0.60], facecolor=T.SURFACE)   # under the two-row key
@@ -287,8 +288,8 @@ def draw_track(step: int = TRACK_STEPS, path: Path | None = None) -> Path:
     if bars:
         ax.text(now, r["ours_lo80"] + 12, "?", ha="center", va="center", color=T.SURFACE,
                 fontproperties=T.font(True, 44))
-        ax.text(now + 0.5, 26, f"{int(inside.sum())} of {len(past)} inside", ha="right", va="center",
-                color=T.INK, fontproperties=T.font(True, 34))
+        L.text(ax, "inside", now + 0.5, 26, f"{int(inside.sum())} of {len(past)} inside", 34, True, T.INK,
+               ha="right", va="center")
     ax.text(now, top(r) + 5, "this\nwinter", ha="center", va="bottom", color=T.INK,
             fontproperties=T.font(True, 30), linespacing=1.0)
 
@@ -316,8 +317,8 @@ def draw_track(step: int = TRACK_STEPS, path: Path | None = None) -> Path:
                                                          (False, True, True, False))):
         if k < step:
             mark(x, y)
-            T.text_centered(lg, x + 34, y, w, 26, bold, col, ha="left")
-    return save(fig, path)
+            L.centered(lg, f"legend.{k + 1}", x + 34, y, w, 26, bold, col, ha="left")
+    return save(fig, path, L)
 
 
 if __name__ == "__main__":

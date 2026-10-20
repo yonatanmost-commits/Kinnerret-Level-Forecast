@@ -506,9 +506,41 @@ def main(preview: list[float] | None = None) -> None:
     print(f"{done} frames, {done / FPS:.1f} s -> {OUT}")
 
 
+def chrome_labels() -> "T.Labels":
+    """frame_chrome's two lines as native words for the show (originator, 20 Oct)."""
+    L = T.Labels()
+    L.pil("subtitle", T.SUBTITLE_XY, "Level on 11 November, each year", T.SUBTITLE_PT, False, INK_2, "la")
+    L.pil("source", T.CREDIT_XY, "Level: Kinneret Authority, kineret.org.il", T.CREDIT_PT, False, INK_2, "ls")
+    return L
+
+
+def bare() -> None:
+    """charts/bare/lake_years.mp4: the rendered animation with frame_chrome's two lines painted
+    out in the page colour (nothing else ever crosses them), and their words beside it. Made from
+    the existing render, so the lake, its numbers and the narration beats stay exactly as recorded."""
+    import json
+    L = chrome_labels()
+    labels = L.pil_labels()
+    dest = OUT.parent / "bare"
+    dest.mkdir(exist_ok=True)
+    pad = 6
+    boxes = []
+    for d in labels:
+        x0, y0, x1, y1 = d["box"]
+        boxes.append(f"drawbox=x={int(x0) - pad}:y={int(y0) - pad}:w={int(x1 - x0) + 2 * pad}:"
+                     f"h={int(y1 - y0) + 2 * pad}:color=0x{T.SURFACE[1:]}:t=fill")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(OUT), "-vf", ",".join(boxes),
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-preset", "slow",
+                    "-movflags", "+faststart", str(dest / OUT.name)], check=True)
+    (dest / f"{OUT.stem}.labels.json").write_text(json.dumps({"labels": labels}, indent=1, ensure_ascii=False),
+                                                  encoding="utf-8")
+    print(f"saved {dest / OUT.name} and its {len(labels)} labels")
+
+
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", type=float, nargs="*", help="only save stills at these seconds")
+    ap.add_argument("--bare", action="store_true", help="only make the show's bare copy of the render")
     a = ap.parse_args()
-    main(a.preview)
+    bare() if a.bare else main(a.preview)

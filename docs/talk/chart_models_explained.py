@@ -67,9 +67,10 @@ def draw(path: Path = OUT) -> Path:
 
     mid = T.W / 2
     ax.plot([mid, mid], [200, 960], color=T.FAINT, lw=2)
-    for x, head, name in ((mid / 2, "Classic ML", "GBR"), (mid * 1.5, "Deep learning", "GRU")):
-        ax.text(x, 250, head, ha="center", va="center", color=T.INK, fontproperties=T.font(True, 44))
-        ax.text(x, 325, name, ha="center", va="center", color=T.INK_2, fontproperties=T.font(False, 34))
+    L = T.Labels()                                               # the headings are native text in the show
+    for side, x, head, name in (("left", mid / 2, "Classic ML", "GBR"), ("right", mid * 1.5, "Deep learning", "GRU")):
+        L.text(ax, side, x, 250, head, 44, True, T.INK, ha="center", va="center")
+        L.text(ax, f"{side}.sub", x, 325, name, 34, False, T.INK_2, ha="center", va="center")
 
     # LEFT - boosting: trees, each smaller, joined by "+", then "= forecast"
     mid_y = 630                                                  # trees centred on this line
@@ -117,8 +118,7 @@ def draw(path: Path = OUT) -> Path:
     arrow(ax, (x_last, cy - h / 2 - 4), (x_last, 470), head=12)
     ax.text(x_last, 435, "forecast", ha="center", va="center", color=T.INK, fontproperties=T.font(True, 34))
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
+    L.save(fig, path)
     plt.close(fig)
     print(f"saved {path.relative_to(ROOT)} ({T.W} x {T.H})")
     return path

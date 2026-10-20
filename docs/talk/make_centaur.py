@@ -36,11 +36,9 @@ def draw(path: Path = OUT) -> Path:
     mask = mask.filter(ImageFilter.GaussianBlur(FEATHER / 2))
     page = Image.new("RGB", (T.W, T.H), T.SURFACE)
     page.paste(im, ((T.W - im.width) // 2, TOP), mask)
-    d = ImageDraw.Draw(page)
-    font = ImageFont.truetype(str(T.FONT_LIGHT), round(T.CREDIT_PT * T.DPI / 72))
-    d.text(T.CREDIT_XY, CREDIT, font=font, fill=T.INK_2, anchor="ls")       # baseline on the bottom rule's line
-    path.parent.mkdir(parents=True, exist_ok=True)
-    page.save(path)
+    L = T.Labels()                                              # the credit is native text in the show
+    L.pil("credit", T.CREDIT_XY, CREDIT, T.CREDIT_PT, False, T.INK_2, "ls")  # baseline on the bottom rule's line
+    L.save_pil(page, path)
     print(f"saved {path.name}")
     return path
 

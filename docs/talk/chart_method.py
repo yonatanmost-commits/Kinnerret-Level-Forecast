@@ -36,7 +36,7 @@ C1, C2, C3, C4 = (55, 525), (585, 885), (950, 1320), (1385, 1880)
 TEXT = 26
 
 
-def box(ax, x0, x1, yc, h, words, kind="data", icon=None):
+def box(ax, x0, x1, yc, h, words, kind="data", icon=None, L=None, name=None):
     """A rounded box. kind: data (inputs), model (soft teal), out (the lane's result, teal ring)."""
     face, edge, lw, bold = {"data": (T.SURFACE, T.FAINT, 3, False),
                             "model": (T.USED_SOFT, T.USED, 3, True),
@@ -50,8 +50,13 @@ def box(ax, x0, x1, yc, h, words, kind="data", icon=None):
         ty = yc + h / 2 - 45
     lines = words.split("\n")
     step = TEXT * 1.22 * T.DPI / 72
-    for i, line in enumerate(lines):
-        T.text_centered(ax, cx, ty + (i - (len(lines) - 1) / 2) * step, line, TEXT, bold and i == 0, T.INK)
+    y0 = ty - (len(lines) - 1) / 2 * step                         # the first line's centre
+    if bold:                                                     # a bold first line, the rest light
+        L.lines(ax, name, cx, y0, lines[:1], step, TEXT, True, T.INK, ha="center")
+        if lines[1:]:
+            L.lines(ax, f"{name}.sub", cx, y0 + step, lines[1:], step, TEXT, False, T.INK, ha="center")
+    else:
+        L.lines(ax, name, cx, y0, lines, step, TEXT, False, T.INK, ha="center")
 
 
 def trees_icon(ax, cx, top):
@@ -82,37 +87,35 @@ def draw(path: Path = OUT) -> Path:
     ax.set_aspect("equal")
     ax.axis("off")
 
+    L = T.Labels()                                               # the lanes' words are native text in the show
     # WEEK AHEAD
-    ax.text(C1[0], 215, "Week ahead  ·  retrained every morning", ha="left", va="center", color=T.INK,
-            fontproperties=T.font(True, 34))
+    L.text(ax, "lane.1", C1[0], 215, "Week ahead  ·  retrained every morning", 34, True, T.INK, ha="left", va="center")
     y = 355
-    box(ax, *C1, y, 150, "weather forecast\n7 days")
-    box(ax, *C2, y, 190, "Jordan's flow", "model", trees_icon)
-    box(ax, *C3, y, 190, "lake's change", "model", trees_icon)
-    box(ax, *C4, y, 150, "level\n7 days", "out")
+    box(ax, *C1, y, 150, "weather forecast\n7 days", L=L, name="box.1")
+    box(ax, *C2, y, 190, "Jordan's flow", "model", trees_icon, L, "box.2")
+    box(ax, *C3, y, 190, "lake's change", "model", trees_icon, L, "box.3")
+    box(ax, *C4, y, 150, "level\n7 days", "out", L=L, name="box.4")
     flow(ax, C1[1], C2[0], y)
     flow(ax, C2[1], C3[0], y)
     flow(ax, C3[1], C4[0], y)
 
     # YEAR AHEAD
-    ax.text(C1[0], 535, "Year ahead  ·  one run per past winter", ha="left", va="center", color=T.INK,
-            fontproperties=T.font(True, 34))
+    L.text(ax, "lane.2", C1[0], 535, "Year ahead  ·  one run per past winter", 34, True, T.INK, ha="left", va="center")
     y, top_in, low_in = 740, 645, 835
-    box(ax, *C1, top_in, 130, "last 14 days\nlake · river · weather")
-    box(ax, *C1, low_in, 130, "weather ahead\nfrom each past winter")
+    box(ax, *C1, top_in, 130, "last 14 days\nlake · river · weather", L=L, name="box.5")
+    box(ax, *C1, low_in, 130, "weather ahead\nfrom each past winter", L=L, name="box.6")
     T.text_centered(ax, (C1[0] + C1[1]) / 2, (top_in + low_in) / 2, "+", 40, True, T.INK)
-    box(ax, *C2, y, 200, "GRU", "model", chain_icon)
-    box(ax, *C3, y, 170, "one future\nper winter")
-    box(ax, *C4, y, 200, "forecast\nwinters weighted\nby Copernicus", "out")
+    box(ax, *C2, y, 200, "GRU", "model", chain_icon, L, "box.7")
+    box(ax, *C3, y, 170, "one future\nper winter", L=L, name="box.8")
+    box(ax, *C4, y, 200, "forecast\nwinters weighted\nby Copernicus", "out", L=L, name="box.9")
     for yin in (top_in, low_in):                                 # both inputs feed the GRU
         arrow(ax, (C1[1] + 8, yin), (C2[0] - 8, y + (yin - y) * 0.35), head=12)
     flow(ax, C2[1], C3[0], y)
     flow(ax, C3[1], C4[0], y)
 
-    T.text_centered(ax, T.W / 2, 990, "trained on station data from July 2002", 30, False, T.INK_2)
+    L.centered(ax, "footer", T.W / 2, 990, "trained on station data from July 2002", 30, False, T.INK_2)
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
+    L.save(fig, path)
     plt.close(fig)
     print(f"saved {path.relative_to(ROOT)} ({T.W} x {T.H})")
     return path

@@ -69,21 +69,22 @@ def draw(path: Path = OUT) -> Path:
     cell_w, cell_h = 235, 160
 
     span_x = (col_x[0] + col_x[-1]) / 2
+    L = T.Labels()                                               # headers, names and notes are native text
     if TITLE:
         T.title(fig, TITLE)
-    ax.text(span_x, row_y0 + (len(MODELS) - 0.5) * row_h + 75, BELOW, ha="center", va="center",
-            color=T.INK_2, fontproperties=T.font(True, 32))
-    ax.text(name_x, row_y0 + (len(MODELS) - 0.5) * row_h + 75, STAR, ha="left", va="center",
-            color=T.INK_2, fontproperties=T.font(False, 30))
-    ax.text(type_x, head_y, "Model type", ha="left", va="center", color=T.INK_2, fontproperties=T.font(True, 32))
-    for x, c in zip(col_x, COLUMNS):
-        ax.text(x, head_y, c, ha="center", va="center", color=T.INK_2, fontproperties=T.font(True, 32))
+    L.text(ax, "caption", span_x, row_y0 + (len(MODELS) - 0.5) * row_h + 75, BELOW, 32, True, T.INK_2,
+           ha="center", va="center")
+    L.text(ax, "star", name_x, row_y0 + (len(MODELS) - 0.5) * row_h + 75, STAR, 30, False, T.INK_2,
+           ha="left", va="center")
+    L.text(ax, "header.type", type_x, head_y, "Model type", 32, True, T.INK_2, ha="left", va="center")
+    for k, (x, c) in enumerate(zip(col_x, COLUMNS), 1):
+        L.text(ax, f"header.{k}", x, head_y, c, 32, True, T.INK_2, ha="center", va="center")
     ax.plot([name_x, col_x[-1] + cell_w / 2], [head_y + 55] * 2, color=T.FAINT, lw=2)
 
     for r, (name, kind, cells) in enumerate(MODELS):
         y = row_y0 + r * row_h
-        T.text_centered(ax, name_x, y, name, 50, True, T.INK, ha="left")
-        T.text_centered(ax, type_x, y, kind, 32, False, T.INK, ha="left")
+        L.centered(ax, f"model.{r + 1}", name_x, y, name, 50, True, T.INK, ha="left")
+        L.centered(ax, f"model.{r + 1}.type", type_x, y, kind, 32, False, T.INK, ha="left")
         for c, (x, v) in enumerate(zip(col_x, cells)):
             best = r in BEST[c]
             if best:
@@ -96,8 +97,7 @@ def draw(path: Path = OUT) -> Path:
                                             edgecolor=T.USED, linewidth=5, zorder=3))
             T.text_centered(ax, x, y, v, 62, best, T.INK, zorder=2)
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
+    L.save(fig, path)
     plt.close(fig)
     print(f"saved {path.relative_to(ROOT)} ({T.W} x {T.H})")
     return path

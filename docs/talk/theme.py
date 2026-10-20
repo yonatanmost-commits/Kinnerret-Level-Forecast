@@ -69,6 +69,9 @@ def text_centered(ax, x: float, y: float, words: str, size: float, bold: bool, c
             fontproperties=font(bold, size), **kw)
 
 
+ASCENT, DESCENT = 2210 / 2048, 514 / 2048       # Segoe UI's line box, em (hhea): PowerPoint's single line
+
+
 class Labels:
     """A chart's words that the show sets as native PowerPoint text (originator, 20 Oct: "so i can
     design some of it by hand"). Draw them through here instead of ax.text; save() writes the full
@@ -106,6 +109,57 @@ class Labels:
             a.set_linespacing(1.0 + (pitch - p1) / (p2 - p1))
         return a
 
+    def pil(self, name: str, xy: tuple[float, float], words: str, size: float, bold: bool, color: str,
+            anchor: str = "ls", shadow: str | None = None) -> None:
+        """A single-line label for a PIL picture (photos, the lake animation): size in points at
+        slide scale like font(), anchor as PIL's. Drawn by save_pil() on the full picture only."""
+        self.items.append((name, dict(xy=xy, words=words, size=size, anchor=anchor, shadow=shadow), bold, color))
+
+    def pil_font(self, size: float, bold: bool):
+        from PIL import ImageFont
+        return ImageFont.truetype(str(FONT_BOLD if bold else FONT_LIGHT), round(size * DPI / 72))
+
+    def draw_pil(self, im) -> None:
+        """The labels drawn onto a PIL picture, as the full (review) picture shows them."""
+        from PIL import ImageDraw
+        d = ImageDraw.Draw(im)
+        for _, p, bold, color in self.items:
+            f = self.pil_font(p["size"], bold)
+            x, y = p["xy"]
+            if p["shadow"]:
+                d.text((x + 2, y + 2), p["words"], font=f, fill=p["shadow"], anchor=p["anchor"])
+            d.text((x, y), p["words"], font=f, fill=color, anchor=p["anchor"])
+
+    def pil_labels(self) -> list[dict]:
+        out = []
+        for name, p, bold, color in self.items:
+            f = self.pil_font(p["size"], bold)
+            x, y = p["xy"]
+            base = y + f.getbbox(p["words"], anchor=p["anchor"])[1] - f.getbbox(p["words"], anchor="ls")[1]
+            x0, _, x1, _ = f.getbbox(p["words"], anchor=p["anchor"])
+            em = round(p["size"] * DPI / 72)
+            ha = {"l": "left", "m": "center", "r": "right"}[p["anchor"][0]]
+            d = {"name": name, "text": p["words"], "box": [round(x + x0, 1), round(base - ASCENT * em, 1),
+                                                           round(x + x1, 1), round(base + DESCENT * em, 1)],
+                 "ha": ha, "pt": round(em * 0.5, 2), "bold": bold, "color": color, "lines": 1}
+            if p["shadow"]:
+                d["shadow"] = p["shadow"]
+            out.append(d)
+        return out
+
+    def save_pil(self, im, path: Path) -> Path:
+        """`im` without the words -> bare/, with them -> path; the words -> bare/<stem>.labels.json."""
+        import json
+        bare = path.parent / "bare"
+        bare.mkdir(parents=True, exist_ok=True)
+        im.save(bare / path.name)
+        full = im.copy()
+        self.draw_pil(full)
+        full.save(path)
+        (bare / f"{path.stem}.labels.json").write_text(json.dumps({"labels": self.pil_labels()}, indent=1,
+                                                                  ensure_ascii=False), encoding="utf-8")
+        return path
+
     def save(self, fig, path: Path, **kw) -> Path:
         import json
         names = [n for n, *_ in self.items]
@@ -122,8 +176,15 @@ class Labels:
             if not a.get_visible() or not a.get_text():
                 continue
             b = a.get_window_extent(r)                            # display px, y up
+            # The box from the baselines and the FONT's ascent and descent, not the letters' (a box
+            # round "WHO" has no descent and would centre it lower than "who" in PowerPoint).
+            _, info, desc = a._get_layout(r)
+            em = a.get_fontsize() * DPI / 72
+            last = H - b.y0 - desc                                # the last line's baseline, y down
+            first = last - (abs(info[0][-1] - info[-1][-1]) if len(info) > 1 else 0)
             labels.append({"name": name, "text": a.get_text(),
-                           "box": [round(b.x0, 1), round(H - b.y1, 1), round(b.x1, 1), round(H - b.y0, 1)],
+                           "box": [round(b.x0, 1), round(first - ASCENT * em, 1), round(b.x1, 1),
+                                   round(last + DESCENT * em, 1)],
                            "ha": a.get_horizontalalignment(), "pt": round(a.get_fontsize() * DPI / 72 * 0.5, 2),
                            "bold": bold, "color": color, "lines": a.get_text().count("\n") + 1})
             if labels[-1]["lines"] > 1:                           # the line pitch, slide points

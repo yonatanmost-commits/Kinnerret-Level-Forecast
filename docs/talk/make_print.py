@@ -116,13 +116,10 @@ def draw_full(path: Path = FULL) -> Path:
     for y in range(band):
         d.line([(0, y), (T.W, y)], fill=int(250 * min(1.0, 1.35 * (1 - y / band)) ** 1.2))
     im.paste(Image.new("RGB", (T.W, T.H), T.SURFACE), (0, 0), fade)
-    d = ImageDraw.Draw(im)
-    font = ImageFont.truetype(str(T.FONT_LIGHT), round(T.CREDIT_PT * T.DPI / 72))
     credit = "Degania Dam  ·  Photo: JNF Photo Archive"
-    x, y = T.CREDIT_XY                                           # the theme's credit spot, bottom left
-    d.text((x + 2, y + 2), credit, font=font, fill="#000000", anchor="ls")
-    d.text((x, y), credit, font=font, fill="#FFFFFF", anchor="ls")
-    im.save(path)
+    L = T.Labels()                                               # the credit is native text in the show
+    L.pil("credit", T.CREDIT_XY, credit, T.CREDIT_PT, False, "#FFFFFF", "ls", shadow="#000000")  # bottom left
+    L.save_pil(im, path)
     print(f"saved {path.name}")
     return path
 
