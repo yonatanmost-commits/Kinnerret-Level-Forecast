@@ -165,7 +165,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     Smoothed with PCHIP (no overshoot; dots on the real points); ONE band, the 80% range (the best
     tested). 1 today + red line + a line per past winter; 2 + the 80% band, "8 in 10" (replays
     fade); 3 + a dot a month for the most likely level ("+1 m" at 12 months), the green ~23 Feb
-    crossing, wet / dry with their chances, the red ~14 Jun (dry falls back under); 4 the band's
+    crossing; 4 the band's
     part under the red line turns red, "1 in 3: still below the red line, Oct 2027", and "misses:
     mostly up here" on the top edge (12 months: 16% above the top, 7% below the bottom).
     Cut vs v3: 50/90% bands, error bars, the average winter, the on-chart 2018 callout."""
@@ -216,7 +216,8 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
         else:
             ax.fill_between(xs, lo, hi, color=T.USED, alpha=0.30, lw=0, zorder=1)
         k = at("2027-08-15")
-        ax.text(xs[k], hi[k] - 0.12, "8 in 10", ha="center", va="top", color=T.INK,
+        ax.text(xs[k], hi[k] - 0.12, "~7.7 in 10",                # measured: 77% at 12 months (originator, 23 Oct)
+                ha="center", va="top", color=T.INK,
                 fontproperties=T.font(True, 32), zorder=6)
     if frame >= 3:
         ax.plot(dots["date"], dots["median"], "o", ms=16, color=T.INK, zorder=5)
@@ -224,12 +225,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
         right(m12["median"], f"+{rise:.0f} m", T.INK, size=36)
         mark(cross["median"][0]["date"], T.GOOD)
         date_label(cross["median"][0]["date"], 22)
-        for col, word, colour, dy in (("wet_group", "wet", T.GOOD, 0.0), ("dry_group", "dry", T.BAD, 0.08)):
-            ax.plot(*S[col], color=colour, lw=4.5, zorder=3)
-            right(last[col] + dy, f"{word}  {round(meta['groups'][word]['chance_seas5'] * 100)}%", colour, name=word)
-        down = [c for c in cross["dry_group"] if c["direction"] == "down"][0]["date"]
-        mark(down, T.RED)
-        date_label(down, 0)
+        # the wet / dry lines and the dry ~14 Jun fall-back left the chart (originator, 23 Oct: not spoken)
     if frame >= 4:
         L.text(ax, "below", pd.Timestamp("2027-05-01"), -214.6,
                f"{round(last['p_red'] * 3)} in 3: still below the red line, Oct 2027", 32, True, T.RED,

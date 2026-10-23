@@ -185,7 +185,7 @@ def test_rebuild_keeps_hand_design_and_hand_words(talk):
 AGREED = {   # talk slide -> label names that must be native text (agreed 2026-10-20, scope A + B)
     1: {"subtitle", "source"},
     2: {"who", "how", "who.1", "how.1", "who.5", "how.5"},
-    3: {"credit"},
+    4: {"credit"},                       # the centaur, after the app since 23 Oct
     5: {"row.1", "row.4", "models_start", "test_years"},
     6: {"left", "left.sub", "right", "right.sub"},
     7: {"row.1", "row.4"},
@@ -193,7 +193,7 @@ AGREED = {   # talk slide -> label names that must be native text (agreed 2026-1
     9: {"lane.1", "lane.2", "footer"},
     10: {"star", "caption", "header.1", "model.1", "model.2"},
     11: {"credit"},
-    12: {"stamp", "credit", "app", "below", "wet", "dry"},
+    12: {"stamp", "credit", "app", "below"},          # wet / dry left the chart 23 Oct
 }
 
 
@@ -210,4 +210,4 @@ def test_the_show_has_the_agreed_native_text_and_still_runs_12_minutes():
     for sl in prs.slides:
         t = sl._element.xpath(".//p:transition/@advTm")              # Morph sits in mc:AlternateContent
         secs += int(t[0]) / 1000 if t else 0
-    assert 11.5 * 60 <= secs <= 13 * 60
+    assert 9.5 * 60 <= secs <= 13 * 60          # the originator's own, shorter script (23 Oct): 10.4 min

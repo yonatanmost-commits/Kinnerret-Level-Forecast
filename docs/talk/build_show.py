@@ -51,10 +51,13 @@ VIDS = SHOW / "video"
 # 2x, the split at its own pace, about 35 s in all. Beats on the played video: 2018 and the
 # island from the start; "below the red line again" ending on the 11 Nov 2026 stop (52 s / 2);
 # "a year from now?" as the lake splits (53 s / 2).
-VIDEOS = {"charts/lake_years.gif": ("charts/lake_years.mp4", (1.0, ("end", 26.0), 26.6), (2.0, 53.0)),
+# 23 Oct (originator's own script): one paragraph over the whole lake, from the first second.
+# The sliders (slide 7): each click slides one knob to its result, the voice from its start.
+VIDEOS = {"charts/lake_years.gif": ("charts/lake_years.mp4", (1.0,), (2.0, 53.0)),
+          **{f"charts/choices_sliders_{k}.png": (f"charts/choices_sliders_{k}.mp4", (0.0,), None) for k in range(1, 5)},
           "charts/slide1_map.gif": ("charts/slide1_map.mp4", (0.5,), None),
           # slide 4 (originator, 20 Oct): the app full screen, light, scrolling slowly under the title
-          "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), None)}
+          "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), (2.5, 54.0))}   # 2.5x: its paragraph is 14 s (23 Oct)
 PAUSE_S = 2.0                     # a "[pause]" in the script
 GAP_S = 0.6                       # silence after each clip before the show moves on
 
@@ -95,7 +98,9 @@ def segments() -> list[dict]:
 
 
 def same_picture(a: str, b: str) -> bool:
-    return a == b and a not in VIDEOS or (a != b and (HERE / a).read_bytes() == (HERE / b).read_bytes())
+    if a in VIDEOS or b in VIDEOS:                               # a still before its own video is still a click
+        return False
+    return a == b or (HERE / a).read_bytes() == (HERE / b).read_bytes()
 
 
 def offline(txt: Path, mp3: Path) -> None:
@@ -267,7 +272,7 @@ def icon_levels() -> dict[int, float]:
 
 
 @functools.cache
-def lake_icon(level: float) -> Path:
+def lake_icon(level: float, fmt: str = "png") -> Path:
     """The small lake at the end of the bottom rule: the app's outline, water up to `level`."""
     import matplotlib
     matplotlib.use("Agg")
@@ -277,7 +282,7 @@ def lake_icon(level: float) -> Path:
     sys.path.insert(0, str(HERE))
     import theme as T
     from chart_fan import lake_outline
-    out = CARDS / f"lake_icon_{level:.2f}.png"
+    out = CARDS / f"lake_icon_{level:.2f}.{fmt}"
     CARDS.mkdir(parents=True, exist_ok=True)
     x, lvl, units = lake_outline()
     h = T.LAKE_ICON["h"]
@@ -298,30 +303,48 @@ def lake_icon(level: float) -> Path:
     return out
 
 
-@functools.cache
-def rules() -> Path:
-    """The two rules, as one transparent picture (the staff-gauge ticks were tried and dropped, 20 Oct)."""
-    from PIL import Image, ImageDraw
-    sys.path.insert(0, str(HERE))
-    import theme as T
-    out = CARDS / "frame_rules.png"
-    CARDS.mkdir(parents=True, exist_ok=True)
-    k = 2                                                         # drawn at twice the size
-    im = Image.new("RGBA", (T.W * k, T.H * k), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    for r in (T.TITLE_RULE, T.BOTTOM_RULE):
-        y, w = r["y"], r["width"]
-        d.rectangle([r["x0"] * k, (y - w / 2) * k, r["x1"] * k, (y + w / 2) * k], fill=T.USED)
-    im.resize((T.W, T.H), Image.LANCZOS).save(out)
-    return out
+# The bar under the title (originator's hand design in the submission deck, 23 Oct): a thin
+# rounded bar across the whole slide, teal at the left fading to white at the right. It replaces
+# the rule; the bottom rule left the same day.
+TITLE_BAR = dict(top=65.4, height=2.835)                       # points
+TITLE_BAR_STOPS = [("#FFFFFF", 0.0), ("#76CBC1", 0.5), ("#1BA898", 1.0)]   # bg1, accent1 60% + 40% white, accent1
+
+
+def title_bar(shapes, name: str = "title bar"):
+    """The title bar on a slide or the master (native shape, so it stays sharp and editable)."""
+    bar = shapes.AddShape(5, 0, TITLE_BAR["top"], 960, TITLE_BAR["height"])   # msoShapeRoundedRectangle
+    bar.Name = name
+    bar.Line.Visible = 0
+    f = bar.Fill
+    f.TwoColorGradient(1, 1)                                     # msoGradientHorizontal; stops set below
+    f.GradientAngle = 180                                        # the user's bar: white at the right end
+    st = f.GradientStops
+    while st.Count > 2:
+        st.Delete(st.Count)
+    (c0, p0), (c1, p1), (c2, p2) = TITLE_BAR_STOPS
+    st.Item(1).Color.RGB, st.Item(1).Position = bgr(c0), p0
+    st.Item(2).Color.RGB, st.Item(2).Position = bgr(c2), p2
+    st.Insert(bgr(c1), p1)
+    if bar.HasTextFrame:
+        bar.TextFrame.TextRange.Text = ""
+    return bar
+
+
+# Hand moves from the submission deck (originator, 23 Oct), as offsets in points from where the
+# chart puts a shape, for both decks: talk slide -> shape name -> (dx, dy).
+# (23 Oct: slide 4's photo moves, +7 pt and the credit +180/+18.7, retired with the Louvre photo)
+HAND_MOVES: dict[str, dict[str, tuple[float, float]]] = {}
+
+
+def moved(n: str, name: str) -> tuple[float, float]:
+    return HAND_MOVES.get(n, {}).get(name, (0.0, 0.0))
 
 
 def frame(sl, n: int) -> None:
-    """The theme's frame: the gauge rules, and the lake at the bottom rule's end at slide n's level."""
+    """The theme's frame: the title bar, and the small lake at slide n's level."""
     sys.path.insert(0, str(HERE))
     import theme as T
-    r = sl.Shapes.AddPicture(str(rules()), False, True, 0, 0, T.W * PT, T.H * PT)
-    r.Name = "!!rules"
+    r = title_bar(sl.Shapes, "!!rules")                          # Morph pairs the "!!" names across slides
     r.Tags.Add("owner", "build")
     k = T.LAKE_ICON
     icon = sl.Shapes.AddPicture(str(lake_icon(round(icon_levels()[n], 2))), False, True, k["x"] * PT, k["y"] * PT)
@@ -372,7 +395,7 @@ def join_videos(steps: list[list[dict]]) -> list[list[dict]]:
         if prev and grp[0]["image"] in VIDEOS and (prev[0].get("video") or prev[0]["image"] in VIDEOS):
             a = prev[0].get("video") or compose(prev)
             b = compose(grp)
-            joined = VIDS / f"{prev[0]['id']}_joined.mp4"
+            joined = VIDS / f"{prev[0]['id']}_to_{grp[0]['id']}.mp4"   # never its own input (3+ videos)
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(a), "-i", str(b), "-filter_complex",
                             "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
                             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-c:a", "aac", "-b:a", "128k",
@@ -405,7 +428,9 @@ def geom(spec: dict) -> list[float]:
         return [round(v, 1) for v in spec["geom"]]
     x0, y0, x1, y1 = spec["box"]
     y0 += NUDGE_PX                                           # PowerPoint sets Segoe UI a touch higher than matplotlib
-    return [round(v * PT, 1) for v in (x0, y0, x1 - x0, y1 - y0)]
+    dx, dy = spec.get("move", (0.0, 0.0))                    # a hand move (HAND_MOVES)
+    l, t, w, h = (v * PT for v in (x0, y0, x1 - x0, y1 - y0))
+    return [round(v, 1) for v in (l + dx, t + dy, w, h)]
 
 
 NUDGE_PX = 2                                                 # measured on slide 2, 20 Oct: every label 2 px high
@@ -562,6 +587,9 @@ def build(out: Path = OUT, segs: list[dict] | None = None, audio: Path = AUDIO) 
                     tag(shape, **{OWNER: "build"})
                     tag(player, **{OWNER: "build"})
                     secs = duration(clip) + s0["pause"] + GAP_S
+                shape.Name = f"step {k + 1}"
+                dx, dy = moved(g["n"], shape.Name)
+                shape.Left, shape.Top = shape.Left + dx, shape.Top + dy
                 if k:                                            # the new picture fades in over the last
                     e = seq.AddEffect(shape, FADE_IN, 0, WITH_PREVIOUS)
                     e.Timing.Duration = 0.4
@@ -572,6 +600,8 @@ def build(out: Path = OUT, segs: list[dict] | None = None, audio: Path = AUDIO) 
                     shown.append((t + off, labels))
                 t += secs
             want = spans(shown)
+            for name, w in want.items():
+                w[0] = dict(w[0], move=moved(g["n"], name))
             if g["title"]:                                       # the boldest, biggest thing on the slide
                 want["!!title"] = [title_spec(g["title"], W), 0.0, None]
             where = f"slide {g['n']}"

@@ -57,44 +57,102 @@ TRACK = 0.31         # half-length of a track, in slider-axes units (axes span -
 KNOB_REACH = 0.58    # a winner's box sits this share of the way out, clear of the end stops
 
 
-def draw_slider(ax, s: Slider, L: T.Labels, i: int) -> None:
+def mix(a: str, b: str, f: float) -> tuple:
+    """Colour a, moved share f of the way to colour b."""
+    ca, cb = (tuple(int(c[i:i + 2], 16) / 255 for i in (1, 3, 5)) for c in (a, b))
+    return tuple(x + (y - x) * f for x, y in zip(ca, cb))
+
+
+def draw_slider(ax, s: Slider, L: T.Labels | None, i: int, p: float = 1.0) -> None:
+    """One slider, its knob share p of the way from the middle to its result (originator, 23 Oct:
+    "all start in the middle and each click moves an analog slider to its result"). The result
+    fades into the knob over the last stretch, and the end in use turns teal as it arrives, so the
+    end words are drawn in the picture (only the row names are native text)."""
     ax.set_xlim(-0.5, 0.5)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    L.text(ax, f"row.{i}", -0.5, 0.88, s.title, 30, True, T.INK, ha="left", va="center")
+    if L is not None:
+        L.text(ax, f"row.{i}", -0.5, 0.88, s.title, 30, True, T.INK, ha="left", va="center")
     y = 0.38
     ax.plot([-TRACK, TRACK], [y, y], color=T.UNUSED, lw=10, solid_capstyle="round", zorder=1)
-    kx = s.knob * KNOB_REACH * TRACK
-    edge = T.USED if s.used else T.INK_2
-    if s.knob:                                                 # the winner's stretch, filled
+    kx = s.knob * KNOB_REACH * TRACK * p
+    arrive = min(1.0, max(0.0, (p - 0.6) / 0.4))                # the last 40% of the way
+    edge = mix(T.INK_2, T.USED if s.used else T.INK_2, arrive)
+    if s.knob and p > 0:                                       # the winner's stretch, filled
         ax.plot([0, kx], [y, y], color=edge, lw=10, solid_capstyle="round", zorder=2, alpha=0.35)
     for side, label in ((-1, s.left), (1, s.right)):
         used = s.used == ("left" if side == -1 else "right")
-        col = T.USED if used else T.INK_2
         x = side * TRACK
-        ax.plot([x], [y], "o", ms=18 if used else 10, color=col if used else T.FAINT, zorder=2)
-        L.text(ax, f"row.{i}.{'left' if side == -1 else 'right'}", x + side * 0.025, y, label, 28, used, col,
-               ha="right" if side == -1 else "left", va="center")
-    ax.text(kx, y, s.result, ha="center", va="center", color=T.INK, zorder=4,
+        ax.plot([x], [y], "o", ms=10 + 8 * arrive if used else 10,
+                color=mix(T.FAINT, T.USED, arrive) if used else T.FAINT, zorder=2)
+        ax.text(x + side * 0.025, y, label, color=mix(T.INK_2, T.USED, arrive) if used else T.INK_2,
+                fontproperties=T.font(used and arrive > 0.5, 28), ha="right" if side == -1 else "left",
+                va="center")
+    ax.text(kx, y, s.result, ha="center", va="center", color=T.INK, alpha=arrive, zorder=4,
             fontproperties=T.font(True, 28),
             bbox=dict(boxstyle="round,pad=0.45,rounding_size=0.7", fc=T.SURFACE, ec=edge, lw=3.5))
 
 
-def draw(path: Path = OUT) -> Path:
+def figure(progress: list[float], L: T.Labels | None):
     fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
     # between the title rule and the bottom rule (originator, 20 Oct: "space it"), on the margins
     top, bottom = 1 - (T.TITLE_BAND + 25) / T.H, 1 - (T.BOTTOM_RULE["y"] - 40) / T.H
     h = (top - bottom) / len(SLIDERS)
     m = T.MARGIN_X / T.W
-    L = T.Labels()                                             # row names and end words are native text
-    for i, s in enumerate(SLIDERS):
+    for i, (s, p) in enumerate(zip(SLIDERS, progress)):
         ax = fig.add_axes([m, top - (i + 1) * h, 1 - 2 * m, h * 0.92])
-        draw_slider(ax, s, L, i + 1)
+        draw_slider(ax, s, L, i + 1, p)
+    return fig
+
+
+def draw(path: Path = OUT, progress: list[float] | None = None) -> Path:
+    L = T.Labels()                                             # the row names are native text
+    fig = figure(progress or [1.0] * len(SLIDERS), L)
     L.save(fig, path)
     plt.close(fig)
     print(f"saved {path.relative_to(ROOT)} ({T.W} x {T.H})")
     return path
 
 
+FPS, MOVE_S, HOLD_S = 30, 1.4, 0.4
+
+
+def ease(f: float) -> float:
+    return 3 * f * f - 2 * f * f * f
+
+
+def animate() -> None:
+    """Step 0 (charts/choices_sliders_0.png): every knob in the middle. Click k: slider k slides to
+    its result, charts/choices_sliders_k.mp4 (its last frame is choices_sliders_k.png, for the
+    review page); bare/choices_sliders_k.mp4 is the same without the row names, beside their
+    labels.json, for the decks."""
+    import shutil
+    import subprocess
+    import tempfile
+    import numpy as np
+    from PIL import Image
+    n = len(SLIDERS)
+    bare = OUT.parent / "bare"
+    draw(OUT.with_name("choices_sliders_0.png"), [0.0] * n)
+    steps, hold = int(MOVE_S * FPS), int(HOLD_S * FPS)
+    for k in range(1, n + 1):
+        draw(OUT.with_name(f"choices_sliders_{k}.png"), [1.0] * k + [0.0] * (n - k))
+        with tempfile.TemporaryDirectory() as tmp:
+            for kind, dest in (("bare", bare), ("full", OUT.parent)):
+                for j in range(steps + hold):
+                    prog = [1.0] * (k - 1) + [ease(min(1.0, j / steps))] + [0.0] * (n - k)
+                    fig = figure(prog, T.Labels() if kind == "full" else None)
+                    fig.canvas.draw()
+                    Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[..., :3]).save(Path(tmp) / f"{j:04d}.png")
+                    plt.close(fig)
+                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i",
+                                str(Path(tmp) / "%04d.png"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16",
+                                "-movflags", "+faststart", str(dest / f"choices_sliders_{k}.mp4")], check=True)
+        print(f"saved charts/choices_sliders_{k}.mp4 ({MOVE_S + HOLD_S:.1f} s) and its bare twin")
+    shutil.copyfile(OUT.with_name(f"choices_sliders_{n}.png"), OUT)
+    shutil.copyfile(bare / f"choices_sliders_{n}.png", bare / OUT.name)
+    shutil.copyfile(bare / f"choices_sliders_{n}.labels.json", bare / f"{OUT.stem}.labels.json")
+
+
 if __name__ == "__main__":
-    draw()
+    animate()
