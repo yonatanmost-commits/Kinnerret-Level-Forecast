@@ -1,6 +1,6 @@
 {
-  "trained_through": "2026-10-22",
-  "n_rows_total": 8880,
+  "trained_through": "2026-10-23",
+  "n_rows_total": 8881,
   "s1_features": [
     "rainfall_mm",
     "rainfall_lag1_mm",
@@ -67,33 +67,33 @@
       "fold": "2021",
       "n_test": 353,
       "s1_r2": 0.944,
-      "s2_r2": 0.696,
-      "s2_mae_Mm3": 0.667
+      "s2_r2": 0.698,
+      "s2_mae_Mm3": 0.665
     },
     {
       "fold": "2022",
       "n_test": 341,
       "s1_r2": 0.958,
-      "s2_r2": 0.867,
-      "s2_mae_Mm3": 0.57
+      "s2_r2": 0.865,
+      "s2_mae_Mm3": 0.572
     },
     {
       "fold": "2023",
       "n_test": 313,
       "s1_r2": 0.898,
-      "s2_r2": 0.693,
-      "s2_mae_Mm3": 0.649
+      "s2_r2": 0.697,
+      "s2_mae_Mm3": 0.653
     },
     {
       "fold": "2024",
       "n_test": 346,
       "s1_r2": 0.958,
-      "s2_r2": 0.821,
-      "s2_mae_Mm3": 0.679
+      "s2_r2": 0.816,
+      "s2_mae_Mm3": 0.669
     }
   ],
   "cv_s2_mean_r2": 0.769,
-  "cv_s2_mean_mae": 0.641,
+  "cv_s2_mean_mae": 0.64,
   "cv_s1_mean_r2": 0.94,
   "target_transforms": {
     "s1": "none",
@@ -101,5 +101,5 @@
   },
   "s2_direct": true,
   "winner": "baseline_gbr",
-  "retrained_at": "2026-10-22"
+  "retrained_at": "2026-10-23"
 }
