@@ -272,8 +272,9 @@ def icon_levels() -> dict[int, float]:
 
 
 @functools.cache
-def lake_icon(level: float, fmt: str = "png") -> Path:
-    """The small lake at the end of the bottom rule: the app's outline, water up to `level`."""
+def lake_icon(level: float, fmt: str = "png", lw: float = 5) -> Path:
+    """The small lake at the end of the bottom rule: the app's outline, water up to `level`.
+    `lw` is the outline at 4x; the cover's big lake (build_clean) draws it thinner, as it's shown larger."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -282,7 +283,7 @@ def lake_icon(level: float, fmt: str = "png") -> Path:
     sys.path.insert(0, str(HERE))
     import theme as T
     from chart_fan import lake_outline
-    out = CARDS / f"lake_icon_{level:.2f}.{fmt}"
+    out = CARDS / (f"lake_icon_{level:.2f}.{fmt}" if lw == 5 else f"lake_icon_{level:.2f}_lw{lw:g}.{fmt}")
     CARDS.mkdir(parents=True, exist_ok=True)
     x, lvl, units = lake_outline()
     h = T.LAKE_ICON["h"]
@@ -297,7 +298,7 @@ def lake_icon(level: float, fmt: str = "png") -> Path:
     water = Rectangle((x.min(), lvl.min()), x.max() - x.min(), level - lvl.min(), fc=T.USED, ec="none")
     ax.add_patch(water)
     water.set_clip_path(lake)
-    ax.plot(x, lvl, color=T.USED, lw=5)
+    ax.plot(x, lvl, color=T.USED, lw=lw)
     fig.savefig(out, transparent=True)
     plt.close(fig)
     return out
@@ -366,6 +367,17 @@ def style_text(rng, pt: float, bold: bool, bgr: int) -> None:
 
 
 FADE_IN, WITH_PREVIOUS, AFTER_PREVIOUS, MEDIA_PLAY = 10, 2, 3, 83   # PowerPoint animation constants
+
+
+def no_click_triggers(sl) -> None:
+    """PowerPoint gives each inserted video or sound a trigger of its own: a mouse click ON it
+    pauses or restarts it, and the click never reaches the slide (originator, 25 Oct: "it goes back
+    to the beginning instead of rolling ahead"). Every click belongs to the main sequence."""
+    seqs = sl.TimeLine.InteractiveSequences
+    for k in range(seqs.Count, 0, -1):
+        q = seqs.Item(k)
+        for j in range(q.Count, 0, -1):
+            q.Item(j).Delete()
 MORPH = 3954                                                     # ppEffectMorphByObject (3953 is an Origami, 20 Oct)
 
 
@@ -627,6 +639,7 @@ def build(out: Path = OUT, segs: list[dict] | None = None, audio: Path = AUDIO) 
                         e.Timing.TriggerDelayTime = round(at, 2)
             for sh in [sh for sh in sl.Shapes if sh.Tags(OWNER) != "build"]:
                 sh.ZOrder(0)                                     # msoBringToFront: words above the pictures
+            no_click_triggers(sl)
             if g["title"]:
                 frame(sl, int(g["n"]))
             total += t

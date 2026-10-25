@@ -115,6 +115,67 @@ def title_style(sh) -> None:
     r.ParagraphFormat.Alignment = 1
 
 
+# The title slide (Adnan, 25 Oct: "a title slide at the beginning ... our names and affiliation",
+# his line verbatim). The title as the conference programme prints it. Static: no script, no
+# click, so it lives here and not among deck.html's talk slides.
+COVER_TITLE = "ML-based Forecasting of Sea of Galilee Water Levels Across Multiple Prediction Horizons"
+COVER_AUTHORS = [("Adnan Agbaria", "Software Engineering Department, The Kinneret Academic College"),
+                 ("Yonatan Most", "The Kinneret Academic College")]     # Adnan first (originator's hand edit, 25 Oct)
+COVER_EVENT = ("12th Kinneret Conference  ·  11 November 2026  ·  "
+               "Digital Infrastructure and AI Applications in Water and Wastewater")
+COVER_LAKE_H, COVER_LAKE_TOP = 210, 282                         # points: under the bar, right of the authors
+COVER_NOTES = ("Title slide. The talk presents a forecast of the Sea of Galilee's water level at several "
+               "horizons, from a week to a year ahead, built from public data on lake level, weather and "
+               "river flow. Presenting authors: Adnan Agbaria and Yonatan Most, The Kinneret Academic College.")
+
+
+def cover(pres, layout) -> None:
+    """Slide 1: the title, the master's bar under it, the authors, the event, and the lake at the
+    red line, as on the next slide, so Morph carries it over."""
+    cl = layout.Duplicate()
+    cl.Name = "Kinneret cover"
+    cl.DisplayMasterShapes = False                               # its own bar, under the two-line title
+    sl = pres.Slides.AddSlide(1, cl)
+    t = sl.Shapes.Title
+    title_style(t)
+    t.Top, t.Height = 130, 110
+    t.TextFrame.VerticalAnchor = 4                               # msoAnchorBottom: the bar sits under the last line
+    t.TextFrame.TextRange.Text = COVER_TITLE
+    t.TextFrame.TextRange.Font.Size = 36
+    bar = B.title_bar(sl.Shapes, "cover bar")
+    bar.Top = 262
+    who = sl.Shapes.AddTextbox(1, B.TITLE_X, 292, W - 2 * B.TITLE_X, 130)
+    who.Name = "authors"
+    tf = who.TextFrame
+    tf.MarginLeft = tf.MarginTop = tf.MarginRight = tf.MarginBottom = 0
+    tf.WordWrap = True
+    tf.TextRange.Text = "\r".join(f"{name}\v{where}" for name, where in COVER_AUTHORS)
+    for k, (name, where) in enumerate(COVER_AUTHORS, 1):
+        p = tf.TextRange.Paragraphs(k)
+        B.style_text(p, 16, False, B.bgr(T.INK_2))
+        B.style_text(p.Characters(1, len(name)), 22, True, B.bgr(T.INK))
+        p.ParagraphFormat.SpaceAfter = 14
+    event = sl.Shapes.AddTextbox(1, B.TITLE_X, 488, 820, 24)
+    event.Name = "event"
+    tf = event.TextFrame
+    tf.MarginLeft = tf.MarginTop = tf.MarginRight = tf.MarginBottom = 0
+    tf.WordWrap = True
+    tf.TextRange.Text = COVER_EVENT
+    B.style_text(tf.TextRange, 12, False, B.bgr(T.INK_2))
+    # The Kinneret, big, beside the authors (originator, 25 Oct); Morph shrinks it into the small
+    # lake in the next slide's corner. The same water level, a thin outline at this size. (Starting
+    # full was tried and dropped, 25 Oct: the originator liked the red line better.)
+    big = sl.Shapes.AddPicture(str(B.lake_icon(round(B.icon_levels()[1], 2), "svg", lw=1)), False, True, 0, 0)
+    big.LockAspectRatio = True
+    big.Height = COVER_LAKE_H
+    big.Left, big.Top = W - B.TITLE_X - big.Width, COVER_LAKE_TOP
+    big.Name = "!!lake"
+    big.AlternativeText = "The outline of Lake Kinneret, filled with water up to the lower red line"
+    tr = sl.SlideShowTransition
+    tr.AdvanceOnClick, tr.AdvanceOnTime = True, False
+    sl.NotesPage.Shapes.Placeholders(2).TextFrame.TextRange.Text = COVER_NOTES
+
+
 def lake(sl, n: int) -> None:
     """The small lake, bottom right, at slide n's level (an SVG; PowerPoint keeps a PNG beside it)."""
     k = T.LAKE_ICON
@@ -157,8 +218,9 @@ def build(out: Path = OUT) -> None:
     try:
         pres.PageSetup.SlideWidth, pres.PageSetup.SlideHeight = W, H
         layout = master(pres)
+        cover(pres, layout)
         had_video = False                                        # did the slide before this one play a video?
-        for i, steps in enumerate(talk_slides(), 1):
+        for i, steps in enumerate(talk_slides(), 2):             # after the cover
             g = steps[0][0]
             sl = pres.Slides.AddSlide(i, layout)
             sl.Shapes.Title.TextFrame.TextRange.Text = g["title"]
@@ -192,10 +254,12 @@ def build(out: Path = OUT) -> None:
             boxes = {name: B.new_box(sl, spec) for name, (spec, *_) in want.items()}
             for k, (shape, end, is_video) in enumerate(pics):   # one click per step, in order
                 if is_video:                                     # end = the first-frame still on top
+                    # Every video waits hidden until its click: Morph into the slide draws a video's
+                    # poster (the last frame) over the still on top of it (25 Oct, cover -> slide 1)
                     if k:                                        # a later video: still and video come in
                         effect(seq, end, APPEAR, ON_CLICK)       # together, the still hiding the poster
-                        effect(seq, shape, APPEAR, WITH_PREVIOUS)
-                    effect(seq, shape, B.MEDIA_PLAY, WITH_PREVIOUS if k else ON_CLICK)
+                    effect(seq, shape, APPEAR, WITH_PREVIOUS if k else ON_CLICK)
+                    effect(seq, shape, B.MEDIA_PLAY, WITH_PREVIOUS)
                     gone = effect(seq, end, APPEAR, WITH_PREVIOUS, exit_=True)
                     gone.Timing.TriggerDelayTime = START_HOLD_S  # the video is running under it by then
                 elif k:
@@ -205,6 +269,7 @@ def build(out: Path = OUT) -> None:
                         effect(seq, boxes[name], FADE, WITH_PREVIOUS)
                     if t_out == k:
                         effect(seq, boxes[name], FADE, WITH_PREVIOUS, exit_=True)
+            B.no_click_triggers(sl)
             sl.Shapes.Title.ZOrder(0)
             after_video, had_video = had_video, any(v for *_, v in pics)
             lake(sl, int(g["n"]))
