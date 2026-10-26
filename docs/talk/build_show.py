@@ -367,17 +367,24 @@ def style_text(rng, pt: float, bold: bool, bgr: int) -> None:
 
 
 FADE_IN, WITH_PREVIOUS, AFTER_PREVIOUS, MEDIA_PLAY = 10, 2, 3, 83   # PowerPoint animation constants
+MSO_MEDIA, PP_MOUSE_CLICK, PP_ACTION_NONE = 16, 1, 0                # shape type, action trigger, action
 
 
 def no_click_triggers(sl) -> None:
     """PowerPoint gives each inserted video or sound a trigger of its own: a mouse click ON it
     pauses or restarts it, and the click never reaches the slide (originator, 25 Oct: "it goes back
-    to the beginning instead of rolling ahead"). Every click belongs to the main sequence."""
+    to the beginning instead of rolling ahead"). Every click belongs to the main sequence.
+    Each video also keeps an action setting, "play on click" (ppaction://media), that replays it
+    from 0:00 (26 Oct: "click and it jumps to the start"); that goes too."""
     seqs = sl.TimeLine.InteractiveSequences
     for k in range(seqs.Count, 0, -1):
         q = seqs.Item(k)
         for j in range(q.Count, 0, -1):
             q.Item(j).Delete()
+    for k in range(1, sl.Shapes.Count + 1):
+        sh = sl.Shapes(k)
+        if sh.Type == MSO_MEDIA:
+            sh.ActionSettings(PP_MOUSE_CLICK).Action = PP_ACTION_NONE
 MORPH = 3954                                                     # ppEffectMorphByObject (3953 is an Origami, 20 Oct)
 
 

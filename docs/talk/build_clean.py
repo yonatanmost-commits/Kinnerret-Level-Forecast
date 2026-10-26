@@ -119,14 +119,14 @@ def title_style(sh) -> None:
 # his line verbatim). The title as the conference programme prints it. Static: no script, no
 # click, so it lives here and not among deck.html's talk slides.
 COVER_TITLE = "ML-based Forecasting of Sea of Galilee Water Levels Across Multiple Prediction Horizons"
-COVER_AUTHORS = [("Adnan Agbaria", "Software Engineering Department, The Kinneret Academic College"),
-                 ("Yonatan Most", "The Kinneret Academic College")]     # Adnan first (originator's hand edit, 25 Oct)
+COVER_AUTHORS = [("Yonatan Most", "Process Engineer, Triple T\vMaster's Student, The Kinneret Academic College"),
+                 ("Adnan Agbaria", "Software Engineering Department, The Kinneret Academic College")]  # speaker first (Adnan, 25 Oct)
 COVER_EVENT = ("12th Kinneret Conference  ·  11 November 2026  ·  "
                "Digital Infrastructure and AI Applications in Water and Wastewater")
 COVER_LAKE_H, COVER_LAKE_TOP = 210, 282                         # points: under the bar, right of the authors
 COVER_NOTES = ("Title slide. The talk presents a forecast of the Sea of Galilee's water level at several "
                "horizons, from a week to a year ahead, built from public data on lake level, weather and "
-               "river flow. Presenting authors: Adnan Agbaria and Yonatan Most, The Kinneret Academic College.")
+               "river flow. Presenting author: Yonatan Most. Authors: Yonatan Most and Adnan Agbaria, The Kinneret Academic College.")
 
 
 def cover(pres, layout) -> None:
