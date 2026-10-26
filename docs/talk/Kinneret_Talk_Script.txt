@@ -1,0 +1,228 @@
+﻿KINNERET TALK: THE SCRIPT, BY SLIDE
+11 Nov 2026 · Beit Gavriel · 12 slides, 1757 words (about 14 min) · [click] marks the next click
+
+
+============================================================
+SLIDE 1 · Lake Kinneret
+Why should I care?  ·  134 words
+============================================================
+
+On my first year here at Kinneret, I walked all the way to the island in front of campus. Before I graduated, the waves took their toll on the wooden market stands on the Tiberias promenade. The lake knows its ups and downs, and right now, we are under the red line once again. So which winter is coming? One like 2018/19, taking us almost 3 m higher, or more like 2024/25, drying us 2 m lower?
+
+[click]
+
+The lake is our national backup. And it matters: this autumn the algae bloom put us in front of hard decisions. Having a reliable forecast of the lake's level could help us know how urgently we need the water, and how much time we can dedicate to solutions directed at the source. So which will it be?
+
+
+============================================================
+SLIDE 2 · The gap
+Hasn't anyone done this already?  ·  108 words
+============================================================
+
+I'm not the first to ask. The field has plenty of professional work. Researchers at the lake's research center have developed a physical model, following the rain all the way to the river. The Hydrological Service takes this winter to calculate next year's water, and later added a weather forecast, to see the Jordan's flow a few days ahead.
+
+[click]
+
+And the Water Authority presents scenarios: what a wet winter would do, and where a dry one will leave us.
+
+[click]
+
+The Great Lakes actually have a published level forecast, 6 months ahead. For the Kinneret I couldn't find one, and that's the small gap I happened to fit into.
+
+
+============================================================
+SLIDE 3 · The project
+What did you build?  ·  115 words
+============================================================
+
+It started in a data science course in my master's degree, taught by Adnan Agbaria, my co-author and the one I owe the credit for getting me here. He gave us an open project, and I chose a weekly forecast. It seemed possible, based on the IMS weather forecast being pretty good most of the time. What I didn't think was doable was a year ahead, but Adnan talked me into trying.
+
+[click]
+
+This is the app. It collects new data every day, cleans it, retrains the weekly model every morning, and shows the forecasts, a week and a year ahead. I'm going to tell you how it works, and how much you should trust it.
+
+
+============================================================
+SLIDE 4 · Centaur
+How can an amateur do this?  ·  102 words
+============================================================
+
+This is a centaur, half human, half horse. In chess, a centaur is half human, half machine. It started when Kasparov, then world champion, lost to Deep Blue, an IBM machine, in 1997. What he did next was join the computer, to play as a team. In 2005 a contest was held where anyone could enroll, with any machine. Grandmasters came, supercomputers played, and the winners? A football coach and a DBA, two amateurs, with three regular computers. Well, in hydrology and machine learning I'm an amateur, like those two, so keep that in mind while I show you how it works.
+
+
+============================================================
+SLIDE 5 · The sources
+What data did we use?  ·  129 words
+============================================================
+
+So everything starts in the data sources. In this case: the level, the Jordan flow rate, the weather, and the seasonal forecast. I source them by API, by scraping, and sometimes by email. By the way, send thanks to Rita of the Hydrological Service. Each source has its own shape, so you clean it and organize it in a daily table, then add any calculated columns you like. And the one thing to look out for: 2023 kept getting the worst training results, so I asked Claude to check, and it turned out to be a rain gauge that was offline all year, and every missing day had turned into zero rain. The whole winter looked dry. Fixing that, with six smaller problems, was the biggest single step forward.
+
+
+============================================================
+SLIDE 6 · The models
+What are the two models?  ·  106 words
+============================================================
+
+So which model did I use? I tried more than a dozen, and ended up with two. Classic ML: gradient boosting. It calculates hundreds of decision trees: did it rain more than 20 mm this week? Is it winter? Then it uses all those trees together to create a single prediction. And a deep learning model called a GRU, a type of neural network. It reads the values day by day, forming a type of memory that is passed all the way through and creates the prediction at the end of the line. So which one is better, and for what? And how did I check?
+
+
+============================================================
+SLIDE 7 · The decisions
+How did we choose it?  ·  253 words
+============================================================
+
+What I did is run many small comparisons, where each run is an actual model training on the data, and an error check of its prediction against what the lake really did, in years the model never saw. Each comparison is two identical runs: same data, same calculation methods, with one tweak. A change in the model, in its implementation, or in the dataset. The method with the smaller error persists.
+
+[click]
+
+A few of the more significant ones: first, comparing different models on a certain time step. For a week's prediction, GBR won. It turned out to be better where the weather forecast is closer to the actual weather.
+
+[click]
+
+For a year ahead, based on an average of past winters, the neural network had much better results.
+
+[click]
+
+An example of a calculation method: do I use the last two weeks of data as a benchmark for a direct prediction, with a leap in time? Or do I use each day's prediction as a basis for the next day, and risk error propagation? For a year, they tied, so I chose direct. The trees were different: run day by day for a whole year, and handed the real weather, they drifted further off, so the year runs direct.
+
+[click]
+
+A big dilemma was which seasonal forecast model to use. I found Copernicus has a weak prediction, but one that was persistent over various models and methods. I even tried averaging nine of the world's seasonal forecasts, and the European one alone did just as well.
+
+
+============================================================
+SLIDE 8 · The forecast
+Can we trust the seasonal forecast?  ·  170 words
+============================================================
+
+Let's take a deep dive into how the Copernicus data actually looks. These are their forecasts, year by year since 2012, on a Y axis relative to an average winter.
+
+[click]
+
+And these are the actual yearly rain gauge results at the Tzemach measuring station. You can see that the Copernicus forecasts are usually in the right direction, pretty good at predicting whether the winter is wet or dry, but in general they understate, falling short of the real rain.
+
+[click]
+
+So we did what you do with a friend who always understates: we gave it a measured nudge in its own direction,
+
+[click]
+
+and added an error range of 80%, both measured and based on actual data. Even then, we still missed 5 out of 14. Over 19 winters, it's 5 out of 19, about what an 80% range should miss. So Copernicus didn't end up as an input to the forecast you'll see at the end, but we did use it as a way to lean the result in its direction.
+
+
+============================================================
+SLIDE 9 · The method
+How does it work?  ·  162 words
+============================================================
+
+To put it all together, we end up with two different methods for two different time gaps. To predict a week ahead, where the IMS gives a good forecast, classic ML is used to predict river flow day by day, using one prediction to make the next one, while the level prediction uses the direct method, combined with the river prediction. The river flows turned out to be highly predictable given the rain forecast, and highly correlated to the lake changes, making them a key step in between.
+
+[click]
+
+To make long-term predictions, from a month to a year, a direct approach is implemented, the simpler of the two, and as mentioned, a GRU neural network is the model that had the smaller error doing so. Each winter since 2002 is fed to this model's input, a method borrowed from river forecasting, also used for the Great Lakes, and the result is a range that is then leaned toward the Copernicus seasonal prediction.
+
+
+============================================================
+SLIDE 10 · The errors
+Which model won?  ·  79 words
+============================================================
+
+So can you trust it? And how far? Here are the measured errors on past winters. For a week ahead, the classic method is 6 millimeters better, still with a 2 cm average error. For a year ahead, the neural network has an 85 cm average error. The classic method got down to 78 cm when given the real weather, slightly better, but a year ahead we don't have that data, and with a forecast, the network is better.
+
+
+============================================================
+SLIDE 11 · The limiting factor
+Why can't you just tell us?  ·  189 words
+============================================================
+
+Three things limit how far I could see. The first is the human factor: how much did people take out of the lake, by pumping, or by opening the dam? This is a kind of limit I have, as I lean on open sources, yet the decision makers don't, and this is exactly the kind of tool made to facilitate planning future consumption.
+
+[click]
+
+The second is the weather. Next year's rain in the Middle East is known to be unpredictable, and a changing climate isn't making it easier, so the range of uncertainty seems to be here to stay.
+
+[click]
+
+The third limit is the bottleneck: how well can we model the lake in relation to the weather? It's a question of knowledge, a question of tools.
+
+[click]
+
+In the 1930s, our great-grandparents used a crane to build a dam, using technology to improve future water security. We have new tools in our hands, and I know some people are afraid of the leap we are living through, but I see the great potential in doing what Kasparov did: leveling up our abilities, and directing that to improve future water security.
+
+
+============================================================
+SLIDE 12 · The horizon
+So which winter is coming?  ·  210 words
+============================================================
+
+I will share the forecast, but I'll start by saying I'd rather you take the intention and method, rather than the limited prediction itself. This is where we are today, and the grey lines are every single winter since 2002.
+
+[click]
+
+Then the teal range is those winters, blurred by the model's own past errors, with the lean towards the seasonal forecast, and that's why it's slightly above.
+
+[click]
+
+This is the middle of it all: the actual prediction the model gives for each month, if you want to see a point rather than a span. It ends about 1 m above where we are right now, crossing the red line upwards in late February, and staying above.
+
+[click]
+
+In one in three, the lake is still under the red line next October. That's not a promise; it's what happens if I run them all, and when it said one in three before, it happened about one in three. And 2 in 10 are out of this range, meaning the prediction would be wrong, mostly on the wet side. It's possible that it will be even drier, God forbid, but I hope I'm wrong the other way, and we will open the Degania dam.
+
+Thank you, and I'm glad to take up questions.
+
+
+
+Q&A BACKUP SLIDES
+
+
+============================================================
+BACKUP · Can you trust it?
+123 words
+============================================================
+
+My first model scored 0.69, where one is perfect and zero is just guessing the average. Then I tried what everyone tries: fancier models. Worse. A neural network: seventy-one minutes of training, and worse than guessing.
+
+[click]
+
+The biggest step wasn't a model. I asked Claude to play an expert hydrologist and review my work. The newest oldest trick in the book. It noticed every model stumbled in the same year, and said: when every model fails the same way, it's the data.
+
+[click]
+
+A rain gauge had been offline, and the cleaning had turned every missing reading into a zero. A whole winter, dry on paper. Fixing that, and six other problems, lifted it to 0.76. Today, 0.77. Not a bigger model. Better data.
+
+
+============================================================
+BACKUP · How good are the forecasts?
+166 words
+============================================================
+
+So how good is it? Every check here is on years the model never saw.
+
+[click]
+
+A week ahead, it's off by about three centimetres. That's less than half of what the lake itself moves in a typical week.
+
+[click]
+
+In summer there's no rain to guess, only a lake drying in the sun. A month ahead, a simple drying curve named the day it would cross the red line, on average within about two days, across all eight crossings since 2008.
+
+[click]
+
+A year ahead, it's a different story. Here's every year I tested. In wet winters it guessed too low, in dry ones too high, and the further from an ordinary winter, the bigger the miss. No rain, and we see far. Rain, and we go blind. The rain sets the limit.
+
+[click]
+
+So it doesn't give one number. It gives a range, and the range is honest: when it says eighty percent, it happens about eighty percent of the time, at every month out to a year.
+
+
+============================================================
+BACKUP · Why should we believe it?
+82 words
+============================================================
+
+Before this winter, here's how the forecast did every autumn I could test. The bar is what it said in October. The dot is where the lake was a year later.
+
+[click]
+
+An honest eighty-percent range should miss about one autumn in five. It missed three in twelve. These three: the biggest rise in twenty years, the wet winter after it, and the driest. Record winters still surprise it. But it tells you how sure it is, and mostly, it's right about that.
