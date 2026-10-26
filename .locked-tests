@@ -14,3 +14,6 @@ tests/test_fan_gru.py  # 2026-10-17
 tests/test_talk_clean_deck.py  # 2026-10-25
 tests/test_talk_video_clicks.py  # 2026-10-25
 tests/test_talk_video_click_action.py  # 2026-10-26
+tests/test_talk_fan_slide_data.py  # 2026-10-26
+tests/test_cfc_extra_anchor.py  # 2026-10-26
+tests/test_seas5_fetch_months.py  # 2026-10-26
