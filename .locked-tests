@@ -11,3 +11,6 @@ tests/test_local_refresh_sync.py  # 2026-10-16
 tests/test_07b_keeps_cache.py  # 2026-10-16
 tests/test_fan_monthly.py  # 2026-10-17
 tests/test_fan_gru.py  # 2026-10-17
+tests/test_talk_clean_deck.py  # 2026-10-25
+tests/test_talk_video_clicks.py  # 2026-10-25
+tests/test_talk_video_click_action.py  # 2026-10-26
