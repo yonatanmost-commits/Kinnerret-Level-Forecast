@@ -63,7 +63,9 @@ CFC_FUTURE=1 (also keep forecasts that reach past the table's last day, with obs
 a forecast from today rather than a backtest), CFC_HORIZONS (the days ahead forecast:
 "default" 7/13/26/130/260/365, "monthly" adds about every 30 days to 365 so the fan has a
 point each month, or a comma list; B's head has one output per horizon). Use a separate
-CFC_OUT per horizon set.
+CFC_OUT per horizon set. CFC_ANCHOR=YYYY-MM-DD adds one start on that day (its level must be
+measured), e.g. the last measured day after SEAS5 comes out on the 5th: the grid's start on
+the 5th itself still reads the previous month's issue (seas5.init_for).
 
 Seasonal forecast
   --seas5         adds weathers "seas5", "seas5c" (calibrated per lead month: SEAS5's rain
@@ -145,6 +147,7 @@ TABLE_FROM = None              # --table-from
 SEAS5 = None                   # --seas5: the SEAS5 ensemble-mean table
 C3S = None                     # --mm: the C3S multi-model table (c3s.load)
 KEEP_FUTURE = os.environ.get("CFC_FUTURE") == "1"   # keep forecasts whose outcome is not known yet
+EXTRA_ANCHOR = os.environ.get("CFC_ANCHOR")          # one more start, YYYY-MM-DD, off the 7-day grid
 BUCKET_S_MAX = 150.0           # mm, as longrange_phaseb_eval / bucket_backport_eval
 torch.set_num_threads(8)
 
@@ -183,7 +186,14 @@ def add_bucket(df: pd.DataFrame) -> pd.DataFrame:
 def anchors_for(base: pd.DataFrame, year: int) -> np.ndarray:
     yrs = base["date"].dt.year.to_numpy()
     cand = np.where(yrs == year)[0][::EVERY]
-    return cand[base["level_m"].notna().to_numpy()[cand] & (cand >= FIRST_ANCHOR)]
+    known = base["level_m"].notna().to_numpy()
+    out = cand[known[cand] & (cand >= FIRST_ANCHOR)]
+    if EXTRA_ANCHOR and pd.Timestamp(EXTRA_ANCHOR).year == year:
+        day = np.where(base["date"].to_numpy() == np.datetime64(pd.Timestamp(EXTRA_ANCHOR)))[0]
+        if len(day) == 0 or not known[day[0]]:
+            raise ValueError(f"CFC_ANCHOR {EXTRA_ANCHOR}: no measured level that day")
+        out = np.union1d(out, day)
+    return out
 
 
 def climatology(base: pd.DataFrame, train_mask: np.ndarray) -> pd.DataFrame:
