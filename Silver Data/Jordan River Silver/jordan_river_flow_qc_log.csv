@@ -815,6 +815,7 @@ Date,station,original_value,new_value,reason,layer
 2026-08-02,JORDAN - BAPTISM SITE,,177007.7922077922,interpolated_gap<=3d,interpolated
 2026-08-03,JORDAN - BAPTISM SITE,,176031.58441558442,interpolated_gap<=3d,interpolated
 2026-08-04,JORDAN - BAPTISM SITE,,175055.37662337662,interpolated_gap<=3d,interpolated
+2026-10-28,JORDAN - BAPTISM SITE,,411741.0,interpolated_gap<=3d,interpolated
 1971-02-24,JORDAN - OBSTACLE BRIDGE,,5124098.84,interpolated_gap<=3d,interpolated
 1971-04-13,JORDAN - OBSTACLE BRIDGE,,2221550.710769231,interpolated_gap<=3d,interpolated
 1971-04-14,JORDAN - OBSTACLE BRIDGE,,2474710.4215384615,interpolated_gap<=3d,interpolated
