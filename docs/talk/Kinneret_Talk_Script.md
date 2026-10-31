@@ -1,6 +1,6 @@
 # Kinneret talk: the script, by slide
 
-*11 Nov 2026 · Beit Gavriel · 12 slides, 2089 words (about 16 min) · **[click]** marks the next click*
+*11 Nov 2026 · Beit Gavriel · 12 slides, 2079 words (about 16 min) · **[click]** marks the next click*
 
 ## Slide 1 · Lake Kinneret
 
@@ -124,13 +124,13 @@ So this is what running the model gives back: not one number, but odds. In one i
 
 ## Slide 11 · The takeaways
 
-*So what do I take home? · 100 words*
+*So what do I take home? · 90 words*
 
-So, what to take home? First, the answer to the question we started with: which winter is coming? No one can say for sure, but today, the model gives about a two-in-three chance that a year from now, the lake is back above the red line. And I built it as a process engineer, working outside my own field.
+So, two takeaways. The first: the model gives the lake a two-in-three chance of being back above the red line a year from now. Trust it as far as you trust the method I showed you, and keep in mind that I'm working outside my own field.
 
 **[click]**
 
-Which is the second takeaway: agentic AI tools are a real leap. They let people like me build new models, even outside our own field, and new models can lead to better decisions. That potential is open to all of us.
+The second: dare to work outside your field, and beyond what you already know. Use agentic AI not only to be more productive, but to expand your limits. This technological leap holds the potential to improve the decisions behind our daily living conditions.
 
 ## Slide 12 · The limiting factor
 
