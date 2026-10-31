@@ -1,5 +1,5 @@
 ﻿KINNERET TALK: THE SCRIPT, BY SLIDE
-11 Nov 2026 · Beit Gavriel · 12 slides, 1937 words (about 15 min) · [click] marks the next click
+11 Nov 2026 · Beit Gavriel · 12 slides, 1946 words (about 15 min) · [click] marks the next click
 
 
 ============================================================
@@ -36,14 +36,10 @@ The Great Lakes in the US actually have a published level forecast, 6 months ahe
 
 ============================================================
 SLIDE 3 · The project
-What did you build?  ·  118 words
+What did you build?  ·  127 words
 ============================================================
 
-It started in a data science course in my master's degree, taught by Adnan Agbaria, my co-author and the one I owe the credit for getting me here. He gave us an open project, and I chose a weekly forecast. It seemed possible, based on the reliability and accuracy of the IMS weather forecast. What I wasn't certain about was a year-ahead forecast, but Adnan talked me into trying, and I'm glad he did so.
-
-[click]
-
-This is the app. It collects new data every day, cleans it, retrains the weekly model every morning, and shows the forecasts, a week and a year ahead. I'm going to tell you how it works, and how much you should trust it.
+So, I'm Yonatan. I'm a process engineer, not a hydrologist: I design wastewater treatment plants. I took a data science course taught by my co-author, Adnan Agbaria, the one I owe the credit to for being here, and that's how I found myself training models to forecast the lake's level. I started with a week ahead, which seemed possible using the weekly weather forecast. Adnan talked me into going further. I wasn't sure it was possible, and I'm glad I tried. This is the web app's front page. It collects new data every day, cleans it, retrains the weekly model every morning, and shows the forecasts, a week and a year ahead. I'm going to tell you how it works, and how much you should trust it.
 
 
 ============================================================

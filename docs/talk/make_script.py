@@ -3,7 +3,11 @@ build_show.slides). Same layout as the hand-made 26/28 Oct files: one section pe
 slide's question and word count under its title), [click] between clicks, the hidden Q&A slides
 at the end as backups.
 
-    python make_script.py
+    python make_script.py            # stops if a script file was edited by hand (not yet committed)
+    python make_script.py --force    # overwrite anyway
+
+Edits belong in review/deck.html. A hand edit in the Word/Markdown/text file is caught here
+(git shows it changed) so it can be folded into the deck first instead of being overwritten.
 """
 import re
 from pathlib import Path
@@ -77,7 +81,21 @@ def word(secs, path: Path) -> None:
     d.save(path)
 
 
+def edited() -> list[str]:
+    """The script files that differ from the last commit (a hand edit not yet in the deck)."""
+    import subprocess
+    names = [OUT.with_suffix(x).name for x in (".md", ".txt", ".docx")]
+    r = subprocess.run(["git", "status", "--porcelain", "--", *names], cwd=HERE, capture_output=True, text=True)
+    return [line[3:] for line in r.stdout.splitlines() if line[:2].strip() and not line.startswith("??")]
+
+
 def main() -> None:
+    import sys
+    hand = edited()
+    if hand and "--force" not in sys.argv:
+        sys.exit(f"edited by hand, not overwritten: {', '.join(hand)}. "
+                 "Fold the edit into review/deck.html and commit (or git checkout the file), "
+                 "or run with --force")
     secs = list(sections())
     OUT.with_suffix(".md").write_text(markdown(secs), encoding="utf-8")
     OUT.with_suffix(".txt").write_text(text(secs), encoding="utf-8-sig")

@@ -63,7 +63,7 @@ VIDEOS = {"charts/lake_years.gif": ("charts/lake_years_a.mp4", (1.0,), (2.0, 52.
           **{f"charts/models_sliders_{k}.png": (f"charts/models_sliders_{k}.mp4", (0.0,), None) for k in (2, 3)},
           "charts/slide1_map.gif": ("charts/slide1_map.mp4", (0.5,), None),
           # slide 4 (originator, 20 Oct): the app full screen, light, scrolling slowly under the title
-          "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), (1.5, 54.0))}   # 1.5x (31 Oct, originator: slower; was 2.5x for a 14 s paragraph)
+          "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), (1.25, 54.0))}   # 31 Oct, originator: one click, from the first word; 1.25x ends the scroll with the 44 s paragraph (was 1.5x, 2.5x)
 PAUSE_S = 2.0                     # a "[pause]" in the script
 GAP_S = 0.6                       # silence after each clip before the show moves on
 
