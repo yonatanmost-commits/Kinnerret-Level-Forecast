@@ -1,6 +1,6 @@
 # Kinneret talk: the script, by slide
 
-*11 Nov 2026 · Beit Gavriel · 12 slides, 1946 words (about 15 min) · **[click]** marks the next click*
+*11 Nov 2026 · Beit Gavriel · 12 slides, 2040 words (about 16 min) · **[click]** marks the next click*
 
 ## Slide 1 · Lake Kinneret
 
@@ -32,21 +32,21 @@ The Great Lakes in the US actually have a published level forecast, 6 months ahe
 
 ## Slide 3 · The project
 
-*What did you build? · 127 words*
+*What did you build? · 128 words*
 
-So, I'm Yonatan. I'm a process engineer, not a hydrologist: I design wastewater treatment plants. I took a data science course taught by my co-author, Adnan Agbaria, the one I owe the credit to for being here, and that's how I found myself training models to forecast the lake's level. I started with a week ahead, which seemed possible using the weekly weather forecast. Adnan talked me into going further. I wasn't sure it was possible, and I'm glad I tried. This is the web app's front page. It collects new data every day, cleans it, retrains the weekly model every morning, and shows the forecasts, a week and a year ahead. I'm going to tell you how it works, and how much you should trust it.
+So, I'm Yonatan. A process engineer for TripleT, not a hydrologist: I design wastewater treatment plants. I took a data science course taught by my co-author, Adnan Agbaria, the one I owe the credit to for being here, and that's how I found myself training models to forecast the lake's level. I started with a week ahead, which seemed possible using the weekly weather forecast. Adnan talked me into going further. I wasn't sure it was possible, and I'm glad I tried. This is the web app's front page. It collects new data every day, cleans it, retrains the weekly model every morning, and shows the forecasts, a week and a year ahead. I'm going to tell you how it works, and how much you should trust it.
 
 ## Slide 4 · Centaur
 
-*How can an amateur do this? · 126 words*
+*How can an amateur do this? · 131 words*
 
-This is a centaur, half human, half horse. In chess, a centaur is half human, half machine. Kasparov really set this stage. He was world champion when he lost to Deep Blue, an IBM machine, in 1997. What he did next was join the computer, to play as a team. In 2005 a contest was held where anyone could enroll, with any machine. Grandmasters came, supercomputers played, and the winners? A football coach and a DBA, two amateurs, with three regular computers. Well, in hydrology and machine learning I'm an amateur, I see myself like those two, not as a world champion but as a regular guy with an interest and some dedication. Let that reference give you context while I show you how it works.
+This is a centaur, in Greek mythology: half human, half horse. In chess, and math, a centaur is half human, half machine. Kasparov really set this stage. He was world champion when he lost to Deep Blue, an IBM machine, in 1997. What he did next was join the computer, to play as a team. In 2005 a contest was held where anyone could enroll, with any machine. Grandmasters came, supercomputers played, and the winners? A football coach and a DBA, two amateurs, with three regular computers. Well, in hydrology and machine learning I'm an amateur, I see myself like those two, not as a world champion but as a regular guy with an interest and some dedication. Let that reference give you context while I show you how it works.
 
 ## Slide 5 · The sources
 
-*What data did we use? · 145 words*
+*What data did we use? · 233 words*
 
-So everything starts in the data sources. In this case: the level, the Jordan flow rate, the weather, and the seasonal forecast. I source them by API, by scraping, and sometimes by email. By the way, sending thanks to Rita of the Hydrological Service. Each source has its own shape, so you clean it and organize it in a daily table, then add any calculated columns you like. And the one thing to look out for: 2023 kept getting the worst training results, so I asked Claude to check, and it turned out to be a rain gauge that was offline all year, and every missing day had turned into zero rain. The whole winter looked dry. Once missing days were marked as missing instead of zero, 2023 got its real rain back. Fixing that, plus six smaller improvements, was the biggest single step forward.
+So I started off as a data hunter-gatherer. The easiest bit was the lake's level, a daily value all the way back to 1966. The Jordan's flow rate was simpler historically; the last couple of years, with daily updates, were the tricky part. If anyone from the Hydrological Service is in the crowd, give my thanks to Rita Chudinov. The weather comes through the IMS website, in data files of six months at most, with ten-minute time steps, so I averaged them into daily values. And the seasonal forecast comes from the EU's Copernicus weather model; I'll dive into this one in a few slides. I source them by API, by scraping, and in some cases manually, by mail. Each source has its own shape, so you clean it and organize it in a daily table, then add calculated columns, like evaporation or lagged values, that give the model some extra context. And the extra bit: I kept going back to check the data's quality. 2023 kept getting the worst training results, so I asked Claude to check, and it turned out to be a rain gauge that was offline all year, and every missing day was a dash that turned into zero rain. The whole winter looked dry. Once missing days were marked as missing instead of zero, 2023 got its real rain back. Fixing that was the biggest single step forward.
 
 ## Slide 6 · The models
 
