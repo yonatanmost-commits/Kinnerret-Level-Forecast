@@ -12,6 +12,9 @@ light line under it:
      + better process was superior to a strong computer alone and, more remarkably, superior to a
      strong human + machine + inferior process"); paraphrased, so "after", not quotation marks.
      The spoken script carries the originator's own second takeaway (originator, 31 Oct).
+     Under the lines (originator, 31 Oct, fourth version): 1 "Nobody knows the coming winter, and
+     I'm a process engineer"; 2 "Dare to work outside your field"; Kasparov's exact words as a
+     note at the bottom with click 2.
 
 The slide's title is the show's native title; the words here are native text too (theme.Labels),
 so they can be designed by hand. Each frame is the whole slide, so a click only adds.
@@ -43,9 +46,15 @@ def above_in_3() -> int:
 
 def takeaways() -> list[tuple[str, str]]:
     return [(f"{above_in_3()} in 3: above the red line, a year from now",
-             "A process engineer's model, built outside my field"),
+             "Nobody knows the coming winter, and I'm a process engineer"),
             ("The better process is superior",
-             "after Garry Kasparov, 2010")]
+             "Dare to work outside your field")]
+
+
+# under takeaway 2, at the bottom: Kasparov's own words (NYRB, 2010), so the line above can paraphrase
+NOTE = ("“Weak human + machine + better process was superior to a strong computer alone and, more remarkably,\n"
+        "superior to a strong human + machine + inferior process.”   Garry Kasparov, NYRB, 2010")
+NOTE_PT = 20
 
 
 X_NUM, X_TEXT = T.MARGIN_X, T.MARGIN_X + 110
@@ -65,6 +74,9 @@ def draw(click: int) -> Path:
         L.centered(ax, f"num.{i + 1}", X_NUM, y + 30, str(i + 1), NUM_PT, True, T.USED_TEXT, ha="left")
         L.centered(ax, f"take.{i + 1}", X_TEXT, y, big, BIG_PT, True, T.INK, ha="left")
         L.centered(ax, f"sub.{i + 1}", X_TEXT, y + 85, sub, SUB_PT, False, T.INK_2, ha="left")
+    if click >= 2:
+        L.text(ax, "note", X_TEXT, T.H - 95, NOTE, NOTE_PT, False, T.INK_2, ha="left", va="baseline",
+               linespacing=1.4)
     path = HERE / "charts" / f"takeaways_{click}.png"
     L.save(fig, path)
     plt.close(fig)
