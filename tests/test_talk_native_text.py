@@ -187,13 +187,15 @@ AGREED = {   # talk slide -> label names that must be native text (agreed 2026-1
     2: {"who", "how", "who.1", "how.1", "who.5", "how.5"},
     4: {"credit"},                       # the centaur, after the app since 23 Oct
     5: {"row.1", "row.4", "models_start", "test_years"},
-    6: {"left", "left.sub", "right", "right.sub"},
-    7: {"row.1", "row.4"},
-    8: {"legend.1", "legend.4", "inside"},
-    9: {"lane.1", "lane.2", "footer"},
-    10: {"star", "caption", "header.1", "model.1", "model.2"},
-    11: {"credit"},
-    12: {"stamp", "credit", "app", "below"},          # wet / dry left the chart 23 Oct
+    # 31 Oct: the decisions slide split out (its sliders under the models and the forecast),
+    # the takeaways after the horizon, the Degania Dam last with the app's QR code
+    6: {"left", "left.sub", "right", "right.sub", "row.1", "row.2"},
+    7: {"legend.1", "legend.4", "inside", "row.1"},
+    8: {"lane.1", "lane.2", "footer"},
+    9: {"star", "caption", "header.1", "model.1", "model.2"},
+    10: {"stamp", "credit", "below"},                 # wet / dry left the chart 23 Oct; the QR 31 Oct
+    11: {"take.1", "take.2"},
+    12: {"credit", "app"},
 }
 
 
