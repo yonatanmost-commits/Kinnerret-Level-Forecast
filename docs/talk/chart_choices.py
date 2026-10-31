@@ -45,7 +45,7 @@ class Slider:
 
 
 SLIDERS = [   # GBR left, GRU right, as the models drawing above them (originator, 31 Oct)
-    Slider("Week", "GBR", "GRU", "0.6 cm better", -1, "left"),   # given the week's weather (below)
+    Slider("Week", "GBR", "GRU", "6 mm better", -1, "left"),   # given the week's weather (below)
     Slider("Year", "GBR", "GRU", "36 cm better", +1, "right"),   # 365 d, as on slide 8
     Slider("Reach", "Relay", "Direct", "tie", 0, "right"),
     Slider("Forecast", "Average year", "Copernicus", "2 cm better", +0.35, "right"),   # a lean, not clear

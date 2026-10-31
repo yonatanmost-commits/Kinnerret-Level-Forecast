@@ -1,12 +1,12 @@
 # Kinneret talk: the script, by slide
 
-*11 Nov 2026 · Beit Gavriel · 12 slides, 1974 words (about 15 min) · **[click]** marks the next click*
+*11 Nov 2026 · Beit Gavriel · 12 slides, 1887 words (about 15 min) · **[click]** marks the next click*
 
 ## Slide 1 · Lake Kinneret
 
-*Why should I care? · 150 words*
+*Why should I care? · 151 words*
 
-In my first year here at Kinneret, The water level was so low, I walked all the way to the island in front of campus. By the time I graduated, the water had risen and the waves were taking their toll on the wooden market stands on the Tiberias promenade. The lake knows its ups and downs, and right now, we are under the red line once again.
+In my first year here at Kinneret, the water level was so low that I walked all the way to the island in front of campus. By the time I graduated, the water had risen and the waves were taking their toll on the wooden market stands on the Tiberias promenade. The lake knows its ups and downs, and right now, we are under the red line once again.
 
 **[click]**
 
@@ -18,9 +18,9 @@ The lake is our national backup. And it matters: this autumn the algae bloom for
 
 ## Slide 2 · The gap
 
-*Hasn't anyone done this already? · 118 words*
+*Hasn't anyone done this already? · 120 words*
 
-I'm not the first to ask. The field has plenty of professional work. Researchers at the lake's research center have developed a physical model, following the rain all the way to the river. The Hydrological Service takes this winter to calculate next year's water, and later added a weather forecast, to see the Jordan's flow a few days ahead.
+I'm not the first to ask. The field has plenty of professional work. Researchers at the lake's research center have developed a physical model, following the rain all the way to the river. The Hydrological Service uses this winter's rain to estimate the coming year's inflow, and later added a weather forecast, to see the Jordan's flow a few days ahead.
 
 **[click]**
 
@@ -44,13 +44,13 @@ This is a centaur, in Greek mythology: half human, half horse. In chess, and mat
 
 ## Slide 5 · The sources
 
-*What data did we use? · 233 words*
+*What data did we use? · 173 words*
 
-So I started off as a data hunter-gatherer. The easiest bit was the lake's level, a daily value all the way back to 1966. The Jordan's flow rate was simpler historically; the last couple of years, with daily updates, were the tricky part. If anyone from the Hydrological Service is in the crowd, give my thanks to Rita Chudinov. The weather comes through the IMS website, in data files of six months at most, with ten-minute time steps, so I averaged them into daily values. And the seasonal forecast comes from the EU's Copernicus weather model; I'll dive into this one in a few slides. I source them by API, by scraping, and in some cases manually, by mail. Each source has its own shape, so you clean it and organize it in a daily table, then add calculated columns, like evaporation or lagged values, that give the model some extra context. And the extra bit: I kept going back to check the data's quality. 2023 kept getting the worst training results, so I asked Claude to check, and it turned out to be a rain gauge that was offline all year, and every missing day was a dash that turned into zero rain. The whole winter looked dry. Once missing days were marked as missing instead of zero, 2023 got its real rain back. Fixing that was the biggest single step forward.
+So I started off as a data hunter-gatherer. The lake's level was the easy one, daily all the way back to 1966. The Jordan's daily flow was the tricky part, and if anyone from the Hydrological Service is here, my thanks to Rita Chudinov. The weather comes from the IMS in ten-minute steps, which I averaged into days, and the seasonal forecast comes from Copernicus; more on that in a few slides. Each source has its own shape, so you clean it, put it in one daily table, and add calculated columns, like evaporation or lagged values, that give the model extra context. And I kept going back to check the data's quality. 2023 kept getting the worst training results, so I asked Claude to check: a rain gauge had been offline all year, and every missing day, marked with a dash, had turned into zero rain. The whole winter looked dry. Once missing days were marked as missing, 2023 got its real rain back. Fixing that was the biggest single step forward.
 
 ## Slide 6 · The models
 
-*What are the two models? · 236 words*
+*What are the two models? · 235 words*
 
 So which model did I use? I tried more than a dozen, and ended up with two. The first is Classic ML: gradient boosting. It calculates hundreds of decision trees: did it rain more than 20 mm this week? Is it winter? Then it uses all those trees together to create a single prediction. The second is a deep learning model called a GRU, a type of neural network. It reads the values day by day, forming a type of memory that is passed all the way through and finally results in creating the prediction. The rest were cousins of these two, other tree methods and other neural networks, and none beat them on years they hadn't seen. So of the two model finalists, which one is better, and for what? And how did I check?
 
@@ -64,11 +64,11 @@ For a week's prediction, gradient boosting, the classic ML model, won. It turned
 
 **[click]**
 
-For a year ahead, based on an average of past winters, the neural network had much better results.
+For a year ahead, where we don't know the weather, the neural network had much better results.
 
 ## Slide 7 · The forecast
 
-*Can we trust the seasonal forecast? · 242 words*
+*Can we trust the seasonal forecast? · 248 words*
 
 A big dilemma was which seasonal forecast to use. Copernicus, the European climate service, publishes one every month. Let's take a deep dive into how its data actually looks. These are their forecasts, year by year since 2012, on a Y axis relative to an average winter.
 
@@ -82,7 +82,7 @@ So we did what you do with a friend who always understates: we gave it a measure
 
 **[click]**
 
-and added an error range of 80%, both measured and based on actual data. Even then, we still missed 5 out of 14. Those are the red rings. Over 19 winters, it's 5 out of 19, about what an 80% range should miss. So Copernicus didn't end up as an input to the forecast you'll see at the end, but we did use it as a way to lean the result in its direction.
+and added an error range of 80%, both measured and based on actual data. Even then, 5 of these 14 winters fell outside it, the red rings: a bit more than an 80% range should miss. Counting back to 2007, it's the same 5 out of 19, about right. So Copernicus didn't end up as an input to the forecast you'll see at the end, but we did use it as a way to lean the result in its direction.
 
 **[click]**
 
@@ -106,13 +106,13 @@ So can you trust it? And to what extent? Here are the measured errors on past wi
 
 ## Slide 10 · The horizon
 
-*So which winter is coming? · 290 words*
+*So which winter is coming? · 284 words*
 
 So what does it actually mean to run the model? What I built is a model that learned, from the lake's data since 2002, how this lake answers the weather. Give it the lake as it is today, and one winter's weather, and it tells you where the level will be, month by month, a year ahead. Not knowing next winter's weather, we run it once for every past winter, as if that winter were coming again. Each grey line is one run: today's lake, living through one past winter.
 
 **[click]**
 
-Put all the runs together, and you get this range. It's wider than the lines themselves, because the model makes mistakes, and we know how big they've been, so we add them in. It leans a little upward, because Copernicus expects this winter on the wet side. A year from now, it spans from minus 214.4 to minus 210.1: from 70 centimetres below today, up to three and a half metres above. Tested a year ahead, over fifteen years, the lake landed inside this range about eight times in ten.
+Put all the runs together, and you get this range. It's wider than the lines themselves, because the model makes mistakes, and we know how big they've been, so we add them in. It leans a little upward, because Copernicus expects this winter on the wet side. A year from now, it spans from 70 centimetres below today, up to three and a half metres above. Tested a year ahead, over fifteen years, the lake landed inside this range about eight times in ten.
 
 **[click]**
 
@@ -134,9 +134,9 @@ Remember the football coach and the DBA who beat the chess grandmasters? So the 
 
 ## Slide 12 · Future directions
 
-*What's next? · 134 words*
+*What's next? · 105 words*
 
-My future directions are actually my limiting factors, so I'll close with these three. First, the water taken out: I didn't have the data on how much water was pumped out of the lake. With it, the model could cut down its average error. Second, knowing the winter, a great challenge in a changing climate. Still, more data, and of high quality, can take it further. And last, the tools and methods in use. In the 1930s, pioneers built this dam with a crane: to me, that's putting the best available technology to use, to secure water for a future yet to come. We are living through a great change. It does hold risks, but I'll say this: careful risk management is worthwhile, when the future's water security is on the scale.
+My future directions are actually my limiting factors, so I'll close with these three. First, the water taken out: I didn't have the data on how much water was pumped out of the lake. With it, the model could cut down its average error. Second, knowing the winter, a great challenge in a changing climate. Still, more data, and of high quality, can take it further. And last, the tools and methods in use. In the 1930s, pioneers built this dam with a crane: to me, that's putting the best available technology to use, to secure water for a future yet to come.
 
 **[click]**
 
