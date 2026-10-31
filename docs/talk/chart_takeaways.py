@@ -7,9 +7,11 @@ light line under it:
      ABOVE the red line a year from the start. Read from the same file as the horizon slide's
      "1 in 3: still below" (data/slide11_fan.csv, last row's p_red), so the 5 Nov refresh moves
      both together.
-     Trust it as far as the method; built outside my field.
-  2. dare to work outside your field: agentic AI to expand your limits, not just your output
-     (originator, 31 Oct, second version).
+     A process engineer's model, built outside my field.
+  2. the better process is superior: Kasparov's centaur lesson (NYRB, 2010: "Weak human + machine
+     + better process was superior to a strong computer alone and, more remarkably, superior to a
+     strong human + machine + inferior process"); paraphrased, so "after", not quotation marks.
+     The spoken script carries the originator's own second takeaway (originator, 31 Oct).
 
 The slide's title is the show's native title; the words here are native text too (theme.Labels),
 so they can be designed by hand. Each frame is the whole slide, so a click only adds.
@@ -41,9 +43,9 @@ def above_in_3() -> int:
 
 def takeaways() -> list[tuple[str, str]]:
     return [(f"{above_in_3()} in 3: above the red line, a year from now",
-             "Trust it as far as you trust the method  ·  built outside my field"),
-            ("Dare to work outside your field",
-             "Use agentic AI to expand your limits, not just your output")]
+             "A process engineer's model, built outside my field"),
+            ("The better process is superior",
+             "after Garry Kasparov, 2010")]
 
 
 X_NUM, X_TEXT = T.MARGIN_X, T.MARGIN_X + 110
