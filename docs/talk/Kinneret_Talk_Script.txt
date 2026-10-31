@@ -1,5 +1,5 @@
 ﻿KINNERET TALK: THE SCRIPT, BY SLIDE
-11 Nov 2026 · Beit Gavriel · 12 slides, 2079 words (about 16 min) · [click] marks the next click
+11 Nov 2026 · Beit Gavriel · 12 slides, 1974 words (about 15 min) · [click] marks the next click
 
 
 ============================================================
@@ -144,36 +144,26 @@ So this is what running the model gives back: not one number, but odds. In one i
 
 ============================================================
 SLIDE 11 · The takeaways
-So what do I take home?  ·  90 words
+So what do I take home?  ·  103 words
 ============================================================
 
 So, two takeaways. The first: the model gives the lake a two-in-three chance of being back above the red line a year from now. Trust it as far as you trust the method I showed you, and keep in mind that I'm working outside my own field.
 
 [click]
 
-The second: dare to work outside your field, and beyond what you already know. Use agentic AI not only to be more productive, but to expand your limits. This technological leap holds the potential to improve the decisions behind our daily living conditions.
+Remember the football coach and the DBA who beat the chess grandmasters? So the second: dare to work outside your field, and beyond what you already know. Use agentic AI not only to be more productive, but to expand your limits. This technological leap holds the potential to improve the decisions behind our daily living conditions.
 
 
 ============================================================
-SLIDE 12 · The limiting factor
-Why can't you just tell us?  ·  252 words
+SLIDE 12 · Future directions
+What's next?  ·  134 words
 ============================================================
 
-Three things limit how far I could see. The first is the human factor: how much did people take out of the lake, by pumping, or by opening the dam? This is a kind of limit I have, as I lean on open sources, yet the decision makers don't, and this is exactly the kind of tool made to facilitate planning future consumption. With the real pumping and dam data, which the Water Authority has, that's the natural next research step, and I'd be glad to work on it with anyone here.
+My future directions are actually my limiting factors, so I'll close with these three. First, the water taken out: I didn't have the data on how much water was pumped out of the lake. With it, the model could cut down its average error. Second, knowing the winter, a great challenge in a changing climate. Still, more data, and of high quality, can take it further. And last, the tools and methods in use. In the 1930s, pioneers built this dam with a crane: to me, that's putting the best available technology to use, to secure water for a future yet to come. We are living through a great change. It does hold risks, but I'll say this: careful risk management is worthwhile, when the future's water security is on the scale.
 
 [click]
 
-The second is the weather. Next year's rain in the Middle East is known to be unpredictable, and a changing climate isn't making it easier, so the range of uncertainty seems to be here to stay.
-
-[click]
-
-The third limit is our understanding. Even if we knew exactly how much rain will fall, how much of it reaches the lake? That depends on how wet the soil already is, on springs and groundwater. It's a question of knowledge and tools, and it's where research can still move the needle.
-
-[click]
-
-In the 1930s, our great-grandparents used a crane to build a dam, using technology to improve future water security. We have new tools in our hands, and I know some people are afraid of the leap we are living through, but I see the great potential in doing what Kasparov did: leveling up our abilities, and directing that to improve future water security.
-
-Thank you, and I'm glad to take up questions.
+Thank you!
 
 
 ============================================================

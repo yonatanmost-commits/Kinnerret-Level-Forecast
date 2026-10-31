@@ -1,0 +1,65 @@
+{
+ "labels": [
+  {
+   "name": "credit",
+   "text": "Degania Dam  ·  Photo: JNF Photo Archive",
+   "box": [
+    90,
+    985.6,
+    634,
+    1025.5
+   ],
+   "ha": "left",
+   "pt": 15.0,
+   "bold": false,
+   "color": "#FFFFFF",
+   "lines": 1,
+   "shadow": "#000000"
+  },
+  {
+   "name": "app",
+   "text": "Between Flood",
+   "box": [
+    1590,
+    468.8,
+    1779,
+    506.0
+   ],
+   "ha": "center",
+   "pt": 14.0,
+   "bold": true,
+   "color": "#1D1D1B",
+   "lines": 1
+  },
+  {
+   "name": "app.2",
+   "text": "& Drought",
+   "box": [
+    1618,
+    502.8,
+    1752,
+    540.0
+   ],
+   "ha": "center",
+   "pt": 14.0,
+   "bold": true,
+   "color": "#1D1D1B",
+   "lines": 1
+  },
+  {
+   "name": "thanks",
+   "text": "Thank you!",
+   "box": [
+    710,
+    843.1,
+    1211,
+    976.1
+   ],
+   "ha": "center",
+   "pt": 50.0,
+   "bold": true,
+   "color": "#1D1D1B",
+   "lines": 1
+  }
+ ]
+}

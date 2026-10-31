@@ -110,7 +110,12 @@ Look at every render before moving on: labels must not collide when the crossing
 
 - **Slide 1 (lake):** reader/notes value for 11 Nov 2026, and "projection that assumes no rain" if only a few days are projected.
 - **Slide 9 facts:** "the live one is from 15 Oct" → the new date.
-- **Slide 12 (fan):** reader ("15 October 2026", "October forecast"), script and pointers (about 1 m, late February, one in three, 2 in 10), facts (most likely at 6 and 12 months, bands, wet/normal/dry levels and chances, highest/lowest replays). "7.7 in 10" stays.
+- **SPOKEN NUMBERS (31 Oct scripts): the charts redraw themselves, the words don't.** Check each against the new `data/slide11_fan.csv` and fix script + pointers:
+  - Slide 10 (fan), click 2: "minus 214.4 to minus 210.1" (12-month lo_80 / hi_80) and "70 centimetres below today … three and a half metres above" (from the new start level). "Copernicus expects this winter on the wet side" (the wet third's weighted vs unweighted chance).
+  - Slide 10, click 3: "late February" (the median's upward crossing) and "about a metre above" (12-month median − start).
+  - Slide 10, click 4: "one in three" (p_red at 365 d).
+  - Slide 11 (takeaways), click 1: "two-in-three" (= 1 − p_red; the slide's "2 in 3" redraws itself, the spoken one doesn't).
+- **Slide 10 (fan):** reader ("15 October 2026", "October forecast"), script and pointers (about 1 m, late February, one in three, 2 in 10), facts (most likely at 6 and 12 months, bands, wet/normal/dry levels and chances, highest/lowest replays). "7.7 in 10" stays.
 - **Slide 8 facts:** add the November lean ("This winter: 105% … in October; November says X%").
 - If any **spoken** line changes, re-narrate those slides for the show deck (`python docs/talk/build_show.py narrate`).
 

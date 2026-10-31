@@ -52,6 +52,7 @@ def draw(path: Path = OUT) -> Path:
 
 
 FULL = HERE / "charts" / "degania_full.png"
+THANKS = HERE / "charts" / "degania_thanks.png"     # the same, plus "Thank you!" (the talk's last click)
 
 # The deck's colours, painted lightly on the grey print (originator, 20 Oct: "teal for the water"):
 # the greys run from a warm ink through sand to the page colour, and the river under the dam is
@@ -93,10 +94,11 @@ def tint(grey: Image.Image) -> Image.Image:
     return toned
 
 
-def draw_full(path: Path = FULL) -> Path:
+def draw_full(path: Path = FULL, thanks: bool = False) -> Path:
     """Full page (originator, 18 Oct): the photo cropped to 16:9 and enlarged about 3x, which its
     grain survives as an archive look; the top fades into the page colour so the slide title stays
-    readable over the trees, and a small credit sits bottom right."""
+    readable over the trees, and a small credit sits bottom right. thanks: + a big "Thank you!"
+    low in the middle (originator, 31 Oct: it appears at the very end, on its own click)."""
     from PIL import ImageFilter as F
     im = Image.open(PHOTO).convert("RGB")
     w, h = im.size
@@ -128,6 +130,13 @@ def draw_full(path: Path = FULL) -> Path:
     L.pil("credit", T.CREDIT_XY, credit, T.CREDIT_PT, False, "#FFFFFF", "ls", shadow="#000000")  # bottom left
     L.pil("app", (cx0 + cw // 2, cy0 + 25 + 230 + 32), "Between Flood", 17, True, T.INK, "mm")
     L.pil("app.2", (cx0 + cw // 2, cy0 + 25 + 230 + 66), "& Drought", 17, True, T.INK, "mm")
+    if thanks:                                                   # on a card like the QR's, readable over the sand
+        tw, th, ty = 620, 150, T.H - 170
+        card = Image.new("RGBA", (T.W, T.H), (0, 0, 0, 0))
+        ImageDraw.Draw(card).rounded_rectangle((T.W // 2 - tw // 2, ty - th // 2, T.W // 2 + tw // 2, ty + th // 2),
+                                               26, fill=T.SURFACE + "F2")
+        im.paste(card, (0, 0), card)
+        L.pil("thanks", (T.W // 2, ty), "Thank you!", 60, True, T.INK, "mm")
     L.save_pil(im, path)
     print(f"saved {path.name}")
     return path
@@ -136,3 +145,4 @@ def draw_full(path: Path = FULL) -> Path:
 if __name__ == "__main__":
     draw()
     draw_full()
+    draw_full(THANKS, thanks=True)
