@@ -1,5 +1,5 @@
 ﻿KINNERET TALK: THE SCRIPT, BY SLIDE
-11 Nov 2026 · Beit Gavriel · 12 slides, 1992 words (about 15 min) · [click] marks the next click
+11 Nov 2026 · Beit Gavriel · 12 slides, 2062 words (about 16 min) · [click] marks the next click
 
 
 ============================================================
@@ -124,22 +124,22 @@ So can you trust it? And to what extent? Here are the measured errors on past wi
 
 ============================================================
 SLIDE 10 · The horizon
-So which winter is coming?  ·  220 words
+So which winter is coming?  ·  290 words
 ============================================================
 
-I will share the forecast, but I'll start by saying I'd rather you take the intention and method, rather than the limited prediction itself. This is where we are today, and each grey line is today's lake, run through the rain and weather of one past winter since 2002, as if it were coming again.
+So what does it actually mean to run the model? What I built is a model that learned, from the lake's data since 2002, how this lake answers the weather. Give it the lake as it is today, and one winter's weather, and it tells you where the level will be, month by month, a year ahead. Not knowing next winter's weather, we run it once for every past winter, as if that winter were coming again. Each grey line is one run: today's lake, living through one past winter.
 
 [click]
 
-Then the teal range is those winters, blurred by the model's own past errors, with the lean towards the seasonal forecast, and that's why it's slightly above.
+Put all the runs together, and you get this range. It's wider than the lines themselves, because the model makes mistakes, and we know how big they've been, so we add them in. It leans a little upward, because Copernicus expects this winter on the wet side. A year from now, it spans from minus 214.4 to minus 210.1: from 70 centimetres below today, up to three and a half metres above. Tested a year ahead, over fifteen years, the lake landed inside this range about eight times in ten.
 
 [click]
 
-The dark dots are the middle of it all: one per month, the single most likely level, if you want a point rather than a span. They end about 1 m above where we are now, and the dot on the red line marks late February, where it crosses upward and stays above.
+The dark dots are the middle of it all: the single most likely level for each month. They cross the red line upward in late February, and end about a metre above where we are today.
 
 [click]
 
-In one in three, the lake is still under the red line next October. That's not a promise; it's what happens if I run them all, and when it said one in three before, it happened about one in three. And 2 in 10 are out of this range, meaning the prediction would be wrong, mostly on the wet side. It's possible that it will be even drier, God forbid, but I hope I'm wrong the other way, and we will open the Degania dam.
+So this is what running the model gives back: not one number, but odds. In one in three runs, the lake is still under the red line next October. I checked those odds against the past: of all the past forecasts that gave about a one-in-three chance of staying under the red line, the lake really stayed under about one time in three. And when the model misses, it's mostly on the wet side.
 
 
 ============================================================
