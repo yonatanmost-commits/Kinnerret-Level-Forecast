@@ -199,7 +199,7 @@ def effect(seq, shape, kind: int, trigger: int, exit_: bool = False):
 def talk_slides() -> list[list[list[dict]]]:
     """Talk slides in order, each a list of steps (one click each), as build_show groups them."""
     talk = []
-    for grp in B.groups(B.segments()):
+    for grp in B.groups(B.segments(backups=True)):
         if talk and talk[-1][0][0]["n"] == grp[0]["n"]:
             talk[-1].append(grp)
         else:
@@ -211,7 +211,7 @@ def build(out: Path = OUT) -> None:
     import win32com.client
     if out.with_name("~$" + out.name).exists():
         sys.exit(f"{out.name} is open in PowerPoint: close it first, or build to another file with CLEAN_OUT")
-    reader = {s["n"]: s.get("reader", "") for s in B.slides()}
+    reader = {s["n"]: s.get("reader", "") for s in B.slides(backups=True)}
     top, hgt = BAND_PX * B.PT, H - BAND_PX * B.PT
     app = win32com.client.Dispatch("PowerPoint.Application")
     pres = app.Presentations.Add(WithWindow=False)
@@ -224,6 +224,8 @@ def build(out: Path = OUT) -> None:
             g = steps[0][0]
             sl = pres.Slides.AddSlide(i, layout)
             sl.Shapes.Title.TextFrame.TextRange.Text = g["title"]
+            if g.get("backup"):                                  # Q&A: in the deck, hidden from the show
+                sl.SlideShowTransition.Hidden = -1
             seq = sl.TimeLine.MainSequence
             pics, shown = [], []
             for k, grp in enumerate(steps):                      # the pictures, bottom to top
@@ -239,7 +241,8 @@ def build(out: Path = OUT) -> None:
                     end.Name = f"step {k + 1} start"
                     end.AlternativeText = f"First frame of the animation: {g['title']}"
                 else:
-                    img = under_band(B.fill(B.native(HERE / s0["image"])[0], s0["id"]), s0["id"])
+                    pic = B.native(HERE / s0["image"])[0] if s0["image"] else B.card(s0, note="")
+                    img = under_band(B.fill(pic, s0["id"]), s0["id"])
                     shape = sl.Shapes.AddPicture(str(img), False, True, 0, top, W, hgt)
                     end = None
                     shape.AlternativeText = f"{g['title']}, step {k + 1}"

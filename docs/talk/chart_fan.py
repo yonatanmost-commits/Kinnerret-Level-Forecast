@@ -178,7 +178,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     d, red, last, m12 = t["date"], meta["red_line"], t.iloc[-1], dots.iloc[-1]
     endx = d.iloc[-1] + pd.Timedelta(days=10)
     fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
-    ax = fig.add_axes([0.10, 0.16, 0.70, 0.66], facecolor=T.SURFACE)   # its dates clear of the credit line
+    ax = fig.add_axes([0.10, 0.16, 0.78, 0.66], facecolor=T.SURFACE)   # its dates clear of the credit line; wider since the QR left (31 Oct)
     S = {c: _smooth(d, t[c]) for c in t.columns if c not in ("H", "date")}
     xs, lo, hi = S["lo_80"][0], S["lo_80"][1], S["hi_80"][1]
     at = lambda day: int(np.argmin(np.abs(np.array([x.timestamp() for x in xs]) - pd.Timestamp(day).timestamp())))
@@ -256,15 +256,10 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     ax.set_yticks([-215, -214, -213, -212, -211, -210, -209])
     ax.set_yticklabels([f"−{abs(v)} m" for v in (-215, -214, -213, -212, -211, -210, -209)])
     style(ax)
-    L.text(fig, "stamp", 0.95, 0.905, "example run  ·  from the lake on 15 Oct 2026  ·  October seasonal forecast",
+    L.text(fig, "stamp", 0.95, 0.905, "GRU ensemble (ESP), a year ahead · from 15 Oct 2026 · October seasonal forecast",
            22, False, T.INK_2, ha="right", va="center")          # right of the title, clear of it
     if frame >= 4:                                               # the last frame of the talk (the takeaway slide is gone)
-        from PIL import Image
-        qr = fig.add_axes([0.865, 0.615, 0.085, 0.085 * T.W / T.H])   # top right, clear of the band and labels
-        qr.imshow(Image.open(QR))
-        qr.axis("off")
-        L.text(fig, "app", 0.9075, 0.605, "Between Flood\n& Drought", 19, True, T.INK, ha="center", va="top",
-               linespacing=1.1)
+        # the app's QR code moved to the Degania Dam slide, the talk's last (originator, 31 Oct)
         L.text(fig, "credit", T.CREDIT_XY[0] / T.W, 1 - T.CREDIT_XY[1] / T.H, CREDIT, T.CREDIT_PT, False, T.INK_2,
                ha="left", va="baseline")
     return save(fig, path, L)

@@ -53,30 +53,44 @@ VIDS = SHOW / "video"
 # "a year from now?" as the lake splits (53 s / 2).
 # 23 Oct (originator's own script): one paragraph over the whole lake, from the first second.
 # The sliders (slide 7): each click slides one knob to its result, the voice from its start.
-VIDEOS = {"charts/lake_years.gif": ("charts/lake_years.mp4", (1.0,), (2.0, 53.0)),
+# 31 Oct (originator): a click before the split. The lake stops on 11 Nov 2026 (lake_years_a, cut at
+# 52.1 s, where the lakes start to move apart) and the split plays on the next click (lake_years_b).
+# make_lake_animation.cut() makes both from lake_years.mp4, frames unchanged.
+VIDEOS = {"charts/lake_years.gif": ("charts/lake_years_a.mp4", (1.0,), (2.0, 52.1)),
+          "charts/lake_split.png": ("charts/lake_years_b.mp4", (0.0,), (2.0, 0.9)),
           **{f"charts/choices_sliders_{k}.png": (f"charts/choices_sliders_{k}.mp4", (0.0,), None) for k in range(1, 5)},
           "charts/slide1_map.gif": ("charts/slide1_map.mp4", (0.5,), None),
           # slide 4 (originator, 20 Oct): the app full screen, light, scrolling slowly under the title
-          "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), (2.5, 54.0))}   # 2.5x: its paragraph is 14 s (23 Oct)
+          "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), (1.5, 54.0))}   # 1.5x (31 Oct, originator: slower; was 2.5x for a 14 s paragraph)
 PAUSE_S = 2.0                     # a "[pause]" in the script
 GAP_S = 0.6                       # silence after each clip before the show moves on
 
 
-def slides() -> list[dict]:
-    """The talk's slides from deck.html, in order, without the Q&A backups."""
+@functools.cache
+def slides(backups: bool = False) -> list[dict]:
+    """The talk's slides from deck.html, in order, without the Q&A backups; with backups=True, every
+    Q&A slide follows the talk, numbered on from its last slide and marked `backup` (the hand-in
+    deck keeps them hidden from the slide show; originator, 31 Oct). A slide without a title
+    takes its question."""
     t = DECK.read_text(encoding="utf-8")
     a = t.index("const SLIDES")
     b = t.index("\n];", a)
     js = "const S = " + t[a + len("const SLIDES = "):b + 3] + "\nprocess.stdout.write(JSON.stringify(S));"
     out = subprocess.run(["node", "-"], input=js, capture_output=True, text=True, encoding="utf-8",
                          check=True)                     # stdin: the list is too long for a command line
-    return [s for s in json.loads(out.stdout) if s.get("n") != "Q&A"]
+    every = json.loads(out.stdout)
+    talk = [s for s in every if s.get("n") != "Q&A"]
+    if backups:
+        extra = [s for s in every if s.get("n") == "Q&A" and s.get("deck", True)]   # deck: false = left out
+        talk += [dict(s, n=str(len(talk) + i), backup=True, title=s.get("title") or s["q"])
+                 for i, s in enumerate(extra, 1)]
+    return talk
 
 
-def segments() -> list[dict]:
+def segments(backups: bool = False) -> list[dict]:
     """One entry per click: slide number, click, picture, text to read, extra pause."""
     segs = []
-    for s in slides():
+    for s in slides(backups):
         paras = [re.sub(r"^\[\d+\]\s*", "", p).strip() for p in s["script"]]
         frames = s.get("frames")
         if frames:
@@ -93,7 +107,7 @@ def segments() -> list[dict]:
             text = "\n\n".join(p for p in ps if p != "[pause]")   # paragraphs stay paragraphs in the notes
             segs.append({"id": f"s{int(s['n']):02d}_c{k}", "n": s["n"], "q": s["q"], "click": k,
                          "clicks": len(groups), "image": img[0], "text": text, "pause": pauses * PAUSE_S,
-                         "title": s.get("title")})
+                         "title": s.get("title"), "backup": s.get("backup", False)})
     return segs
 
 
@@ -168,7 +182,7 @@ def duration(mp3: Path) -> float:
     return float(out.stdout.strip())
 
 
-def card(g: dict) -> Path:
+def card(g: dict, note: str = "picture to come") -> Path:
     """A plain card for a slide whose picture isn't made yet: its question, large."""
     import matplotlib
     matplotlib.use("Agg")
@@ -176,11 +190,13 @@ def card(g: dict) -> Path:
     sys.path.insert(0, str(HERE))
     import theme as T
     CARDS.mkdir(parents=True, exist_ok=True)
-    path = CARDS / f"{g['id']}.png"
+    path = CARDS / f"{g['id']}{'' if note else '_plain'}.png"
     fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
-    fig.text(0.5, 0.52, g["q"], ha="center", va="center", color=T.INK, fontproperties=T.font(True, 64))
-    fig.text(0.5, 0.36, "picture to come", ha="center", va="center", color=T.INK_2,
-             fontproperties=T.font(False, 30))
+    if note:                                                     # "" = a blank page (the hand-in deck's
+        fig.text(0.5, 0.52, g["q"], ha="center", va="center", color=T.INK,   # Q&A: the title says it)
+                 fontproperties=T.font(True, 64))
+    if note:
+        fig.text(0.5, 0.36, note, ha="center", va="center", color=T.INK_2, fontproperties=T.font(False, 30))
     fig.savefig(path, dpi=T.DPI, facecolor=T.SURFACE)
     plt.close(fig)
     return path
@@ -262,13 +278,15 @@ PT = 0.5                                     # slide points per px of the 1920 x
 
 # The lake icon fills over the talk (originator, 20 Oct): it starts at the red line on slide 1
 # and rises in equal steps to the upper line on slide 12, a full lake by the end.
-ICON_FROM, ICON_TO, ICON_SLIDES = -213.0, -208.9, 12          # the lower and upper red lines, m
+ICON_FROM, ICON_TO = -213.0, -208.9          # the lower and upper red lines, m: the lake fills
+                                              # from the first talk slide to the last
 
 
 def icon_levels() -> dict[int, float]:
     """Talk slide number -> the icon's water level."""
-    step = (ICON_TO - ICON_FROM) / (ICON_SLIDES - 1)
-    return {n: ICON_FROM + step * (n - 1) for n in range(1, ICON_SLIDES + 1)}
+    n_talk, n_all = len(slides()), len(slides(True))
+    step = (ICON_TO - ICON_FROM) / (n_talk - 1)
+    return {n: ICON_FROM + step * (min(n, n_talk) - 1) for n in range(1, n_all + 1)}   # backups: full
 
 
 @functools.cache

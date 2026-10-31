@@ -44,9 +44,9 @@ class Slider:
     used: str            # "left" or "right": the option in use today; "" = a diagnosis
 
 
-SLIDERS = [
-    Slider("Week", "GRU", "GBR", "0.6 cm better", +1, "right"),   # given the week's weather (below)
-    Slider("Year", "GRU", "GBR", "36 cm better", -1, "left"),   # 365 d, as on slide 8
+SLIDERS = [   # GBR left, GRU right, as the models drawing above them (originator, 31 Oct)
+    Slider("Week", "GBR", "GRU", "0.6 cm better", -1, "left"),   # given the week's weather (below)
+    Slider("Year", "GBR", "GRU", "36 cm better", +1, "right"),   # 365 d, as on slide 8
     Slider("Reach", "Relay", "Direct", "tie", 0, "right"),
     Slider("Forecast", "Average year", "Copernicus", "2 cm better", +0.35, "right"),   # a lean, not clear
     # Range ("holds 77-84%") left the slide 2026-10-18 (originator): it gave away slide 12's 8 in 10
@@ -63,7 +63,8 @@ def mix(a: str, b: str, f: float) -> tuple:
     return tuple(x + (y - x) * f for x, y in zip(ca, cb))
 
 
-def draw_slider(ax, s: Slider, L: T.Labels | None, i: int, p: float = 1.0) -> None:
+def draw_slider(ax, s: Slider, L: T.Labels | None, i: int, p: float = 1.0, track: float = TRACK,
+                reach: float = KNOB_REACH) -> None:
     """One slider, its knob share p of the way from the middle to its result (originator, 23 Oct:
     "all start in the middle and each click moves an analog slider to its result"). The result
     fades into the knob over the last stretch, and the end in use turns teal as it arrives, so the
@@ -74,15 +75,15 @@ def draw_slider(ax, s: Slider, L: T.Labels | None, i: int, p: float = 1.0) -> No
     if L is not None:
         L.text(ax, f"row.{i}", -0.5, 0.88, s.title, 30, True, T.INK, ha="left", va="center")
     y = 0.38
-    ax.plot([-TRACK, TRACK], [y, y], color=T.UNUSED, lw=10, solid_capstyle="round", zorder=1)
-    kx = s.knob * KNOB_REACH * TRACK * p
+    ax.plot([-track, track], [y, y], color=T.UNUSED, lw=10, solid_capstyle="round", zorder=1)
+    kx = s.knob * reach * track * p
     arrive = min(1.0, max(0.0, (p - 0.6) / 0.4))                # the last 40% of the way
     edge = mix(T.INK_2, T.USED if s.used else T.INK_2, arrive)
     if s.knob and p > 0:                                       # the winner's stretch, filled
         ax.plot([0, kx], [y, y], color=edge, lw=10, solid_capstyle="round", zorder=2, alpha=0.35)
     for side, label in ((-1, s.left), (1, s.right)):
         used = s.used == ("left" if side == -1 else "right")
-        x = side * TRACK
+        x = side * track
         ax.plot([x], [y], "o", ms=10 + 8 * arrive if used else 10,
                 color=mix(T.FAINT, T.USED, arrive) if used else T.FAINT, zorder=2)
         ax.text(x + side * 0.025, y, label, color=mix(T.INK_2, T.USED, arrive) if used else T.INK_2,
@@ -154,5 +155,154 @@ def animate() -> None:
     shutil.copyfile(bare / f"choices_sliders_{n}.labels.json", bare / f"{OUT.stem}.labels.json")
 
 
+# ---------------------------------------------------------------- 31 Oct: the sliders split out
+# (originator: "its too hard so it splits out"). Week and Year go under the models (two clicks),
+# Forecast under the Copernicus track (one click), and the reach race becomes its own Q&A slide,
+# "The benchmark", with three sliders of its own. with_sliders() puts slider rows under ANY
+# finished chart: it shrinks the chart (picture, bare twin and native labels alike) into the space
+# above them, so the charts themselves don't change.
+
+ROW_H = 105                       # px per one-line slider row
+CONTENT = (T.TITLE_BAND, 1040)    # the band a chart's content may use, px from the top
+
+
+def draw_row(ax, s: Slider, L: T.Labels | None, name: str) -> None:
+    """One slider on one line, in pixel units (ax spans the full width): its title on the left
+    margin, the track in the middle, the knob at its result. Static: the end in use is teal."""
+    ax.set_xlim(0, T.W)
+    ax.set_ylim(1, 0)
+    ax.axis("off")
+    y, x0, x1 = 0.5, 660, 1460
+    c = (x0 + x1) / 2
+    if L is not None:
+        L.text(ax, name, T.MARGIN_X, y, s.title, 30, True, T.INK, ha="left", va="center")
+    ax.plot([x0, x1], [y, y], color=T.UNUSED, lw=10, solid_capstyle="round", zorder=1)
+    kx = c + s.knob * KNOB_REACH * (x1 - c)
+    edge = T.USED if s.used else T.INK_2
+    if s.knob:
+        ax.plot([c, kx], [y, y], color=edge, lw=10, solid_capstyle="round", zorder=2, alpha=0.35)
+    for side, label, x in ((-1, s.left, x0), (1, s.right, x1)):
+        used = s.used == ("left" if side == -1 else "right")
+        ax.plot([x], [y], "o", ms=18 if used else 10, color=T.USED if used else T.FAINT, zorder=2)
+        ax.text(x + side * 22, y, label, color=T.USED_TEXT if used else T.INK_2,
+                fontproperties=T.font(used, 28), ha="right" if side == -1 else "left", va="center")
+    ax.text(kx, y, s.result, ha="center", va="center", color=T.INK, zorder=4, fontproperties=T.font(True, 26),
+            bbox=dict(boxstyle="round,pad=0.4,rounding_size=0.7", fc=T.SURFACE, ec=edge, lw=3.5))
+
+
+def with_sliders(base: Path, rows: list[Slider], shown: int, out: Path) -> Path:
+    """`base` (a chart: charts/x.png + bare/x.png + bare/x.labels.json) shrunk into the space above
+    len(rows) slider rows, the first `shown` of them drawn. Writes `out` the same three ways."""
+    import json
+    import numpy as np
+    from PIL import Image
+    y0, y1 = CONTENT
+    room = y1 - y0 - len(rows) * ROW_H - 10
+    k = room / (y1 - y0)
+    w, h = round(T.W * k), round((y1 - y0) * k)
+    xoff = (T.W - w) // 2
+
+    def shrunk(path: Path) -> np.ndarray:
+        im = Image.open(path).convert("RGB")
+        page = Image.new("RGB", (T.W, T.H), T.SURFACE)
+        page.paste(im.crop((0, y0, T.W, y1)).resize((w, h), Image.LANCZOS), (xoff, y0))
+        return np.asarray(page)
+
+    def page(bg: np.ndarray, L: T.Labels | None, names: bool):
+        fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
+        ax = fig.add_axes([0, 0, 1, 1])
+        ax.imshow(bg, extent=(0, T.W, T.H, 0), interpolation="none")
+        ax.axis("off")
+        top = y0 + h + 10
+        for i, s in enumerate(rows[:shown]):
+            r = fig.add_axes([0, 1 - (top + (i + 1) * ROW_H) / T.H, 1, ROW_H / T.H])
+            draw_row(r, s, L if names else None, f"row.{i + 1}")
+            if names and L is None:                            # plain words, for the full picture
+                r.text(T.MARGIN_X, 0.5, s.title, color=T.INK, fontproperties=T.font(True, 30), ha="left",
+                       va="center")
+        return fig
+
+    meta = base.parent / "bare" / f"{base.stem}.labels.json"
+    old = json.loads(meta.read_text(encoding="utf-8"))["labels"] if meta.exists() else []
+    L = T.Labels()                                             # bare twin + the rows' names
+    fig = page(shrunk(base.parent / "bare" / base.name if meta.exists() else base), L, True)
+    L.save(fig, out)
+    plt.close(fig)
+    full = page(shrunk(base), None, True)                     # the full picture: the chart's own words
+    full.savefig(out, dpi=T.DPI, facecolor=T.SURFACE)
+    plt.close(full)
+    sm = out.parent / "bare" / f"{out.stem}.labels.json"
+    new = json.loads(sm.read_text(encoding="utf-8"))["labels"]
+    for lab in old:                                            # the chart's labels, moved and shrunk
+        bx = lab["box"]
+        lab["box"] = [round(xoff + bx[0] * k, 1), round(y0 + (bx[1] - y0) * k, 1),
+                      round(xoff + bx[2] * k, 1), round(y0 + (bx[3] - y0) * k, 1)]
+        lab["pt"] = round(lab["pt"] * k, 2)
+        if "pitch" in lab:
+            lab["pitch"] = round(lab["pitch"] * k, 2)
+    sm.write_text(json.dumps({"labels": old + new}, indent=1, ensure_ascii=False), encoding="utf-8")
+    print(f"saved {out.relative_to(ROOT)} ({shown} of {len(rows)} sliders, chart at {k:.0%})")
+    return out
+
+
+MODEL_ROWS = SLIDERS[:2]          # Week, Year: under "The models"
+FORECAST_ROWS = SLIDERS[3:4]      # Forecast: under Copernicus's track
+
+# The benchmark (Q&A): forecast straight from today's measured value (the benchmark), or step by
+# step from the last forecast? Year: the network's relay vs direct, ERA5 bench, all horizons,
+# 0.370 vs 0.366 m (CfC cell; no GRU relay was run). Week: the June bake-off (paper Table 2),
+# R² of the 7-day volume change, 2021-24 folds: the lake change from today 0.77 vs rolled day by
+# day 0.66 (gbr_s1_chain_s2_roll1); the river day by day, inflow R² 0.94 vs from today 0.86
+# (gbr_s1_direct_s2_anchor).
+BENCH_ROWS = [
+    Slider("Year · neural network", "Day by day", "From today", "tie", 0, "right"),
+    Slider("Week · lake change (R²)", "Day by day", "From today", "0.77 vs 0.66", +1, "right"),
+    Slider("Week · river flow (R²)", "Day by day", "From today", "0.94 vs 0.86", -1, "left"),
+]
+JAFFA = HERE / "images" / "jaffa_f55.jpg"
+JAFFA_CREDIT = "F-55, Jaffa Port · Photo: Baruch Niv, CC BY-SA 4.0"
+
+
+def draw_benchmark(shown: int, path: Path) -> Path:
+    """Q&A "The benchmark": the F-55 stone at Jaffa port (B&W) on the left, three sliders right."""
+    import numpy as np
+    from PIL import Image, ImageOps
+    fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
+    x0, y0, pw, ph = T.MARGIN_X, T.TITLE_BAND + 40, 480, 800
+    im = ImageOps.grayscale(Image.open(JAFFA))
+    im = ImageOps.fit(im, (pw, ph), Image.LANCZOS, centering=(0.5, 0.55)).convert("RGB")
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.set_xlim(0, T.W)
+    ax.set_ylim(T.H, 0)
+    ax.axis("off")
+    ax.imshow(np.asarray(im), extent=(x0, x0 + pw, y0 + ph, y0), interpolation="none")
+    L = T.Labels()
+    L.text(ax, "credit", x0 + 14, y0 + ph - 18, JAFFA_CREDIT, 13, False, "#FFFFFF", ha="left", va="baseline")
+    left, right = x0 + pw + 60, T.W - T.MARGIN_X
+    hh = ph / len(BENCH_ROWS)
+    for i, s in enumerate(BENCH_ROWS[:shown]):
+        a = fig.add_axes([left / T.W, 1 - (y0 + (i + 1) * hh) / T.H, (right - left) / T.W, hh * 0.85 / T.H])
+        draw_slider(a, s, L, i + 1, track=0.28, reach=0.42)
+    L.save(fig, path)
+    plt.close(fig)
+    print(f"saved {path.relative_to(ROOT)}")
+    return path
+
+
+def split() -> None:
+    """The 31 Oct frames: models_sliders_0..2, seas5_sliders_1..5, benchmark_1..3."""
+    c = OUT.parent
+    for n in range(len(MODEL_ROWS) + 1):
+        with_sliders(c / "models_explained.png", MODEL_ROWS, n, c / f"models_sliders_{n}.png")
+    for n, base in enumerate(["seas5_track_1.png", "seas5_track_2.png", "seas5_track_3.png", "seas5_track.png",
+                              "seas5_track.png"], 1):
+        with_sliders(c / base, FORECAST_ROWS, int(n == 5), c / f"seas5_sliders_{n}.png")
+    for n in range(1, len(BENCH_ROWS) + 1):
+        draw_benchmark(n, c / f"benchmark_{n}.png")
+
+
 if __name__ == "__main__":
-    animate()
+    if "--split" in sys.argv:
+        split()
+    else:
+        animate()

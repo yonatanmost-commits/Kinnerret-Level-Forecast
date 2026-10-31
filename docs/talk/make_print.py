@@ -116,9 +116,18 @@ def draw_full(path: Path = FULL) -> Path:
     for y in range(band):
         d.line([(0, y), (T.W, y)], fill=int(250 * min(1.0, 1.35 * (1 - y / band)) ** 1.2))
     im.paste(Image.new("RGB", (T.W, T.H), T.SURFACE), (0, 0), fade)
+    # the app's QR code on a card, top right (originator, 31 Oct: moved here from the horizon)
+    qr = Image.open(HERE / "images" / "qr.png").convert("RGB").resize((230, 230), Image.NEAREST)
+    cx0, cy0, cw, ch = T.W - 90 - 290, 200, 290, 345
+    card = Image.new("RGBA", (T.W, T.H), (0, 0, 0, 0))
+    ImageDraw.Draw(card).rounded_rectangle((cx0, cy0, cx0 + cw, cy0 + ch), 22, fill=T.SURFACE + "F2")
+    im.paste(card, (0, 0), card)
+    im.paste(qr, (cx0 + (cw - 230) // 2, cy0 + 25))
     credit = "Degania Dam  ·  Photo: JNF Photo Archive"
     L = T.Labels()                                               # the credit is native text in the show
     L.pil("credit", T.CREDIT_XY, credit, T.CREDIT_PT, False, "#FFFFFF", "ls", shadow="#000000")  # bottom left
+    L.pil("app", (cx0 + cw // 2, cy0 + 25 + 230 + 32), "Between Flood", 17, True, T.INK, "mm")
+    L.pil("app.2", (cx0 + cw // 2, cy0 + 25 + 230 + 66), "& Drought", 17, True, T.INK, "mm")
     L.save_pil(im, path)
     print(f"saved {path.name}")
     return path

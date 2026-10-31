@@ -98,8 +98,10 @@ Look at every render before moving on: labels must not collide when the crossing
 
 ## Step 6. The two animations (slide 2)
 
+0. **The talk day's level, from the week model (decided 31 Oct).** On 5 Nov, fetch the IMS 7-day forecast and run the GBR week forecast (the app's page 6, "Fetch from IMS"). From the last measured day it reaches 11 Nov; that value replaces the "if no rain falls" projection at the animation's 11.11.2026 stop, which now holds on its own click before the split. Needs a small change first: `make_lake_animation.stops()` takes the forecast value (and the label "forecast" instead of "if no rain falls") when given one, and falls back to the projection otherwise. Keep the run's inputs and output in the scratchpad and the number, with its date, in the slide-1 facts. If the last measured day is more than 7 days before 11 Nov, the week model can't reach it: keep the projection and say so.
 1. **Lake animation:** `python docs/talk/make_lake_animation.py` → `charts/lake_years.mp4`, `_narrated.mp4`, `.gif`, last-frame `.png`. The last month to 11 Nov 2026 is now almost all measured, not projected. The printed "projection: last measured …" line gives the new 11 Nov value (it was −213.81 "if no rain falls"). Timing is fixed by the narration, so no re-recording is needed.
 2. **Bare copy for native labels:** `python docs/talk/make_lake_animation.py --bare` → `charts/bare/lake_years.mp4`. Re-run after every render.
+2b. **Cut before the split (31 Oct):** `python docs/talk/make_lake_animation.py --cut` → `lake_years_a/_b.mp4` (+ bare twins, `lake_split.png`). The decks play these two, so re-run after every render and bare copy.
 3. **Map morph:** `python docs/talk/make_map_morph.py` → `charts/slide1_map.mp4` / `.gif`. It starts on `lake_years.png`'s last frame, so it must come after step 1.
 - Check: the 11 Nov 2026 label, the dashed line and the gauge all show the new value. The 2027 split (best/worst year of the last decade) doesn't change.
 - The `test_talk_lake_animation.py` tests must stay green.

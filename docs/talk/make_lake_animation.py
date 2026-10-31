@@ -537,10 +537,37 @@ def bare() -> None:
     print(f"saved {dest / OUT.name} and its {len(labels)} labels")
 
 
+def cut() -> int:
+    """A click before the split (originator, 31 Oct): lake_years.mp4 and its bare twin cut in two
+    at the first frame where the lakes move apart. _a ends held on 11 Nov 2026, _b is the split.
+    Frames are copied as they are (no re-timing), so the narration sync still holds. Returns the
+    cut frame; also writes charts/lake_split.png (the split's last frame, for the review page)."""
+    import json
+    import shutil
+    S, path, info = stops()
+    k = next(i for i, f in enumerate(timeline(S, path, info)) if f.kind == "apart")
+    for src in (OUT, OUT.parent / "bare" / OUT.name):
+        for part, sel in (("a", f"lt(n\\,{k})"), ("b", f"gte(n\\,{k})")):
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-vf",
+                            f"select='{sel}',setpts=N/FRAME_RATE/TB", "-an", "-c:v", "libx264", "-pix_fmt",
+                            "yuv420p", "-crf", "16", "-movflags", "+faststart",
+                            str(src.with_name(f"{src.stem}_{part}.mp4"))], check=True)
+    meta = OUT.parent / "bare" / f"{OUT.stem}.labels.json"
+    for part in "ab":                                           # the same native words on both parts
+        shutil.copyfile(meta, meta.with_name(f"{OUT.stem}_{part}.labels.json"))
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-sseof", "-0.1", "-i",
+                    str(OUT.with_name(f"{OUT.stem}_b.mp4")), "-frames:v", "1", "-update", "1",
+                    str(OUT.with_name("lake_split.png"))], check=True)
+    json.loads(meta.read_text(encoding="utf-8"))                 # the labels are valid
+    print(f"cut at frame {k} ({k / FPS:.2f} s): lake_years_a.mp4 + lake_years_b.mp4 (+ bare twins)")
+    return k
+
+
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", type=float, nargs="*", help="only save stills at these seconds")
     ap.add_argument("--bare", action="store_true", help="only make the show's bare copy of the render")
+    ap.add_argument("--cut", action="store_true", help="only cut the render in two before the split")
     a = ap.parse_args()
-    bare() if a.bare else main(a.preview)
+    cut() if a.cut else bare() if a.bare else main(a.preview)

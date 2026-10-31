@@ -100,10 +100,10 @@ def draw(path: Path = OUT) -> Path:
     flow(ax, C3[1], C4[0], y)
 
     # YEAR AHEAD
-    L.text(ax, "lane.2", C1[0], 535, "Year ahead  ·  one run per past winter", 34, True, T.INK, ha="left", va="center")
+    L.text(ax, "lane.2", C1[0], 535, "Year ahead  ·  ESP: one run per past winter", 34, True, T.INK, ha="left", va="center")
     y, top_in, low_in = 740, 645, 835
     box(ax, *C1, top_in, 130, "last 14 days\nlake · river · weather", L=L, name="box.5")
-    box(ax, *C1, low_in, 130, "weather ahead\nfrom each past winter", L=L, name="box.6")
+    box(ax, *C1, low_in, 130, "rain & weather\nof each past winter", L=L, name="box.6")
     T.text_centered(ax, (C1[0] + C1[1]) / 2, (top_in + low_in) / 2, "+", 40, True, T.INK)
     box(ax, *C2, y, 200, "GRU", "model", chain_icon, L, "box.7")
     box(ax, *C3, y, 170, "one future\nper winter", L=L, name="box.8")
