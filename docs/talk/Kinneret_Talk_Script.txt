@@ -1,5 +1,5 @@
 ﻿KINNERET TALK: THE SCRIPT, BY SLIDE
-11 Nov 2026 · Beit Gavriel · 12 slides, 2040 words (about 16 min) · [click] marks the next click
+11 Nov 2026 · Beit Gavriel · 12 slides, 1992 words (about 15 min) · [click] marks the next click
 
 
 ============================================================
@@ -104,14 +104,14 @@ And did it help? A year ahead, it beat an average year by only about two centime
 
 ============================================================
 SLIDE 8 · The method
-How does it work?  ·  177 words
+How does it work?  ·  129 words
 ============================================================
 
-To put it all together, we end up with two different methods for two different time gaps. To predict a week ahead, where the IMS gives a good forecast, classic ML is used to predict river flow day by day, using one prediction to make the next one, while the level prediction uses the direct method, combined with the river prediction. The river flows turned out to be highly predictable given the rain forecast, and highly correlated to the lake changes, making them a key step in between.
+So let's step back and put it all together. There are two forecasts, and each one plays to what we know. For the week ahead, we know the weather: the IMS forecast is good. So the model first asks how much water the Jordan will bring, and from that, how much the lake will rise or fall. That's the week.
 
 [click]
 
-To make long-term predictions, from a month to a year, a direct approach is implemented, the simpler of the two, and as mentioned, a GRU neural network is the model that had the smaller error doing so. The model is fed the rain and weather of each winter since 2002, as if that winter were coming again: a method borrowed from river forecasting called ESP, ensemble streamflow prediction, also used for the Great Lakes, and the result is a range that is then leaned toward the Copernicus seasonal prediction.
+For the year ahead, nobody knows the weather. So instead of guessing one winter, the model lives through all of them: every winter since 2002, starting from today's lake. Each one gives a possible future. That's called ESP, a method borrowed from river forecasting. Then Copernicus tells us which kind of winter is more likely, and those futures count more. So the answer isn't one line, it's a range.
 
 
 ============================================================
