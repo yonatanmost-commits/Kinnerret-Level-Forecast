@@ -166,9 +166,11 @@ ROW_H = 105                       # px per one-line slider row
 CONTENT = (T.TITLE_BAND, 1040)    # the band a chart's content may use, px from the top
 
 
-def draw_row(ax, s: Slider, L: T.Labels | None, name: str) -> None:
+def draw_row(ax, s: Slider, L: T.Labels | None, name: str, p: float = 1.0) -> None:
     """One slider on one line, in pixel units (ax spans the full width): its title on the left
-    margin, the track in the middle, the knob at its result. Static: the end in use is teal."""
+    margin, the track in the middle, the knob share p of the way from the middle to its result.
+    As draw_slider: at p = 0 an empty grey box in the middle; the result fades in and the end in
+    use turns teal over the last stretch."""
     ax.set_xlim(0, T.W)
     ax.set_ylim(1, 0)
     ax.axis("off")
@@ -177,72 +179,119 @@ def draw_row(ax, s: Slider, L: T.Labels | None, name: str) -> None:
     if L is not None:
         L.text(ax, name, T.MARGIN_X, y, s.title, 30, True, T.INK, ha="left", va="center")
     ax.plot([x0, x1], [y, y], color=T.UNUSED, lw=10, solid_capstyle="round", zorder=1)
-    kx = c + s.knob * KNOB_REACH * (x1 - c)
-    edge = T.USED if s.used else T.INK_2
-    if s.knob:
+    kx = c + s.knob * KNOB_REACH * (x1 - c) * p
+    arrive = min(1.0, max(0.0, (p - 0.6) / 0.4))                # the last 40% of the way
+    edge = mix(T.INK_2, T.USED if s.used else T.INK_2, arrive)
+    if s.knob and p > 0:
         ax.plot([c, kx], [y, y], color=edge, lw=10, solid_capstyle="round", zorder=2, alpha=0.35)
     for side, label, x in ((-1, s.left, x0), (1, s.right, x1)):
         used = s.used == ("left" if side == -1 else "right")
-        ax.plot([x], [y], "o", ms=18 if used else 10, color=T.USED if used else T.FAINT, zorder=2)
-        ax.text(x + side * 22, y, label, color=T.USED_TEXT if used else T.INK_2,
-                fontproperties=T.font(used, 28), ha="right" if side == -1 else "left", va="center")
-    ax.text(kx, y, s.result, ha="center", va="center", color=T.INK, zorder=4, fontproperties=T.font(True, 26),
+        ax.plot([x], [y], "o", ms=10 + 8 * arrive if used else 10,
+                color=mix(T.FAINT, T.USED, arrive) if used else T.FAINT, zorder=2)
+        ax.text(x + side * 22, y, label, color=mix(T.INK_2, T.USED_TEXT, arrive) if used else T.INK_2,
+                fontproperties=T.font(used and arrive > 0.5, 28), ha="right" if side == -1 else "left",
+                va="center")
+    ax.text(kx, y, s.result, ha="center", va="center", color=T.INK, alpha=arrive, zorder=4,
+            fontproperties=T.font(True, 26),
             bbox=dict(boxstyle="round,pad=0.4,rounding_size=0.7", fc=T.SURFACE, ec=edge, lw=3.5))
 
 
-def with_sliders(base: Path, rows: list[Slider], shown: int, out: Path) -> Path:
-    """`base` (a chart: charts/x.png + bare/x.png + bare/x.labels.json) shrunk into the space above
-    len(rows) slider rows, the first `shown` of them drawn. Writes `out` the same three ways."""
-    import json
-    import numpy as np
-    from PIL import Image
-    y0, y1 = CONTENT
-    room = y1 - y0 - len(rows) * ROW_H - 10
-    k = room / (y1 - y0)
-    w, h = round(T.W * k), round((y1 - y0) * k)
-    xoff = (T.W - w) // 2
+class Under:
+    """A finished chart (charts/x.png + bare/x.png + bare/x.labels.json) shrunk into the space
+    above len(rows) one-line slider rows. One instance draws any state of the rows: a knob
+    position per row, None = the row not shown yet."""
 
-    def shrunk(path: Path) -> np.ndarray:
-        im = Image.open(path).convert("RGB")
-        page = Image.new("RGB", (T.W, T.H), T.SURFACE)
-        page.paste(im.crop((0, y0, T.W, y1)).resize((w, h), Image.LANCZOS), (xoff, y0))
-        return np.asarray(page)
+    def __init__(self, base: Path, rows: list[Slider]):
+        import json
+        import numpy as np
+        from PIL import Image
+        self.rows = rows
+        y0, y1 = CONTENT
+        self.k = (y1 - y0 - len(rows) * ROW_H - 10) / (y1 - y0)
+        w, h = round(T.W * self.k), round((y1 - y0) * self.k)
+        self.xoff, self.top = (T.W - w) // 2, y0 + h + 10
+        meta = base.parent / "bare" / f"{base.stem}.labels.json"
 
-    def page(bg: np.ndarray, L: T.Labels | None, names: bool):
+        def shrunk(path: Path):
+            im = Image.open(path).convert("RGB")
+            page = Image.new("RGB", (T.W, T.H), T.SURFACE)
+            page.paste(im.crop((0, y0, T.W, y1)).resize((w, h), Image.LANCZOS), (self.xoff, y0))
+            return np.asarray(page)
+        self.full = shrunk(base)
+        self.bare = shrunk(base.parent / "bare" / base.name) if meta.exists() else self.full
+        self.labels = []                                         # the chart's labels, moved and shrunk
+        for lab in (json.loads(meta.read_text(encoding="utf-8"))["labels"] if meta.exists() else []):
+            bx, k = lab["box"], self.k
+            lab["box"] = [round(self.xoff + bx[0] * k, 1), round(y0 + (bx[1] - y0) * k, 1),
+                          round(self.xoff + bx[2] * k, 1), round(y0 + (bx[3] - y0) * k, 1)]
+            lab["pt"] = round(lab["pt"] * k, 2)
+            if "pitch" in lab:
+                lab["pitch"] = round(lab["pitch"] * k, 2)
+            self.labels.append(lab)
+
+    def figure(self, progress: list, kind: str, L: T.Labels | None = None):
+        """kind "bare": the chart without its words, the row names through L (native text);
+        "full": the chart with its words and the row names drawn in."""
         fig = plt.figure(figsize=(T.W / T.DPI, T.H / T.DPI), dpi=T.DPI, facecolor=T.SURFACE)
         ax = fig.add_axes([0, 0, 1, 1])
-        ax.imshow(bg, extent=(0, T.W, T.H, 0), interpolation="none")
+        ax.imshow(self.bare if kind == "bare" else self.full, extent=(0, T.W, T.H, 0), interpolation="none")
         ax.axis("off")
-        top = y0 + h + 10
-        for i, s in enumerate(rows[:shown]):
-            r = fig.add_axes([0, 1 - (top + (i + 1) * ROW_H) / T.H, 1, ROW_H / T.H])
-            draw_row(r, s, L if names else None, f"row.{i + 1}")
-            if names and L is None:                            # plain words, for the full picture
+        for i, (s, p) in enumerate(zip(self.rows, progress)):
+            if p is None:
+                continue
+            r = fig.add_axes([0, 1 - (self.top + (i + 1) * ROW_H) / T.H, 1, ROW_H / T.H])
+            draw_row(r, s, L, f"row.{i + 1}", p)
+            if kind == "full":
                 r.text(T.MARGIN_X, 0.5, s.title, color=T.INK, fontproperties=T.font(True, 30), ha="left",
                        va="center")
         return fig
 
-    meta = base.parent / "bare" / f"{base.stem}.labels.json"
-    old = json.loads(meta.read_text(encoding="utf-8"))["labels"] if meta.exists() else []
-    L = T.Labels()                                             # bare twin + the rows' names
-    fig = page(shrunk(base.parent / "bare" / base.name if meta.exists() else base), L, True)
-    L.save(fig, out)
-    plt.close(fig)
-    full = page(shrunk(base), None, True)                     # the full picture: the chart's own words
-    full.savefig(out, dpi=T.DPI, facecolor=T.SURFACE)
-    plt.close(full)
-    sm = out.parent / "bare" / f"{out.stem}.labels.json"
-    new = json.loads(sm.read_text(encoding="utf-8"))["labels"]
-    for lab in old:                                            # the chart's labels, moved and shrunk
-        bx = lab["box"]
-        lab["box"] = [round(xoff + bx[0] * k, 1), round(y0 + (bx[1] - y0) * k, 1),
-                      round(xoff + bx[2] * k, 1), round(y0 + (bx[3] - y0) * k, 1)]
-        lab["pt"] = round(lab["pt"] * k, 2)
-        if "pitch" in lab:
-            lab["pitch"] = round(lab["pitch"] * k, 2)
-    sm.write_text(json.dumps({"labels": old + new}, indent=1, ensure_ascii=False), encoding="utf-8")
-    print(f"saved {out.relative_to(ROOT)} ({shown} of {len(rows)} sliders, chart at {k:.0%})")
-    return out
+    def still(self, progress: list, out: Path) -> Path:
+        """out (full), bare/out and bare/out.labels.json (the chart's words + the rows' names)."""
+        import json
+        L = T.Labels()
+        fig = self.figure(progress, "bare", L)
+        L.save(fig, out)                                          # bare twin + the rows' labels
+        plt.close(fig)
+        fig = self.figure(progress, "full")
+        fig.savefig(out, dpi=T.DPI, facecolor=T.SURFACE)
+        plt.close(fig)
+        sm = out.parent / "bare" / f"{out.stem}.labels.json"
+        rows = json.loads(sm.read_text(encoding="utf-8"))["labels"]
+        sm.write_text(json.dumps({"labels": self.labels + rows}, indent=1, ensure_ascii=False), encoding="utf-8")
+        print(f"saved {out.relative_to(ROOT)} (chart at {self.k:.0%})")
+        return out
+
+    def slide(self, before: list, i: int, out: Path) -> Path:
+        """Row i slides from the middle to its result (the old slide-7 motion): out.mp4 and its
+        bare twin, plus out.png = the last frame (still(), for the review page and the labels)."""
+        import subprocess
+        import tempfile
+        import numpy as np
+        from PIL import Image
+        end = list(before)
+        end[i] = 1.0
+        self.still(end, out)
+        steps, hold = int(MOVE_S * FPS), int(HOLD_S * FPS)
+        with tempfile.TemporaryDirectory() as tmp:
+            for kind, dest in (("bare", out.parent / "bare"), ("full", out.parent)):
+                for j in range(steps + hold):
+                    prog = list(before)
+                    prog[i] = ease(min(1.0, j / steps))
+                    fig = self.figure(prog, kind)
+                    fig.canvas.draw()
+                    Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[..., :3]).save(Path(tmp) / f"{j:04d}.png")
+                    plt.close(fig)
+                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS), "-i",
+                                str(Path(tmp) / "%04d.png"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16",
+                                "-movflags", "+faststart", str(dest / f"{out.stem}.mp4")], check=True)
+        print(f"saved {out.with_suffix('.mp4').relative_to(ROOT)} ({MOVE_S + HOLD_S:.1f} s) and its bare twin")
+        return out
+
+
+def with_sliders(base: Path, rows: list[Slider], shown: int, out: Path) -> Path:
+    """`base` shrunk above len(rows) slider rows, the first `shown` of them at their results."""
+    return Under(base, rows).still([1.0] * shown + [None] * (len(rows) - shown), out)
 
 
 MODEL_ROWS = SLIDERS[:2]          # Week, Year: under "The models"
@@ -290,10 +339,16 @@ def draw_benchmark(shown: int, path: Path) -> Path:
 
 
 def split() -> None:
-    """The 31 Oct frames: models_sliders_0..2, seas5_sliders_1..5, benchmark_1..3."""
+    """The 31 Oct frames. Models (originator, 31 Oct, second pass): 0 the drawing alone; 1 both
+    sliders in the middle, no results (the comparisons open); 2 Week slides to its result
+    (models_sliders_2.mp4); 3 Year slides (models_sliders_3.mp4). Then seas5_sliders_1..5 and
+    benchmark_1..3."""
     c = OUT.parent
-    for n in range(len(MODEL_ROWS) + 1):
-        with_sliders(c / "models_explained.png", MODEL_ROWS, n, c / f"models_sliders_{n}.png")
+    m = Under(c / "models_explained.png", MODEL_ROWS)
+    m.still([None, None], c / "models_sliders_0.png")
+    m.still([0.0, 0.0], c / "models_sliders_1.png")
+    m.slide([0.0, 0.0], 0, c / "models_sliders_2.png")
+    m.slide([1.0, 0.0], 1, c / "models_sliders_3.png")
     for n, base in enumerate(["seas5_track_1.png", "seas5_track_2.png", "seas5_track_3.png", "seas5_track.png",
                               "seas5_track.png"], 1):
         with_sliders(c / base, FORECAST_ROWS, int(n == 5), c / f"seas5_sliders_{n}.png")

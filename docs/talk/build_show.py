@@ -59,6 +59,8 @@ VIDS = SHOW / "video"
 VIDEOS = {"charts/lake_years.gif": ("charts/lake_years_a.mp4", (1.0,), (2.0, 52.1)),
           "charts/lake_split.png": ("charts/lake_years_b.mp4", (0.0,), (2.0, 0.9)),
           **{f"charts/choices_sliders_{k}.png": (f"charts/choices_sliders_{k}.mp4", (0.0,), None) for k in range(1, 5)},
+          # the models (31 Oct): Week, then Year, slide to their results, one click each
+          **{f"charts/models_sliders_{k}.png": (f"charts/models_sliders_{k}.mp4", (0.0,), None) for k in (2, 3)},
           "charts/slide1_map.gif": ("charts/slide1_map.mp4", (0.5,), None),
           # slide 4 (originator, 20 Oct): the app full screen, light, scrolling slowly under the title
           "charts/app_scroll.png": ("charts/app_scroll.mp4", (0.5,), (1.5, 54.0))}   # 1.5x (31 Oct, originator: slower; was 2.5x for a 14 s paragraph)
