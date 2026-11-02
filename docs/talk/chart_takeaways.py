@@ -1,6 +1,6 @@
 """
 chart_takeaways.py - slide 12, "The takeaways", after the horizon and before the Degania Dam
-(originator, 2026-10-31). Two takeaways, one per click, each a teal number, one bold line and one
+(originator, 2026-10-31; a third added 1 Nov). Three takeaways, one per click, each a teal number, one bold line and one
 light line under it:
 
   1. the forecast, from a process engineer working outside his own field: the chance the lake is
@@ -15,11 +15,14 @@ light line under it:
      Under the lines (originator, 31 Oct, fourth version): 1 "Nobody knows the coming winter, and
      I'm a process engineer"; 2 "Dare to work outside your field"; Kasparov's exact words as a
      note at the bottom with click 2.
+     1 Nov (originator, from the full rehearsal): takeaway 2's line "Dare to expand your limits";
+  3. not 10x faster but better work, and work I couldn't do before (the originator's own: "the
+     quality of my work has gone up and I'm able to do stuff I wasn't able to do before").
 
 The slide's title is the show's native title; the words here are native text too (theme.Labels),
 so they can be designed by hand. Each frame is the whole slide, so a click only adds.
 
-Run:  python docs/talk/chart_takeaways.py      # -> charts/takeaways_1..2.png (+ bare/), 1920 x 1080
+Run:  python docs/talk/chart_takeaways.py      # -> charts/takeaways_1..3.png (+ bare/), 1920 x 1080
 """
 from __future__ import annotations
 
@@ -48,7 +51,9 @@ def takeaways() -> list[tuple[str, str]]:
     return [(f"{above_in_3()} in 3: above the red line, a year from now",
              "Nobody knows the coming winter, and I'm a process engineer"),
             ("The better process is superior",
-             "Dare to work outside your field")]
+             "Dare to expand your limits"),
+            ("Not 10x faster: better work",
+             "and work I couldn't do before")]
 
 
 # under takeaway 2, at the bottom: Kasparov's own words (NYRB, 2010), so the line above can paraphrase
@@ -58,7 +63,7 @@ NOTE_PT = 20
 
 
 X_NUM, X_TEXT = T.MARGIN_X, T.MARGIN_X + 110
-Y0, PITCH = 360, 330                       # the first takeaway's bold line, and the step to the next
+Y0, PITCH = 300, 225                       # the first takeaway's bold line, and the step to the next
 BIG_PT, SUB_PT, NUM_PT = 50, 30, 72
 
 

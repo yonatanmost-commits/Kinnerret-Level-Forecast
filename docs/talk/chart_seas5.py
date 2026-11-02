@@ -219,7 +219,8 @@ def draw_ours(path: Path = OUT_OURS) -> Path:
 
 
 OUT_TRACK = HERE / "charts" / "seas5_track.png"
-TRACK_FROM = 2012                  # first winter fitted on enough seasons (10+) to show unfaded
+TRACK_FROM = 2007                  # all 19 winters (originator, 1 Nov: "5 of 19", no second count)
+FAINT_TO = 2011                    # fitted on 5-9 earlier seasons only: their marks drawn lighter
 TRACK_STEPS = 4                    # the four clicks of slide 8
 
 
@@ -232,8 +233,8 @@ def draw_track(step: int = TRACK_STEPS, path: Path | None = None) -> Path:
     by. 4: our 8-in-10 range around it (the rounded grey bar); a rain dot outside turns into a
     hollow red ring, "9 of 14 inside". The dashed 100% line is the average winter, the
     no-forecast guess. This winter is the worked example, drawn larger; its rain is a "?".
-    From seas5_ours.csv (model-coach), 2012-13 .. 2026-27; 9 of 14 inside (2013-14 out by 0.1
-    point). Step 4 is the full chart (seas5_track.png); each step also as seas5_track_<n>.png.
+    From seas5_ours.csv (model-coach), 2007-08 .. 2026-27; 14 of 19 inside (2013-14 out by 0.1
+    point); 2007-08 .. 2011-12 were fitted on 5-9 seasons, so their forecast marks are lighter. Step 4 is the full chart (seas5_track.png); each step also as seas5_track_<n>.png.
     Honest scope: the scoreboard's "Copernicus ahead" runs feed the model the RAW lean; the dash
     is what weights the fan's past winters, not a model input."""
     from chart_fan import save, style
@@ -255,15 +256,16 @@ def draw_track(step: int = TRACK_STEPS, path: Path | None = None) -> Path:
             fontproperties=T.font(False, 26), linespacing=1.0)
 
     def column(y, r, now_col=False):
+        a = 0.45 if y <= FAINT_TO else 1.0                       # the rain dots stay solid
         if bars:
             ax.vlines(y, r["ours_lo80"], r["ours_hi80"], color=T.FAINT if now_col else T.UNUSED,
-                      lw=40 if now_col else 30, capstyle="round", zorder=1)
+                      lw=40 if now_col else 30, capstyle="round", alpha=a, zorder=1)
         if dash:
             w = 0.30 if now_col else 0.22
             ax.plot([y - w, y + w], [r["ours"]] * 2, color=T.USED, lw=8 if now_col else 6,
-                    solid_capstyle="round", zorder=3)
+                    solid_capstyle="round", alpha=a, zorder=3)
         ax.plot([y], [r["copernicus"]], "o", ms=18 if now_col else 14, mfc="none", mec=T.INK_2,
-                mew=3.5 if now_col else 3, zorder=4)
+                mew=3.5 if now_col else 3, alpha=a, zorder=4)
 
     def top(r):                                  # labels sit where the full chart puts them: nothing jumps between clicks
         return max(r["ours_hi80"], r["actual_station"]) if pd.notna(r["actual_station"]) else r["ours_hi80"]
