@@ -160,6 +160,22 @@ def lake_range(fig, box, lo, hi, mid, red):
     return ax
 
 
+def odds(p: float) -> str:
+    """A chance as the nearest simple "k in n" (n = 2..5, or 10)."""
+    from fractions import Fraction
+    cands = {Fraction(k, n) for n in (2, 3, 4, 5, 10) for k in range(1, n)}
+    f = min(cands, key=lambda f: (abs(float(f) - p), f.denominator))
+    return f"{f.numerator} in {f.denominator}"
+
+
+def seas5_issue(start: pd.Timestamp) -> pd.Timestamp:
+    """The SEAS5 issue the fan from `start` used (published on the 5th, as in seas5.init_for)."""
+    import sys
+    sys.path.insert(0, str(HERE.parents[1] / "Automation"))
+    import seas5
+    return seas5.init_for(pd.Timestamp(start))
+
+
 def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     """Slide 11, a four-click build-up on fixed axes (v4: script peer + model-coach, 2026-10-17).
     Smoothed with PCHIP (no overshoot; dots on the real points); ONE band, the 80% range (the best
@@ -221,14 +237,15 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
                 fontproperties=T.font(True, 32), zorder=6)
     if frame >= 3:
         ax.plot(dots["date"], dots["median"], "o", ms=16, color=T.INK, zorder=5)
-        rise = m12["median"] - meta["level0"]                    # +1.1 m by Oct 2027
-        right(m12["median"], f"+{rise:.0f} m", T.INK, size=36)
-        mark(cross["median"][0]["date"], T.GOOD)
-        date_label(cross["median"][0]["date"], 22)
+        rise = m12["median"] - meta["level0"]                    # vs today; one decimal under a metre
+        right(m12["median"], f"{rise:+.0f} m" if abs(rise) >= 1 else f"{rise:+.1f} m", T.INK, size=36)
+        for c in cross["median"]:                                # up = green; a fall back under the line = red
+            mark(c["date"], T.GOOD if c["direction"] == "up" else T.RED)
+            date_label(c["date"], 22 if c["direction"] == "up" else -22)
         # the wet / dry lines and the dry ~14 Jun fall-back left the chart (originator, 23 Oct: not spoken)
     if frame >= 4:
         L.text(ax, "below", pd.Timestamp("2027-05-01"), -214.6,
-               f"{round(last['p_red'] * 3)} in 3: still below the red line, Oct 2027", 32, True, T.RED,
+               f"{odds(last['p_red'])}: still below the red line, {d.iloc[-1]:%b %Y}", 32, True, T.RED,
                ha="center", va="center", zorder=8)
         k = at("2027-06-20")
         y0 = hi[k] + 0.10
@@ -252,11 +269,12 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     ax.set_ylim(-215.2, -208.5)
     ticks = [d.iloc[0] + pd.DateOffset(months=m) for m in (0, 3, 6, 9, 12)]
     ax.set_xticks(ticks)
-    ax.set_xticklabels([x.strftime("%b %Y") if x.month == 10 else x.strftime("%b") for x in ticks])
+    ax.set_xticklabels([x.strftime("%b %Y") if x.month == d.iloc[0].month else x.strftime("%b") for x in ticks])
     ax.set_yticks([-215, -214, -213, -212, -211, -210, -209])
     ax.set_yticklabels([f"−{abs(v)} m" for v in (-215, -214, -213, -212, -211, -210, -209)])
     style(ax)
-    L.text(fig, "stamp", 0.95, 0.905, "GRU ensemble (ESP), a year ahead · from 15 Oct 2026 · October seasonal forecast",
+    L.text(fig, "stamp", 0.95, 0.905, f"GRU ensemble (ESP), a year ahead · from {d.iloc[0].day} {d.iloc[0]:%b %Y} · "
+           f"{seas5_issue(d.iloc[0]):%B} seasonal forecast",
            22, False, T.INK_2, ha="right", va="center")          # right of the title, clear of it
     if frame >= 4:                                               # the last frame of the talk (the takeaway slide is gone)
         # the app's QR code moved to the Degania Dam slide, the talk's last (originator, 31 Oct)

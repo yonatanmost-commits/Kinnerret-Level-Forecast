@@ -44,6 +44,10 @@ from app_utils import (LEVEL_LEGAL_MAX, LEVEL_LEGAL_MIN, LEVEL_MAX, LEVEL_MIN,  
                        build_lake_svg)
 
 OUT = HERE / "charts" / "lake_years.mp4"
+# the talk day from the week model with the IMS forecast (decided 31 Oct), written by
+# docs/talk/data/slide1_week_forecast.py; used only when made from the last measured level
+WEEK_FC = HERE / "data" / "slide1_week_forecast.json"
+TALK_DAY = pd.Timestamp("2026-11-11")
 NARRATED = HERE / "charts" / "lake_years_narrated.mp4"
 W, H, FPS, SS = 1920, 1080, 60, 2             # SS: drawn at twice the size, then scaled down
 sys.path.insert(0, str(HERE))
@@ -118,7 +122,22 @@ def between(a: Place, b: Place, t: float) -> Place:
 
 # ─── the numbers ────────────────────────────────────────────────────────────
 
-def stops() -> tuple[list[dict], pd.Series, dict]:
+def week_forecast(last_day, path: Path = WEEK_FC) -> dict | None:
+    """The week model's daily levels up to the talk day, if made from `last_day`; else None."""
+    import json
+    if not Path(path).exists():
+        return None
+    fc = json.loads(Path(path).read_text(encoding="utf-8"))
+    need = pd.date_range(pd.Timestamp(last_day) + pd.Timedelta(days=1), TALK_DAY, freq="D")
+    if fc.get("from") != str(pd.Timestamp(last_day).date()) or any(
+            d.strftime("%Y-%m-%d") not in fc["levels"] for d in need):
+        print(f"week forecast {path} is from {fc.get('from')}, the last measured day is "
+              f"{pd.Timestamp(last_day).date()}: using the no-rain projection")
+        return None
+    return fc
+
+
+def stops(week_fc: Path = WEEK_FC) -> tuple[list[dict], pd.Series, dict]:
     """The 11 Nov stops, the daily path 11 Nov 2018 -> 11 Nov 2026 (true, then projected), and
     the best and worst 11 Nov -> 11 Nov change of the last decade."""
     g = pd.read_csv(ROOT / "Gold Data" / "kinneret_gold_features.csv", parse_dates=["date"])
@@ -130,15 +149,23 @@ def stops() -> tuple[list[dict], pd.Series, dict]:
     rate = (recent.iloc[-1] - recent.iloc[0]) / (recent.index[-1] - recent.index[0]).days
     days = (pd.Timestamp("2026-11-11") - last_day).days
     proj = last + rate * days
-    out.append({"year": 2026, "level": float(proj), "projected": True, "note": "if no rain falls"})
     true = lvl[f"{FIRST_YEAR}-11-11":].resample("D").mean().interpolate("time")
-    ahead = pd.date_range(last_day + pd.Timedelta(days=1), "2026-11-11", freq="D")
-    path = pd.concat([true, pd.Series(last + rate * np.arange(1, len(ahead) + 1), index=ahead)])
+    ahead = pd.date_range(last_day + pd.Timedelta(days=1), TALK_DAY, freq="D")
+    fc = week_forecast(last_day, week_fc)
+    if fc:                                      # the week model, IMS weather
+        ahead_levels = np.array([fc["levels"][d.strftime("%Y-%m-%d")] for d in ahead], dtype=float)
+        proj, note, stamp = float(ahead_levels[-1]), "forecast", "forecast, IMS weather"
+    else:                                       # the last 14 days' fall carried on
+        ahead_levels = last + rate * np.arange(1, len(ahead) + 1)
+        note, stamp = "if no rain falls", "projection, no rain"
+    out.append({"year": 2026, "level": float(proj), "projected": True, "note": note})
+    path = pd.concat([true, pd.Series(ahead_levels, index=ahead)])
     delta = {y: nov(y) - nov(y - 1) for y in DECADE}
     best, worst = max(delta, key=delta.get), min(delta, key=delta.get)
     return out, path, {"best": (best, delta[best]), "worst": (worst, delta[worst]),
                        "last_day": last_day.date(), "last": last, "rate_mm_day": rate * 1000,
-                       "days": days, "projection": proj}
+                       "days": days, "projection": proj, "ahead_stamp": stamp,
+                       "week_forecast": fc}
 
 
 def soften(path: pd.Series, anchors: list[int]) -> np.ndarray:
@@ -164,6 +191,7 @@ class Frame:
     t: float = 0.0                             # apart / split progress, 0..1
     label_a: float = 0.0                       # split: scenario labels
     q: float = 0.0                             # split: the question mark
+    ahead: str = "projection, no rain"         # what the days after the last measurement are
 
 
 def ease(t: float) -> float:
@@ -199,7 +227,8 @@ def timeline(S: list[dict], path: pd.Series, info: dict) -> list[Frame]:
     def years(pos: float, shown: list, cur):
         lv = float(np.interp(pos, np.arange(len(levels)), levels))
         day = days[int(round(pos))]
-        frames.append(Frame("years", pos, lv, day, day.date() > info["last_day"], shown, cur))
+        frames.append(Frame("years", pos, lv, day, day.date() > info["last_day"], shown, cur,
+                            ahead=info["ahead_stamp"]))
 
     def pause(k: int, hold30: int) -> None:
         done = [(j, 1.0) for j in range(k)]
@@ -229,7 +258,7 @@ def timeline(S: list[dict], path: pd.Series, info: dict) -> list[Frame]:
     n_apart, n_split, n_fade, n_end = (APART_30 * x2, SPLIT_30 * x2, FADE_30 * x2,
                                        HOLD_END_30 * x2)
     for i in range(n_apart):
-        frames.append(Frame("apart", level=last.level, day=last.day, projected=True,
+        frames.append(Frame("apart", level=last.level, day=last.day, projected=True, ahead=last.ahead,
                             shown=last.shown, label_ys=last.label_ys,
                             t=ease((i + 1) / n_apart)))
     for i in range(n_split):
@@ -389,7 +418,7 @@ def clock(d, F, f: Frame, a: float) -> None:
     text(d, (W - 90, 70), f.day.strftime("%B").upper(), F["month"], _rgba(INK_2, a), "ra")
     text(d, (W - 90, 100), f.day.strftime("%Y"), F["year"], _rgba(INK, a), "ra")
     if f.projected:
-        text(d, (W - 90, 222), "projection, no rain", F["note"], _rgba(INK_2, a), "ra")
+        text(d, (W - 90, 222), f.ahead, F["note"], _rgba(INK_2, a), "ra")
 
 
 def draw_years(f: Frame, C: dict) -> Image.Image:
@@ -472,8 +501,12 @@ def main(preview: list[float] | None = None) -> None:
     S, path, info = stops()
     print("stops:", [(st["year"], round(st["level"], 3)) for st in S])
     print("decade best", info["best"], "worst", info["worst"])
-    print(f"projection: last measured {info['last_day']} {info['last']:.3f} m, "
-          f"{info['rate_mm_day']:.1f} mm/day x {info['days']} days -> {info['projection']:.3f} m")
+    if info["week_forecast"]:
+        print(f"forecast: last measured {info['last_day']} {info['last']:.3f} m, week model with IMS "
+              f"weather (made {info['week_forecast'].get('made_on')}) -> {info['projection']:.3f} m on 11 Nov")
+    else:
+        print(f"projection: last measured {info['last_day']} {info['last']:.3f} m, "
+              f"{info['rate_mm_day']:.1f} mm/day x {info['days']} days -> {info['projection']:.3f} m")
     frames = timeline(S, path, info)
     if preview:                                 # stills at the given seconds, for review
         C = _context(S, info)

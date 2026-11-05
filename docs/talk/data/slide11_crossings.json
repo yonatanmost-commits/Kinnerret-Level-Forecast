@@ -2,55 +2,67 @@
  "crossings": {
   "median": [
    {
-    "date": "2027-02-23",
+    "date": "2027-03-03",
     "direction": "up"
+   },
+   {
+    "date": "2027-09-02",
+    "direction": "down"
    }
   ],
   "wet_group": [
    {
-    "date": "2027-01-24",
+    "date": "2027-01-25",
     "direction": "up"
    }
   ],
   "normal_group": [
    {
-    "date": "2027-02-19",
+    "date": "2027-02-24",
     "direction": "up"
+   },
+   {
+    "date": "2027-09-09",
+    "direction": "down"
    }
   ],
   "dry_group": [
    {
-    "date": "2027-03-17",
+    "date": "2027-03-26",
     "direction": "up"
    },
    {
-    "date": "2027-06-14",
+    "date": "2027-05-26",
     "direction": "down"
    }
   ],
   "avg_year": [
    {
-    "date": "2027-02-11",
+    "date": "2027-02-19",
     "direction": "up"
+   },
+   {
+    "date": "2027-08-30",
+    "direction": "down"
    }
   ]
  },
  "peaks": {
   "median": {
-   "level": -211.62,
-   "date": "2027-06-15"
+   "level": -212.38,
+   "date": "2027-05-04"
   },
   "wet_group": {
-   "level": -210.85,
-   "date": "2027-06-15"
+   "level": -211.25,
+   "date": "2027-05-04"
   },
   "normal_group": {
-   "level": -211.84,
-   "date": "2027-06-15"
+   "level": -212.24,
+   "date": "2027-05-04"
   },
   "dry_group": {
-   "level": -212.72,
-   "date": "2027-04-15"
+   "level": -212.91,
+   "date": "2027-05-04"
   }
  }
 }

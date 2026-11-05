@@ -38,7 +38,7 @@ OUT = HERE / "charts" / "models_table.png"
 COLUMNS = ["Week*", "Month", "6 months", "Year"]   # * the week assumes its weather is known
 MODELS = [   # name, type, cm per column
     ("GBR", "Classic ML", ["2.0", "12", "64", "121"]),
-    ("GRU", "Neural network", ["2.6", "12", "56", "85"]),
+    ("GRU", "Neural network", ["2.6", "12", "55", "85"]),   # 6 months 55.485 cm (was "56", a double rounding; fixed 5 Nov)
 ]
 # per column, the rows that win or tie for the win: GRU-GBR +0.2 [-0.1, +0.5] at a week,
 # +0.4 [-1.2, +1.9] at a month, -8.5 [-21.4, +4.0] at 6 months, -35.8 [-66.9, -8.6] at a year

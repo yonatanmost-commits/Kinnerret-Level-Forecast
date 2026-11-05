@@ -41,14 +41,16 @@ import theme as T                                                    # noqa: E40
 FAN11 = HERE / "data" / "slide11_fan.csv"
 
 
-def above_in_3() -> int:
-    """Out of 3, how often the lake ends the year above the red line (the fan's last horizon)."""
+def above_odds() -> str:
+    """How often the lake ends the year above the red line (the fan's last horizon), as the
+    same "k in n" the fan slide uses for its complement (chart_fan.odds)."""
+    from chart_fan import odds
     p_red = float(pd.read_csv(FAN11).iloc[-1]["p_red"])
-    return 3 - round(p_red * 3)
+    return odds(1 - p_red)
 
 
 def takeaways() -> list[tuple[str, str]]:
-    return [(f"{above_in_3()} in 3: above the red line, a year from now",
+    return [(f"{above_odds()}: above the red line, a year from now",
              "Nobody knows the coming winter, and I'm a process engineer"),
             ("The better process is superior",
              "Dare to expand your limits"),
