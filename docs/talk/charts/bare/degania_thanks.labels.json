@@ -17,36 +17,6 @@
    "shadow": "#000000"
   },
   {
-   "name": "app",
-   "text": "Between Flood",
-   "box": [
-    1590,
-    468.8,
-    1779,
-    506.0
-   ],
-   "ha": "center",
-   "pt": 14.0,
-   "bold": true,
-   "color": "#1D1D1B",
-   "lines": 1
-  },
-  {
-   "name": "app.2",
-   "text": "& Drought",
-   "box": [
-    1618,
-    502.8,
-    1752,
-    540.0
-   ],
-   "ha": "center",
-   "pt": 14.0,
-   "bold": true,
-   "color": "#1D1D1B",
-   "lines": 1
-  },
-  {
    "name": "thanks",
    "text": "Thank you!",
    "box": [
