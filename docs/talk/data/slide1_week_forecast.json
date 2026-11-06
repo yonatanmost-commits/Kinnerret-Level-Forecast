@@ -1,0 +1,77 @@
+{
+ "from": "2026-11-05",
+ "made_on": "2026-11-06",
+ "start_level": -213.715,
+ "levels": {
+  "2026-11-06": -213.7190855157912,
+  "2026-11-07": -213.71992476325664,
+  "2026-11-08": -213.720847855412,
+  "2026-11-09": -213.72296308187583,
+  "2026-11-10": -213.725811260597,
+  "2026-11-11": -213.72818857442422
+ },
+ "talk_day": -213.72818857442422,
+ "weather": [
+  {
+   "temp_max_C": 22,
+   "temp_min_C": 19,
+   "rainfall_mm": 0.58,
+   "humidity_pct": 68.75,
+   "wind_speed_ms": 1.597222222222222,
+   "radiation_MJm2": null,
+   "source": "IMS",
+   "date": "2026-11-06"
+  },
+  {
+   "temp_max_C": 22,
+   "temp_min_C": 17,
+   "rainfall_mm": 0.02,
+   "humidity_pct": 81.5,
+   "wind_speed_ms": 1.5277777777777777,
+   "radiation_MJm2": null,
+   "source": "IMS",
+   "date": "2026-11-07"
+  },
+  {
+   "temp_max_C": 20,
+   "temp_min_C": 15,
+   "rainfall_mm": 0.01,
+   "humidity_pct": 80.0,
+   "wind_speed_ms": 1.3194444444444444,
+   "radiation_MJm2": null,
+   "source": "IMS",
+   "date": "2026-11-08"
+  },
+  {
+   "temp_max_C": 20,
+   "temp_min_C": 13,
+   "rainfall_mm": 0.0,
+   "humidity_pct": 58.0,
+   "wind_speed_ms": 1.8055555555555556,
+   "radiation_MJm2": null,
+   "source": "IMS",
+   "date": "2026-11-09"
+  },
+  {
+   "temp_max_C": 22,
+   "temp_min_C": 13,
+   "rainfall_mm": 0.0,
+   "humidity_pct": 48.0,
+   "wind_speed_ms": 1.3194444444444444,
+   "radiation_MJm2": null,
+   "source": "IMS",
+   "date": "2026-11-10"
+  },
+  {
+   "temp_max_C": 15,
+   "temp_min_C": 13,
+   "rainfall_mm": 2.8,
+   "humidity_pct": 68.75,
+   "wind_speed_ms": 1.25,
+   "radiation_MJm2": null,
+   "source": "IMS",
+   "date": "2026-11-11"
+  }
+ ],
+ "model": "two-stage GBR (09_weekly_forecast.run_forecast), Models/stage1_inflow_rf.pkl + stage2_direct_gb.pkl"
+}

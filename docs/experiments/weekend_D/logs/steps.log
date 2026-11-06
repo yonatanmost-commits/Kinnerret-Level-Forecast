@@ -1,0 +1,39 @@
+=== 10:44:54  R1 freeze gold
+=== 10:45:37  R1 freeze gold
+rows 8895 last level day 2026-11-05
+=== 10:45:38  R2a reproduce 2016 on old gold
+obs H7:3.0->3.2 H30:10.6->10.7 H182:28.6->24.3 H365:25.7->28.6
+seas5 H7:2.9->2.9 H30:13.1->12.8 H182:41.2->38.9 H365:44.7->50.0
+R2a worst |MAE diff| 5.76 cm, missing cells 0
+=== 10:53:18  R1 freeze gold
+rows 8895 last level day 2026-11-05
+=== 10:53:19  R2a reproduce 2016 on old gold
+R2a already passed (see C:/Users/yonatanm/Pojects/ClaudeCode/Data Science Project/docs/experiments/weekend_D/R2a_ok), skipping
+=== 10:53:19  R2 gru
+=== 11:00:12  R2 gbr
+=== 11:46:07  R2 cfc
+total 81316
+drwxr-xr-x 1 yonatanm 1049089        0 Nov  6 11:46 .
+drwxr-xr-x 1 yonatanm 1049089        0 Nov  6 10:53 ..
+-rw-r--r-- 1 yonatanm 1049089 34523941 Nov  6 11:55 B14_s3_ens.json
+-rw-r--r-- 1 yonatanm 1049089 35204779 Nov  6 11:00 B14gru_s3_ens.json
+-rw-r--r-- 1 yonatanm 1049089  9671287 Nov  6 11:46 G_s3.json
+-rw-r--r-- 1 yonatanm 1049089  3844973 Nov  6 10:59 references.json
+=== 11:55:14  R3 fan eval + track record
+=== 11:57:06  STAGE A DONE. Tell Claude: 'stage A done'.
+=== 12:18:00  R4 swap the backtest in
+B14_s3_ens.json
+B14gru_s3_ens.json
+G_s3.json
+references.json
+=== 12:18:00  R5 today's fan from 2026-11-05
+{'made_on': '2026-11-06', 'start': '2026-11-05', 'level0': -213.715}
+=== 12:18:51  R6 slide-10 data
+365 d median -213.465 p_red 0.502 80% -215.064 -211.136
+=== 12:19:07  R7 slide-1 talk-day forecast
+2026-11-09          20          13         0.00         58.00       1.805556             NaN    IMS
+2026-11-10          22          13         0.00         48.00       1.319444             NaN    IMS
+2026-11-11          15          13         2.80         68.75       1.250000             NaN    IMS
+from 2026-11-05 at -213.715 m -> 11 Nov -213.728 m
+wrote docs\talk\data\slide1_week_forecast.json
+=== 12:19:14  STAGE B DONE. Tell Claude: 'stage B done'.

@@ -1,0 +1,17 @@
+2026-11-06 12:19:08.865 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+2026-11-06 12:19:08.996 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+2026-11-06 12:19:08.997 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+2026-11-06 12:19:08.997 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-06 12:19:09.055 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+2026-11-06 12:19:09.056 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-11-06 12:19:10.549 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+  Starting state from 2026-11-05: Level = -213.715 m  Volume = 3,549.4 Mm³
+  Anchor state:  level=-213.715 m  dvol_lag1=+0.0000  dvol_lag2=-0.7767  dvol_lag3=+0.0000 Mm³  outflow_lag1=0.459 Mm³
+      date  temp_max_C  temp_min_C  rainfall_mm  humidity_pct  wind_speed_ms  radiation_MJm2 source
+2026-11-06          22          19         0.58         68.75       1.597222             NaN    IMS
+2026-11-07          22          17         0.02         81.50       1.527778             NaN    IMS
+2026-11-08          20          15         0.01         80.00       1.319444             NaN    IMS
+2026-11-09          20          13         0.00         58.00       1.805556             NaN    IMS
+2026-11-10          22          13         0.00         48.00       1.319444             NaN    IMS
+2026-11-11          15          13         2.80         68.75       1.250000             NaN    IMS
+from 2026-11-05 at -213.715 m -> 11 Nov -213.728 m

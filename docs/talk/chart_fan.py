@@ -232,7 +232,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
         else:
             ax.fill_between(xs, lo, hi, color=T.USED, alpha=0.30, lw=0, zorder=1)
         k = at("2027-08-15")
-        ax.text(xs[k], hi[k] - 0.12, "~7.7 in 10",                # measured: 77% at 12 months (originator, 23 Oct)
+        ax.text(xs[k], hi[k] - 0.12, "~8 in 10",                  # measured: 81.5% at 12 months, 607 forecasts (backtest rerun 6 Nov; was 77% on 17 Oct)
                 ha="center", va="top", color=T.INK,
                 fontproperties=T.font(True, 32), zorder=6)
     if frame >= 3:
