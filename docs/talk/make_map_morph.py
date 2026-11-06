@@ -196,7 +196,7 @@ def wash(coast: np.ndarray) -> Image.Image:
     return out
 
 
-def draw(t: float, X: dict) -> Image.Image:
+def draw(t: float, X: dict, bare: bool = False) -> Image.Image:
     C, info, F = X["C"], X["info"], X["C"]["F"]
     img = Image.new("RGBA", (round(s(W)), round(s(H))), SURFACE)
     over = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -225,7 +225,8 @@ def draw(t: float, X: dict) -> Image.Image:
                 LA.text(d, (at.cx, base + 64), f"{dl:+.2f} m in a year".replace("-", "−"),
                         F["scen_note"], _rgba(LA.INK_2, a), "mm")
         if a > 0:
-            LA.frame_chrome(d, F, a)
+            if not bare:                                         # the show's bare copy: native words instead
+                LA.frame_chrome(d, F, a)
             LA.text(d, (W / 2, H * 0.64), "11.11.2027", F["q_date"], _rgba(LA.INK, a), "mm")
             LA.text(d, (W / 2, H * 0.42), "?", F["q"], _rgba(LA.INK, a), "mm")
     else:                                                        # one lake, to the map
@@ -263,14 +264,17 @@ def draw(t: float, X: dict) -> Image.Image:
 
 
 def _render_chunk(args) -> int:
-    times, start, tmp = args
+    times, start, tmp, bare = args
     X = context()
     for i, t in enumerate(times, start):
-        draw(t, X).save(f"{tmp}/f{i:05d}.png", compress_level=1)
+        draw(t, X, bare).save(f"{tmp}/f{i:05d}.png", compress_level=1)
     return len(times)
 
 
-def main(preview: list[float] | None = None) -> None:
+def main(preview: list[float] | None = None, bare: bool = False) -> None:
+    """bare: charts/bare/slide1_map.mp4 without the subtitle and source (6 Nov: on slide 2 the native
+    subtitle sat on the baked one, doubled in the static view); its labels file is empty, so the
+    native words keep leaving on the map's click."""
     if preview:
         X = context()
         for sec in preview:
@@ -282,14 +286,21 @@ def main(preview: list[float] | None = None) -> None:
     times = list(np.arange(round(END * FPS)) / FPS)
     with tempfile.TemporaryDirectory() as tmp:
         size = -(-len(times) // 16)
-        chunks = [(times[i:i + size], i, tmp) for i in range(0, len(times), size)]
+        chunks = [(times[i:i + size], i, tmp, bare) for i in range(0, len(times), size)]
         with ProcessPoolExecutor() as pool:
             done = sum(pool.map(_render_chunk, chunks))
-        Image.open(f"{tmp}/f{len(times) - 1:05d}.png").save(OUT.with_suffix(".png"))
+        out = OUT.parent / "bare" / OUT.name if bare else OUT
+        if bare:
+            out.with_name(f"{OUT.stem}.labels.json").write_text(json.dumps({"labels": []}), encoding="utf-8")
+        else:
+            Image.open(f"{tmp}/f{len(times) - 1:05d}.png").save(OUT.with_suffix(".png"))
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
                         "-i", f"{tmp}/f%05d.png", "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                        "-crf", "16", "-preset", "slow", "-movflags", "+faststart", str(OUT)],
+                        "-crf", "16", "-preset", "slow", "-movflags", "+faststart", str(out)],
                        check=True)
+        if bare:
+            print(f"{done} frames -> {out}")
+            return
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
                         "-i", f"{tmp}/f%05d.png", "-vf",
                         "fps=20,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen[p];[b][p]paletteuse",
@@ -301,4 +312,6 @@ if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
     ap.add_argument("--preview", type=float, nargs="*", help="only save stills at these seconds")
-    main(ap.parse_args().preview)
+    ap.add_argument("--bare", action="store_true", help="the show's copy without subtitle and source")
+    a = ap.parse_args()
+    main(a.preview, a.bare)
