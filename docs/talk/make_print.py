@@ -52,7 +52,8 @@ def draw(path: Path = OUT) -> Path:
 
 
 FULL = HERE / "charts" / "degania_full.png"
-THANKS = HERE / "charts" / "degania_thanks.png"     # the same, plus "Thank you!" (the talk's last click)
+THANKS = HERE / "charts" / "degania_thanks.png"     # the same, plus "Thank you!"
+LINK = HERE / "charts" / "degania_link.png"         # + the app's QR card: the last click (originator, 6 Nov)
 
 # The deck's colours, painted lightly on the grey print (originator, 20 Oct: "teal for the water"):
 # the greys run from a warm ink through sand to the page colour, and the river under the dam is
@@ -94,11 +95,12 @@ def tint(grey: Image.Image) -> Image.Image:
     return toned
 
 
-def draw_full(path: Path = FULL, thanks: bool = False) -> Path:
+def draw_full(path: Path = FULL, thanks: bool = False, link: bool = False) -> Path:
     """Full page (originator, 18 Oct): the photo cropped to 16:9 and enlarged about 3x, which its
     grain survives as an archive look; the top fades into the page colour so the slide title stays
     readable over the trees, and a small credit sits bottom right. thanks: + a big "Thank you!"
-    low in the middle (originator, 31 Oct: it appears at the very end, on its own click)."""
+    low in the middle (originator, 31 Oct: it appears at the very end, on its own click). link: + the
+    app's QR card, top right (originator, 6 Nov: "have the link appear after the thank you")."""
     from PIL import ImageFilter as F
     im = Image.open(PHOTO).convert("RGB")
     w, h = im.size
@@ -118,18 +120,18 @@ def draw_full(path: Path = FULL, thanks: bool = False) -> Path:
     for y in range(band):
         d.line([(0, y), (T.W, y)], fill=int(250 * min(1.0, 1.35 * (1 - y / band)) ** 1.2))
     im.paste(Image.new("RGB", (T.W, T.H), T.SURFACE), (0, 0), fade)
-    # the app's QR code on a card, top right (originator, 31 Oct: moved here from the horizon)
-    qr = Image.open(HERE / "images" / "qr.png").convert("RGB").resize((230, 230), Image.NEAREST)
-    cx0, cy0, cw, ch = T.W - 90 - 290, 200, 290, 345
-    card = Image.new("RGBA", (T.W, T.H), (0, 0, 0, 0))
-    ImageDraw.Draw(card).rounded_rectangle((cx0, cy0, cx0 + cw, cy0 + ch), 22, fill=T.SURFACE + "F2")
-    im.paste(card, (0, 0), card)
-    im.paste(qr, (cx0 + (cw - 230) // 2, cy0 + 25))
     credit = "Degania Dam  ·  Photo: JNF Photo Archive"
     L = T.Labels()                                               # the credit is native text in the show
     L.pil("credit", T.CREDIT_XY, credit, T.CREDIT_PT, False, "#FFFFFF", "ls", shadow="#000000")  # bottom left
-    L.pil("app", (cx0 + cw // 2, cy0 + 25 + 230 + 32), "Between Flood", 17, True, T.INK, "mm")
-    L.pil("app.2", (cx0 + cw // 2, cy0 + 25 + 230 + 66), "& Drought", 17, True, T.INK, "mm")
+    if link:                                                     # the app's QR code on a card, top right
+        qr = Image.open(HERE / "images" / "qr.png").convert("RGB").resize((230, 230), Image.NEAREST)
+        cx0, cy0, cw, ch = T.W - 90 - 290, 200, 290, 345
+        card = Image.new("RGBA", (T.W, T.H), (0, 0, 0, 0))
+        ImageDraw.Draw(card).rounded_rectangle((cx0, cy0, cx0 + cw, cy0 + ch), 22, fill=T.SURFACE + "F2")
+        im.paste(card, (0, 0), card)
+        im.paste(qr, (cx0 + (cw - 230) // 2, cy0 + 25))
+        L.pil("app", (cx0 + cw // 2, cy0 + 25 + 230 + 32), "Between Flood", 17, True, T.INK, "mm")
+        L.pil("app.2", (cx0 + cw // 2, cy0 + 25 + 230 + 66), "& Drought", 17, True, T.INK, "mm")
     if thanks:                                                   # on a card like the QR's, readable over the sand
         tw, th, ty = 620, 150, T.H - 170
         card = Image.new("RGBA", (T.W, T.H), (0, 0, 0, 0))
@@ -146,3 +148,4 @@ if __name__ == "__main__":
     draw()
     draw_full()
     draw_full(THANKS, thanks=True)
+    draw_full(LINK, thanks=True, link=True)

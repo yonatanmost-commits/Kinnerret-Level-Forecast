@@ -52,10 +52,10 @@ def above_odds() -> str:
 def takeaways() -> list[tuple[str, str]]:
     return [(f"{above_odds()}: above the red line, a year from now",
              "Nobody knows the coming winter, and I'm a process engineer"),
+            ("Classic ML when the input is known",          # originator, 6 Nov: replaces "Not 10x faster"
+             "a neural network when it's a prediction"),
             ("The better process is superior",
-             "Dare to expand your limits"),
-            ("Not 10x faster: better work",
-             "and work I couldn't do before")]
+             "Dare to expand your limits")]
 
 
 # under takeaway 2, at the bottom: Kasparov's own words (NYRB, 2010), so the line above can paraphrase
