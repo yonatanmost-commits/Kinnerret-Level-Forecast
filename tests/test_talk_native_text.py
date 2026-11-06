@@ -192,7 +192,8 @@ AGREED = {   # talk slide -> label names that must be native text (agreed 2026-1
     6: {"left", "left.sub", "right", "right.sub", "row.1", "row.2"},
     7: {"legend.1", "legend.4", "inside", "row.1"},
     8: {"lane.1", "lane.2", "footer"},
-    9: {"star", "caption", "header.1", "model.1", "model.2"},
+    # 5 Nov: slide 9 is "The choice" (the errors table went to Q&A, originator's order)
+    9: {"caption", "header.1", "block.known", "block.forecast", "known.trees", "forecast.network"},
     10: {"stamp", "credit", "below"},                 # wet / dry left the chart 23 Oct; the QR 31 Oct
     11: {"take.1", "take.2"},
     12: {"credit", "app"},
