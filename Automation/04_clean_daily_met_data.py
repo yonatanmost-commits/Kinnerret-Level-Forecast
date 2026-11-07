@@ -242,6 +242,29 @@ def load_coverage_cache(path=None):
     return cov.sort_index(axis=1).sort_index()
 
 
+def current_coverage():
+    """
+    The coverage table Layer 3 uses, and a word on where it came from; (None, None)
+    when there is neither a wide file nor a cache.
+
+    The wide file is the source wherever it has days, but it does not reach the
+    whole history (the local copy starts 2012-06-01; the cache was backfilled to
+    1994 from IMS). So its fractions are merged over the cache, never instead of
+    it: replacing the cache drops every day the wide file lacks, and Layer 3 then
+    lets those partial days through (the 18 Oct 2026 refresh did exactly that).
+    """
+    cached = load_coverage_cache() if COV_CACHE.exists() else None
+    if not IN_WIDE.exists():
+        return cached, (None if cached is None else "cached " + COV_CACHE.name)
+    fresh = coverage_from_wide(IN_WIDE)
+    fresh.index = fresh.index.astype(str)
+    if cached is not None:
+        fresh = fresh.combine_first(cached)       # wide wins where both have the day
+    fresh = fresh.sort_index(axis=1).sort_index()
+    save_coverage_cache(fresh)
+    return fresh, IN_WIDE.name + (" merged over cached " + COV_CACHE.name if cached is not None else "")
+
+
 def layer3_coverage(df, coverage):
     """
     Blank daily values for station-days with < COVERAGE_THRESHOLD coverage.
@@ -354,18 +377,10 @@ def main():
     all_logs.append(log2)
     print("  %d values nulled" % len(log2))
 
-    coverage = None
-    if IN_WIDE.exists():
-        coverage = coverage_from_wide(IN_WIDE)
-        save_coverage_cache(coverage)
-        print("Layer 3: Coverage filter (<%d%% of daily 10-min slots), from %s ..."
-              % (int(COVERAGE_THRESHOLD * 100), IN_WIDE.name))
-    elif COV_CACHE.exists():
-        coverage = load_coverage_cache()
-        print("Layer 3: Coverage filter (<%d%% of daily 10-min slots), from cached %s ..."
-              % (int(COVERAGE_THRESHOLD * 100), COV_CACHE.name))
-
+    coverage, source = current_coverage()
     if coverage is not None:
+        print("Layer 3: Coverage filter (<%d%% of daily 10-min slots), from %s ..."
+              % (int(COVERAGE_THRESHOLD * 100), source))
         df, log3 = layer3_coverage(df, coverage)
         all_logs.append(log3)
         print("  %d values nulled" % len(log3))
