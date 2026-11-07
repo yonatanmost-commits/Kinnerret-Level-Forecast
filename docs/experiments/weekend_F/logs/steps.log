@@ -1,0 +1,24 @@
+=== 23:06:29  R1 freeze the fixed gold
+rows 8896 last level day 2026-11-05 | 2009-04-11 temp_max 24.7
+=== 23:06:30  R2 gru
+=== 23:13:28  R2 gbr
+=== 00:19:53  R2 cfc
+total 77252
+drwxr-xr-x 1 yonatanm 1049089        0 Nov  8 00:20 .
+drwxr-xr-x 1 yonatanm 1049089        0 Nov  7 23:06 ..
+-rw-r--r-- 1 yonatanm 1049089 32461484 Nov  8 00:31 B14_s3_ens.json
+-rw-r--r-- 1 yonatanm 1049089 33102535 Nov  7 23:13 B14gru_s3_ens.json
+-rw-r--r-- 1 yonatanm 1049089  9671134 Nov  8 00:19 G_s3.json
+-rw-r--r-- 1 yonatanm 1049089  3844973 Nov  7 23:12 references.json
+=== 00:31:59  R3 fan eval + track record (6 Nov outputs backed up to cfc_fan_eval_1106)
+=== 00:34:57  STAGE A DONE
+=== 00:39:33  R4 swap the fixed backtest in (6 Nov one kept as cfc_monthly_1106)
+B14_s3_ens.json
+B14gru_s3_ens.json
+G_s3.json
+references.json
+=== 00:39:34  R5 today's fan from 2026-11-05
+{'made_on': '2026-11-08', 'start': '2026-11-05', 'level0': -213.715}
+=== 00:40:37  R6 slide-11 data (6 Nov copies kept in weekend_F/slide11_1106)
+365 d median -213.051 p_red 0.414 80% -214.677 -210.427
+=== 00:40:51  R7 slide-1 talk-day forecast (week model retrained on the fixed gold, 6ff8008)

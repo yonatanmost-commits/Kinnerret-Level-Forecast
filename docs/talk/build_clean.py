@@ -1,7 +1,8 @@
 """
 build_clean.py - the talk as the PowerPoint we hand in (originator, 23 Oct): to Adnan for review,
 then to the conference. No narration and no timings: every step waits for a mouse click, videos
-too. The notes are short plain words a reader can follow (deck.html's `reader`), not the script.
+too. The notes are the speaker's cues: deck.html's `pointers`, one short line per click (7 Nov;
+until then they were the `reader` notes, written for someone reading the deck alone).
 
 The frame lives on the master: the page colour and the bar under the title (the bottom rule is
 gone: originator, 23 Oct, "it makes the bottom area too compressed"). The small lake stays on each
@@ -16,6 +17,7 @@ Run:  python docs/talk/build_clean.py   # -> docs/talk/Kinneret_Talk_Submission.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -124,9 +126,17 @@ COVER_AUTHORS = [("Yonatan Most", "Process Engineer, Triple T\vMaster's Student,
 COVER_EVENT = ("12th Kinneret Conference  ·  11 November 2026  ·  "
                "Digital Infrastructure and AI Applications in Water and Wastewater")
 COVER_LAKE_H, COVER_LAKE_TOP = 210, 282                         # points: under the bar, right of the authors
-COVER_NOTES = ("Title slide. The talk presents a forecast of the Sea of Galilee's water level at several "
-               "horizons, from a week to a year ahead, built from public data on lake level, weather and "
-               "river flow. Presenting author: Yonatan Most. Authors: Yonatan Most and Adnan Agbaria, The Kinneret Academic College.")
+COVER_NOTES = "Title on screen while I'm introduced · click: the lake"   # a cue, like every slide's notes (7 Nov)
+
+
+def talking_notes(s: dict) -> str:
+    """The speaker's notes (originator, 7 Nov: "actual talking notes, short phrases that refer to the
+    script"): the slide's pointers from deck.html, one line per click, numbered when a slide has more
+    than one. They replaced the reader notes, which explained the slide to someone reading alone."""
+    lines = [re.sub(r"^\[\d+\]\s*", "", p).strip() for p in s.get("pointers", [])]
+    if len(lines) > 1:
+        lines = [f"{k}. {p}" for k, p in enumerate(lines, 1)]
+    return "\r".join(lines)
 
 
 def cover(pres, layout) -> None:
@@ -211,7 +221,7 @@ def build(out: Path = OUT) -> None:
     import win32com.client
     if out.with_name("~$" + out.name).exists():
         sys.exit(f"{out.name} is open in PowerPoint: close it first, or build to another file with CLEAN_OUT")
-    reader = {s["n"]: s.get("reader", "") for s in B.slides(backups=True)}
+    notes = {s["n"]: talking_notes(s) for s in B.slides(backups=True)}
     top, hgt = BAND_PX * B.PT, H - BAND_PX * B.PT
     app = win32com.client.Dispatch("PowerPoint.Application")
     pres = app.Presentations.Add(WithWindow=False)
@@ -283,7 +293,7 @@ def build(out: Path = OUT) -> None:
             tr.Duration = 1.0
             tr.AdvanceOnClick = True
             tr.AdvanceOnTime = False
-            sl.NotesPage.Shapes.Placeholders(2).TextFrame.TextRange.Text = reader[g["n"]]
+            sl.NotesPage.Shapes.Placeholders(2).TextFrame.TextRange.Text = notes[g["n"]]
             print(f"slide {g['n']:>2s} {g['title']!r}: {len(steps)} step(s), {len(boxes)} text box(es)", flush=True)
         pres.SaveAs(str(out))
     finally:

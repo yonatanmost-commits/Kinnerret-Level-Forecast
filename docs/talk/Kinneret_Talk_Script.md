@@ -1,6 +1,6 @@
 # Kinneret talk: the script, by slide
 
-*11 Nov 2026 · Beit Gavriel · 12 slides, 1887 words (about 15 min) · **[click]** marks the next click*
+*11 Nov 2026 · Beit Gavriel · 12 slides, 1892 words (about 15 min) · **[click]** marks the next click*
 
 ## Slide 1 · Lake Kinneret
 
@@ -44,9 +44,9 @@ This is a centaur, in Greek mythology: half human, half horse. In chess, and mat
 
 ## Slide 5 · The sources
 
-*What data did we use? · 173 words*
+*What data did we use? · 159 words*
 
-So I started off as a data hunter-gatherer. The lake's level was the easy one, daily all the way back to 1966. The Jordan's daily flow was the tricky part, and if anyone from the Hydrological Service is here, my thanks to Rita Chudinov. The weather comes from the IMS in ten-minute steps, which I averaged into days, and the seasonal forecast comes from Copernicus; more on that in a few slides. Each source has its own shape, so you clean it, put it in one daily table, and add calculated columns, like evaporation or lagged values, that give the model extra context. And I kept going back to check the data's quality. 2023 kept getting the worst training results, so I asked Claude to check: a rain gauge had been offline all year, and every missing day, marked with a dash, had turned into zero rain. The whole winter looked dry. Once missing days were marked as missing, 2023 got its real rain back. Fixing that was the biggest single step forward.
+So I started off as a data hunter-gatherer. The lake's level was the easy one, daily all the way back to 1966. The Jordan's daily flow was the tricky part. The weather comes from the IMS in ten-minute steps, which I averaged into days, and the seasonal forecast comes from Copernicus; more on that in a few slides. Each source has its own shape, so you clean it, put it in one daily table, and add calculated columns, like evaporation or lagged values, that give the model extra context. And I kept going back to check the data's quality. 2023 kept getting the worst training results, so I asked Claude to check: a rain gauge had been offline all year, and every missing day, marked with a dash, had turned into zero rain. The whole winter looked dry. Once missing days were marked as missing, 2023 got its real rain back. Fixing that was the biggest single step forward.
 
 ## Slide 6 · The models
 
@@ -68,9 +68,9 @@ For a year ahead, where we don't know the weather, the neural network had much b
 
 ## Slide 7 · The forecast
 
-*Can we trust the seasonal forecast? · 248 words*
+*Can we trust the seasonal forecast? · 234 words*
 
-A big dilemma was which seasonal forecast to use. Copernicus, the European climate service, publishes one every month. Let's take a deep dive into how its data actually looks. These are their forecasts, year by year since 2012, on a Y axis relative to an average winter.
+A big dilemma was which seasonal forecast to use. Copernicus, the European climate service, publishes one every month. Let's take a deep dive into how its data actually looks. These are their forecasts, year by year since 2007, on a Y axis relative to an average winter.
 
 **[click]**
 
@@ -82,7 +82,7 @@ So we did what you do with a friend who always understates: we gave it a measure
 
 **[click]**
 
-and added an error range of 80%, both measured and based on actual data. Even then, 5 of these 14 winters fell outside it, the red rings: a bit more than an 80% range should miss. Counting back to 2007, it's the same 5 out of 19, about right. So Copernicus didn't end up as an input to the forecast you'll see at the end, but we did use it as a way to lean the result in its direction.
+and added an error range of 80%, both measured and based on actual data. Even then, 5 of these 19 winters fell outside it, the red rings: about right for an 80% range, but not good enough. So Copernicus didn't end up as an input to the forecast you'll see at the end. What we did use is that nudge: a lean toward what Copernicus says.
 
 **[click]**
 
@@ -98,49 +98,57 @@ So let's step back and put it all together. There are two forecasts, and each on
 
 For the year ahead, nobody knows the weather. So instead of guessing one winter, the model lives through all of them: every winter since 2002, starting from today's lake. Each one gives a possible future. That's called ESP, a method borrowed from river forecasting. Then Copernicus tells us which kind of winter is more likely, and those futures count more. So the answer isn't one line, it's a range.
 
-## Slide 9 · The errors
+## Slide 9 · The choice
 
-*Which model won? · 80 words*
+*So which model should you pick? · 95 words*
 
-So can you trust it? And to what extent? Here are the measured errors on past winters. For a week ahead, the classic method is 6 millimeters better, still with a 2 cm average error. For a year ahead, the neural network has an 85 cm average error. The classic method got down to 78 cm when given the real weather, slightly better, but a year ahead we don't have that data, and with a forecast, the network is better.
+Here's the lesson I take from all this. Give both models the real weather, and the classic one wins. A week ahead, where a good forecast is close to the real weather, the trees miss by 2.0 centimetres and the network by 2.6. But nobody has the real weather a year ahead, only a seasonal forecast. With that, a year out, the network wins clearly: 86 centimetres against 121. It reads the lake itself and hardly leans on the weather. So: if you trust your input, go classic. If you're guessing it, try the network.
 
 ## Slide 10 · The horizon
 
-*So which winter is coming? · 284 words*
+*So which winter is coming? · 292 words*
 
 So what does it actually mean to run the model? What I built is a model that learned, from the lake's data since 2002, how this lake answers the weather. Give it the lake as it is today, and one winter's weather, and it tells you where the level will be, month by month, a year ahead. Not knowing next winter's weather, we run it once for every past winter, as if that winter were coming again. Each grey line is one run: today's lake, living through one past winter.
 
 **[click]**
 
-Put all the runs together, and you get this range. It's wider than the lines themselves, because the model makes mistakes, and we know how big they've been, so we add them in. It leans a little upward, because Copernicus expects this winter on the wet side. A year from now, it spans from 70 centimetres below today, up to three and a half metres above. Tested a year ahead, over fifteen years, the lake landed inside this range about eight times in ten.
+Put all the runs together, and you get this range. It's wider than the lines themselves, because the model makes mistakes, and we know how big they've been, so we add them in. It leans a little upward, because Copernicus expects this winter on the wet side. A year from now, it spans from about a metre below today, up to more than three metres above. Tested a year ahead, over fifteen years, the lake landed inside this range almost eight times in ten.
 
 **[click]**
 
-The dark dots are the middle of it all: the single most likely level for each month. They cross the red line upward in late February, and end about a metre above where we are today.
+The dark dots are the middle of it all: the single most likely level for each month. They cross the red line upward in early March, slip just back under it in late October, and end about 65 centimetres above where we are today, right at the red line.
 
 **[click]**
 
-So this is what running the model gives back: not one number, but odds. In one in three runs, the lake is still under the red line next October. I checked those odds against the past: of all the past forecasts that gave about a one-in-three chance of staying under the red line, the lake really stayed under about one time in three. And when the model misses, it's mostly on the wet side.
+So this is what running the model gives back: not one number, but odds. A year from now, in two runs out of five, the lake is still under the red line. It sits right on the line: start the forecast a week earlier or later, and the odds swing between one in three and two in five. And when the model misses, it's mostly on the wet side.
 
 ## Slide 11 · The takeaways
 
-*So what do I take home? · 103 words*
+*So what do I take home? · 102 words*
 
-So, two takeaways. The first: the model gives the lake a two-in-three chance of being back above the red line a year from now. Trust it as far as you trust the method I showed you, and keep in mind that I'm working outside my own field.
+So, three takeaways. The first: the model gives the lake about three chances in five of being back above the red line a year from now. Trust it as far as you trust the method I just showed you, and remember I'm a process engineer.
 
 **[click]**
 
-Remember the football coach and the DBA who beat the chess grandmasters? So the second: dare to work outside your field, and beyond what you already know. Use agentic AI not only to be more productive, but to expand your limits. This technological leap holds the potential to improve the decisions behind our daily living conditions.
+Second: pick the model by its input. When the input is known, go with classic ML. When the input is itself a prediction, try the neural network.
+
+**[click]**
+
+And third, remember Kasparov? To paraphrase him: it's not the best human, and it's not the best machine. It's the best process between them. So dare to expand your limits.
 
 ## Slide 12 · Future directions
 
-*What's next? · 105 words*
+*What's next? · 116 words*
 
 My future directions are actually my limiting factors, so I'll close with these three. First, the water taken out: I didn't have the data on how much water was pumped out of the lake. With it, the model could cut down its average error. Second, knowing the winter, a great challenge in a changing climate. Still, more data, and of high quality, can take it further. And last, the tools and methods in use. In the 1930s, pioneers built this dam with a crane: to me, that's putting the best available technology to use, to secure water for a future yet to come.
 
 **[click]**
 
 Thank you!
+
+**[click]**
+
+And if you'd like to try it yourself, here's the app.
 
 ### Backup · The benchmark
 
@@ -155,6 +163,12 @@ For the week's change in the lake, starting from today's real volume was clearly
 **[click]**
 
 The river was the other way round. Forecasting its flow one day at a time, each day from the day before plus that day's weather, was better: 0.94 against 0.86. So the week ahead runs the river day by day, and the lake from the benchmark.
+
+### Backup · The errors
+
+*Which model won? · 86 words*
+
+So can you trust it? And to what extent? Here are the measured errors on past winters. For a week ahead, the classic method is 6 millimeters better, still with a 2 cm average error. For a year ahead, the neural network has an 86 cm average error. The classic method got down to 77 cm when given the real weather, slightly better, but a year ahead we don't have that data, and with a forecast it misses by 121 cm, so the network is better.
 
 ### Backup · Why should we believe it?
 

@@ -37,13 +37,14 @@ OUT = HERE / "charts" / "models_table.png"
 
 COLUMNS = ["Week*", "Month", "6 months", "Year"]   # * the week assumes its weather is known
 MODELS = [   # name, type, cm per column
-    ("GBR", "Classic ML", ["2.0", "12", "65", "124"]),
-    ("GRU", "Neural network", ["2.6", "11", "54", "87"]),
+    ("GBR", "Classic ML", ["2.0", "12", "64", "121"]),
+    ("GRU", "Neural network", ["2.6", "12", "56", "86"]),
 ]
-# 6 Nov 2026: cells from the backtest rerun on the gold to 5 Nov (weekend run R2; the 17 Oct one is
-# docs/experiments/cfc_monthly_1017, cells 2.0/12/64/121 and 2.6/12/55/85). GRU-GBR now: week +0.5
-# [+0.3, +0.8] (real weather), month -0.7 [-2.0, +0.5], 6 months -11.3 [-27.3, +4.4], year -36.7
-# [-70.1, -2.9] (seasonal forecast). The intervals below are the 17 Oct ones.
+# 8 Nov 2026: cells from the backtest rerun on the FIXED gold (docs/talk/rerun_fixed_gold.sh; the
+# 6 Nov run, cfc_monthly_1106, read pre-2012 partial days: 2.0/12/65/124 and 2.6/11/54/87; the
+# 17 Oct one, cfc_monthly_1017: 2.0/12/64/121 and 2.6/12/55/85). GRU-GBR now: week +0.6 [+0.3,
+# +0.9] (real weather), month +0.2 [-1.2, +1.7], 6 months -8.2 [-21.2, +4.6], year -35.5 [-64.2,
+# -6.1] (seasonal forecast). The intervals below are the 17 Oct ones.
 # per column, the rows that win or tie for the win: GRU-GBR +0.2 [-0.1, +0.5] at a week,
 # +0.4 [-1.2, +1.9] at a month, -8.5 [-21.4, +4.0] at 6 months, -35.8 [-66.9, -8.6] at a year
 # Each horizon uses the weather you'd actually have at that range (originator 2026-10-17): the

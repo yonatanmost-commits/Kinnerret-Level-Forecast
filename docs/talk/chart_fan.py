@@ -183,7 +183,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
     fade); 3 + a dot a month for the most likely level ("+1 m" at 12 months), the green ~23 Feb
     crossing; 4 the band's
     part under the red line turns red, "1 in 3: still below the red line, Oct 2027", and "misses:
-    mostly up here" on the top edge (12 months: 16% above the top, 7% below the bottom).
+    mostly up here" on the top edge (12 months, fixed gold 8 Nov: 97 of 607 above the top, 43 below the bottom).
     Cut vs v3: 50/90% bands, error bars, the average winter, the on-chart 2018 callout."""
     import numpy as np
     path = path or HERE / "charts" / f"fan_today_{frame}.png"
@@ -232,7 +232,7 @@ def draw_fan(frame: int = 4, path: Path | None = None) -> Path:
         else:
             ax.fill_between(xs, lo, hi, color=T.USED, alpha=0.30, lw=0, zorder=1)
         k = at("2027-08-15")
-        ax.text(xs[k], hi[k] - 0.12, "~8 in 10",                  # measured: 81.5% at 12 months, 607 forecasts (backtest rerun 6 Nov; was 77% on 17 Oct)
+        ax.text(xs[k], hi[k] - 0.12, "~7.7 in 10",                # measured: 76.9% at 12 months, 607 forecasts (fixed gold, 8 Nov; 81.5% on 6 Nov's gold with pre-2012 partial days, 77% on 17 Oct)
                 ha="center", va="top", color=T.INK,
                 fontproperties=T.font(True, 32), zorder=6)
     if frame >= 3:

@@ -407,11 +407,15 @@ def gauge(d, F, at: Place, a: float) -> None:
         unit = " m" if v == ticks[-1] else ""                  # the unit on the top value
         text(d, (GAUGE_X - 22, y), f"{v:.0f}{unit}".replace("-", "\u2212"), F["tick"],
              _rgba(INK_2, a), "rm")
+    # the names sit left of the scale's numbers, on their line's height: inside the lake they
+    # were lost on the water once it rose past them (originator, 7 Nov)
+    widest = max(F["tick"].getlength(f"{v:.0f}".replace("-", "−")) for v in ticks) / SS
+    name_x = GAUGE_X - 22 - widest - 24
     for lvl, col, name in ((LEVEL_LEGAL_MAX, SPILL, "upper red line"),
                            (LEVEL_LEGAL_MIN, RED, "lower red line")):
         y = at.y(lvl)
         dashed(d, y, GAUGE_X, at.x(LINE_X2), _rgba(col, a), width=2.5, dash=18, gap=10)
-        text(d, (GAUGE_X + 14, y - 8), name, F["line"], _rgba(col, a), "ld")
+        text(d, (name_x, y), name, F["line"], _rgba(col, a), "rm")
 
 
 def clock(d, F, f: Frame, a: float) -> None:
