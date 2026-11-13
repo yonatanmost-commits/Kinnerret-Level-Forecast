@@ -1,6 +1,6 @@
 {
-  "trained_through": "2026-11-12",
-  "n_rows_total": 8901,
+  "trained_through": "2026-11-13",
+  "n_rows_total": 8902,
   "s1_features": [
     "rainfall_mm",
     "rainfall_lag1_mm",
@@ -101,5 +101,5 @@
   },
   "s2_direct": true,
   "winner": "baseline_gbr",
-  "retrained_at": "2026-11-12"
+  "retrained_at": "2026-11-13"
 }
