@@ -3,7 +3,7 @@ envista_to_ims_export.py  -  IMS envista 10-minute history -> IMS export CSVs
 
 The manual IMS exports in Raw Data/Meteorological Data start 2012-06-01. The same
 IMS station archive, read through the envista feed, reaches back to 1994 for Tzemach
-and to 2003 for Lev Kinneret (docs/experiments/ims_pre2012_coverage.csv). On an
+and to 2003 for Lev Kinneret (docs/data_notes/ims_pre2012_coverage.csv). On an
 overlapping month the feed and the export agree value for value (Tzemach, 2013-01,
 all five channels gold uses).
 

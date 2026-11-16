@@ -7,7 +7,7 @@ Owns the precip_intensity_mm_hr feature end to end:
   * daily_intensity(rain10)  - the definition: per 10-minute slot, Tzemach's
     gauge, or the mean of the other lake gauges where it is missing; then the
     largest 6-slot (60-minute) sum ending on each day. Tzemach first since
-    2026-10-16, the station gold takes first (docs/experiments/ims_station_bias.md).
+    2026-10-16, the station gold takes first (docs/data_notes/ims_station_bias.md).
   * fetch_rain_10min(start, end) - the same 10-minute gauges from the IMS
     station-data service (no key needed). Tzemach, Lev Kinneret, Kfar Nahum and
     Tiberias publish 10-minute rain; Beit Tzaida publishes 1-minute rain, summed

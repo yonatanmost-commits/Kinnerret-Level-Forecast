@@ -61,7 +61,7 @@ OUT_FILE    = GOLD_DIR / "kinneret_gold_features.csv"
 # Constants
 # ---------------------------------------------------------------------------
 # First month with every input measured: Tzemach's archive serves temperature under its
-# wind channel until 2002-06, and Lev Kinneret starts 2003-11 (docs/experiments/ims_station_bias.md).
+# wind channel until 2002-06, and Lev Kinneret starts 2003-11 (docs/data_notes/ims_station_bias.md).
 START_DATE  = "2002-07-01"
 LATITUDE    = 32.82                  # degrees N, centre of Lake Kinneret
 ELEVATION   = -212.0                 # m (approximate mean lake level for atm. pressure)
@@ -70,7 +70,7 @@ KINNERET_STATIONS = [
 ]
 # One station for every year, so the record never switches: Lev Kinneret (mid-lake) runs
 # +4.2 C warmer at night and +1.1 m/s windier than Tzemach (shore), and its gauge is
-# empty before 2012 (docs/experiments/ims_station_bias.md).
+# empty before 2012 (docs/data_notes/ims_station_bias.md).
 PRIORITY_STATION  = "tzamach"
 RADIATION_STATION = "tzamach"        # only station with solar radiation sensor
 

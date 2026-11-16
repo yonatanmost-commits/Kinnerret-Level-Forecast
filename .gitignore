@@ -112,3 +112,17 @@ docs/talk/talk_rehearsal.pptx
 docs/talk/audio/
 docs/talk/slide_*.png
 docs/talk/freeze_cache/
+
+# Private, local only. The repo is public and only the app belongs here (2026-11-16).
+# Talk material, the unpublished paper, research runs and Triple-T Data Lake scripts.
+docs/talk/
+docs/paper/
+docs/experiments/
+intent/kinneret-talk-deck/
+kinneret_talk_script*.md
+Automation/talk_freeze_run.py
+tests/test_talk_*.py
+fix_tym_silver.py
+normalize_tarich_parquet.py
+patch_silver_processor.py
+_migration_trash/

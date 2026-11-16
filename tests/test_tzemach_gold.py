@@ -1,7 +1,7 @@
 # tests/test_tzemach_gold.py
 """Tzemach-first gold, extended back to 2002-07 with the IMS envista history.
 
-Decision (2026-10-16, docs/experiments/ims_station_bias.md): gold takes every
+Decision (2026-10-16, docs/data_notes/ims_station_bias.md): gold takes every
 weather column from Tzemach first, for every year, so the record never switches
 station (Lev Kinneret's nights run +4.2 C warmer and its wind +1.1 m/s stronger,
 and its gauge is empty before 2012). The pre-2012 history enters as IMS export
