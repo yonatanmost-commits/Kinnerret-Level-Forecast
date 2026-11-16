@@ -8,7 +8,8 @@ Acceptance (the fix for the silent freeze at 2026-04-25):
 Tzemach first (2026-10-16, docs/data_notes/ims_station_bias.md): the gauge order changed
 from Lev Kinneret first to Tzemach first, the station gold takes first, and the cache was
 rebuilt from 2002-07, where gold starts. Values therefore differ from the frozen Lev-first
-cache (commit 9e99eff); only coverage and overall scale are checked against it.
+cache (commit 030afa6, its last version before the rebuild in 0a32d02); only coverage
+and overall scale are checked against it.
 """
 import io
 import json
@@ -23,7 +24,7 @@ import precip_intensity as pi
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "Silver Data" / "Meteorological" / "precip_intensity_daily.csv"
-FROZEN_SHA = "9e99eff"
+FROZEN_SHA = "030afa6"
 
 
 # ── acceptance ──────────────────────────────────────────────────────────────────
