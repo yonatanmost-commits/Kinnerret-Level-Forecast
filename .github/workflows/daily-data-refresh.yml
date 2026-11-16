@@ -79,7 +79,8 @@ jobs:
           git add -- \
             "Gold Data" \
             "Silver Data" \
-            "Models" || true
+            "Models" \
+            "docs/olympics_results.json" || true
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"

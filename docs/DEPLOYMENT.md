@@ -153,34 +153,35 @@ break the next time Cloudflare rotates it.
 
 ### The local half: scheduled task
 
-**Already registered** as `Kinneret daily refresh`, running daily at 07:30, verified
-to complete with exit code 0 through the scheduler itself.
-
-Use the `ScheduledTasks` cmdlets rather than `schtasks.exe` to recreate it. The
-repository path contains spaces, and `schtasks /tr` mis-parses the nested quoting
-(it fails with `Invalid argument/option - 'Science'`):
+The task is declared in the repo as `tasks/kinneret_daily_refresh.xml`: daily at
+06:30 Israel winter time (07:30 in summer), catch-up after a missed run, 1 h limit,
+runs on battery. Register it on a new machine with:
 
 ```powershell
-$repo    = "C:\Users\yonatanm\Pojects\ClaudeCode\Data Science Project"
-$arg     = '-NoProfile -ExecutionPolicy Bypass -File "{0}"' -f (Join-Path $repo 'Automation\local_refresh.ps1')
-$action  = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $arg -WorkingDirectory $repo
-$trigger = New-ScheduledTaskTrigger -Daily -At 7:30am
-$set     = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
-                                        -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Hours 1)
-Register-ScheduledTask -TaskName "Kinneret daily refresh" -Action $action -Trigger $trigger -Settings $set
+powershell -NoProfile -ExecutionPolicy Bypass -File tasks\register_tasks.ps1          # registers for the current user
+powershell -NoProfile -ExecutionPolicy Bypass -File tasks\register_tasks.ps1 -DryRun  # prints the XML only
 ```
 
-`-StartWhenAvailable` means a run missed while the machine was off happens at the
-next opportunity rather than being skipped.
+The XML holds `{{REPO}}` instead of a path and no user identity, because this repository
+is public; the script fills in its own repo root and registers the task for the
+current user. Use the script, or the `ScheduledTasks` cmdlets, rather than
+`schtasks /tr`: the repository path contains spaces, and `schtasks /tr` mis-parses
+the nested quoting (it fails with `Invalid argument/option - 'Science'`).
 
-**Keep the older `DailyAgent-Kinneret` task (06:00, `run_daily_agent.ps1`)
-disabled.** It runs the same agent but never commits, so it leaves `Gold Data/`,
+**Run it on one machine only.** The refresh pushes master, so two machines would race.
+Disable it on the old machine before registering it on the new one, and only on a
+clone that has the history rewritten on 2026-11-16 (an older clone would push the
+removed files back).
+
+**The older `DailyAgent-Kinneret` task (`run_daily_agent.ps1`) is retired; do not
+register it.** It ran the same agent but never committed, so it left `Gold Data/`,
 `Silver Data/` and `Models/` dirty — and `local_refresh.ps1` refuses to run on a dirty
 tree. Left enabled, it silently blocked every local refresh from 2026-08-16 to
-2026-10-10 (CI kept committing everything else, so only the level went stale):
+2026-10-10 (CI kept committing everything else, so only the level went stale).
+Delete it where it still exists:
 
 ```powershell
-Disable-ScheduledTask -TaskName "DailyAgent-Kinneret"
+Unregister-ScheduledTask -TaskName "DailyAgent-Kinneret" -Confirm:$false
 ```
 
 To inspect, run on demand, or remove it:

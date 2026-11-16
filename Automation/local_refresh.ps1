@@ -90,7 +90,9 @@ if ($dirty) {
     exit 1
 }
 
-$Derived = @('Gold Data/', 'Models/')        # rebuilt by the agent; CI's copy wins a conflict
+# Rebuilt by the agent; CI's copy wins a conflict. olympics_results.json carries the
+# retrain date the app shows (pages 7 and 8).
+$Derived = @('Gold Data/', 'Models/', 'docs/olympics_results.json')
 
 function Test-MidRebase {
     foreach ($d in 'rebase-merge', 'rebase-apply') {
@@ -148,7 +150,7 @@ Write-Log "Daily agent exit code: $danExit"
 
 # Commit whatever the agent produced even if one of its steps failed - a good
 # level update should not be thrown away because an unrelated fetch broke.
-Invoke-Native git @('add', '--', 'Gold Data', 'Silver Data', 'Models') -Quiet | Out-Null
+Invoke-Native git @('add', '--', 'Gold Data', 'Silver Data', 'Models', 'docs/olympics_results.json') -Quiet | Out-Null
 
 $pending = & git diff --cached --name-only
 if (-not $pending) {
