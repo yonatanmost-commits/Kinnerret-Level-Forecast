@@ -5,12 +5,12 @@
     "baseline_gbr": {
       "cv_vol_r2_mean": 0.769,
       "cv_vol_r2_by_fold": {
-        "2021": 0.696,
-        "2022": 0.867,
-        "2023": 0.693,
-        "2024": 0.821
+        "2021": 0.698,
+        "2022": 0.865,
+        "2023": 0.697,
+        "2024": 0.816
       },
-      "cv_vol_mae_mean": 0.641,
+      "cv_vol_mae_mean": 0.64,
       "cv_7d_drift_mean_m": null,
       "cv_inflow_r2_mean": 0.94
     },
@@ -99,5 +99,5 @@
       "cv_inflow_r2_mean": null
     }
   },
-  "winner_retrained_at": "2026-11-24"
+  "winner_retrained_at": "2026-11-25"
 }
